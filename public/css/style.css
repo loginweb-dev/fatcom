@@ -1,0 +1,44 @@
+/* ==========CSS LoginWeb========== */
+
+/* Botones */
+.btn-small{
+    padding: 4px 15px;
+}
+
+/* Paneles */
+.strong-panel{
+    border-left: 5px solid #096FA9;
+    background: #ffffff;
+}
+
+.movil-panel{
+    border-left: 2px solid #096FA9;
+    background: #ffffff;
+    padding: 20px 5px;
+}
+.panel-aside{
+    max-height:300px;overflow-y:auto
+}
+
+
+/* listas y sublistas */
+.list-item-title{
+    font-weight: bolder;
+    cursor: pointer;
+    padding: 10px
+}
+.list-item-title:hover{
+    border: 1px solid #DCDCDC
+}
+.sublist{
+    padding: 20px;
+    margin-left: 20px;
+}
+.sublist-body{
+    background-color: #FAFAFA
+}
+
+/* producto de landing page */
+.card-producto{
+    height:250px;
+}
