@@ -81,8 +81,11 @@ Route::get('admin/productos/crear/agregar/{vista}', 'ProductosController@cargar_
 
 
 // ================================Subcategorias===========================
-Route::get('admin/subcategorias/list/categoria/{id}', 'SubcategoriaController@categoria_list');
-Route::get('admin/subcategorias/create_new/{value}', 'SubcategoriaController@create_new');
+Route::get('admin/subcategorias/list/categoria/{id}', 'SubcategoriasController@categoria_list');
+Route::get('admin/subcategorias/create_new/{value}', 'SubcategoriasController@create_new');
+
+// ================================Marcas===========================
+Route::get('admin/marcas/list/subcategoria/{id}', 'MarcasController@marcas_list');
 
 // ================================Ofertas===========================
 Route::get('admin/ofertas', 'OfertasController@index')->name('ofertas_index');
@@ -109,6 +112,21 @@ Route::post('admin/ecommerce/eliminar/', 'EcommerceController@delete')->name('ec
 
 // Filtros
 Route::get('admin/ecommerce/filtros/filtro_simple/{categoria}/{subcategoria}/{marca}', 'EcommerceController@filtro_simple');
+
+// =============================Cajas======================================
+Route::get('/admin/cajas', 'CajasController@cajas_index')->name('cajas_index');
+Route::get('/admin/cajas/buscar/{clave}/{valor}', 'CajasController@cajas_buscar');
+Route::get('admin/cajas/ver/{id}', 'CajasController@cajas_view')->name('cajas_view');
+Route::get('/admin/cajas/crear', 'CajasController@cajas_create')->name('cajas_create');
+Route::post('/admin/cajas/store', 'CajasController@cajas_store')->name('cajas_store');
+Route::post('/admin/cajas/close', 'CajasController@cajas_close')->name('cajas_close');
+
+// Asientos
+Route::get('/admin/asientos', 'CajasController@asientos_index')->name('asientos_index');
+Route::get('/admin/asientos/buscar/{clave}/{valor}', 'CajasController@asientos_buscar');
+Route::get('/admin/asientos/crear', 'CajasController@asientos_create')->name('asientos_create');
+Route::post('/admin/asientos/store', 'CajasController@asientos_store')->name('asientos_store');
+Route::post('/admin/asientos/delete', 'CajasController@asientos_delete')->name('asientos_delete');
 
 // ================================Ventas===========================
 Route::post('admin/ventas/pedidos/store', 'VentasController@pedidos_store')->name('pedidos_store');

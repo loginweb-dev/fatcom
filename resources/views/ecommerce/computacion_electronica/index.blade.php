@@ -23,7 +23,7 @@
                 </article>
             </div>
         </div>
-        <div style="margin-bottom:-40px;margin-right:20px" class="text-right">
+        <div style="margin-bottom:-40px;margin-right:100px" class="text-right">
             <div class="fb-like" data-href="{{url('')}}" data-width="" data-layout="button_count" data-action="like" data-size="large" data-show-faces="true" data-share="true"></div>
         </div>
     </section>
@@ -119,38 +119,39 @@
         </div>
     </aside>
 
-    <main id="contenido" class="col-lg-9 col-md-7 col-sm-12" style="margin-bottom:100px">
+    <main id="contenido" class="col-lg-9 col-md-7 col-sm-12" style="margin-bottom:70px">
         @if(count($ofertas)>0)
             @php
                 $cantidad = count($ofertas)<4 ? count($ofertas) : 4;
             @endphp
-            <h4 class="display-5">Productos en Oferta <small> <a href="{{ route('ofertas_ecommerce') }}">(Ver más)</a></small> </h4><br>
+            <br>
+            <h4 class="display-6">Productos en Oferta <small> <a href="{{ route('ofertas_ecommerce') }}">(Ver más)</a></small> </h4><br>
             <!-- ============== slick slide items  ============= -->
-                <div class="owl-carousel owl-init slide-items" data-items="{{ $cantidad }}" data-margin="20" data-dots="true" data-nav="true">
+            <div class="owl-carousel owl-init slide-items" data-items="{{ $cantidad }}" data-margin="20" data-dots="false" data-nav="false">
                 @php
                     $cont = 0;
                 @endphp
                 @foreach ($ofertas as $item)
-                @php
-                    $imagen = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
-                @endphp
-                <div class="item-slide">
-                    <figure class="card card-product">
-                        @if(!empty($item->nuevo))
-                        <span class="badge-new bg-info"> Nuevo </span>
-                        @endif
-                        <span class="badge-offer"><b>-{{$item->descuento}}@if($item->tipo_descuento=='porcentaje')%@else {{$item->moneda}}@endif</b></span>
-                        <div class="card-banner card-producto" style="background: url('{{url('storage').'/'.$imagen}}') center;background-size:cover">
-                            <article class="overlay bottom text-center">
-                                <h6 class="card-title">{{$item->nombre}}</h6>
-                                <a href="{{route('detalle_producto_ecommerce', ['id'=>$item->id])}}" class="btn btn-warning btn-sm"> Ver detalles </a>
-                            </article>
-                        </div>
-                    </figure>
-                </div>
-                @php
-                    $cont++;
-                @endphp
+                    @php
+                        $imagen = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
+                    @endphp
+                    <div class="item-slide">
+                        <figure class="card card-product">
+                            @if(!empty($item->nuevo))
+                            <span class="badge-new bg-info"> Nuevo </span>
+                            @endif
+                            <span class="badge-offer"><b>-{{$item->descuento}}@if($item->tipo_descuento=='porcentaje')%@else {{$item->moneda}}@endif</b></span>
+                            <div class="card-banner card-producto" style="background: url('{{url('storage').'/'.$imagen}}') center;background-size:cover">
+                                <article class="overlay bottom text-center">
+                                    <h6 class="card-title">{{$item->nombre}}</h6>
+                                    <a href="{{route('detalle_producto_ecommerce', ['id'=>$item->id])}}" class="btn btn-warning btn-sm"> Ver detalles </a>
+                                </article>
+                            </div>
+                        </figure>
+                    </div>
+                    @php
+                        $cont++;
+                    @endphp
                 @endforeach
             </div>
         @endif
@@ -166,24 +167,24 @@
             @php
                 $cantidad = count($productos_categoria[$cont])<4 ? count($productos_categoria[$cont]) : 4;
             @endphp
-            <div class="owl-carousel owl-init slide-items" data-items="{{ $cantidad }}" data-margin="20" data-dots="true" data-nav="true">
+            <div class="owl-carousel owl-init slide-items" data-items="{{ $cantidad }}" data-margin="20" data-dots="false" data-nav="false">
                 @forelse ($productos_categoria[$cont] as $item2)
-                @php
-                    $img = ($item2->imagen!='') ? str_replace('.', '_small.', $item2->imagen) : 'productos/default.png';
-                @endphp
-                <div class="item-slide">
-                    <figure class="card card-product">
-                        @if(!empty($item2->nuevo))
-                        <span class="badge-new bg-info"> Nuevo </span>
-                        @endif
-                        <div class="card-banner card-producto" style="background:url('{{url('storage').'/'.$img}}') center;background-size:cover">
-                            <article class="overlay bottom text-center">
-                                <h6 class="card-title">{{$item2->nombre}}</h6>
-                                <a href="{{route('detalle_producto_ecommerce', ['id'=>$item2->id])}}" class="btn btn-warning btn-sm"> Ver detalles </a>
-                            </article>
-                        </div>
-                    </figure>
-                </div>
+                    @php
+                        $img = ($item2->imagen!='') ? str_replace('.', '_small.', $item2->imagen) : 'productos/default.png';
+                    @endphp
+                    <div class="item-slide">
+                        <figure class="card card-product">
+                            @if(!empty($item2->nuevo))
+                            <span class="badge-new bg-info"> Nuevo </span>
+                            @endif
+                            <div class="card-banner card-producto" style="background: url('{{url('storage').'/'.$img}}') center;background-size:cover">
+                                <article class="overlay bottom text-center">
+                                    <h6 class="card-title">{{$item2->nombre}}</h6>
+                                    <a href="{{route('detalle_producto_ecommerce', ['id'=>$item2->id])}}" class="btn btn-warning btn-sm"> Ver detalles </a>
+                                </article>
+                            </div>
+                        </figure>
+                    </div>
                 @empty
                     <div class="col-md-12 text-center bg-white padding-y-lg">
                         <h1 class="display-4">OOPS!</h1>

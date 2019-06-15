@@ -77,7 +77,7 @@ class VentasController extends Controller
                             ->select('*')
                             ->where('deleted_at', NULL)
                             ->first();
-        return view('landingpage/agradecimiento', compact('sucursal'));
+        return view('ecommerce/agradecimiento', compact('sucursal'));
     }
 }
 

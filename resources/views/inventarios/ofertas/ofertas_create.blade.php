@@ -1,5 +1,5 @@
 @extends('voyager::master')
-@section('page_title', 'Nueva Oferta')
+@section('page_title', 'Añadir Oferta')
 
 @if(auth()->user()->hasPermission('add_ofertas'))
     @section('page_header')

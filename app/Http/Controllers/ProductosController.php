@@ -33,6 +33,7 @@ class ProductosController extends Controller
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
                             ->select('p.*', 's.nombre as subcategoria')
                             // ->where('deleted_at', NULL)
+                            ->orderBy('p.id', 'DESC')
                             ->paginate(10);
         $precios = [];
         $cantidades = [];
@@ -126,7 +127,8 @@ class ProductosController extends Controller
                             ->join('usos as u', 'u.id', 'p.uso_id')
                             ->join('generos as g', 'g.id', 'p.genero_id')
                             ->join('monedas as mn', 'mn.id', 'p.moneda_id')
-                            ->select('p.*', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'm.nombre as marca', 'u.nombre as uso', 'c.nombre as color', 'g.nombre as genero')
+                            ->join('categorias as ca', 'ca.id', 's.categoria_id')
+                            ->select('p.*', 'ca.nombre as categoria', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'm.nombre as marca', 'u.nombre as uso', 'c.nombre as color', 'g.nombre as genero')
                             // ->where('deleted_at', NULL)
                             ->where('p.id', $id)
                             ->first();
@@ -155,6 +157,9 @@ class ProductosController extends Controller
                 break;
             case 'electronica_computacion':
                 return view('inventarios/productos/electronica_computacion/productos_view', compact('producto', 'imagenes', 'id', 'precios_venta', 'precios_compra'));
+                break;
+            case 'restaurante':
+                return view('inventarios/productos/restaurante/productos_view', compact('producto', 'imagenes', 'id', 'precios_venta', 'precios_compra'));
                 break;
             default:
                 # code...
@@ -214,6 +219,12 @@ class ProductosController extends Controller
                             ->where('deleted_at', NULL)
                             ->where('id', '>', 1)
                             ->get();
+        $insumos = DB::table('insumos as i')
+                            ->join('unidades as u', 'u.id', 'i.unidad_id')
+                            ->select('i.*', 'u.abreviacion as unidad')
+                            ->where('i.deleted_at', NULL)
+                            // ->where('id', '>', 1)
+                            ->get();
 
         switch (setting('admin.modo_sistema')) {
             case 'boutique':
@@ -222,6 +233,9 @@ class ProductosController extends Controller
             case 'electronica_computacion':
                 return view('inventarios/productos/electronica_computacion/productos_create', compact('codigo_grupo', 'categorias', 'subcategorias', 'marcas', 'tallas', 'colores', 'generos', 'usos', 'unidades', 'monedas'));
                 break;
+            case 'restaurante':
+                return view('inventarios/productos/restaurante/productos_create', compact('codigo_grupo', 'categorias', 'subcategorias', 'insumos'));
+                break;
             default:
                 # code...
                 break;
@@ -229,6 +243,7 @@ class ProductosController extends Controller
     }
 
     public function store(Request $data){
+        // dd($data);
         $data->validate([
             'nombre' => 'required|max:191',
             'precio_venta' => 'required|max:10',
@@ -326,6 +341,9 @@ class ProductosController extends Controller
             case 'electronica_computacion':
                 return view('inventarios/productos/electronica_computacion/productos_edit', compact('producto', 'imagen', 'precio_venta', 'precio_compra', 'categorias', 'subcategorias', 'marcas', 'monedas'));
                 break;
+            case 'restaurante':
+                return view('inventarios/productos/restaurante/productos_edit', compact('producto', 'imagen', 'codigo_grupo', 'categorias', 'subcategorias', 'precio_venta'));
+                break;
             default:
                 # code...
                 break;
@@ -394,7 +412,7 @@ class ProductosController extends Controller
                                 ->insert([
                                     'producto_id' => $data->id,
                                     'monto' => $data->monto[$i],
-                                    'cantidad_minima' => $data->cantidad_minima[$i],
+                                    'cantidad_minima' => $data->cantidad_minima_compra[$i],
                                     'created_at' => Carbon::now(),
                                     'updated_at' => Carbon::now()
                                 ]);
@@ -494,7 +512,6 @@ class ProductosController extends Controller
     // *************funciones adicionales*************
 
     public function crear_producto($data){
-
         // for ($i=0; $i < count($data->nombre); $i++) {
 
             // si la categoria no existe crearla
@@ -631,7 +648,7 @@ class ProductosController extends Controller
                                 'producto_id' => $producto_id,
                                 'precio' => $data->precio_venta[$i],
                                 'precio_minimo' => $data->precio_minimo[$i],
-                                'cantidad_minima' => $data->cantidad_minima[$i],
+                                'cantidad_minima' => $data->cantidad_minima_venta[$i],
                                 'cantidad_pieza' => 1,
                                 'created_at' => Carbon::now(),
                                 'updated_at' => Carbon::now()
@@ -646,7 +663,7 @@ class ProductosController extends Controller
                             ->insert([
                                 'producto_id' => $producto_id,
                                 'monto' => $data->monto[$i],
-                                'cantidad_minima' => $data->cantidad_minima[$i],
+                                'cantidad_minima' => $data->cantidad_minima_compra[$i],
                                 'created_at' => Carbon::now(),
                                 'updated_at' => Carbon::now()
                             ]);

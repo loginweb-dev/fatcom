@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
+use App\Http\Controllers\LoginwebController as LW;
 use App\Http\Controllers\OfertasController as Ofertas;
 use App\Http\Controllers\ProductosController as Productos;
 
@@ -88,7 +89,20 @@ class LandingPageController extends Controller
             array_push($productos_categoria, $aux);
         }
 
-        return view('ecommerce/computacion_electronica/index', compact('ofertas', 'subcategoria_productos', 'productos_categoria', 'marcas', 'categorias', 'subcategorias'));
+        switch (setting('admin.modo_sistema')) {
+            case 'boutique':
+
+                break;
+            case 'electronica_computacion':
+            return view('ecommerce/computacion_electronica/index', compact('ofertas', 'subcategoria_productos', 'productos_categoria', 'marcas', 'categorias', 'subcategorias'));
+                break;
+            case 'restaurante':
+            return view('ecommerce/restaurante/index', compact('ofertas', 'subcategoria_productos', 'productos_categoria', 'marcas', 'categorias', 'subcategorias'));
+                break;
+            default:
+                # code...
+                break;
+        }
     }
 
     public function search(Request $data){
@@ -120,7 +134,7 @@ class LandingPageController extends Controller
                             ->join('usos as u', 'u.id', 'p.uso_id')
                             ->join('generos as g', 'g.id', 'p.genero_id')
                             ->join('monedas as mn', 'mn.id', 'p.moneda_id')
-                            ->select('p.id', 'p.nombre', 'p.imagen', 'modelo', 'p.garantia', 'p.descripcion_small', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'u.nombre as uso', 'co.nombre as color', 'g.nombre as genero')
+                            ->select('p.id', 'p.nombre', 'p.imagen', 'modelo', 'p.garantia', 'p.descripcion_small', 'p.vistas', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'u.nombre as uso', 'co.nombre as color', 'g.nombre as genero')
                             // ->where('deleted_at', NULL)
                             ->whereRaw($sentencia)
                             ->where('s.deleted_at', NULL)
@@ -147,7 +161,21 @@ class LandingPageController extends Controller
 
         $precio_min = $data->min;
         $precio_max = $data->max;
-        return view('ecommerce/computacion_electronica/busqueda', compact('productos', 'precios', 'ofertas', 'precio_min', 'precio_max', 'puntuaciones'));
+
+        switch (setting('admin.modo_sistema')) {
+            case 'boutique':
+
+                break;
+            case 'electronica_computacion':
+            return view('ecommerce/computacion_electronica/busqueda', compact('productos', 'precios', 'ofertas', 'precio_min', 'precio_max', 'puntuaciones'));
+                break;
+            case 'restaurante':
+            return view('ecommerce/restaurante/busqueda', compact('productos', 'precios', 'ofertas', 'precio_min', 'precio_max', 'puntuaciones'));
+                break;
+            default:
+                # code...
+                break;
+        }
     }
 
     public function ofertas(){
@@ -197,7 +225,20 @@ class LandingPageController extends Controller
                                 ->limit(10)
                                 ->get();
 
-        return view('ecommerce/computacion_electronica/ofertas', compact('productos', 'precios', 'puntuaciones', 'recomendaciones'));
+        switch (setting('admin.modo_sistema')) {
+            case 'boutique':
+
+                break;
+            case 'electronica_computacion':
+            return view('ecommerce/computacion_electronica/ofertas', compact('productos', 'precios', 'puntuaciones', 'recomendaciones'));
+                break;
+            case 'restaurante':
+            return view('ecommerce/restaurante/ofertas', compact('productos', 'precios', 'puntuaciones', 'recomendaciones'));
+                break;
+            default:
+                # code...
+                break;
+        }
     }
 
     public function categorias($id){
@@ -244,7 +285,20 @@ class LandingPageController extends Controller
                                 ->limit(10)
                                 ->get();
 
-        return view('ecommerce/computacion_electronica/categorias', compact('productos', 'precios', 'ofertas', 'puntuaciones', 'recomendaciones', 'subcategoria', 'id'));
+        switch (setting('admin.modo_sistema')) {
+            case 'boutique':
+
+                break;
+            case 'electronica_computacion':
+            return view('ecommerce/computacion_electronica/categorias', compact('productos', 'precios', 'ofertas', 'puntuaciones', 'recomendaciones', 'subcategoria', 'id'));
+                break;
+            case 'restaurante':
+            return view('ecommerce/restaurante/categorias', compact('productos', 'precios', 'ofertas', 'puntuaciones', 'recomendaciones', 'subcategoria', 'id'));
+                break;
+            default:
+                # code...
+                break;
+        }
     }
 
     public function detalle_producto($id){
@@ -339,7 +393,22 @@ class LandingPageController extends Controller
         // ===============
 
         $oferta = (new Ofertas)->obtener_oferta($id);
-        return view('ecommerce/computacion_electronica/detalle', compact('producto', 'imagenes', 'precios_venta', 'puntuacion', 'oferta', 'id', 'habilitar_puntuar', 'recomendaciones'));
+        $dispositivo = LW::userAgent();
+
+        switch (setting('admin.modo_sistema')) {
+            case 'boutique':
+
+                break;
+            case 'electronica_computacion':
+            return view('ecommerce/computacion_electronica/detalle', compact('producto', 'imagenes', 'precios_venta', 'puntuacion', 'oferta', 'id', 'habilitar_puntuar', 'recomendaciones', 'dispositivo'));
+                break;
+            case 'restaurante':
+            return view('ecommerce/restaurante/detalle', compact('producto', 'imagenes', 'precios_venta', 'puntuacion', 'oferta', 'id', 'habilitar_puntuar', 'recomendaciones', 'dispositivo'));
+                break;
+            default:
+                # code...
+                break;
+        }
     }
 
     public function cantidad_pedidos(){
@@ -377,7 +446,20 @@ class LandingPageController extends Controller
             array_push($ofertas, $oferta);
         }
 
-        return view('ecommerce/computacion_electronica/carrito', compact('carrito', 'precios', 'ofertas'));
+        switch (setting('admin.modo_sistema')) {
+            case 'boutique':
+
+                break;
+            case 'electronica_computacion':
+            return view('ecommerce/computacion_electronica/carrito', compact('carrito', 'precios', 'ofertas'));
+                break;
+            case 'restaurante':
+            return view('ecommerce/restaurante/carrito', compact('carrito', 'precios', 'ofertas'));
+                break;
+            default:
+                # code...
+                break;
+        }
     }
 
     public function carrito_agregar($id){

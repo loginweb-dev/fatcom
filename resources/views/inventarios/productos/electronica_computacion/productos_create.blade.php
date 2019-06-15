@@ -1,5 +1,5 @@
 @extends('voyager::master')
-@section('page_title', 'Nuevo Producto')
+@section('page_title', 'Añadir Producto')
 
 @if(auth()->user()->hasPermission('add_productos'))
     @section('page_header')
@@ -150,7 +150,7 @@
                                         <tbody id="tr-precioCompra">
                                             <tr>
                                                 <td><input type="number" min="1" step="0.1" class="form-control" name="monto[]" required></td>
-                                                <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima[]" required></td>
+                                                <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_compra[]" required></td>
                                                 <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
                                             </tr>
                                         </tbody>
@@ -179,7 +179,7 @@
                                                     <input type="number" min="1" step="0.1" class="form-control" name="precio_venta[]" required>
                                                     <input type="hidden" name="precio_minimo[]" value="0">
                                                 </td>
-                                                <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima[]" required></td>
+                                                <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_venta[]" required></td>
                                                 <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
                                             </tr>
                                         </tbody>
@@ -265,7 +265,7 @@
                 $('#btn-add_compra').click(function(){
                     $('#tr-precioCompra').append(`<tr id="tr-precioCompra${indice_compra}">
                                                 <td><input type="number" min="1" step="0.1" class="form-control" name="monto[]" required></td>
-                                                <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima[]" required></td>
+                                                <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_compra[]" required></td>
                                                 <td style="padding-top:15px"><span onclick="borrarTr(${indice_compra}, 'Compra')" class="voyager-x text-danger" title="Quitar"></span></td>
                                             </tr>`);
                     indice_compra++;
@@ -278,7 +278,7 @@
                                                     <input type="number" min="1" step="0.1" class="form-control" name="precio_venta[]" required>
                                                     <input type="hidden" name="precio_minimo[]" value="0">
                                                 </td>
-                                                <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima[]" required></td>
+                                                <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_venta[]" required></td>
                                                 <td style="padding-top:15px"><span onclick="borrarTr(${indice_venta}, 'Venta')" class="voyager-x text-danger" title="Quitar"></span></td>
                                             </tr>`);
                     indice_venta++;

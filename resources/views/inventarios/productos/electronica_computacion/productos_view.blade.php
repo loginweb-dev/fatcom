@@ -103,6 +103,9 @@
                                                 @endforelse
                                             </div>
                                         </div>
+                                    </div>
+                                    <hr style="margin:0;">
+                                    <div class="row">
                                         <div class="col-md-12" style="margin:0px">
                                             <div class="panel-heading" style="border-bottom:0;">
                                                 <h3 class="panel-title">Descripción</h3>

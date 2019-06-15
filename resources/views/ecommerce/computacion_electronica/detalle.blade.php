@@ -116,7 +116,7 @@
                             <div class="label-rating"> {{$puntuacion}}</div>
                             <div class="label-rating">
                                 @if((empty($habilitar_puntuar)))
-                                    <button class="btn btn-success btn-sm" data-toggle="popover" data-trigger="click" data-html="true" title="Calificación" data-placement="top" data-content='
+                                    <button class="btn btn-info btn-sm" data-toggle="popover" data-trigger="click" data-html="true" title="Calificación" data-placement="top" data-content='
                                         <div class="text-center" style="width:250px">
                                             <h6>¿Qué te parece nuestro producto?</h6>
                                             <hr>
@@ -150,50 +150,27 @@
                                 @endif
                             <div class="label-rating" title="Visto {{$producto->vistas}} veces"> <span class="fa fa-eye"></span> {{$producto->vistas}} </div>
                         </div>
-                        {{-- <hr>
-                            <div class="row">
-                                <div class="col-sm-5">
-                                    <dl class="dlist-inline">
-                                    <dt>Quantity: </dt>
-                                    <dd>
-                                        <select class="form-control form-control-sm" style="width:70px;">
-                                            <option> 1 </option>
-                                            <option> 2 </option>
-                                            <option> 3 </option>
-                                        </select>
-                                    </dd>
-                                    </dl>
-                                </div>
-                                <div class="col-sm-7">
-                                    <dl class="dlist-inline">
-                                        <dt>Size: </dt>
-                                        <dd>
-                                            <label class="form-check form-check-inline">
-                                            <input class="form-check-input" name="inlineRadioOptions" id="inlineRadio2" value="option2" type="radio">
-                                            <span class="form-check-label">SM</span>
-                                            </label>
-                                            <label class="form-check form-check-inline">
-                                            <input class="form-check-input" name="inlineRadioOptions" id="inlineRadio2" value="option2" type="radio">
-                                            <span class="form-check-label">MD</span>
-                                            </label>
-                                            <label class="form-check form-check-inline">
-                                            <input class="form-check-input" name="inlineRadioOptions" id="inlineRadio2" value="option2" type="radio">
-                                            <span class="form-check-label">XXL</span>
-                                            </label>
-                                        </dd>
-                                    </dl>
-                                </div>
-                            </div> --}}
-                            <hr>
-                            <button type="button" id="btn-add_carrito" data-id="{{$id}}" class="btn btn-warning" onclick="agregar({{$id}})"> <i class="fa fa-shopping-cart"></i> Agregar al carrito</button>
-                            <a href="{{url('carrito/agregar/comprar').'/'.$id}}" class="btn  btn-outline-warning"> Comprar ahora </a>
-                            <hr>
-                            <div class="fb-like" data-href="{{route('detalle_producto_ecommerce', ['id' => $id])}}" data-width="" data-layout="button_count" data-action="like" data-size="large" data-show-faces="true" data-share="true"></div>
-                        <!-- short-info-wrap .// -->
-                    </article> <!-- card-body.// -->
-                </aside> <!-- col.// -->
-            </div> <!-- row.// -->
-        </div> <!-- card.// -->
+                        <hr>
+                        <button style="margin:5px" type="button" id="btn-add_carrito" data-id="{{$id}}" class="btn btn-warning" onclick="agregar({{$id}})"> <i class="fa fa-shopping-cart"></i> Agregar al carrito</button>
+                        <a style="margin:5px" href="{{url('carrito/agregar/comprar').'/'.$id}}" class="btn  btn-outline-warning"> Comprar ahora </a>
+                        <hr>
+                        {{-- Compartir por Facebook --}}
+                        <div class="fb-like" data-href="{{route('detalle_producto_ecommerce', ['id' => $id])}}" data-width="" data-layout="button_count" data-action="like" data-size="large" data-show-faces="true" data-share="true"></div>
+                        {{-- Compratir por Whatsapp --}}
+                        {{-- <br><br> --}}
+                        @if($dispositivo=='pc')
+                        <a style="margin-top:-21px" href="https://api.whatsapp.com/send?phone=&text={{route('detalle_producto_ecommerce', ['id' => $id])}}&source=&data=" title="Compartir vía WhatsApp" class="btn btn-success btn-sm" target="_blank">
+                            WhatsApp <i class="fab fa-whatsapp"></i>
+                        </a>
+                        @else
+                            <a style="margin-top:-22px" href="whatsapp://send?text={{route('detalle_producto_ecommerce', ['id' => $id])}}" class="btn btn-success btn-sm"title="Compartir vía WhatsApp"  target="_blank">
+                                WhatsApp <i class="fab fa-whatsapp"></i>
+                            </a>
+                        @endif
+                    </article>
+                </aside>
+            </div>
+        </div>
         @if(!empty($producto->descripcion_long))
         <div class="card mb-3">
             <header class="card-header">

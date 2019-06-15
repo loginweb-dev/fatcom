@@ -37,10 +37,12 @@
                     @php
                         $img = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
                     @endphp
-                    <aside class="col-sm-3">
+                    {{-- imagen --}}
+                    <aside class="col-lg-3">
                         <div class="img-wrap"><img src="{{url('storage').'/'.$img}}"></div>
                     </aside>
-                    <article class="col-sm-5">
+                    {{-- detalles --}}
+                    <article class="col-lg-5">
                         <h4 class="title"> {{$item->nombre}} </h4>
                         <div class="rating-wrap">
                             <ul class="rating-stars">
@@ -55,9 +57,8 @@
                                     <i class="fa fa-star"></i>
                                 </li>
                             </ul>
-                            {{-- <div class="label-rating">132 reviews</div>
-                            <div class="label-rating">154 orders </div> --}}
                             <div class="label-rating"> {{number_format($puntuaciones[$cont]['puntos'], 1, ',', '')}}</div>
+                            <div class="label-rating" title="Visto {{$item->vistas}} veces"> <span class="fa fa-eye"></span> {{$item->vistas}} </div>
                         </div>
                         <p> {{$item->descripcion_small}} </p>
                         <dl class="dlist-align">
@@ -73,7 +74,8 @@
                             <dd>{{$item->garantia}}</dd>
                         </dl>
                     </article>
-                    <aside class="col-sm-4 border-left">
+                    {{-- botones --}}
+                    <aside class="col-lg-4 border-left">
                         <div class="action-wrap">
                             <div class="price-wrap h4">
                                 @if(!$ofertas[$cont]['oferta'])
@@ -86,8 +88,8 @@
                             {{-- <p class="text-success">Free shipping</p> --}}
                             <br>
                             <p>
-                                <button type="button" id="btn-add_carrito" class="btn btn-warning" onclick="agregar({{$item->id}})"> <i class="fa fa-shopping-cart"></i> Agregar</button>
-                                <a href="{{route('detalle_producto_ecommerce', ['id'=>$item->id])}}" class="btn btn-primary"> <i class="fa fa-list"></i> Detalles  </a>
+                                <button style="margin:5px" type="button" id="btn-add_carrito" class="btn btn-warning" onclick="agregar({{$item->id}})"> <i class="fa fa-shopping-cart"></i> Agregar</button>
+                                <a style="margin:5px" href="{{route('detalle_producto_ecommerce', ['id'=>$item->id])}}" class="btn btn-primary"> <i class="fa fa-list"></i> Detalles  </a>
                             </p>
                             {{-- <a href="#"><i class="fa fa-heart"></i> Add to wishlist</a> --}}
                         </div>

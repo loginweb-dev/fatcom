@@ -58,7 +58,11 @@
                                                     $imagen = ($item->imagen!='') ? $item->imagen : 'productos/default.png';
                                                 @endphp
                                                 <tr>
+                                                    @if(!empty($item->codigo_interno))
+                                                    <td>{{$item->codigo_interno}}</td>
+                                                    @else
                                                     <td>{{$item->codigo}}</td>
+                                                    @endif
                                                     <td>{{$item->nombre}}</td>
                                                     <td>{{$item->subcategoria}}</td>
                                                     <td>{{$precios[$cont]['precio']}}</td>

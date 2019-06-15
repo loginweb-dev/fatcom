@@ -1,5 +1,5 @@
 @extends('voyager::master')
-@section('page_title', 'Nueva Sucursal')
+@section('page_title', 'Añadir Sucursal')
 
 @if(auth()->user()->hasPermission('add_sucursales'))
     @section('page_header')

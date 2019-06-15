@@ -1,5 +1,5 @@
 @extends('voyager::master')
-@section('page_title', 'Nueva Producto de E-Commerce')
+@section('page_title', 'Añadir producto a E-Commerce')
 
 @if(auth()->user()->hasPermission('add_ecommerce'))
     @section('page_header')
@@ -179,6 +179,28 @@
                         });
                     }else{
                         select2_reload_simple('subcategoria_id', [{'id':'','nombre':'Todas'}]);
+                    }
+                });
+
+                // Obtener marcas de una subcategoria
+                $('#select-subcategoria_id').change(function(){
+                    let id = $(this).val();
+                    if(id!=''){
+                        $.ajax({
+                            url: '{{url("admin/marcas/list/subcategoria")}}/'+id,
+                            type: 'get',
+                            success: function(response){
+                                select2_reload_simple('marca_id', response);
+
+                                // agregar opcion por defecto
+                                $('#select-marca_id').prepend(`<option value="">Todas</option>`);
+                                $('#select-marca_id').select2('destroy');
+                                $('#select-marca_id').val('');
+                                $('#select-marca_id').select2();
+                            }
+                        });
+                    }else{
+                        select2_reload_simple('marca_id', [{'id':'','nombre':'Todas'}]);
                     }
                 });
 
