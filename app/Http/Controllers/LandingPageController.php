@@ -10,6 +10,9 @@ use App\Http\Controllers\LoginwebController as LW;
 use App\Http\Controllers\OfertasController as Ofertas;
 use App\Http\Controllers\ProductosController as Productos;
 
+use App\UsersCoordenada;
+use App\PasarelaPago;
+use App\Venta;
 
 class LandingPageController extends Controller
 {
@@ -411,9 +414,19 @@ class LandingPageController extends Controller
         }
     }
 
-    public function cantidad_pedidos(){
+    public function cantidad_carrito(){
         $carrito = session()->has('carrito_compra') ? session()->get('carrito_compra') : array();
         return count($carrito);
+    }
+
+    public function cantidad_pedidos(){
+        $pedidos = DB::table('ventas as v')
+                        ->join('clientes as c', 'c.id', 'v.cliente_id')
+                        ->select('v.id')
+                        ->where('c.user_id', Auth::user()->id)
+                        ->where('v.tipo_estado', '<=', 4)
+                        ->get();
+        return count($pedidos);
     }
 
     public function carrito_comprar($id){
@@ -427,6 +440,11 @@ class LandingPageController extends Controller
 
     public function carrito_index(){
         // session()->forget('carrito_compra');
+        $user_id = isset(Auth::user()->id) ? Auth::user()->id : 0;
+
+        $user_coords =  UsersCoordenada::where('user_id', $user_id)->where('descripcion', '<>', '')->orderBy('concurrencia', 'DESC')->limit(5)->get();
+        $pasarela_pago = PasarelaPago::where('deleted_at', NULL)->get();
+
         $carrito = session()->has('carrito_compra') ? session()->get('carrito_compra') : array();
         $precios = [];
         $ofertas = [];
@@ -451,10 +469,10 @@ class LandingPageController extends Controller
 
                 break;
             case 'electronica_computacion':
-            return view('ecommerce/computacion_electronica/carrito', compact('carrito', 'precios', 'ofertas'));
+            return view('ecommerce/computacion_electronica/carrito', compact('carrito', 'precios', 'ofertas', 'user_coords', 'pasarela_pago'));
                 break;
             case 'restaurante':
-            return view('ecommerce/restaurante/carrito', compact('carrito', 'precios', 'ofertas'));
+            return view('ecommerce/restaurante/carrito', compact('carrito', 'precios', 'ofertas', 'user_coords', 'pasarela_pago'));
                 break;
             default:
                 # code...
@@ -501,22 +519,58 @@ class LandingPageController extends Controller
         return redirect()->route('carrito_compra')->with(compact('alerta'));
     }
 
-    public function carrito_pdf(Request $data){
-        // dd($data);
-        $cantidades = array();
-        for ($i=0; $i < count($data->cantidad); $i++) {
-            array_push($cantidades, $data->cantidad[$i]);
-        }
-        $carrito = session()->has('carrito_compra') ? session()->get('carrito_compra') : array();
+    public function pedidos_index(){
+        $ultimo_pedido = DB::table('ventas as v')
+                                ->join('clientes as c', 'c.id', 'v.cliente_id')
+                                ->select('v.id', 'v.tipo_estado')
+                                ->where('c.user_id', Auth::user()->id)
+                                ->orderBy('id', 'DESC')
+                                ->first();
+        $mi_ubicacion = DB::table('users_coordenadas as u')
+                            ->select('u.lat', 'u.lon')
+                            ->where('u.user_id', Auth::user()->id)
+                            ->where('u.ultima_ubicacion', 1)
+                            ->first();
+        $detalle_pedido = DB::table('ventas_detalles as dv')
+                                ->join('productos as p', 'p.id', 'dv.producto_id')
+                                ->join('monedas as m', 'm.id', 'p.moneda_id')
+                                ->select('p.*', 'dv.cantidad as cantidad_pedido', 'dv.precio as precio_pedido', 'm.abreviacion as moneda')
+                                ->where('dv.venta_id', $ultimo_pedido->id)
+                                ->get();
 
-        setlocale(LC_ALL, 'es_ES');
-        $fecha = strftime('%d de %B de %Y', strtotime(date('Y-m-d')));
-        // return view('ecommerce/carrito_pdf', compact('cantidades', 'carrito'));
-        $vista = view('ecommerce/carrito_pdf', compact('cantidades', 'carrito', 'fecha'));
-        $pdf = \App::make('dompdf.wrapper');
-        // $pdf->loadHTML($vista)->setPaper('letter', 'landscape');
-        $pdf->loadHTML($vista);
-        return $pdf->stream();
+        $pedidos = DB::table('ventas as v')
+                        ->join('clientes as c', 'c.id', 'v.cliente_id')
+                        ->select('v.id', 'v.tipo_estado', 'v.created_at')
+                        ->where('c.user_id', Auth::user()->id)
+                        ->orderBy('id', 'DESC')
+                        ->get();
+        $productos_pedidos = [];
+        foreach ($pedidos as $item) {
+            $aux = DB::table('ventas_detalles as dv')
+                        ->join('productos as p', 'p.id', 'dv.producto_id')
+                        ->select('p.nombre')
+                        ->where('dv.venta_id', $item->id)
+                        ->get();
+            array_push($productos_pedidos, $aux);
+        }
+
+        switch (setting('admin.modo_sistema')) {
+            case 'boutique':
+
+                break;
+            case 'electronica_computacion':
+
+                break;
+            case 'restaurante':
+            return view('ecommerce/restaurante/pedidos', compact('ultimo_pedido', 'mi_ubicacion', 'detalle_pedido', 'pedidos', 'productos_pedidos'));
+                break;
+            default:
+                # code...
+                break;
+        }
+    }
+    public function ecommerce_policies(){
+        return 'politicas';
     }
 }
 

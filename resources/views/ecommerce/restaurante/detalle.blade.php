@@ -1,12 +1,18 @@
 @extends('ecommerce.master')
 
+{{-- Obtener imagen del producto --}}
+@php
+    $img = ($producto->imagen!='') ? str_replace('.', '_medium.', $producto->imagen) : 'productos/default.png';
+    $imagen = ($producto->imagen!='') ? $producto->imagen : 'productos/default.png';
+@endphp
+
 @section('meta-datos')
     <title>{{$producto->nombre}}</title>
     <meta property="og:url"           content="{{route('detalle_producto_ecommerce', ['id' => $id])}}" />
     <meta property="og:type"          content="E-Commerce" />
     <meta property="og:title"         content="{{$producto->nombre}}" />
     <meta property="og:description"   content=" {{$producto->descripcion_small}}" />
-    <meta property="og:image"         content="{{url('storage').'/'.$producto->imagen}}" />
+    <meta property="og:image"         content="{{url('storage').'/'.$img}}" />
 @endsection
 
 @section('banner')
@@ -24,10 +30,6 @@
                 <aside class="col-sm-6 border-right">
                     <article class="gallery-wrap">
                         <div class="img-big-wrap" style="text-align:center">
-                            @php
-                                $img = ($producto->imagen!='') ? str_replace('.', '_medium.', $producto->imagen) : 'productos/default.png';
-                                $imagen = ($producto->imagen!='') ? $producto->imagen : 'productos/default.png';
-                            @endphp
                             <a id="img-slider" href="{{url('storage').'/'.$imagen}}" data-fancybox="slider1">
                                 <img id="img-medium" class="img-thumbnail img-sm" src="{{url('storage').'/'.$img}}">
                             </a>
@@ -183,6 +185,11 @@
             </div>
         </div>
         @endif
+        <div>
+            <div class="card card-filter">
+                <div class="fb-comments" data-href="{{route('detalle_producto_ecommerce', ['id' => $id])}}" data-width="" data-numposts="5"></div>
+            </div>
+        </div>
     </main>
     <aside class="col-md-3 col-sm-12">
         <div class="card card-filter">
@@ -204,7 +211,6 @@
             </div>
         </div>
     </aside>
-
 @endsection
 <script src="{{url('ecommerce/js/jquery-2.0.0.min.js')}}" type="text/javascript"></script>
 <script>

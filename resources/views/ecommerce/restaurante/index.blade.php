@@ -17,9 +17,9 @@
     <section class="section-intro bg-img padding-y-lg">
         <div class="row">
             <div class="col-sm-6 mx-auto">
-                <article class="white text-center mb-5">
-                    <h1 class="display-3">{{setting('empresa.title')}}</h1>
-                    <p class="display-6">{{setting('empresa.description')}}</p>
+                <article class="white text-center mb-6">
+                    <h1 class="display-2">{{setting('empresa.title')}}</h1>
+                    <p class="display-5">{{setting('empresa.description')}}</p>
                 </article>
             </div>
         </div>

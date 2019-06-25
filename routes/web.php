@@ -14,16 +14,24 @@
 // Route::get('/', function () {
 //     return view('welcome');
 // });
-Route::get('/', 'LandingPageController@index');
+# Socialite facebook
+Route::get('/login/facebook', 'Auth\LoginController@redirectToFacebookProvider');
+Route::get('login/facebook/callback', 'Auth\LoginController@handleProviderFacebookCallback');
+Route::get('/policies', 'LandingPageController@ecommerce_policies');
+# End Socialite facebook
+
+Route::get('/', 'LandingPageController@index')->name('ecommerce_home');
 Route::get('/detalle/{id}', 'LandingPageController@detalle_producto')->name('detalle_producto_ecommerce');
 Route::post('/search', 'LandingPageController@search')->name('busqueda_ecommerce');
 Route::get('/ofertas', 'LandingPageController@ofertas')->name('ofertas_ecommerce');
 Route::get('/categoria/{id}', 'LandingPageController@categorias')->name('categorias_ecommerce');
 Route::get('/carrito', 'LandingPageController@carrito_index')->name('carrito_compra');
-Route::get('/carrito/cantidad_pedidos', 'LandingPageController@cantidad_pedidos')->name('cantidad_pedidos');
+Route::get('/carrito/cantidad_carrito', 'LandingPageController@cantidad_carrito')->name('cantidad_carrito');
 Route::get('/carrito/agregar/comprar/{id}', 'LandingPageController@carrito_comprar');
 Route::get('/carrito/agregar/{id}', 'LandingPageController@carrito_agregar');
 Route::get('/carrito/borrar/{id}', 'LandingPageController@carrito_borrar');
+Route::get('/carrito/cantidad_pedidos', 'LandingPageController@cantidad_pedidos')->name('cantidad_pedidos');
+Route::get('/carrito/mis_pepdidos', 'LandingPageController@pedidos_index')->name('pedidos_index');
 
 
 Route::group(['prefix' => 'admin'], function () {
@@ -128,6 +136,32 @@ Route::get('/admin/asientos/crear', 'CajasController@asientos_create')->name('as
 Route::post('/admin/asientos/store', 'CajasController@asientos_store')->name('asientos_store');
 Route::post('/admin/asientos/delete', 'CajasController@asientos_delete')->name('asientos_delete');
 
-// ================================Ventas===========================
+
+// ================================Compras===========================
+Route::get('admin/compras', 'ComprasController@index')->name('compras_index');
+Route::get('admin/compras/crear', 'ComprasController@create')->name('compras_create');
+Route::post('admin/compras/store', 'ComprasController@store')->name('compras_store');
+
+Route::get('admin/proveedores/get_proveedor/{nit}', 'ProveedoresController@get_proveedor');
+
+// Cambiar tipo de compra
+Route::get('admin/compras/crear/{tipo}', 'ComprasController@compras_cargar_tipo');
+
+// ============================Ventas====================================
+Route::get('admin/ventas', 'VentasController@index')->name('ventas_index');
+Route::get('admin/ventas/crear', 'VentasController@create')->name('ventas_create');
+Route::post('admin/ventas/store', 'VentasController@store')->name('ventas_store');
+Route::get('admin/ventas/update/estado/{id}/{valor}', 'VentasController@estado_update')->name('estado_update');
+Route::post('admin/ventas/asignar_repartidor', 'VentasController@asignar_repartidor')->name('asignar_repartidor');
+
+Route::get('admin/ventas/crear/productos_categoria/{id}', 'VentasController@productos_categoria');
+
+// Pedidos
 Route::post('admin/ventas/pedidos/store', 'VentasController@pedidos_store')->name('pedidos_store');
 Route::get('admin/ventas/pedidos/success', 'VentasController@pedidos_success')->name('pedidos_success');
+
+// ============================Delivery====================================
+Route::get('admin/ventas/delivery', 'VentasController@delivery_index')->name('delivery_index');
+Route::get('admin/ventas/delivery/view/{id}', 'VentasController@delivery_view')->name('delivery_view');
+Route::get('admin/ventas/delivery/set_ubicacion/{id}/{lat}/{lon}', 'VentasController@set_ubicacion');
+Route::get('admin/ventas/delivery/get_ubicacion/{id}', 'VentasController@get_ubicacion');

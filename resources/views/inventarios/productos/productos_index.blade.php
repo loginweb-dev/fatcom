@@ -61,7 +61,7 @@
                                                     @if(!empty($item->codigo_interno))
                                                     <td>{{$item->codigo_interno}}</td>
                                                     @else
-                                                    <td>{{$item->codigo}}</td>
+                                                    <td>{{$item->id}}</td>
                                                     @endif
                                                     <td>{{$item->nombre}}</td>
                                                     <td>{{$item->subcategoria}}</td>

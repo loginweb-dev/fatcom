@@ -23,7 +23,7 @@
     <!-- CODELAB: Add description here -->
     <meta name="description" content="{{setting('empresa.descripcion')}}">
     <!-- CODELAB: Add meta theme-color -->
-    <meta name="theme-color" content="#096FA9" />
+    <meta name="theme-color" content="#261C34" />
 
     <script>
         // CODELAB: Register service worker.
@@ -92,9 +92,10 @@
                     @case('carrito_vacio')
                         toastr.error('El carrito de compra esta vacío.', 'Error');
                         @break
-                    @case(2)
-
+                    @case('pedido_pendiente')
+                        toastr.error('No puede realizar un pedido debido a que tiene uno pendiente.', 'Error');
                         @break
+
                     @default
 
                 @endswitch
@@ -159,10 +160,20 @@
                 success: function(data){
                     if(data==1){
                         toastr.info('Producto agregado al carrito.', 'Información');
-                        cantidad_pedidos();
+                        cantidad_carrito();
                     }else{
                         toastr.error('Ocurrio un error al agregar el productos.', 'Error');
                     }
+                }
+            });
+        }
+
+        function cantidad_carrito(){
+            $.ajax({
+                url: `{{route('cantidad_carrito')}}`,
+                type: 'get',
+                success: function(data){
+                    $('#label-carrito').html(data)
                 }
             });
         }
@@ -172,7 +183,11 @@
                 url: `{{route('cantidad_pedidos')}}`,
                 type: 'get',
                 success: function(data){
-                    $('#label-pedidos').html(data)
+                    if(data!=0){
+                        $('#label-pedidos').html(`Mis pedidos <span class="badge badge-primary round">${data}</span>`)
+                    }else{
+                        $('#label-pedidos').html(`Mis pedidos`)
+                    }
                 }
             });
         }
@@ -213,6 +228,7 @@
             });
         }
 
+        cantidad_carrito();
         cantidad_pedidos();
     </script>
 
@@ -224,18 +240,18 @@
 
     <!-- Facebook Pixel Code -->
     <script>
-        !function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)}(window, document,'script',
-        'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '314624272809898');
-        fbq('track', 'PageView');
+        // !function(f,b,e,v,n,t,s)
+        // {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        // n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        // if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        // n.queue=[];t=b.createElement(e);t.async=!0;
+        // t.src=v;s=b.getElementsByTagName(e)[0];
+        // s.parentNode.insertBefore(t,s)}(window, document,'script',
+        // 'https://connect.facebook.net/en_US/fbevents.js');
+        // fbq('init', '314624272809898');
+        // fbq('track', 'PageView');
     </script>
-    <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=314624272809898&ev=PageView&noscript=1"/></noscript>
+    <!--<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=314624272809898&ev=PageView&noscript=1"/></noscript>-->
     <!-- End Facebook Pixel Code -->
     <!-- Load Facebook SDK for JavaScript -->
     <div id="fb-root"></div>
@@ -247,23 +263,23 @@
             });
         };
 
-        (function(d, s, id) {
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) return;
-        js = d.createElement(s); js.id = id;
-        js.src = 'https://connect.facebook.net/es_LA/sdk/xfbml.customerchat.js';
-        fjs.parentNode.insertBefore(js, fjs);
-        }(document, 'script', 'facebook-jssdk'));
+        // (function(d, s, id) {
+        // var js, fjs = d.getElementsByTagName(s)[0];
+        // if (d.getElementById(id)) return;
+        // js = d.createElement(s); js.id = id;
+        // js.src = 'https://connect.facebook.net/es_LA/sdk/xfbml.customerchat.js';
+        // fjs.parentNode.insertBefore(js, fjs);
+        // }(document, 'script', 'facebook-jssdk'));
     </script>
 
     <!-- Your customer chat code -->
-    <div class="fb-customerchat"
-        attribution=setup_tool
-        page_id="277693723065936"
-        theme_color="#ffc300"
-        logged_in_greeting="Hola! Te puedo ayudar ?"
-        logged_out_greeting="Hola! Te puedo ayudar ?">
-    </div>
+    <!--<div class="fb-customerchat"-->
+    <!--    attribution=setup_tool-->
+    <!--    page_id="277693723065936"-->
+    <!--    theme_color="#ffc300"-->
+    <!--    logged_in_greeting="Hola! Te puedo ayudar ?"-->
+    <!--    logged_out_greeting="Hola! Te puedo ayudar ?">-->
+    <!--</div>-->
     <!-- End your customer chat code -->
 
 </head>
@@ -299,7 +315,7 @@
                     <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 text-right">
                         <a href="{{url('/carrito')}}" class="widget-header float-md-right">
                             <div class="icontext">
-                                <div class="icon-wrap"><i class="fa fa-shopping-cart fa-2x"></i><span id="label-pedidos" class="notify">0</span></div>
+                                <div class="icon-wrap"><i class="fa fa-shopping-cart fa-2x"></i><span id="label-carrito" class="notify">0</span></div>
                             </div>
                         </a>
                     </div>

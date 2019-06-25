@@ -12,7 +12,7 @@ function inicializar_select2(id){
             var $result = $("<span></span>");
             $result.text(data.text);
             if (data.newOption) {
-                $result.append(" <em>(ENTER para crear Nueva)</em>");
+                $result.append(" <em>(ENTER para agregar)</em>");
             }
             return $result;
         },

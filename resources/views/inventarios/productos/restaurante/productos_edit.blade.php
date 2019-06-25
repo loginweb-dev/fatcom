@@ -1,5 +1,5 @@
 @extends('voyager::master')
-@section('page_title', 'Nuevo Producto')
+@section('page_title', 'Editar Producto')
 
 @if(auth()->user()->hasPermission('add_productos'))
     @section('page_header')
@@ -26,7 +26,7 @@
                                 <input type="hidden" name="genero_id" value="1">
                                 <input type="hidden" name="uso_id" value="1">
                                 <input type="hidden" name="moneda_id" value="2">
-                                <input type="hidden" name="codigo_interno" value="1">
+                                <input type="hidden" name="codigo_interno" value="">
                                 <input type="hidden" name="marca_id" value="1">
                                 <input type="hidden" name="precio_minimo[]" value="0">
                                 <input type="hidden" name="cantidad_minima_venta[]" value="1">
@@ -80,17 +80,17 @@
                                                     @enderror
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="col-md-6">
                                             <div class="row">
                                                 <div class="form-group col-md-12">
                                                     <label for="" id="label-descripcion">Descripción (0/255)</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Descripción breve del producto, no debe exceder los 255 caracteres. Este campo es obligatorio."></span> @endif
-                                                    <textarea name="descripcion_small" class="form-control" id="text-descripcion" maxlength="255" rows="3" placeholder="Descripción corta del producto" required>{{$producto->descripcion_small}}</textarea>
+                                                    <textarea name="descripcion_small" class="form-control" id="text-descripcion" maxlength="255" rows="6" placeholder="Descripción corta del producto" required>{{$producto->descripcion_small}}</textarea>
                                                     @error('descripcion_small')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
                                                 </div>
                                             </div>
+                                        </div>
+                                        <div class="col-md-6">
                                             <div class="row">
                                                 <div class="col-md-12" style="">
                                                     <label for="">Imagen(es)</label> @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="right" title="Imagen o imagenes que se mostrarán del producto. Este campo no es obligatorio."></span> @endif
@@ -101,6 +101,52 @@
                                                             </button>
                                                         </div>
                                                         <input type="file" name="imagen[]" style="display:none" accept="image/*" multiple id="gallery-photo-add">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <label for="">Insumos</label> @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="right" title="Inusumos necesarios para la elaboración del producto. Este campo no es obligatorio."></span> @endif
+                                                    <div class="input-group">
+                                                        <select id="select-insumo_id" class="form-control select2">
+                                                            @foreach($insumos as $item)
+                                                            <option data-unidad="{{$item->unidad}}" value="{{$item->id}}" >{{$item->nombre}}</option>
+                                                            @endforeach
+                                                        </select>
+                                                        <span class="input-group-btn">
+                                                            <button class="btn btn-primary" id="btn-add" style="margin-top:0px" type="button"><span class="voyager-plus" aria-hidden="true"></span> Agregar</button>
+                                                        </span>
+                                                    </div>
+                                                    <div style="max-height:200px;overflow-y:auto">
+                                                        <table class="table table-bordered table-hover" >
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Insumo</th>
+                                                                    <th>Cantidad</th>
+                                                                    <th>Unid.</th>
+                                                                    <th></th>
+                                                                </tr>
+                                                                <tbody id="lista-insumos">
+                                                                    @php
+                                                                        $cont_insumos = 1;
+                                                                    @endphp
+                                                                    @foreach ($insumos_productos as $item)
+                                                                    <tr id="tr-{{$cont_insumos}}">
+                                                                        <td>{{$item->nombre}}</td>
+                                                                        <td>
+                                                                            <input type="hidden" name="insumo_id[]" class="input-insumo" value="{{$item->id}}">
+                                                                            <input type="number" class="form-control" name="cantidad_insumo[]" value="{{$item->cantidad}}" min="0.1" step="0.1" required>
+                                                                        </td>
+                                                                        <td>{{$item->unidad}}</td>
+                                                                        <td><span class="voyager-x text-danger" onclick="borrarTr({{$cont_insumos}})"></span></td>
+                                                                    </tr>
+                                                                    @php
+                                                                        $cont_insumos++;
+                                                                    @endphp
+                                                                    @endforeach
+                                                                </tbody>
+                                                            </thead>
+                                                        </table>
                                                     </div>
                                                 </div>
                                             </div>
@@ -144,10 +190,15 @@
     @section('javascript')
         <script src="{{url('image-preview/image-preview.js')}}"></script>
         <script src="{{url('js/loginweb.js')}}"></script>
+        <script src="{{url('js/inventarios/productos.js')}}"></script>
         <script>
+            let insumo_indice = {{$cont_insumos}};
             $(document).ready(function(){
                 $('[data-toggle="popover"]').popover({ html : true });
                 $('[data-toggle="tooltip"]').tooltip();
+
+                // Incrementar el indice de la tabla de insumos
+                let insumo_indice = {{$cont_insumos}};
 
                 if('{{$producto->nuevo}}'=='1'){
                     $('#input-nuevo').bootstrapToggle('on')
@@ -185,6 +236,10 @@
                     $('#modal_load').modal('show');
                 });
             });
+
+            function borrarTr(num){
+                $(`#tr-${num}`).remove();
+            }
         </script>
     @endsection
 

@@ -150,6 +150,13 @@ class ProductosController extends Controller
                                 ->where('p.producto_id', $id)
                                 ->where('deleted_at', NULL)
                                 ->get();
+        $insumos_productos = DB::table('insumos as i')
+                                ->join('productos_insumos as pi', 'pi.insumo_id', 'i.id')
+                                ->join('unidades as u', 'u.id', 'i.unidad_id')
+                                ->select('i.*', 'pi.cantidad', 'u.abreviacion as unidad')
+                                ->where('pi.producto_id', $id)
+                                ->where('pi.deleted_at', NULL)
+                                ->get();
 
         switch (setting('admin.modo_sistema')) {
             case 'boutique':
@@ -159,7 +166,7 @@ class ProductosController extends Controller
                 return view('inventarios/productos/electronica_computacion/productos_view', compact('producto', 'imagenes', 'id', 'precios_venta', 'precios_compra'));
                 break;
             case 'restaurante':
-                return view('inventarios/productos/restaurante/productos_view', compact('producto', 'imagenes', 'id', 'precios_venta', 'precios_compra'));
+                return view('inventarios/productos/restaurante/productos_view', compact('producto', 'imagenes', 'id', 'precios_venta', 'precios_compra', 'insumos_productos'));
                 break;
             default:
                 # code...
@@ -309,6 +316,12 @@ class ProductosController extends Controller
                             ->where('deleted_at', NULL)
                             ->where('id', '>', 1)
                             ->get();
+        $insumos = DB::table('insumos as i')
+                            ->join('unidades as u', 'u.id', 'i.unidad_id')
+                            ->select('i.*', 'u.abreviacion as unidad')
+                            ->where('i.deleted_at', NULL)
+                            // ->where('id', '>', 1)
+                            ->get();
 
         $producto = DB::table('productos as p')
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
@@ -333,6 +346,13 @@ class ProductosController extends Controller
                             ->where('producto_id', $id)
                             ->where('deleted_at', NULL)
                             ->get();
+        $insumos_productos = DB::table('insumos as i')
+                                ->join('productos_insumos as pi', 'pi.insumo_id', 'i.id')
+                                ->join('unidades as u', 'u.id', 'i.unidad_id')
+                                ->select('i.*', 'pi.cantidad', 'u.abreviacion as unidad')
+                                ->where('pi.producto_id', $id)
+                                ->where('pi.deleted_at', NULL)
+                                ->get();
 
         switch (setting('admin.modo_sistema')) {
             case 'boutique':
@@ -342,7 +362,7 @@ class ProductosController extends Controller
                 return view('inventarios/productos/electronica_computacion/productos_edit', compact('producto', 'imagen', 'precio_venta', 'precio_compra', 'categorias', 'subcategorias', 'marcas', 'monedas'));
                 break;
             case 'restaurante':
-                return view('inventarios/productos/restaurante/productos_edit', compact('producto', 'imagen', 'codigo_grupo', 'categorias', 'subcategorias', 'precio_venta'));
+                return view('inventarios/productos/restaurante/productos_edit', compact('producto', 'imagen', 'codigo_grupo', 'categorias', 'subcategorias', 'precio_venta', 'insumos', 'insumos_productos'));
                 break;
             default:
                 # code...
@@ -446,6 +466,22 @@ class ProductosController extends Controller
                             ->update([
                                 'catalogo' => $path
                             ]);
+        }
+
+        // Guardar insumos (si existen)
+        if(isset($data->insumo_id)){
+            DB::table('productos_insumos')
+                    ->where('producto_id', $data->id)->update(['deleted_at' => Carbon::now()]);
+            for ($i=0; $i < count($data->insumo_id); $i++) {
+                DB::table('productos_insumos')
+                        ->insert([
+                            'producto_id' => $data->id,
+                            'insumo_id' => $data->insumo_id[$i],
+                            'cantidad' => $data->cantidad_insumo[$i],
+                            'created_at' => Carbon::now(),
+                            'updated_at' => Carbon::now()
+                        ]);
+            }
         }
 
         if($query){
@@ -664,6 +700,20 @@ class ProductosController extends Controller
                                 'producto_id' => $producto_id,
                                 'monto' => $data->monto[$i],
                                 'cantidad_minima' => $data->cantidad_minima_compra[$i],
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ]);
+                }
+            }
+
+            // Guardar insumos si existen
+            if(isset($data->insumo_id)){
+                for ($i=0; $i < count($data->insumo_id); $i++) {
+                    DB::table('productos_insumos')
+                            ->insert([
+                                'producto_id' => $producto_id,
+                                'insumo_id' => $data->insumo_id[$i],
+                                'cantidad' => $data->cantidad_insumo[$i],
                                 'created_at' => Carbon::now(),
                                 'updated_at' => Carbon::now()
                             ]);

@@ -26,7 +26,7 @@
                                 <input type="hidden" name="genero_id" value="1">
                                 <input type="hidden" name="uso_id" value="1">
                                 <input type="hidden" name="moneda_id" value="2">
-                                <input type="hidden" name="codigo_interno" value="1">
+                                <input type="hidden" name="codigo_interno" value="">
                                 <input type="hidden" name="marca_id" value="1">
                                 <input type="hidden" name="precio_minimo[]" value="0">
                                 <input type="hidden" name="cantidad_minima_venta[]" value="1">
@@ -175,7 +175,9 @@
     @section('javascript')
         <script src="{{url('image-preview/image-preview.js')}}"></script>
         <script src="{{url('js/loginweb.js')}}"></script>
+        <script src="{{url('js/inventarios/productos.js')}}"></script>
         <script>
+            let insumo_indice = 1;
             $(document).ready(function(){
                 $('[data-toggle="popover"]').popover({ html : true });
                 $('[data-toggle="tooltip"]').tooltip();
@@ -204,39 +206,6 @@
                         inicializar_select2('subcategoria_id');
                     }
                 });
-
-                // Insumos
-                let indice = 1;
-                $('#btn-add').click(function(){
-                    let insumo_id = $('#select-insumo_id').val();
-                    let existe = false;
-                    $(".input-insumo").each(function(){
-                        if($(this).val()==insumo_id){
-                            existe = true;
-                        }
-                    });
-                    if(!existe){
-                        if(insumo_id!=''){
-                            let insumo = $('#select-insumo_id option:selected').text();
-                            let unidad_insumo = $('#select-insumo_id option:selected').data('unidad');
-                            $('#lista-insumos').append(`<tr class="" id="tr-${indice}">
-                                                            <td>${insumo}</td>
-                                                            <td>
-                                                                <input type="hidden" name="insumo_id[]" class="input-insumo" value="${insumo_id}">
-                                                                <input type="number" class="form-control" name="cantidad_insumo[]" min="0.1" step="0.1" required>
-                                                            </td>
-                                                            <td>${unidad_insumo}</td>
-                                                            <td><span class="voyager-x text-danger" onclick="borrarTr(${indice})"></span></td>
-                                                        </tr>`);
-                            insumo++;
-                            toastr.info('Insumo agregado correctamente', 'Bien hecho!');
-                        }
-                    }else{
-                        toastr.warning('El insumo ya se encuentra agregado', 'Advertencia');
-                    }
-                });
-
-                // =======
 
                 // mostrar pantalla de carga al guardar un producto
                 $('#form').on('submit', function(){
