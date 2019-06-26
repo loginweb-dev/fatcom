@@ -152,7 +152,7 @@
                         </div>
                         <hr>
                         <button style="margin:5px" type="button" id="btn-add_carrito" data-id="{{$id}}" class="btn btn-warning" onclick="agregar({{$id}})"> <i class="fa fa-shopping-cart"></i> Agregar al carrito</button>
-                        <a style="margin:5px" href="{{url('carrito/agregar/comprar').'/'.$id}}" class="btn  btn-outline-warning"> Comprar ahora </a>
+                        <a style="margin:5px" href="{{url('carrito/agregar/comprar').'/'.$id}}" class="btn  btn-outline-warning link-page"> Comprar ahora </a>
                         <hr>
                         {{-- Compartir por Facebook --}}
                         <div class="fb-like" data-href="{{route('detalle_producto_ecommerce', ['id' => $id])}}" data-width="" data-layout="button_count" data-action="like" data-size="large" data-show-faces="true" data-share="true"></div>
@@ -200,7 +200,7 @@
                         <figcaption class="text-wrap">
                             <p class="title b">{{$item['nombre']}}</p>
                             <button class="btn btn-warning btn-sm" type="button" title="Agregar al carrito de compra" onclick="agregar({{$item['id']}})"> <i class="fa fa-shopping-cart"></i> </button>
-                            <a href="{{route('detalle_producto_ecommerce', ['id'=>$item['id']])}}" title="Detalles" class="btn btn-primary btn-sm"> <i class="fa fa-list"></i> </a>
+                            <a href="{{route('detalle_producto_ecommerce', ['id'=>$item['id']])}}" title="Detalles" class="btn btn-primary btn-sm link-page"> <i class="fa fa-list"></i> </a>
                         </figcaption>
                     </figure>
                 @endforeach

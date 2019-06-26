@@ -1,9 +1,4 @@
-<table width="100%">
-    <tr>
-        <td width="50px"><img src="https://shop.loginweb.net/storage/settings\May2019\BIm4taE5pVg5BoerNOHt.png" width="50px"></td>
-        <td><h1 align="center">FATCOM</h1></td>
-    </tr>
-</table>
+<h1 align="center">FATCOM</h1>
 
 ## Acerca de FATCOM
 

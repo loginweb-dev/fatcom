@@ -89,57 +89,48 @@
         <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
         <script>
             $(document).ready(function(){
-                setInterval(function(){
-                    navigator.geolocation.getCurrentPosition(function(position) {
-                        let id = "{{$repartidor_pedido->id}}";
-                        let lat =  position.coords.latitude;
-                        let lon = position.coords.longitude;
-                        $.ajax({
-                            url: '{{url("admin/ventas/delivery/set_ubicacion")}}/'+id+'/'+lat+'/'+lon,
-                            type: 'get',
-                            success: function(data){
-                            }
-                        });
-                    }, function(err) {
-                        console.error(err);
+                // Variables para el para el mapa
+
+                var map = L.map('map').setView([{{$pedido->lat}}, {{$pedido->lon}}], 13);
+                var iconoBase = L.Icon.extend({ options: { iconSize: [40, 40], iconAnchor: [15, 35], popupAnchor: [0, -30] } });
+                let iconDelivery = new iconoBase({iconUrl: "{{ voyager_asset('images/delivery.png') }}"});
+                let marcador = {};
+
+                navigator.geolocation.watchPosition(function(position) {
+                    let id = "{{$repartidor_pedido->id}}";
+                    let lat =  position.coords.latitude;
+                    let lon = position.coords.longitude;
+                    map.removeLayer(marcador);
+                    marcador = L.marker([lat, lon], {icon: iconDelivery}).addTo(map).bindPopup(lat+","+lon);
+                    console.log(lat, lon)
+                    $.ajax({
+                        url: '{{url("admin/ventas/delivery/set_ubicacion")}}/'+id+'/'+lat+'/'+lon,
+                        type: 'get',
+                        success: function(data){
+
+                        }
                     });
-                }, 10000);
-            });
-            //mapa
-            // var map = L.map('map').fitWorld();
-            var map = L.map('map').setView([{{$pedido->lat}}, {{$pedido->lon}}], 13);
-            var iconoBase = L.Icon.extend({ options: { iconSize: [40, 40], iconAnchor: [15, 35], popupAnchor: [0, -30] } });
-            let iconDelivery = new iconoBase({iconUrl: "{{ voyager_asset('images/delivery.png') }}"});
+                }, function(err) {
+                    console.error(err);
+                }, {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 0
+                });
 
-            L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
-                maxZoom: 20,
-                attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-                    '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-                    'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-                id: 'mapbox.streets'
-            }).addTo(map);
 
-            L.marker([{{$pedido->lat}}, {{$pedido->lon}}]).addTo(map).bindPopup("{{$pedido->descripcion}}").openPopup();
+                //mapa
+                L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+                    maxZoom: 20,
+                    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+                        '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+                        'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                    id: 'mapbox.streets'
+                }).addTo(map);
 
-            function onLocationFound(e) {
-                map.setView(e.latlng);
-                L.marker(e.latlng, {icon: iconDelivery}).addTo(map);
-            }
+                L.marker([{{$pedido->lat}}, {{$pedido->lon}}]).addTo(map).bindPopup("{{$pedido->descripcion}}").openPopup();
+                });
 
-            function onLocationError(e) {
-                alert(e.message);
-            }
-
-            map.on('locationfound', onLocationFound);
-            map.on('locationerror', onLocationError);
-
-            map.locate();
-            // map.setZoom(13)
-
-            setInterval(function(){
-                map.on('locationfound', onLocationFound);
-                map.on('locationerror', onLocationError);
-            }, 5000);
 
         </script>
     @stop

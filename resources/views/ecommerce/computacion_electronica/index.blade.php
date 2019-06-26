@@ -125,7 +125,7 @@
                 $cantidad = count($ofertas)<4 ? count($ofertas) : 4;
             @endphp
             <br>
-            <h4 class="display-6">Productos en Oferta <small> <a href="{{ route('ofertas_ecommerce') }}">(Ver más)</a></small> </h4><br>
+            <h4 class="display-6">Productos en Oferta <small> <a href="{{ route('ofertas_ecommerce') }}" class="link-page">(Ver más)</a></small> </h4><br>
             <!-- ============== slick slide items  ============= -->
             <div class="owl-carousel owl-init slide-items" data-items="{{ $cantidad }}" data-margin="20" data-dots="false" data-nav="false">
                 @php
@@ -144,7 +144,7 @@
                             <div class="card-banner card-producto" style="background: url('{{url('storage').'/'.$imagen}}') center;background-size:cover">
                                 <article class="overlay bottom text-center">
                                     <h6 class="card-title">{{$item->nombre}}</h6>
-                                    <a href="{{route('detalle_producto_ecommerce', ['id'=>$item->id])}}" class="btn btn-warning btn-sm"> Ver detalles </a>
+                                    <a href="{{route('detalle_producto_ecommerce', ['id'=>$item->id])}}" class="btn btn-warning btn-sm link-page"> Ver detalles </a>
                                 </article>
                             </div>
                         </figure>
@@ -162,7 +162,7 @@
             $cont = 0;
         @endphp
         @forelse ($subcategoria_productos as $item)
-            <h4 class="display-6">{{ $item->nombre }} <small> <a href="{{route('categorias_ecommerce', ['id'=>$item->id])}}">(Ver más)</a></small> </h4><br>
+            <h4 class="display-6">{{ $item->nombre }} <small> <a href="{{route('categorias_ecommerce', ['id'=>$item->id])}}" class="link-page">(Ver más)</a></small> </h4><br>
             <!-- ============== slick slide items  ============= -->
             @php
                 $cantidad = count($productos_categoria[$cont])<4 ? count($productos_categoria[$cont]) : 4;
@@ -180,7 +180,7 @@
                             <div class="card-banner card-producto" style="background: url('{{url('storage').'/'.$img}}') center;background-size:cover">
                                 <article class="overlay bottom text-center">
                                     <h6 class="card-title">{{$item2->nombre}}</h6>
-                                    <a href="{{route('detalle_producto_ecommerce', ['id'=>$item2->id])}}" class="btn btn-warning btn-sm"> Ver detalles </a>
+                                    <a href="{{route('detalle_producto_ecommerce', ['id'=>$item2->id])}}" class="btn btn-warning btn-sm link-page"> Ver detalles </a>
                                 </article>
                             </div>
                         </figure>

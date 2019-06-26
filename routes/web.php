@@ -31,7 +31,7 @@ Route::get('/carrito/agregar/comprar/{id}', 'LandingPageController@carrito_compr
 Route::get('/carrito/agregar/{id}', 'LandingPageController@carrito_agregar');
 Route::get('/carrito/borrar/{id}', 'LandingPageController@carrito_borrar');
 Route::get('/carrito/cantidad_pedidos', 'LandingPageController@cantidad_pedidos')->name('cantidad_pedidos');
-Route::get('/carrito/mis_pepdidos', 'LandingPageController@pedidos_index')->name('pedidos_index');
+Route::get('/carrito/mis_pepdidos/{id}', 'LandingPageController@pedidos_index')->name('pedidos_index');
 
 
 Route::group(['prefix' => 'admin'], function () {

@@ -73,7 +73,7 @@
                                     <br>
                                     <p>
                                         <button type="button" id="btn-add_carrito" class="btn btn-warning" onclick="agregar({{$item->id}})"> <i class="fa fa-shopping-cart"></i> Agregar</button>
-                                        <a href="{{route('detalle_producto_ecommerce', ['id'=>$item->id])}}" class="btn btn-primary"> <i class="fa fa-list"></i> Detalles  </a>
+                                        <a href="{{route('detalle_producto_ecommerce', ['id'=>$item->id])}}" class="btn btn-primary link-page"> <i class="fa fa-list"></i> Detalles  </a>
                                     </p>
                                     {{-- <a href="#"><i class="fa fa-heart"></i> Add to wishlist</a> --}}
                                 </div>
@@ -109,7 +109,7 @@
                         <figcaption class="text-wrap">
                             <p class="title b">{{$item->nombre}}</p>
                             <button class="btn btn-warning btn-sm" type="button" title="Agregar al carrito de compra" onclick="agregar({{$item->id}})"> <i class="fa fa-shopping-cart"></i> </button>
-                            <a href="{{route('detalle_producto_ecommerce', ['id'=>$item->id])}}" title="Detalles" class="btn btn-primary btn-sm"> <i class="fa fa-list"></i> </a>
+                            <a href="{{route('detalle_producto_ecommerce', ['id'=>$item->id])}}" title="Detalles" class="btn btn-primary btn-sm link-page"> <i class="fa fa-list"></i> </a>
                         </figcaption>
                     </figure>
                 @endforeach

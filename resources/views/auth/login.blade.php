@@ -86,7 +86,7 @@
                 <article class="card-body">
                     <p>
                         <a href="#" class="btn btn-block btn-twitter"> <i class="fab fa-twitter"></i> &nbsp; Login via Twitter</a>
-                        <a href="{{url('login/facebook')}}" class="btn btn-block btn-facebook"> <i class="fab fa-facebook-f"></i> &nbsp; Login via facebook</a>
+                        <a href="{{url('login/facebook')}}" class="btn btn-block btn-facebook btn-link-page"> <i class="fab fa-facebook-f"></i> &nbsp; Login via facebook</a>
                     </p>
                     <hr>
                     <form>
@@ -111,8 +111,8 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <button type="submit" class="btn btn-primary btn-block"> Login  </button>
-                            </div> <!-- form-group// -->
+                                <button type="submit" class="btn btn-primary btn-block btn-link-page"> Inicicar sesión  </button>
+                            </div>
                         </div>
                         <div class="col-md-6 text-right">
                             @if (Route::has('password.request'))
@@ -127,4 +127,14 @@
         </div>
     </form>
 </div>
+@endsection
+
+@section('script')
+    <script>
+        $(document).ready(function(){
+            $('.btn-link-page').click(function(){
+                $(this).append(' <i class="fas fa-circle-notch fa-spin"></i>');
+            });
+        });
+    </script>
 @endsection

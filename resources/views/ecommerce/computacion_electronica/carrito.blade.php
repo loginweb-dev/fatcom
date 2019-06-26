@@ -76,7 +76,7 @@
                                     <input type="hidden" class="form-control" name="precio[]" value="{{$precio_actual}}" id="input-precio{{$cont}}">
                                 </td>
                                 <td class="text-right">
-                                    <a href="{{url('carrito/borrar').'/'.$item->id}}" class="btn btn-outline-danger"> <span class="fa fa-trash"></span> Borrar</a>
+                                    <a href="{{url('carrito/borrar').'/'.$item->id}}" class="btn btn-outline-danger link-page"> <span class="fa fa-trash"></span> Borrar</a>
                                 </td>
                             </tr>
                             @php

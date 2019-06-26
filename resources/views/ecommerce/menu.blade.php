@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-md navbar-dark bg-dark">
     <div class="container">
-        <a class="navbar-brand" href="{{url('/')}}">{{setting('empresa.title')}} </a>
+        <a class="navbar-brand link-page" href="{{url('/')}}">{{setting('empresa.title')}} </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -16,16 +16,16 @@
                 <!-- Authentication Links -->
                 @guest
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
+                        <a class="nav-link link-page" href="{{ route('login') }}">{{ __('Login') }}</a>
                     </li>
                     @if (Route::has('register'))
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ route('register') }}">Registrarse</a>
+                            <a class="nav-link link-page" href="{{ route('register') }}">Registrarse</a>
                         </li>
                     @endif
                 @else
                     <li class="nav-item">
-                        <a class="nav-link" href="{{route('pedidos_index')}}" title="Pedidos pendientes" id="label-pedidos">Mis pedidos</a>
+                        <a class="nav-link link-page" href="{{route('pedidos_index', ['id'=>'last'])}}" title="Pedidos pendientes" id="label-pedidos">Mis pedidos</a>
                     </li>
                     <li class="nav-item dropdown">
                         <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
@@ -34,9 +34,9 @@
 
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                             @if(Auth::user()->role_id == 1)
-                            <a class="dropdown-item" href="{{ url('admin') }}">Administración</a>
+                            <a class="dropdown-item link-page" href="{{ url('admin') }}">Administración</a>
                             @endif
-                            <a class="dropdown-item" href="{{ route('logout') }}"
+                            <a class="dropdown-item link-page" href="{{ route('logout') }}"
                                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                 Salir
                             </a>

@@ -73,7 +73,7 @@
                                 </figure>
                             </td>
                             <td class="text-right">
-                                <a href="{{url('carrito/borrar').'/'.$item->id}}" class="btn btn-outline-danger"> <span class="fa fa-trash"></span></a>
+                                <a href="{{url('carrito/borrar').'/'.$item->id}}" class="btn btn-outline-danger link-page"> <span class="fa fa-trash"></span></a>
                             </td>
                         </tr>
                         @php
@@ -224,8 +224,8 @@
                             }).addTo(map)
                             .bindPopup(descripcion).openPopup()
                             .on('drag', function(e) {
-                                $('#latitud').val(lat);
-                                $('#longitud').val(lon);
+                                $('#latitud').val(e.latlng.lat);
+                                $('#longitud').val(e.latlng.lng);
                                 $('#input-coordenada_id').val('');
                                 $('#input-descripcion').val('')
                             });;

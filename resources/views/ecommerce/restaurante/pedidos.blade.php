@@ -29,7 +29,14 @@
                         <thead class="text-muted">
                             <tr>
                                 {{-- <th scope="col">Código</th> --}}
-                                <th scope="col">Detalles del pedido actual @php echo $estado[$ultimo_pedido->tipo_estado]; @endphp</th>
+                                <th scope="col">
+                                    Detalles del pedido actual @php echo $estado[$ultimo_pedido->tipo_estado]; @endphp
+                                </th>
+                                <th class="text-right">
+                                    @if($ultimo_pedido->tipo_estado==5)
+                                    <button type="button" class="btn btn-danger" title="Realizar el mismo pedido">Pedir <span class="fa fa-cart-plus"></span></button>
+                                    @endif
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -76,7 +83,6 @@
                 </aside>
                 <aside class="col-sm-6">
                     <article class="card-body">
-                        <h5>Ubicación actual de su pedido</h5>
                         <div id="map"></div>
                     </article>
                 </aside>
@@ -86,12 +92,14 @@
     <aside class="col-md-3 col-sm-12">
         <div class="card" style="height:539px;overflow-y:auto">
             <article class="card-group-item">
-                <header class="card-header"><h6 class="title">Ultimos Pedidos </h6></header>
+                <header class="card-header"><h6 class="title">Ultimos Pedidos</h6></header>
                 <div class="filter-content">
                     <div class="list-group list-group-flush">
                         @php
                             $cont = 0;
-                            $style = 'background-color: #ddd;';
+                            // Si no se pasa el ID de un pedido se marca el primero como seleccionado
+                            $uri = explode('/', Request::path())[2];
+                            $style = ($uri == 'last') ? 'background-color: #ddd;' : '';
                         @endphp
                         @foreach ($pedidos as $item)
                             @php
@@ -108,19 +116,21 @@
                                     $productos = substr($productos, 0, 30).'...';
                                 }
                             @endphp
-                            <article class="box pedidos-list" style="cursor:pointer;{{$style}}">
-                                <div class="icontext">
-                                    @if($item->tipo_estado<=4)
-                                    <i class="text-primary far fa-clock"></i>
-                                    @else
-                                    <i class="text-primary fa fa-check"></i>
-                                    @endif
-                                    <div class="text-wrap">
-                                        <div class="b">{{$productos}}</div>
-                                        <small>{{\Carbon\Carbon::parse($item->created_at)->diffForHumans()}}</small>
+                            <a href="{{route('pedidos_index', ['id' => $item->id])}}"  class="link-page">
+                                <article class="box pedidos-list" style="{{$style}}@if($uri==$item->id) background-color: #ddd; @endif">
+                                    <div class="icontext" style="color:black">
+                                        @if($item->tipo_estado<=4)
+                                        <i class="text-primary far fa-clock"></i>
+                                        @else
+                                        <i class="text-primary fa fa-check"></i>
+                                        @endif
+                                        <div class="text-wrap">
+                                            <div class="b">{{$productos}}</div>
+                                            <small>{{\Carbon\Carbon::parse($item->created_at)->diffForHumans()}}</small>
+                                        </div>
                                     </div>
-                                </div>
-                            </article>
+                                </article>
+                            </a>
                             @php
                                 $cont++;
                                 $style = '';
@@ -139,14 +149,14 @@
                 <small>Some heading</small>
                 <div class="b">Just any text here</div>
             </div>
-        </div> --}}
-    </article>
+        </div>
+    </article> --}}
 
 @endsection
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
 <style>
     #map {
-        height: 300px;
+        height: 350px;
     }
     .pedidos-list:hover{
         background-color: #f8f8f8;
@@ -161,7 +171,18 @@
         let marcador = {};
 
         //mapa
-        var map = L.map('map').fitWorld();
+
+        // Obetener ubicación atual
+        navigator.geolocation.getCurrentPosition(function(position) {
+            let lat_actual =  position.coords.latitude;
+            let lon_actual = position.coords.longitude;
+        }, function(err) { console.error(err); });
+
+        // Setear ubicacion del ultimo pedido, caso de que el pedido haya sido entregado se mostrará la ubicación actual
+        let lat = {{isset($mi_ubicacion->lat)}} ? {{$mi_ubicacion->lat}} : lat_actual;
+        let lon = {{isset($mi_ubicacion->lon)}} ? {{$mi_ubicacion->lon}} : lon_actual;
+
+        var map = L.map('map').setView([lat, lon], 13);
         var iconoBase = L.Icon.extend({ options: { iconSize: [40, 40], iconAnchor: [15, 35], popupAnchor: [0, -30] } });
         let iconDelivery = new iconoBase({iconUrl: "{{ voyager_asset('images/delivery.png') }}"});
 
@@ -173,26 +194,13 @@
             id: 'mapbox.streets'
         }).addTo(map);
 
-        function onLocationFound(e) {
-            $('#latitud').val(e.latlng.lat);
-            $('#longitud').val(e.latlng.lng);
-            map.setView(e.latlng);
-            L.marker([{{$mi_ubicacion->lat}}, {{$mi_ubicacion->lon}}]).addTo(map).bindPopup('Mi ubicación').openPopup();
-        }
-
-        function onLocationError(e) {
-            alert(e.message);
-        }
-
-        map.on('locationfound', onLocationFound);
-        map.on('locationerror', onLocationError);
-
-        map.locate();
-        map.setZoom(13)
+        L.marker([lat, lon] @if($ultimo_pedido->tipo_estado==5), {draggable: true} @endif).addTo(map)
+        .bindPopup("Ubicación actual").openPopup();
 
         // Obtener posicion de mi pedido
+        let estado_pedido = {{$ultimo_pedido->tipo_estado}};
         setInterval(function(){
-            if("{{$ultimo_pedido->tipo_estado}}"==4){
+            if(estado_pedido == 4){
                 $.ajax({
                         url: '{{url("admin/ventas/delivery/get_ubicacion")}}/{{$ultimo_pedido->id}}',
                         type: 'get',

@@ -519,39 +519,43 @@ class LandingPageController extends Controller
         return redirect()->route('carrito_compra')->with(compact('alerta'));
     }
 
-    public function pedidos_index(){
+    public function pedidos_index($id){
+        $sentencia = ($id!='last') ? " v.id = $id" : 1;
         $ultimo_pedido = DB::table('ventas as v')
                                 ->join('clientes as c', 'c.id', 'v.cliente_id')
                                 ->select('v.id', 'v.tipo_estado')
                                 ->where('c.user_id', Auth::user()->id)
+                                ->whereRaw($sentencia)
                                 ->orderBy('id', 'DESC')
                                 ->first();
-        $mi_ubicacion = DB::table('users_coordenadas as u')
-                            ->select('u.lat', 'u.lon')
-                            ->where('u.user_id', Auth::user()->id)
-                            ->where('u.ultima_ubicacion', 1)
-                            ->first();
-        $detalle_pedido = DB::table('ventas_detalles as dv')
-                                ->join('productos as p', 'p.id', 'dv.producto_id')
-                                ->join('monedas as m', 'm.id', 'p.moneda_id')
-                                ->select('p.*', 'dv.cantidad as cantidad_pedido', 'dv.precio as precio_pedido', 'm.abreviacion as moneda')
-                                ->where('dv.venta_id', $ultimo_pedido->id)
-                                ->get();
+        if($ultimo_pedido){
+            $mi_ubicacion = DB::table('users_coordenadas as u')
+                                ->select('u.lat', 'u.lon')
+                                ->where('u.user_id', Auth::user()->id)
+                                ->where('u.ultima_ubicacion', 1)
+                                ->first();
+            $detalle_pedido = DB::table('ventas_detalles as dv')
+                                    ->join('productos as p', 'p.id', 'dv.producto_id')
+                                    ->join('monedas as m', 'm.id', 'p.moneda_id')
+                                    ->select('p.*', 'dv.cantidad as cantidad_pedido', 'dv.precio as precio_pedido', 'm.abreviacion as moneda')
+                                    ->where('dv.venta_id', $ultimo_pedido->id)
+                                    ->get();
 
-        $pedidos = DB::table('ventas as v')
-                        ->join('clientes as c', 'c.id', 'v.cliente_id')
-                        ->select('v.id', 'v.tipo_estado', 'v.created_at')
-                        ->where('c.user_id', Auth::user()->id)
-                        ->orderBy('id', 'DESC')
-                        ->get();
-        $productos_pedidos = [];
-        foreach ($pedidos as $item) {
-            $aux = DB::table('ventas_detalles as dv')
-                        ->join('productos as p', 'p.id', 'dv.producto_id')
-                        ->select('p.nombre')
-                        ->where('dv.venta_id', $item->id)
-                        ->get();
-            array_push($productos_pedidos, $aux);
+            $pedidos = DB::table('ventas as v')
+                            ->join('clientes as c', 'c.id', 'v.cliente_id')
+                            ->select('v.id', 'v.tipo_estado', 'v.created_at')
+                            ->where('c.user_id', Auth::user()->id)
+                            ->orderBy('id', 'DESC')
+                            ->get();
+            $productos_pedidos = [];
+            foreach ($pedidos as $item) {
+                $aux = DB::table('ventas_detalles as dv')
+                            ->join('productos as p', 'p.id', 'dv.producto_id')
+                            ->select('p.nombre')
+                            ->where('dv.venta_id', $item->id)
+                            ->get();
+                array_push($productos_pedidos, $aux);
+            }
         }
 
         switch (setting('admin.modo_sistema')) {
@@ -562,7 +566,11 @@ class LandingPageController extends Controller
 
                 break;
             case 'restaurante':
-            return view('ecommerce/restaurante/pedidos', compact('ultimo_pedido', 'mi_ubicacion', 'detalle_pedido', 'pedidos', 'productos_pedidos'));
+                if($ultimo_pedido){
+                    return view('ecommerce/restaurante/pedidos', compact('ultimo_pedido', 'mi_ubicacion', 'detalle_pedido', 'pedidos', 'productos_pedidos'));
+                }else{
+                    return view('ecommerce/restaurante/pedidos_empty');
+                }
                 break;
             default:
                 # code...

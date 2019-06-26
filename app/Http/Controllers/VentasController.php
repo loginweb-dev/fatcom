@@ -32,7 +32,6 @@ class VentasController extends Controller
                 break;
         }
 
-
         $registros = DB::table('ventas as v')
                             ->join('clientes as c', 'c.id', 'v.cliente_id')
                             ->select('v.*', 'c.razon_social as cliente')
@@ -194,6 +193,7 @@ class VentasController extends Controller
 
         // Verificar coordenada
         UsersCoordenada::where('user_id', Auth::user()->id)->update(['ultima_ubicacion' => NULL]);
+
         if(empty($data->coordenada_id)){
             $coordenadas = new UsersCoordenada;
             $coordenadas->user_id = Auth::user()->id;
@@ -203,7 +203,7 @@ class VentasController extends Controller
             $coordenadas->concurrencia = 1;
             $coordenadas->ultima_ubicacion = 1;
             $coordenadas->save();
-            // $data->cliente_id = Cliente::all()->last()->id;
+
         }else{
             // Setear ubicación actual
             UsersCoordenada::where('user_id', Auth::user()->id)

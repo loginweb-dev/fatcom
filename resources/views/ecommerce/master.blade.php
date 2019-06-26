@@ -106,6 +106,15 @@
                 $('#collapse44').collapse('toggle')
                 $('#collapse33').collapse('toggle')
                 $('#collapse22').collapse('toggle')
+                $('.link-page').click(function(){
+                    $('#modal_load').modal('show');
+                });
+                $('#load-bar').css('display', 'none');
+            }else{
+                $('.link-page').click(function(){
+                    $('#load-bar').css('display', 'block');
+    		        $('#load-bar .progress-bar').css('width', '98%');
+                });
             }
 
             // Realizar busqueda mediante el panel lateral
@@ -281,7 +290,16 @@
     <!--    logged_out_greeting="Hola! Te puedo ayudar ?">-->
     <!--</div>-->
     <!-- End your customer chat code -->
-
+    <style>
+        #load-bar{
+			position:fixed;
+            top:0px;
+            left:0px;
+            width:100%;
+            z-index: 10000;
+            /* display: none; */
+		}
+    </style>
 </head>
 <body>
     <!-- ========================= SECTION INTRO ========================= -->
@@ -290,7 +308,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2" style="margin-bottom:10px">
-                        <a class="brand-wrap" href="{{url('/')}}">
+                        <a class="brand-wrap link-page" href="{{url('/')}}">
                             <img class="logo" src="{{url('storage').'/'.setting('empresa.logo')}}" alt="loginWeb">
                         </a>
                     </div>
@@ -313,7 +331,7 @@
                         </form>
                     </div>
                     <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 text-right">
-                        <a href="{{url('/carrito')}}" class="widget-header float-md-right">
+                        <a href="{{url('/carrito')}}" class="widget-header float-md-right link-page">
                             <div class="icontext">
                                 <div class="icon-wrap"><i class="fa fa-shopping-cart fa-2x"></i><span id="label-carrito" class="notify">0</span></div>
                             </div>
@@ -325,7 +343,11 @@
     </header>
 
     @include('ecommerce/menu')
-
+    <div id="load-bar">
+        <div class="progress" style="height: 5px;">
+            <div class="progress-bar bg-info" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+    </div>
     @yield('banner')
     <!-- ========================= SECTION INTRO END// ========================= -->
 
@@ -356,7 +378,7 @@
         <div class="container">
             <section class="footer-bottom row border-top-white">
                 <div class="col-sm-6">
-                    <p class="text-white"> Desarrollado por la empresa de tecnolog&iacute;a <a style="font-weight:bold;font-size:18px" target="_blank" href="https://loginweb.net">LoginWeb</a></p>
+                    <p class="text-white"> Desarrollado por la empresa de tecnolog&iacute;a <a style="font-weight:bold;font-size:18px" class="link-page" target="_blank" href="https://loginweb.net">LoginWeb</a></p>
                 </div>
             </section>
         </div>
