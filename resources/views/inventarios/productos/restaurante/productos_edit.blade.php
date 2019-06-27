@@ -95,10 +95,31 @@
                                                 <div class="col-md-12" style="">
                                                     <label for="">Imagen(es)</label> @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="right" title="Imagen o imagenes que se mostrarán del producto. Este campo no es obligatorio."></span> @endif
                                                     <div class="img-small-wrap" style="height:120px;overflow-y:auto;border:3px solid #096FA9;padding:5px">
-                                                        <div class="item-gallery" id="img-preview">
-                                                            <button type="button" class="btn" title="Agregar imagen(es)" onclick="add_img()">
+                                                        <div class="" id="img-preview">
+                                                            <button type="button" class="btn col-md-3" title="Agregar imagen(es)" onclick="add_img()">
                                                                 <h1 style="font-size:50px;margin:10px"><span class="voyager-plus"></span></h1>
                                                             </button>
+                                                                @php
+                                                                    $style = ($producto->imagen!='') ? 'border:3px solid #2ECC71' : '';
+                                                                    $titulo = 'Imagen principal';
+                                                                @endphp
+                                                                @foreach ($imagen as $item)
+                                                                    @php
+                                                                        $img = str_replace('.', '_small.', $item->imagen);
+                                                                        $img_big = $item->imagen;
+                                                                    @endphp
+                                                                    <div class="col-md-3" id="marco-{{$item->id}}">
+                                                                        <div style="position:absolute;z-index:1;">
+                                                                            <label class="label label-danger btn-delete_img" data-toggle="modal" data-id="{{$item->id}}" data-target="#modal_delete" style="cursor:pointer;@if(!empty($style)) display:none @endif"><span class="voyager-x"></span></label>
+                                                                        </div>
+                                                                        <img src="{{url('storage').'/'.$img}}" style="width:100%;cursor:pointer;{{ $style }}" id="image-{{$item->id}}" title="{{$titulo}}" class="img-thumbnail img-sm img-gallery item-gallery" data-id="{{$item->id}}" data-img="{{url('storage').'/'.$img_big}}">
+                                                                    </div>
+                                                                    @php
+                                                                        $style = '';
+                                                                        $titulo = 'Establecer como imagen principal';
+                                                                    @endphp
+                                                                @endforeach
+                                                            {{-- </div> --}}
                                                         </div>
                                                         <input type="file" name="imagen[]" style="display:none" accept="image/*" multiple id="gallery-photo-add">
                                                     </div>
@@ -178,10 +199,10 @@
                     </div>
                 </div>
             </form>
-
-
         </div>
         @include('partials.modal_load')
+        @include('inventarios.productos.partials.modales')
+
     @stop
 
     @section('css')
@@ -210,9 +231,24 @@
                 $('#select-categoria_id').select2();
                 $('#select-subcategoria_id').select2();
 
-                // Calcular longitud de textarea "descripció"
-                $('#text-descripcion').keyup(function(e){
-                    $('#label-descripcion').text(`Descripción (${$(this).val().length}/255)`)
+                $('#label-descripcion').text(`Descripción (${$('#text-descripcion').val().length}/255)`)
+
+                // cambiar imagen principal
+                $('.img-gallery').click(function(){
+                    let img_medium = $(this).data('img').replace('_small', '_medium');
+                    let img = $(this).data('img').replace('_small', '');
+
+                    let id = $(this).data('id');
+                    let producto_id = {{$producto->id}};
+                    let url = "{{url('admin/productos/cambiar_imagen_principal')}}/"+producto_id+'/'+id
+                    change_background(img_medium, img, id, url)
+                });
+
+                // Eliminar imagen
+                $('#form-delete_imagen').on('submit', function(e){
+                    e.preventDefault();
+                    let datos = $(this).serialize();
+                    delete_imagen("{{route('delete_imagen')}}", datos);
                 });
 
                 $('#select-categoria_id').change(function(){
@@ -231,10 +267,6 @@
                     }
                 });
 
-                // mostrar pantalla de carga al guardar un producto
-                $('#form').on('submit', function(){
-                    $('#modal_load').modal('show');
-                });
             });
 
             function borrarTr(num){

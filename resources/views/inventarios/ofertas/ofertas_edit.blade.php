@@ -1,10 +1,10 @@
 @extends('voyager::master')
-@section('page_title', 'Añadir Oferta')
+@section('page_title', 'Editar Oferta')
 
 @if(auth()->user()->hasPermission('add_ofertas'))
     @section('page_header')
         <h1 class="page-title">
-            <i class="voyager-certificate"></i> Añadir oferta
+            <i class="voyager-certificate"></i> Editar oferta
         </h1>
         {{-- <a href="{{route('sucursales_index')}}" class="btn btn-success btn-small">
             <i class="voyager-double-left"></i> <span>Atras</span>
@@ -13,25 +13,26 @@
 
     @section('content')
         <div class="page-content">
-            <form id="form" action="{{route('ofertas_store')}}" method="post" enctype="multipart/form-data">
+            <form id="form" action="{{route('ofertas_update')}}" method="post" enctype="multipart/form-data">
                 <div class="page-content browse container-fluid">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="panel panel-bordered">
                                 @csrf
+                                <input type="hidden" name="id" value="{{$oferta->id}}">
                                 <div class="panel-body strong-panel">
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="row">
                                                 <div class="form-group col-md-12">
                                                     <label for="">Nombre</label>  @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Nombre o título de la campaña de ofertas. Este campo es obligatorio."></span> @endif
-                                                    <input type="text" name="nombre" class="form-control" placeholder="Nombre de la campaña" required>
+                                                    <input type="text" name="nombre" class="form-control" placeholder="Nombre de la campaña" value="{{$oferta->nombre}}" required>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="form-group col-md-12">
                                                     <label for="" id="label-descripcion">Descripción (0/255)</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Descripción corta de la campaña, no debe exceder los 255 caracteres. Este campo es obligatorio."></span> @endif
-                                                    <textarea name="descripcion" id="text-descripcion" class="form-control" maxlength="255" rows="5" placeholder="Descripción de la campaña de oferta" required></textarea>
+                                                    <textarea name="descripcion" id="text-descripcion" class="form-control" maxlength="255" rows="5" placeholder="Descripción de la campaña de oferta" required>{{$oferta->descripcion}}</textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -39,11 +40,11 @@
                                             <div class="row">
                                                 <div class="form-group col-md-6">
                                                     <label for="">Inicio</label>  @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Fecha de inicio de la campaña. Este campo es obligatorio."></span> @endif
-                                                    <input type="date" name="inicio" class="form-control" value="{{date('Y-m-d')}}" required>
+                                                    <input type="date" name="inicio" class="form-control" value="{{date('Y-m-d', strtotime($oferta->inicio))}}" required>
                                                 </div>
                                                 <div class="form-group col-md-6">
                                                     <label for="">Fin</label>  @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="right" title="Fecha de finalización de la campaña. Este campo no es obligatorio."></span> @endif
-                                                    <input type="date" name="fin" class="form-control">
+                                                    <input type="date" name="fin" @if(!empty($oferta->fin)) value="{{date('Y-m-d', strtotime($oferta->fin))}}" @endif class="form-control">
                                                 </div>
                                             </div>
                                             <div class="row">
@@ -54,6 +55,9 @@
                                                             <button type="button" class="btn" title="Agregar imagen" onclick="add_img()">
                                                                 <h1 style="font-size:50px;margin:10px"><span class="voyager-plus"></span></h1>
                                                             </button>
+                                                            @if(!empty($oferta->imagen))
+                                                            <img src="{{url('storage').'/'.$oferta->imagen}}" style="height:100px" class="img-thumbnail img-sm img-gallery">
+                                                            @endif
                                                         </div>
                                                         <input type="file" name="imagen" style="display:none" id="gallery-photo-add">
                                                     </div>
@@ -151,8 +155,27 @@
                                                             <th width="50px">Quitar</th>
                                                         </tr>
                                                     </thead>
+                                                    @php
+                                                        $cont = 0;
+                                                    @endphp
                                                     <tbody id="lista_productos">
-
+                                                        @foreach ($detalle_oferta as $item)
+                                                        <tr id="tr-{{$cont}}">
+                                                            <td><input type="hidden" class="input-producto_id" name="producto_id[]" value="{{$item->producto_id}}">{{$item->producto}}</td>
+                                                            <td><span id="precios-{{$cont}}">{{$precios[$cont]['precio']}} {{$precios[$cont]['moneda']}} mínimo {{$precios[$cont]['cantidad_minima']}}</span></td>
+                                                            <td><input type="number" min="1" step="1" class="form-control" name="monto[]" value="{{$item->monto}}" required></td>
+                                                            <td>
+                                                                <select name="tipo[]" class="form-control" id="select-tipo{{$cont}}">
+                                                                    <option @if($item->tipo_descuento=='porcentaje') selected @endif value="porcentaje">Porcentaje (%)</option>
+                                                                    <option  @if($item->tipo_descuento=='monto') selected @endif value="monto">Monto fijo</option>
+                                                                </select>
+                                                            </td>
+                                                            <td style="padding-top:15px"><span onclick="borrarTr({{$cont}})" class="voyager-x text-danger"></span></td>
+                                                        </tr>
+                                                        @php
+                                                            $cont++;
+                                                        @endphp
+                                                        @endforeach
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -186,6 +209,11 @@
                 $('[data-toggle="popover"]').popover({ html : true });
                 $('[data-toggle="tooltip"]').tooltip();
 
+                // Calcular longitud de textarea "descripció"
+                $('#text-descripcion').keyup(function(e){
+                    $('#label-descripcion').text(`Descripción (${$(this).val().length}/255)`)
+                });
+
                 @error('producto_id')
                 toastr.error('Debe agregar al menos 1 producto a la lista.', 'Error');
                 @enderror
@@ -202,7 +230,7 @@
                 });
 
                 // agregar productos
-                let indice = 1;
+                let indice = {{$cantidad_productos}};
                 $('#btn-agregar').click(function(){
                     add_producto(indice, '{{url("admin/productos/obtener/precios_venta")}}');
                 });

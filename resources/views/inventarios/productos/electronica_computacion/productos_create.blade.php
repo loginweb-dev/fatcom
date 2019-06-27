@@ -213,8 +213,6 @@
                     </div>
                 </div>
             </form>
-
-
         </div>
         @include('partials.modal_load')
     @stop
@@ -225,6 +223,7 @@
     @section('javascript')
         <script src="{{url('image-preview/image-preview.js')}}"></script>
         <script src="{{url('js/loginweb.js')}}"></script>
+        <script src="{{url('js/inventarios/productos.js')}}"></script>
         <script>
             $(document).ready(function(){
                 $('[data-toggle="popover"]').popover({ html : true });
@@ -233,11 +232,6 @@
                 inicializar_select2('categoria_id');
                 inicializar_select2('subcategoria_id');
                 inicializar_select2('marca_id');
-
-                // Calcular longitud de textarea "descripció"
-                $('#text-descripcion').keyup(function(e){
-                    $('#label-descripcion').text(`Descripción (${$(this).val().length}/255)`)
-                });
 
                 $('#select-categoria_id').change(function(){
                     let id = $(this).val();
@@ -255,42 +249,21 @@
                     }
                 });
 
-                // mostrar pantalla de carga al guardar un producto
-                $('#form').on('submit', function(){
-                    $('#modal_load').modal('show');
-                });
-
                 // agregar precios
                 let indice_compra = 1;
                 $('#btn-add_compra').click(function(){
-                    $('#tr-precioCompra').append(`<tr id="tr-precioCompra${indice_compra}">
-                                                <td><input type="number" min="1" step="0.1" class="form-control" name="monto[]" required></td>
-                                                <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_compra[]" required></td>
-                                                <td style="padding-top:15px"><span onclick="borrarTr(${indice_compra}, 'Compra')" class="voyager-x text-danger" title="Quitar"></span></td>
-                                            </tr>`);
+                    add_precio_compra(indice_compra)
                     indice_compra++;
                 });
 
                 let indice_venta = 1;
                 $('#btn-add_venta').click(function(){
-                    $('#tr-precioVenta').append(`<tr id="tr-precioVenta${indice_venta}">
-                                                <td>
-                                                    <input type="number" min="1" step="0.1" class="form-control" name="precio_venta[]" required>
-                                                    <input type="hidden" name="precio_minimo[]" value="0">
-                                                </td>
-                                                <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_venta[]" required></td>
-                                                <td style="padding-top:15px"><span onclick="borrarTr(${indice_venta}, 'Venta')" class="voyager-x text-danger" title="Quitar"></span></td>
-                                            </tr>`);
+                    add_precio_venta(indice_venta)
                     indice_venta++;
                 });
 
                 // ================
             });
-
-            function borrarTr(id, tipo){
-                console.log(id)
-                $('#tr-precio'+tipo+id).remove();
-            }
         </script>
     @endsection
 

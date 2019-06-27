@@ -140,7 +140,7 @@
                                                         @endphp
                                                         <div class="item-gallery" id="image-{{$item->id}}" style="{{ $style }}">
                                                             <div style="position:absolute;z-index:1;">
-                                                                <label class="label label-danger btn-delete" data-toggle="modal" data-id="{{$item->id}}" data-target="#modal_delete" style="cursor:pointer;margin-left:30px;@if(!empty($style)) display:none @endif"><span class="voyager-x"></span></label>
+                                                                <label class="label label-danger btn-delete_img" data-toggle="modal" data-id="{{$item->id}}" data-target="#modal_delete" style="cursor:pointer;margin-left:30px;@if(!empty($style)) display:none @endif"><span class="voyager-x"></span></label>
                                                             </div>
                                                             <img src="{{url('storage').'/'.$img}}" class="img-thumbnail img-sm img-gallery" data-id="{{$item->id}}" data-img="{{url('storage').'/'.$img_big}}">
                                                         </div>
@@ -279,34 +279,7 @@
             </form>
         </div>
         @include('partials.modal_load')
-
-        {{-- modal delete --}}
-        <form id="form-delete_imagen" action="{{route('delete_imagen')}}" method="POST">
-            <div class="modal modal-danger fade" tabindex="-1" id="modal_delete" role="dialog">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                        aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title">
-                                <i class="voyager-trash"></i> Estás seguro que quieres borrar la imagen?
-                            </h4>
-                        </div>
-
-                        <div class="modal-body">
-                        </div>
-                        <div class="modal-footer">
-                            {{ csrf_field() }}
-                            <input type="hidden" name="id" value="">
-                            <input type="submit" class="btn btn-danger pull-right delete-confirm"value="Sí, bórralo!">
-                            <button type="button" class="btn btn-default pull-right" data-dismiss="modal">
-                                Cancelar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
+        @include('inventarios.productos.partials.modales')
     @stop
 
     @section('css')
@@ -320,6 +293,7 @@
     <script src="{{url('image-preview/image-preview.js')}}"></script>
     <script src="{{url('ecommerce/plugins/fancybox/fancybox.min.js')}}" type="text/javascript"></script>
     <script src="{{url('js/loginweb.js')}}"></script>
+    <script src="{{url('js/inventarios/productos.js')}}"></script>
         <script>
             $(document).ready(function(){
                 $('[data-toggle="popover"]').popover({ html : true });
@@ -330,10 +304,6 @@
                 }
 
                 $('#label-descripcion').text(`Descripción (${$('#text-descripcion').val().length}/255)`)
-                // Calcular longitud de textarea "descripció"
-                $('#text-descripcion').keyup(function(e){
-                    $('#label-descripcion').text(`Descripción (${$(this).val().length}/255)`)
-                });
 
                 $('#select-categoria_id').val('{{$producto->categoria_id}}');
                 $('#select-subcategoria_id').val('{{$producto->subcategoria_id}}');
@@ -352,57 +322,15 @@
 
                     let id = $(this).data('id');
                     let producto_id = {{$producto->id}};
-                    $('#modal_load').modal('show');
-
-                    $.ajax({
-                        url: "{{url('admin/productos/cambiar_imagen_principal')}}/"+producto_id+'/'+id,
-                        type: 'get',
-                        success: function(response){
-                            if(response==1){
-                                $('#img-medium').attr('src', img_medium);
-                                $('#img-slider').attr('href', img);
-                                // Resaltar border de imagen seleccionada
-                                $('.item-gallery').css('border','none');
-                                $('#image-'+id).css('border','3px solid #2ECC71');
-
-                                // Quitar boton de eliminación de la imagen seleccionada
-                                $('.btn-delete').css('display','block');
-                                $(`#image-${id} .btn-delete`).css('display','none');
-                                toastr.info('Imagen princiapl actualizada correctamente', 'Información');
-                            }else{
-                                toastr.error('Ocurrió un error al eliminar la imagen', 'Error');
-                            }
-                            $('#modal_load').modal('hide');
-                        }
-                    });
-                });
-
-                // set valor de delete imagen
-                $('.btn-delete').click(function(){
-                    $('#modal_delete input[name="id"]').val($(this).data('id'));
+                    let url = "{{url('admin/productos/cambiar_imagen_principal')}}/"+producto_id+'/'+id
+                    change_background(img_medium, img, id, url)
                 });
 
                 // Eliminar imagen
                 $('#form-delete_imagen').on('submit', function(e){
                     e.preventDefault();
                     let datos = $(this).serialize();
-                    let id = $('#modal_delete input[name="id"]').val();
-                    $('#modal_delete').modal('hide');
-                    $('#modal_load').modal('show');
-                    $.ajax({
-                        url: "{{route('delete_imagen')}}",
-                        type: 'post',
-                        data: datos,
-                        success: function(response){
-                            if(response==1){
-                                $('#image-'+id).remove();
-                                toastr.info('Imagen eliminada correctamente', 'Información');
-                            }else{
-                                toastr.error('Ocurrió un error al eliminar la imagen', 'Error');
-                            }
-                            $('#modal_load').modal('hide');
-                        }
-                    });
+                    delete_imagen("{{route('delete_imagen')}}", datos);
                 });
 
                 $('#select-categoria_id').change(function(){
@@ -418,42 +346,22 @@
                     }
                 });
 
-                // mostrar pantalla de carga al guardar un producto
-                $('#form').on('submit', function(){
-                    $('#modal_load').modal('show');
-                });
-
                 // agregar precios
                 let indice_compra = {{$indiceCompra}};
                 $('#btn-add_compra').click(function(){
-                    $('#tr-precioCompra').append(`<tr id="tr-precioCompra${indice_compra}">
-                                                <td><input type="number" min="1" step="0.1" class="form-control" name="monto[]" required></td>
-                                                <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_compra[]" required></td>
-                                                <td style="padding-top:15px"><span onclick="borrarTr(${indice_compra}, 'Compra')" class="voyager-x text-danger" title="Quitar"></span></td>
-                                            </tr>`);
+                    add_precio_compra(indice_compra)
                     indice_compra++;
                 });
 
                 let indice_venta = {{$indiceVenta}};
                 $('#btn-add_venta').click(function(){
-                    $('#tr-precioVenta').append(`<tr id="tr-precioVenta${indice_venta}">
-                                                <td>
-                                                    <input type="number" min="1" step="0.1" class="form-control" name="precio_venta[]" required>
-                                                    <input type="hidden" name="precio_minimo[]" value="0">
-                                                </td>
-                                                <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_venta[]" required></td>
-                                                <td style="padding-top:15px"><span onclick="borrarTr(${indice_venta}, 'Venta')" class="voyager-x text-danger" title="Quitar"></span></td>
-                                            </tr>`);
+                    add_precio_venta(indice_venta)
                     indice_venta++;
                 });
 
                 // ================
 
             });
-
-            function borrarTr(id, tipo){
-                $('#tr-precio'+tipo+id).remove();
-            }
         </script>
     @endsection
 

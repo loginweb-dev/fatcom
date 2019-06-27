@@ -185,11 +185,6 @@
                 inicializar_select2('categoria_id');
                 inicializar_select2('subcategoria_id');
 
-                // Calcular longitud de textarea "descripción"
-                $('#text-descripcion').keyup(function(e){
-                    $('#label-descripcion').text(`Descripción (${$(this).val().length}/255)`)
-                });
-
                 // Listar las subcategorias segun la categoria seleccionada
                 $('#select-categoria_id').change(function(){
                     let id = $(this).val();
@@ -205,11 +200,6 @@
                         $('#select-subcategoria_id').html('');
                         inicializar_select2('subcategoria_id');
                     }
-                });
-
-                // mostrar pantalla de carga al guardar un producto
-                $('#form').on('submit', function(){
-                    $('#modal_load').modal('show');
                 });
             });
 

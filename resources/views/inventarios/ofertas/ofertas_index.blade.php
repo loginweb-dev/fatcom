@@ -40,7 +40,7 @@
                                         <thead>
                                             <tr>
                                                 <th>Nombre</th>
-                                                <th>Detalle</th>
+                                                <th>Descripción</th>
                                                 <th>Fecha de inicio</th>
                                                 <th>Fecha de fin</th>
                                                 <th>Imagen</th>
@@ -54,7 +54,7 @@
                                                 @endphp
                                                 <tr>
                                                     <td>{{$item->nombre}}</td>
-                                                    <td>{{$item->detalle}}</td>
+                                                    <td>{{$item->descripcion}}</td>
                                                     <td>{{date('d-m-Y', strtotime($item->inicio))}} <br> <small>{{\Carbon\Carbon::parse($item->inicio)->diffForHumans()}}</small> </td>
                                                     <td>
                                                         @if($item->fin!='')

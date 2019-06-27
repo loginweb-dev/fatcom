@@ -58,7 +58,7 @@ class OfertasController extends Controller
             array_push($precios, $precio);
 
         }
-        return view('inventarios/ofertas/ofertas_view', compact('oferta', 'detalle', 'precios'));
+        return view('inventarios/ofertas/ofertas_view', compact('oferta', 'detalle', 'precios', 'id'));
     }
 
     public function create(){
@@ -108,7 +108,7 @@ class OfertasController extends Controller
 
         $oferta = new Oferta;
         $oferta->nombre = $data->nombre;
-        $oferta->detalle = $data->detalle;
+        $oferta->descripcion = $data->descripcion;
         $oferta->inicio = $data->inicio.' 00:00:00';
         $oferta->fin = (!empty($data->fin)) ? $data->fin.' 23:00:00' : $data->fin;
         $oferta->imagen = $imagen;
@@ -135,12 +135,95 @@ class OfertasController extends Controller
     }
 
     public function edit($id){
+        $oferta = DB::table('ofertas as o')
+                        ->select('o.*')
+                        ->where('o.deleted_at', NULL)
+                        ->where('o.id', $id)
+                        ->first();
+        $detalle_oferta = DB::table('ofertas_detalles as d')
+                        ->join('productos as p', 'p.id', 'd.producto_id')
+                        ->select('d.*', 'p.nombre as producto')
+                        ->where('d.deleted_at', NULL)
+                        ->where('d.oferta_id', $id)
+                        ->get();
+        $precios = [];
+        foreach ($detalle_oferta as $item) {
+            // Obtener precios de venta del producto
+            $producto_unidades =  (new Productos)->obtener_precios_venta($item->producto_id);
+            $precio = (count($producto_unidades)>0) ? ['precio' => $producto_unidades[0]->precio, 'cantidad_minima' => $producto_unidades[0]->cantidad_minima, 'moneda' => $producto_unidades[0]->moneda] : ['precio' => 0, 'cantidad_minima' => 'No definida', 'moneda' => 'No definida'];
+            array_push($precios, $precio);
+        }
+        $cantidad_productos = count($detalle_oferta);
+        $categorias = DB::table('categorias')
+                            ->select('*')
+                            ->where('deleted_at', NULL)
+                            ->where('id', '>', 1)
+                            ->get();
+        $marcas = DB::table('marcas')
+                            ->select('*')
+                            ->where('deleted_at', NULL)
+                            ->where('id', '>', 1)
+                            ->get();
 
-
+        $productos = DB::table('productos as p')
+                            ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                            ->select('p.id', 'p.nombre')
+                            // ->where('deleted_at', NULL)
+                            ->whereNotIn('p.id', function($q){
+                                $q->select('producto_id')->from('ofertas_detalles')->where('deleted_at', null);
+                            })
+                            ->get();
+        return view('inventarios/ofertas/ofertas_edit', compact('oferta', 'detalle_oferta', 'precios', 'cantidad_productos', 'productos', 'categorias', 'marcas'));
     }
 
     public function update(Request $data){
+        $data->validate([
+            'producto_id' => 'required'
+        ]);
 
+        $path = '';
+        if($data->hasFile('imagen')){
+            $file = $data->file('imagen');
+            Storage::makeDirectory('public/ofertas/'.date('F').date('Y'));
+            $base_name = str_random(20);
+
+            // imagen normal
+            $filename = $base_name.'.'.$file->getClientOriginalExtension();
+            $image_resize = Image::make($file->getRealPath())->orientate();
+            $image_resize->resize(500, null, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+            $path =  'ofertas/'.date('F').date('Y').'/'.$filename;
+            $image_resize->save('storage/'.$path);
+        }
+
+        $oferta = Oferta::find($data->id);
+        $oferta->nombre = $data->nombre;
+        $oferta->descripcion = $data->descripcion;
+        $oferta->inicio = $data->inicio.' 00:00:00';
+        $oferta->fin = (!empty($data->fin)) ? $data->fin.' 23:00:00' : $data->fin;
+        if($path!=''){
+            $oferta->imagen = $path;
+        }
+        $oferta->save();
+        DB::table('ofertas_detalles')->where('oferta_id', $data->id)->update(['deleted_at' => Carbon::now()]);
+        for ($i=0; $i < count($data->producto_id); $i++) {
+            $query = DB::table('ofertas_detalles')
+                            ->insert([
+                                'oferta_id' => $data->id,
+                                'producto_id' => $data->producto_id[$i],
+                                'tipo_descuento' => $data->tipo[$i],
+                                'monto' => $data->monto[$i],
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ]);
+        }
+
+        if($query){
+            return redirect()->route('ofertas_index')->with(['message' => 'Campaña de oferta editada exitosamenete.', 'alert-type' => 'success']);
+        }else{
+            return redirect()->route('ofertas_index')->with(['message' => 'Ocurrio un problema al editar la campaña de oferta.', 'alert-type' => 'error']);
+        }
     }
 
     public function delete(Request $data){

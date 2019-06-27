@@ -4,7 +4,7 @@
 @if(auth()->user()->hasPermission('view_ofertas'))
     @section('page_header')
         <h1 class="page-title">
-            <i class="voyager-home"></i> Viendo Producto
+            <i class="voyager-certificate"></i> Viendo Oferta
         </h1>
         @if(auth()->user()->hasPermission('edit_ofertas'))
         <a href="{{route('ofertas_edit', ['id'=>$id])}}" class="btn btn-primary btn-small">
@@ -37,7 +37,7 @@
                                                 <h3 class="panel-title">Detalle</h3>
                                             </div>
                                             <div class="panel-body" style="padding-top:0;">
-                                                <p>{{$oferta->detalle}}</p>
+                                                <p>{{$oferta->descripcion}}</p>
                                             </div>
                                         </div>
                                     </div>

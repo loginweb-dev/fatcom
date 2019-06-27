@@ -39,9 +39,9 @@ class VentasController extends Controller
                             ->orderBy('v.id', 'DESC')
                             ->paginate(10);
         $delivery = DB::table('repartidores as r')
-                            // ->join('clientes as c', 'c.id', 'v.cliente_id')
-                            ->select('r.*')
-                            ->orderBy('r.nombre', 'ASC')
+                            ->join('users as u', 'u.id', 'r.user_id')
+                            ->select('r.*', 'u.name as nombre')
+                            // ->orderBy('r.nombre', 'ASC')
                             ->get();
 
         $value = '';
