@@ -153,6 +153,7 @@ Route::get('admin/ventas/crear', 'VentasController@create')->name('ventas_create
 Route::post('admin/ventas/store', 'VentasController@store')->name('ventas_store');
 Route::get('admin/ventas/update/estado/{id}/{valor}', 'VentasController@estado_update')->name('estado_update');
 Route::post('admin/ventas/asignar_repartidor', 'VentasController@asignar_repartidor')->name('asignar_repartidor');
+Route::get('admin/ventas/get_ubicaciones_cliente/{id}', 'VentasController@get_ubicaciones_cliente');
 
 Route::get('admin/ventas/crear/productos_categoria/{id}', 'VentasController@productos_categoria');
 

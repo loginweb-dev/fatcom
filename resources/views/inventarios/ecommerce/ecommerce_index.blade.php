@@ -41,10 +41,11 @@
                                             <tr>
                                                 <th>Nombre</th>
                                                 <th>Subcategoria</th>
-                                                <th>Fecha de registro</th>
+                                                <th>Tags</th>
                                                 <th>Stock mínimo <a href="#" @if(setting('admin.tips')) data-toggle="tooltip" data-placement="right" title="Cuando el stock del producto sea menor o igual al número ingresado en este campo, se mostrará un mensaje en el E-Commerce haciendo notar que hay pocas unidades del producto. Este campo no es obligatorio." @endif><span class="voyager-question"></span></a></th>
                                                 <th>Costo de envío</th>
                                                 <th>Costo de envío rápido</th>
+                                                <th>última modificación</th>
                                                 <th>Imagen</th>
                                                 <th class="actions text-right">Acciones</th>
                                             </tr>
@@ -61,12 +62,12 @@
                                                 <tr>
                                                     <td>{{$item->nombre}}</td>
                                                     <td>{{$item->subcategoria}}</td>
-                                                    <td>{{date('d-m-Y', strtotime($item->created_at))}} <br> <small>{{\Carbon\Carbon::parse($item->created_at)->diffForHumans()}}</small> </td>
+                                                    <td>@php echo str_replace(',', '<br>', $item->tags); @endphp</td>
                                                     <td>
                                                         @if(!empty($item->escasez))
                                                         {{$item->escasez}}
                                                         @else
-                                                        No definida
+                                                        No definido
                                                         @endif
                                                     </td>
                                                     <td>
@@ -83,13 +84,14 @@
                                                         No definida
                                                         @endif
                                                     </td>
+                                                    <td>{{date('d-m-Y', strtotime($item->updated_at))}} <br> <small>{{\Carbon\Carbon::parse($item->updated_at)->diffForHumans()}}</small> </td>
                                                     <td><a href="{{url('storage').'/'.$imagen}}" data-fancybox="galeria1" data-caption="{{$item->nombre}}"><img src="{{url('storage').'/'.$img}}" width="50px" alt=""></a></td>
                                                     <td class="no-sort no-click text-right" id="bread-actions">
                                                         {{-- @if(auth()->user()->hasPermission('view_ecommerce'))
                                                         <a href="{{route('ecommerce_view', ['id' => $item->id])}}" title="Ver" class="btn btn-sm btn-warning view">
                                                             <i class="voyager-eye"></i> <span class="hidden-xs hidden-sm">Ver</span>
                                                         </a>
-                                                        @endif
+                                                        @endif --}}
                                                         @if(auth()->user()->hasPermission('edit_ecommerce'))
                                                         <a href="{{route('ecommerce_edit', ['id'=>$item->id])}}" title="Editar" class="btn btn-sm btn-primary edit">
                                                             <i class="voyager-edit"></i> <span class="hidden-xs hidden-sm">Editar</span>
@@ -99,7 +101,7 @@
                                                         <a href="#" title="Borrar" class="btn btn-sm btn-danger btn-delete" data-id="{{$item->id}}" data-toggle="modal" data-target="#modal_delete">
                                                             <i class="voyager-trash"></i> <span class="hidden-xs hidden-sm">Borrar</span>
                                                         </a>
-                                                        @endif --}}
+                                                        @endif
                                                     </td>
                                                 </tr>
                                                 @php
@@ -133,7 +135,7 @@
         </div>
 
         {{-- modal delete --}}
-        <form action="{{route('ofertas_delete')}}" method="POST">
+        <form action="{{route('ecommerce_delete')}}" method="POST">
             <div class="modal modal-danger fade" tabindex="-1" id="modal_delete" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">

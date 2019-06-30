@@ -101,8 +101,7 @@
                     let lat =  position.coords.latitude;
                     let lon = position.coords.longitude;
                     map.removeLayer(marcador);
-                    marcador = L.marker([lat, lon], {icon: iconDelivery}).addTo(map).bindPopup(lat+","+lon);
-                    console.log(lat, lon)
+                    marcador = L.marker([lat, lon], {icon: iconDelivery}).addTo(map).bindPopup('Mi ubicación');
                     $.ajax({
                         url: '{{url("admin/ventas/delivery/set_ubicacion")}}/'+id+'/'+lat+'/'+lon,
                         type: 'get',

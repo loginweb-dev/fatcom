@@ -99,7 +99,7 @@
 
                                                                 @endswitch
                                                                 @break
-                                                            @case('pedido')
+                                                            @case('pedido' || 'domicilio')
                                                                 @switch($item->tipo_estado)
                                                                     @case(1)
                                                                         <a href="{{route('estado_update', ['id' => $item->id, 'valor' => $item->tipo_estado+1])}}" title="En preparación" class="btn btn-sm btn-info">

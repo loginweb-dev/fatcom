@@ -21,7 +21,7 @@ class EcommerceController extends Controller
         $registros = DB::table('productos as p')
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
                             ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
-                            ->select('p.id', 'p.nombre', 's.nombre as subcategoria', 'e.created_at', 'e.escasez', 'e.precio_envio', 'e.precio_envio_rapido')
+                            ->select('p.id', 'p.nombre', 's.nombre as subcategoria', 'e.updated_at', 'e.escasez', 'e.precio_envio', 'e.precio_envio_rapido', 'e.tags')
                             ->where('e.deleted_at', NULL)
                             ->paginate(10);
         $imagenes = [];
@@ -103,16 +103,43 @@ class EcommerceController extends Controller
     }
 
     public function edit($id){
-
+        $ecommerce = DB::table('ecommerce_productos as e')
+                            ->join('productos as p', 'p.id', 'e.producto_id')
+                            ->select('e.*', 'p.nombre')
+                            ->where('e.id', $id)
+                            ->first();
+        return view('inventarios/ecommerce/ecommerce_edit', compact('ecommerce'));
 
     }
 
     public function update(Request $data){
+        $query = DB::table('ecommerce_productos')
+                    ->where('id', $data->id)
+                    ->update([
+                        'escasez' => $data->escasez,
+                        'precio_envio' => $data->envio,
+                        'precio_envio_rapido' => $data->envio_rapido,
+                        'tags' => $data->tags,
+                        'updated_at' => Carbon::now()
+                    ]);
 
+        if($query){
+            return redirect()->route('ecommerce_index')->with(['message' => 'Producto de E-Commerce editado exitosamenete.', 'alert-type' => 'success']);
+        }else{
+            return redirect()->route('ecommerce_index')->with(['message' => 'Ocurrio un problema al editar el producto del E-Commerce.', 'alert-type' => 'error']);
+        }
     }
 
     public function delete(Request $data){
+        $query = DB::table('ecommerce_productos')
+                    ->where('id', $data->id)
+                    ->update(['deleted_at' => Carbon::now()]);
 
+        if($query){
+            return redirect()->route('ecommerce_index')->with(['message' => 'Producto de E-Commerce eliminado exitosamenete.', 'alert-type' => 'success']);
+        }else{
+            return redirect()->route('ecommerce_index')->with(['message' => 'Ocurrio un problema al eliminar el producto del E-Commerce.', 'alert-type' => 'error']);
+        }
     }
 
     // =========================================

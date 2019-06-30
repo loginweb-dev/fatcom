@@ -5,12 +5,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Foundation\Auth\RegistersUsers;
 
 // Nota: Agregar Caja para usar eloquent
 use App\Venta;
 use App\Cliente;
 use App\UsersCoordenada;
 use App\RepartidoresPedido;
+use App\User;
 
 use App\Http\Controllers\ProductosController as Productos;
 use App\Http\Controllers\LandingPageController as LandingPage;
@@ -89,13 +92,19 @@ class VentasController extends Controller
     }
 
     public function productos_categoria($id){
+        $subcategorias = DB::table('subcategorias as s')
+                            ->join('productos as p', 'p.subcategoria_id', 's.id')
+                            ->select('s.id', 's.nombre')
+                            ->where('s.deleted_at', NULL)
+                            ->where('s.categoria_id', $id)
+                            ->distinct()
+                            ->get();
         $productos = DB::table('categorias as c')
                             ->join('subcategorias as s', 's.categoria_id', 'c.id')
                             ->join('productos as p', 'p.subcategoria_id', 's.id')
                             ->select('p.*')
                             // ->where('deleted_at', NULL)
                             ->where('s.categoria_id', $id)
-                            // ->where('cantidad', '>', 0)
                             ->get();
         $precios = [];
         foreach ($productos as $item) {
@@ -105,7 +114,7 @@ class VentasController extends Controller
             array_push($precios, $precio);
         }
 
-        return view('ventas.restaurante.ventas_productos_categoria', compact('productos', 'precios'));
+        return view('ventas.restaurante.ventas_productos_categoria', compact('subcategorias', 'productos', 'precios'));
     }
 
     public function store(Request $data){
@@ -192,28 +201,7 @@ class VentasController extends Controller
         }
 
         // Verificar coordenada
-        UsersCoordenada::where('user_id', Auth::user()->id)->update(['ultima_ubicacion' => NULL]);
-
-        if(empty($data->coordenada_id)){
-            $coordenadas = new UsersCoordenada;
-            $coordenadas->user_id = Auth::user()->id;
-            $coordenadas->lat = $data->lat;
-            $coordenadas->lon = $data->lon;
-            $coordenadas->descripcion = $data->descripcion;
-            $coordenadas->concurrencia = 1;
-            $coordenadas->ultima_ubicacion = 1;
-            $coordenadas->save();
-
-        }else{
-            // Setear ubicación actual
-            UsersCoordenada::where('user_id', Auth::user()->id)
-                                ->where('id',$data->coordenada_id)
-                                ->update(['ultima_ubicacion' => 1]);
-            // Incrementar concurrencia a ubicacion
-            UsersCoordenada::where('user_id', Auth::user()->id)
-                                ->where('id',$data->coordenada_id)
-                                ->increment('concurrencia', 1);
-        }
+        $this->set_ultima_ubicacion(Auth::user()->id, $data);
 
         $carrito = session()->has('carrito_compra') ? session()->get('carrito_compra') : array();
         if(count($carrito)==0){
@@ -340,6 +328,40 @@ class VentasController extends Controller
         return $data;
     }
 
+    public function get_ubicaciones_cliente($cliente_id){
+        $user_id = Cliente::where('id', $cliente_id)->first()->user_id;
+        if($user_id){
+            return UsersCoordenada::where('user_id', $user_id)->where('descripcion', '<>', '')->orderBy('concurrencia', 'DESC')->limit(5)->get();
+        }else{
+            return [];
+        }
+    }
+
+    public function set_ultima_ubicacion($user_id, $data){
+        // Verificar coordenada
+        UsersCoordenada::where('user_id', $user_id)->update(['ultima_ubicacion' => NULL]);
+        if(empty($data->coordenada_id)){
+            $coordenadas = new UsersCoordenada;
+            $coordenadas->user_id = $user_id;
+            $coordenadas->lat = $data->lat;
+            $coordenadas->lon = $data->lon;
+            $coordenadas->descripcion = $data->descripcion;
+            $coordenadas->concurrencia = 1;
+            $coordenadas->ultima_ubicacion = 1;
+            $coordenadas->save();
+
+        }else{
+            // Setear ubicación actual
+            UsersCoordenada::where('user_id', $user_id)
+                                ->where('id',$data->coordenada_id)
+                                ->update(['ultima_ubicacion' => 1]);
+            // Incrementar concurrencia a ubicacion
+            UsersCoordenada::where('user_id', $user_id)
+                                ->where('id',$data->coordenada_id)
+                                ->increment('concurrencia', 1);
+        }
+    }
+
     public function crear_venta($data){
 
         $cliente_id = isset($data->cliente_id) ? $data->cliente_id : '';
@@ -347,6 +369,23 @@ class VentasController extends Controller
         if(empty($cliente_id)){
             $cliente_id = Cliente::where('user_id', Auth::user()->id)->first()->id;
             // $cliente_id = $cliente->id;
+        }
+
+        if($data->tipo == 'domicilio'){
+            $user = Cliente::where('id', $cliente_id)->first();
+            if(!$user->user_id){
+                User::create([
+                    'name' => $user->razon_social,
+                    'email' => $user->razon_social.'.'.$user->user_id.'@loginweb.net',
+                    'password' => Hash::make(str_random(10)),
+                ]);
+                $user_id = User::all()->last()->id;
+            }else{
+                $user_id = $user->user_id;
+            }
+
+            $this->set_ultima_ubicacion($user_id, $data);
+
         }
 
         // Nota: Falta obtener datos de facturación
@@ -376,6 +415,9 @@ class VentasController extends Controller
                 $tipo_estado = '2';
                 break;
             case 'pedido':
+                $tipo_estado = '1';
+                break;
+            case 'domicilio':
                 $tipo_estado = '1';
                 break;
             default:
@@ -408,6 +450,7 @@ class VentasController extends Controller
         $venta->nro_mesa = $nro_mesa;
         $venta->autorizacion_id = $autorizacion_id;
         $venta->monto_recibido = $monto_recibido;
+        $venta->observaciones = $data->observaciones;
 
         $venta->save();
         return Venta::all()->last()->id;

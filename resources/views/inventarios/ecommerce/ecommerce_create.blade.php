@@ -13,14 +13,14 @@
 
     @section('content')
         <div class="page-content">
-            <form name="form" action="{{route('ecommerce_store')}}" method="post" enctype="multipart/form-data">
+            <form name="form" action="{{route('ecommerce_store')}}" method="post">
                 @csrf
                 <div class="page-content browse container-fluid">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="panel panel-bordered">
                                 <div class="panel-heading">
-                                    <h4 class="panel-title" style="padding:0px 15px"> Lista de productos </label>
+                                    <h4 class="panel-title" style="padding:0px 15px"> Lista de productos
                                         <button type="button" style="font-size:20px" class="btn btn-link" title="Ver filtros" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                                             <span class="voyager-params"></span>
                                         </button>

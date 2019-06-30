@@ -66,18 +66,18 @@
                             </div>
                             <hr style="margin-bottom:10px;margin-top:0px">
                             <div class="row">
-                                <div class="form-group col-md-4">
+                                <div class="form-group col-md-6">
                                     <label>¿Para llevar?</label><br>
                                     <input type="checkbox" id="check-llevar" name="llevar" data-toggle="toggle" data-on="Sí" data-off="No">
                                     <input type="hidden" name="fecha" class="form-control" value="{{date('Y-m-d')}}" required>
                                 </div>
-                                <div class="form-group col-md-4">
-                                    <label>N&deg; de Mesa</label>
-                                    <input type="number" min="1" step="1" name="nro_mesa" id="input-nro_mesa" class="form-control" value="" required>
-                                </div>
-                                <div class="form-group col-md-4">
+                                {{-- <div class="form-group col-md-4">
+                                    <label>N&deg; de Mesa</label> --}}
+                                    <input type="hidden" min="1" step="1" name="nro_mesa" id="input-nro_mesa" class="form-control" value="" required>
+                                {{-- </div> --}}
+                                <div class="form-group col-md-6">
                                     <label>A domicilio</label><br>
-                                    <input type="checkbox" id="check-llevar" name="llevar" data-toggle="toggle" data-onstyle="success" data-on="Sí" data-off="No">
+                                    <input type="checkbox" id="check-domicilio" name="llevar" data-toggle="toggle" data-onstyle="success" data-on="Sí" data-off="No">
                                 </div>
                             </div>
                             <hr style="margin-bottom:10px;margin-top:0px">
@@ -116,6 +116,7 @@
                                     </tr>
                                 </tbody>
                             </table>
+                            <textarea name="observaciones" id="" class="form-control" rows="3" placeholder="Observaciones del pedido..."></textarea>
                             <input type="hidden" name="importe" value="0" id="input-total">
                         </div>
                         <div class="col-md-12 text-right">
@@ -128,6 +129,33 @@
             </div>
         </div>
     </div>
+    {{-- Modal mapa --}}
+    <div class="modal modal-primary fade" tabindex="-1" id="modal_mapa" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"><i class="voyager-location"></i> Ubicación del pedido</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="list-ubicaciones"></div>
+                    <div id="contenedor_mapa">
+                        <div id="map"></div>
+                    </div>
+
+                    <input type="hidden" name="lat" id="latitud" >
+                    <input type="hidden" name="lon" id="longitud">
+                    <input type="hidden" name="coordenada_id" id="input-coordenada_id">
+                    <textarea name="descripcion" class="form-control" id="input-descripcion" rows="2" maxlength="200" placeholder="Datos descriptivos de su ubicación..." required></textarea>
+                </div>
+                <div class="modal-footer">
+                    <input type="button" class="btn btn-primary pull-right"value="Aceptar" data-dismiss="modal">
+                    <button type="button" class="btn btn-default pull-right" id="btn-cancel-map" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </form>
 @include('partials.modal_load')
 {{-- Variables PHP para inicializar la vista --}}
@@ -141,9 +169,19 @@
 @stop
 
 @section('css')
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
     <style>
+        #map {
+            height: 340px;
+        }
         .img-producto:hover{
             border: 5px solid #096FA9;
+        }
+        .nav-tabs > li.active > a, .nav-tabs > li.active > a:focus, .nav-tabs > li.active > a:hover{
+            background:#fff !important;
+            color:#62a8ea !important;
+            border-bottom:1px solid #fff !important;
+            top:-1px !important;
         }
     </style>
 @stop
@@ -151,8 +189,12 @@
 @section('javascript')
     <script src="{{url('js/ventas.js')}}"></script>
     <script src="{{url('js/loginweb.js')}}"></script>
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
+    <script src="{{url('js/ubicacion_cliente.js')}}" type="text/javascript"></script>
     <script>
+        let marcador = {};
         $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
             inicializar_select2('cliente_id');
             productos_categoria({{$categoria_id}});
 
@@ -194,21 +236,89 @@
                 });
             });
 
-
-
             // anular o activar mesa si no es para llevar
             $('#check-llevar').change(function() {
                 if($(this).prop('checked')){
                     $('#input-nro_mesa').val('');
                     $('#input-nro_mesa').attr('readonly', true);
-                    $('#input-nro_mesa').removeAttr('required');
+                    // $('#input-nro_mesa').removeAttr('required');
                     $('#input-tipo').val('llevar');
+                    $('#check-domicilio').bootstrapToggle('off')
                 }else{
                     $('#input-nro_mesa').removeAttr('readonly');
-                    $('#input-nro_mesa').attr('required', true);
+                    // $('#input-nro_mesa').attr('required', true);
                     $('#input-tipo').val('venta');
                 }
             });
+
+            // Activar mapa para llevar a domicilio
+            let cont = 0;
+            $('#check-domicilio').change(function() {
+                if($(this).prop('checked')){
+                    // $('#check-llevar').removeAttr('checked');
+                    $('#check-llevar').bootstrapToggle('off');
+                    $('#modal_mapa').modal('show');
+                    $('#input-tipo').val('domicilio');
+                    let cliente_id = $('#select-cliente_id').val();
+                    if(cliente_id > 1){
+                        $.get('{{url("admin/ventas/get_ubicaciones_cliente")}}/'+cliente_id, function(data){
+                            $('#list-ubicaciones').html('');
+                            let datos = '';
+                            data.forEach(item => {
+                                let descripcion = item.descripcion;
+                                if(item.descripcion.length>20){
+                                    descripcion = descripcion.substring(0, 20)+'...';
+                                }
+                                datos += `<button type="button" class="btn btn-info" onclick="ubicacion_anterior(${item.id}, ${item.lat}, ${item.lon}, '${item.descripcion}')" data-toggle="tooltip" data-placement="top" title="${item.descripcion}">${descripcion}</button> `;
+                            });
+                            $('#list-ubicaciones').html(datos)
+                        });
+                    }
+
+                    map.remove();
+                    setTimeout(function(){
+                        $('#contenedor_mapa').html('<div id="map"></div>');
+                        map = L.map('map').fitWorld();
+                        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+                            maxZoom: 20,
+                            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+                                '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+                                'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                            id: 'mapbox.streets'
+                        }).addTo(map);
+
+                        navigator.geolocation.getCurrentPosition(function(position) {
+                            let lat =  position.coords.latitude;
+                            let lon = position.coords.longitude;
+                            $('#input-coordenada_id').val('');
+                            $('#input-descripcion').val('')
+                            map.removeLayer(marcador);
+                            marcador = L.marker([lat, lon], {
+                                            draggable: true
+                                        }).addTo(map)
+                                        .bindPopup("Localización actual")
+                                        .openPopup()
+                                        .on('drag', function(e) {
+                                            $('#latitud').val(lat);
+                                            $('#longitud').val(lon);
+                                            $('#input-coordenada_id').val('');
+                                            $('#input-descripcion').val('')
+                                        });
+                            map.setView([lat, lon], 13);
+                        }, function(err) {
+                            alert(err);
+                        });
+                    }, 1000);
+                }else{
+                    // $('#input-tipo').val('venta');
+                }
+            });
+
+            $('#btn-cancel-map').click(function(){
+                $('#check-domicilio').bootstrapToggle('off');
+                $('#input-tipo').val('venta');
+            });
+
         });
 
         // Agregar detalle de venta
@@ -262,7 +372,23 @@
             });
         }
 
+        function ubicacion_anterior(id, lat, lon, descripcion){
+            map.removeLayer(marcador);
+            $('#input-coordenada_id').val(id);
+            $('#input-descripcion').val(descripcion)
 
+            marcador = L.marker([lat, lon], {
+                            draggable: true
+                        }).addTo(map)
+                        .bindPopup(descripcion).openPopup()
+                        .on('drag', function(e) {
+                            $('#latitud').val(e.latlng.lat);
+                            $('#longitud').val(e.latlng.lng);
+                            $('#input-coordenada_id').val('');
+                            $('#input-descripcion').val('')
+                        });;
+            map.setView([lat, lon]);
+        }
 
     </script>
 @stop
