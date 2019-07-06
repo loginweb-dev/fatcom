@@ -51,7 +51,7 @@ class ClientesController extends Controller
             'nit' => 'required|unique:clientes|max:20',
             'movil' => 'required|max:20',
             'nickname' => 'required|max:20',
-            'email' => 'required|unique:users|max:20',
+            'email' => 'required|unique:users|max:50',
             'password' => 'required|max:20'
         ]);
 

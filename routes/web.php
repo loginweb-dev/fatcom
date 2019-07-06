@@ -187,3 +187,4 @@ Route::get('admin/empleados/crear', 'EmpleadosController@create')->name('emplead
 Route::post('admin/empleados/store', 'EmpleadosController@store')->name('empleados_store');
 Route::get('admin/empleados/editar/{id}', 'EmpleadosController@edit')->name('empleados_edit');
 Route::post('admin/empleados/update', 'EmpleadosController@update')->name('empleados_update');
+Route::post('admin/empleados/delete', 'EmpleadosController@delete')->name('empleados_delete');

@@ -59,7 +59,7 @@
                                             <div class="row">
                                                 <div class="col-md-6 form-group">
                                                     <label for="">Email</label>
-                                                    <input type="email" name="email" class="form-control" value="{{$user ? $user->email : ''}}" placeholder="Email" maxlength="20" required>
+                                                    <input type="email" name="email" class="form-control" value="{{$user ? $user->email : ''}}" placeholder="Email" maxlength="50" required>
                                                     @error('email')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror

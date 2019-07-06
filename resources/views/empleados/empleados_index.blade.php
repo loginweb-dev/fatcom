@@ -42,7 +42,7 @@
                                                 <th>Nombre completo</th>
                                                 <th>Movil</th>
                                                 <th>Dirección</th>
-                                                {{-- <th>Nickname</th> --}}
+                                                <th>Nickname</th>
                                                 <th>Usuario</th>
                                                 <th>Avatar</th>
                                                 <th class="actions text-right">Acciones</th>
@@ -64,7 +64,7 @@
                                                     <td>{{$item->nombre}}</td>
                                                     <td>{{$item->movil}}</td>
                                                     <td>{{$item->direccion}}</td>
-                                                    {{-- <td>{{$users[$cont]['usuario']}}</td> --}}
+                                                    <td>{{$users[$cont]['usuario']}}</td>
                                                     <td>{{$users[$cont]['email']}}</td>
                                                     <td><img src="{{$imagen}}" alt="" style="width:50px"></td>
                                                     <td class="no-sort no-click text-right" id="bread-actions">
@@ -116,7 +116,7 @@
         </div>
 
         {{-- modal delete --}}
-        <form action="{{route('sucursales_delete')}}" method="POST">
+        <form action="{{route('empleados_delete')}}" method="POST">
             <div class="modal modal-danger fade" tabindex="-1" id="modal_delete" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">
