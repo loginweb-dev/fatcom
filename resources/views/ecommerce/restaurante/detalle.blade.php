@@ -178,7 +178,7 @@
                     <h5 class="title">Descripción detallada</h5>
                 </a>
             </header>
-            <div class="collapse" id="collapse11" style="">
+            <div class="" id="collapse11" style="">
                 <article class="card-body">
                         {!!$producto->descripcion_long!!}
                 </article>

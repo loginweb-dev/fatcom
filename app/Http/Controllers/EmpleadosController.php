@@ -9,9 +9,9 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 
 use App\User;
-use App\Cliente;
+use App\Empleado;
 
-class ClientesController extends Controller
+class EmpleadosController extends Controller
 {
     public function __construct()
     {
@@ -20,9 +20,9 @@ class ClientesController extends Controller
 
     public function index()
     {
-        $registros = DB::table('clientes as c')
-                            ->select('c.*')
-                            ->where('c.deleted_at', NULL)
+        $registros = DB::table('empleados as e')
+                            ->select('e.*')
+                            ->where('e.deleted_at', NULL)
                             ->paginate(10);
         $users = [];
         foreach ($registros as $item) {
@@ -38,40 +38,49 @@ class ClientesController extends Controller
             array_push($users, $user);
         }
         $value = '';
-        return view('clientes.clientes_index', compact('registros', 'users', 'value'));
+        return view('empleados.empleados_index', compact('registros', 'users', 'value'));
     }
 
     public function create(){
-        return view('clientes.clientes_create');
+        $roles = DB::table('roles as r')
+                        ->select('r.*')
+                        ->where('r.id', '>', 2)
+                        ->get();
+        return view('empleados.empleados_create', compact('roles'));
     }
 
     public function store(Request $data){
+
         $data->validate([
-            'razon_social' => 'required|max:50',
-            'nit' => 'required|unique:clientes|max:20',
-            'movil' => 'required|max:20',
-            'nickname' => 'required|max:20',
+            'nombre' => 'required|max:50',
+            'movil' => 'max:20',
+            'direccion' => 'required|max:150',
             'email' => 'required|unique:users|max:20',
             'password' => 'required|max:20'
         ]);
 
-        $user = User::create([
-            'name' => $data->nickname,
-            'email' => $data->email,
-            'password' => Hash::make($data->password),
-            'avatar' => 'users/default.png',
-            'tipo_login' => 'dashboard'
-        ]);
-        Cliente::create([
-            'razon_social' => $data->razon_social,
-            'nit' => $data->nit,
+        $user_id = NULL;
+        if(!empty($data->nombre) && !empty($data->email) && !empty($data->email)){
+            $user = User::create([
+                'name' => $data->nombre,
+                'email' => $data->email,
+                'password' => Hash::make($data->password),
+                'avatar' => 'users/default.png',
+                'tipo_login' => 'dashboard'
+            ]);
+            $user_id = $user->id;
+        }
+
+        Empleado::create([
+            'nombre' => $data->nombre,
             'movil' => $data->movil,
-            'user_id' => $user->id,
+            'direccion' => $data->direccion,
+            'user_id' => $user_id,
         ]);
         if($user){
-            return redirect()->route('clientes_index')->with(['message' => 'Cliente registrado exitosamente.', 'alert-type' => 'success']);
+            return redirect()->route('empleados_index')->with(['message' => 'Empleado registrado exitosamente.', 'alert-type' => 'success']);
         }else{
-            return redirect()->route('clientes_index')->with(['message' => 'Ocurrio un error al registrar al cliente.', 'alert-type' => 'error']);
+            return redirect()->route('empleados_index')->with(['message' => 'Ocurrio un error al registrar al empleado.', 'alert-type' => 'error']);
         }
     }
 

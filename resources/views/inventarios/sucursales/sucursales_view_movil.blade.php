@@ -1,7 +1,7 @@
 @extends('voyager::master')
 @section('page_title', 'Viendo Sucursal')
 
-@if(auth()->user()->hasPermission('view_sucursales'))
+@if(auth()->user()->hasPermission('read_sucursales'))
     @section('page_header')
         <div class="row" style="margin:0px">
             <h3>Viendo sucursal</h3><br>

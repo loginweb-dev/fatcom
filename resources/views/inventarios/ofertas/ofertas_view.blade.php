@@ -1,7 +1,7 @@
 @extends('voyager::master')
 @section('page_title', 'Viendo Ofertas')
 
-@if(auth()->user()->hasPermission('view_ofertas'))
+@if(auth()->user()->hasPermission('read_ofertas'))
     @section('page_header')
         <h1 class="page-title">
             <i class="voyager-certificate"></i> Viendo Oferta

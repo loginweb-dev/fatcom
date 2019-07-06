@@ -65,7 +65,7 @@
                                                     </td>
                                                     <td><a href="{{url('storage').'/'.$img}}" data-fancybox="galeria1" data-caption="{{$item->nombre}}"><img src="{{url('storage').'/'.$img}}" width="50px" alt=""></a></td>
                                                     <td class="no-sort no-click text-right" id="bread-actions">
-                                                        @if(auth()->user()->hasPermission('view_ofertas'))
+                                                        @if(auth()->user()->hasPermission('read_ofertas'))
                                                         <a href="{{route('ofertas_view', ['id' => $item->id])}}" title="Ver" class="btn btn-sm btn-warning view">
                                                             <i class="voyager-eye"></i> <span class="hidden-xs hidden-sm">Ver</span>
                                                         </a>

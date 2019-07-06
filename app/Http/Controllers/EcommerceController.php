@@ -106,7 +106,7 @@ class EcommerceController extends Controller
         $ecommerce = DB::table('ecommerce_productos as e')
                             ->join('productos as p', 'p.id', 'e.producto_id')
                             ->select('e.*', 'p.nombre')
-                            ->where('e.id', $id)
+                            ->where('p.id', $id)
                             ->first();
         return view('inventarios/ecommerce/ecommerce_edit', compact('ecommerce'));
 

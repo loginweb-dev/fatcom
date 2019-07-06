@@ -41,9 +41,9 @@ class VentasController extends Controller
                             ->whereRaw($consulta)
                             ->orderBy('v.id', 'DESC')
                             ->paginate(10);
-        $delivery = DB::table('repartidores as r')
-                            ->join('users as u', 'u.id', 'r.user_id')
-                            ->select('r.*', 'u.name as nombre')
+        $delivery = DB::table('empleados as e')
+                            ->join('users as u', 'u.id', 'e.user_id')
+                            ->select('e.*', 'u.name as nombre')
                             // ->orderBy('r.nombre', 'ASC')
                             ->get();
 
@@ -124,6 +124,19 @@ class VentasController extends Controller
             return null;
         }
 
+        // dd($data->producto_id[0]);
+        // Si la venta incluye el costo de envío en la factura se agrega ese costo al primer producto vendido
+        $incremento_aux = 0;
+        if(isset($data->incluir_envio)){
+            if(count($data->producto_id)>0){
+                $incremento_aux = $data->cobro_adicional;
+                $data->cobro_adicional = 0;
+            }
+        }else{
+            $data->cobro_adicional = (!empty($data->cobro_adicional)) ? $data->cobro_adicional : 0;
+            $data->importe -= $data->cobro_adicional;
+        }
+
         // Verificar si el cliente está registrado
         if(!is_numeric($data->cliente_id)){
             $cliente = new Cliente;
@@ -131,6 +144,10 @@ class VentasController extends Controller
             $cliente->nit = $data->nit;
             $cliente->save();
             $data->cliente_id = Cliente::all()->last()->id;
+        }else{
+            $cliente = Cliente::find($data->cliente_id);
+            $cliente->nit = $data->nit;
+            $cliente->save();
         }
 
         // insertar y obtener ultima venta
@@ -143,9 +160,12 @@ class VentasController extends Controller
                     DB::table('ventas_detalles')
                         ->insert([
                             'venta_id' => $venta_id,
+                            // Se realiza una suma al primer item en caso de que el costo de envío se incluya en la factura, de lo contrario el incremento es 0
                             'producto_id' => $data->producto_id[$i],
-                            'precio' => $data->precio[$i],
+                            'precio' => ($i==0) ? $data->precio[$i] + $incremento_aux : $data->precio[$i],
                             'cantidad' => $data->cantidad[$i],
+                            'producto_adicional' => $data->adicional_id[$i],
+                            'observaciones' => $data->observacion[$i],
                             'created_at' => Carbon::now(),
                             'updated_at' => Carbon::now()
                         ]);
@@ -182,6 +202,45 @@ class VentasController extends Controller
         }
         // ============================
 
+    }
+
+    public function generar_factura($id){
+        // obtener el tamaño de factura actual
+        // $factura = DB::table('settings')
+        //                 ->select('value')
+        //                 ->where('id', 25)
+        //                 ->first();
+
+        $detalle_venta = DB::table('ventas as v')
+                                ->join('ventas_detalles as d', 'd.venta_id', 'v.id')
+                                ->join('productos as p', 'p.id', 'd.producto_id')
+                                ->join('marcas as m', 'm.id', 'p.marca_id')
+                                ->join('clientes as c', 'c.id', 'v.cliente_id')
+                                ->select('v.*', 'c.razon_social as cliente', 'c.nit', 'p.nombre as producto', 'd.precio', 'd.cantidad', 'd.producto_adicional', 'd.observaciones')
+                                ->where('v.id', $id)
+                                ->get();
+        $producto_adicional = [];
+        foreach ($detalle_venta as $item) {
+            $producto = DB::table('productos as p')
+                                ->select('p.nombre')
+                                ->where('p.id', $item->producto_adicional)
+                                ->first();
+            if($producto){
+                array_push($producto_adicional, ['nombre'=>', '.$producto->nombre]);
+            }else{
+                array_push($producto_adicional, ['nombre'=>'']);
+            }
+        }
+
+
+        // $recibo = false;
+        // if($monto_total = $detalle_venta[0]->nro_factura==0){
+        //     $recibo = true;
+        // }
+        // $monto_total = $detalle_venta[0]->importe_base;
+        // $total_literal = NumerosEnLetras::convertir($monto_total,'Bolivianos',true);
+
+        return view('factura.factura_venta', compact('detalle_venta', 'producto_adicional'));
     }
 
     public function pedidos_store(Request $data){
@@ -270,8 +329,8 @@ class VentasController extends Controller
     }
 
     public function delivery_index(){
-        $registros = DB::table('repartidores as r')
-                            ->join('repartidores_pedidos as rp', 'rp.repartidor_id', 'r.id')
+        $registros = DB::table('empleados as e')
+                            ->join('repartidores_pedidos as rp', 'rp.repartidor_id', 'e.id')
                             ->join('ventas as v', 'v.id', 'rp.pedido_id')
                             ->join('clientes as c', 'c.id', 'v.cliente_id')
                             ->select('v.id', 'c.razon_social', 'v.importe_base', 'v.tipo_estado', 'v.created_at')
@@ -376,7 +435,7 @@ class VentasController extends Controller
             if(!$user->user_id){
                 User::create([
                     'name' => $user->razon_social,
-                    'email' => $user->razon_social.'.'.$user->user_id.'@loginweb.net',
+                    'email' => str_replace(' ', '', $user->razon_social).'.'.$user->user_id.'@loginweb.net',
                     'password' => Hash::make(str_random(10)),
                 ]);
                 $user_id = User::all()->last()->id;
@@ -403,6 +462,7 @@ class VentasController extends Controller
         $importe_base = $subtotal - $descuento;
         // Nota: Calcula el debito fisacal (13%)
         $debito_fiscal = $importe_base * 0.13;
+        $cobro_adicional = isset($data->cobro_adicional) ? $data->cobro_adicional : 0;
         $caja_id = isset($data->caja_id) ? $data->caja_id : NULL;
         $autorizacion_id = isset($data->autorizacion_id) ? $data->autorizacion_id : NULL;
         $monto_recibido = isset($data->monto_recibido) ? $data->monto_recibido : 0;
@@ -443,6 +503,7 @@ class VentasController extends Controller
         $venta->descuento = $descuento;
         $venta->importe_base = $importe_base;
         $venta->debito_fiscal = $debito_fiscal;
+        $venta->cobro_adicional = $cobro_adicional;
         $venta->caja_id = $caja_id;
         $venta->user_id = Auth::user()->id;
         $venta->tipo = $data->tipo;

@@ -50,7 +50,7 @@
                                     {{-- <td>{{$item->celular}}</td> --}}
                                     <td>{{$item->direccion}}</td>
                                     <td class="no-sort no-click text-right" id="bread-actions">
-                                        @if(auth()->user()->hasPermission('view_sucursales'))
+                                        @if(auth()->user()->hasPermission('read_sucursales'))
                                         <a href="{{route('sucursales_view', ['id' => $item->id])}}" title="Ver" class="btn btn-sm btn-warning view">
                                             <i class="voyager-eye"></i> <span class="hidden-xs hidden-sm">Ver</span>
                                         </a>

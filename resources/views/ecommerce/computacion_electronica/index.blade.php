@@ -133,9 +133,9 @@
                 @endphp
                 @foreach ($ofertas as $item)
                     @php
-                        $imagen = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
+                        $imagen = ($item->imagen!='') ? str_replace('.', '_medium.', $item->imagen) : 'productos/default.png';
                     @endphp
-                    <div class="item-slide">
+                    <div class="item-slide link-page" style="cursor:pointer" onclick="window.location='{{route('detalle_producto_ecommerce', ['id'=>$item->id])}}'">
                         <figure class="card card-product">
                             @if(!empty($item->nuevo))
                             <span class="badge-new bg-info"> Nuevo </span>
@@ -143,8 +143,8 @@
                             <span class="badge-offer"><b>-{{$item->descuento}}@if($item->tipo_descuento=='porcentaje')%@else {{$item->moneda}}@endif</b></span>
                             <div class="card-banner card-producto" style="background: url('{{url('storage').'/'.$imagen}}') center;background-size:cover">
                                 <article class="overlay bottom text-center">
-                                    <h6 class="card-title">{{$item->nombre}}</h6>
-                                    <a href="{{route('detalle_producto_ecommerce', ['id'=>$item->id])}}" class="btn btn-warning btn-sm link-page"> Ver detalles </a>
+                                    <h6>{{$item->nombre}}</h6>
+                                    {{-- <a href="{{route('detalle_producto_ecommerce', ['id'=>$item->id])}}" class="btn btn-warning btn-sm link-page"> Ver detalles </a> --}}
                                 </article>
                             </div>
                         </figure>
@@ -170,17 +170,17 @@
             <div class="owl-carousel owl-init slide-items" data-items="{{ $cantidad }}" data-margin="20" data-dots="false" data-nav="false">
                 @forelse ($productos_categoria[$cont] as $item2)
                     @php
-                        $img = ($item2->imagen!='') ? str_replace('.', '_small.', $item2->imagen) : 'productos/default.png';
+                        $img = ($item2->imagen!='') ? str_replace('.', '_medium.', $item2->imagen) : 'productos/default.png';
                     @endphp
-                    <div class="item-slide">
+                    <div class="item-slide link-page" style="cursor:pointer" onclick="window.location='{{route('detalle_producto_ecommerce', ['id'=>$item2->id])}}'">
                         <figure class="card card-product">
                             @if(!empty($item2->nuevo))
                             <span class="badge-new bg-info"> Nuevo </span>
                             @endif
                             <div class="card-banner card-producto" style="background: url('{{url('storage').'/'.$img}}') center;background-size:cover">
                                 <article class="overlay bottom text-center">
-                                    <h6 class="card-title">{{$item2->nombre}}</h6>
-                                    <a href="{{route('detalle_producto_ecommerce', ['id'=>$item2->id])}}" class="btn btn-warning btn-sm link-page"> Ver detalles </a>
+                                    <h6>{{$item2->nombre}}</h6>
+                                    {{-- <a href="{{route('detalle_producto_ecommerce', ['id'=>$item2->id])}}" class="btn btn-warning btn-sm link-page"> Ver detalles </a> --}}
                                 </article>
                             </div>
                         </figure>

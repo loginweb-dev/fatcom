@@ -318,7 +318,7 @@ class LandingPageController extends Controller
                             ->join('generos as g', 'g.id', 'p.genero_id')
                             ->join('monedas as mn', 'mn.id', 'p.moneda_id')
                             ->join('ecommerce_productos as ec', 'ec.producto_id', 'p.id')
-                            ->select('p.id', 'p.nombre', 'p.imagen', 'p.modelo', 'p.garantia', 'p.descripcion_small', 'p.descripcion_long', 'p.vistas', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'u.nombre as uso', 'c.nombre as color', 'g.nombre as genero', 'ec.tags')
+                            ->select('p.id', 'p.nombre', 'p.imagen', 'p.modelo', 'p.garantia', 'p.descripcion_small', 'p.descripcion_long', 'p.vistas', 'p.catalogo', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'u.nombre as uso', 'c.nombre as color', 'g.nombre as genero', 'ec.tags')
                             // ->where('deleted_at', NULL)
                             ->where('p.id', $id)
                             ->first();

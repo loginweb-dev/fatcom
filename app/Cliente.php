@@ -3,11 +3,8 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Cliente extends Model
 {
-    use SoftDeletes;
-    protected $dates = ['deleted_at'];
-    protected $fillable = ['nombre', 'nit', 'movil'];
+    protected $fillable = ['razon_social', 'nit', 'movil', 'user_id'];
 }

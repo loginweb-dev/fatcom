@@ -133,7 +133,7 @@
                 @endphp
                 @foreach ($ofertas as $item)
                     @php
-                        $imagen = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
+                        $imagen = ($item->imagen!='') ? str_replace('.', '_medium.', $item->imagen) : 'productos/default.png';
                     @endphp
                     <div class="item-slide">
                         <figure class="card card-product">
@@ -170,7 +170,7 @@
             <div class="owl-carousel owl-init slide-items" data-items="{{ $cantidad }}" data-margin="20" data-dots="false" data-nav="false">
                 @forelse ($productos_categoria[$cont] as $item2)
                     @php
-                        $img = ($item2->imagen!='') ? str_replace('.', '_small.', $item2->imagen) : 'productos/default.png';
+                        $img = ($item2->imagen!='') ? str_replace('.', '_medium.', $item2->imagen) : 'productos/default.png';
                     @endphp
                     <div class="item-slide">
                         <figure class="card card-product">

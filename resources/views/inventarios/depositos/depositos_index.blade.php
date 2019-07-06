@@ -58,7 +58,7 @@
                                                     <td>{{$sucursales[$cont]['nombre']}}</td>
                                                     <td>@php echo $estado_inventario[$item->inventario]; @endphp</td>
                                                     <td class="no-sort no-click text-right" id="bread-actions">
-                                                        @if(auth()->user()->hasPermission('view_depositos'))
+                                                        @if(auth()->user()->hasPermission('read_depositos'))
                                                             <a href="{{route('depositos_view', ['id' => $item->id])}}" title="Ver" class="btn btn-sm btn-warning view">
                                                                 <i class="voyager-eye"></i> <span class="hidden-xs hidden-sm">Ver</span>
                                                             </a>

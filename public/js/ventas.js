@@ -29,12 +29,13 @@ function borrarTr(num){
 // calcular total
 function total(){
     let total = 0;
+    let costo_envio = parseFloat($('#input-costo_envio').val());
     $(".label-subtotal").each(function(){
         total += parseFloat($(this).text().replace(" Bs.", ""));
     });
-    $('#label-total').html('<h4>'+total.toFixed(2)+' Bs.</h4>');
-    $('#input-total').val(total);
-    $('#input-entregado').prop('min', total)
+    $('#label-total').html('<h4>'+(total+costo_envio).toFixed(2)+' Bs.</h4>');
+    $('#input-total').val(total+costo_envio);
+    // $('#input-entregado').prop('min', total)
 }
 
 // calcular cambio devuelto

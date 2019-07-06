@@ -1,19 +1,16 @@
 @extends('voyager::master')
-@section('page_title', 'Viendo Deposito')
+@section('page_title', 'Empleados')
 
-@if(auth()->user()->hasPermission('read_depositos'))
+@if(auth()->user()->hasPermission('browse_empleados'))
     @section('page_header')
         <h1 class="page-title">
-            <i class="voyager-archive"></i> Viendo Depositos
+            <i class="voyager-people"></i> Empleados
         </h1>
-        @if(auth()->user()->hasPermission('add_producto_depositos'))
-        <a href="{{route('depositos_create_producto', ['id' => $id])}}" class="btn btn-success btn-add-new">
-            <i class="voyager-plus"></i> <span>Añadir nuevo producto</span>
+        @if(auth()->user()->hasPermission('add_empleados'))
+        <a href="{{route('empleados_create')}}" class="btn btn-success btn-add-new">
+            <i class="voyager-plus"></i> <span>Añadir nuevo</span>
         </a>
         @endif
-        <a href="{{route('depositos_index')}}" class="btn btn-warning" style="margin-top:3px">
-            <i class="voyager-list"></i> <span>Volver a la lista</span>
-        </a>
     @stop
     @section('content')
         <div class="page-content">
@@ -42,12 +39,12 @@
                                     <table id="dataTable" class="table table-bordered table-hover">
                                         <thead>
                                             <tr>
-                                                <th>Código</th>
-                                                <th>Nombre</th>
-                                                <th>Categoria</th>
-                                                <th>Precio</th>
-                                                <th>Stock</th>
-                                                <th>Imagen</th>
+                                                <th>Nombre completo</th>
+                                                <th>Movil</th>
+                                                <th>Dirección</th>
+                                                {{-- <th>Nickname</th> --}}
+                                                <th>Usuario</th>
+                                                <th>Avatar</th>
                                                 <th class="actions text-right">Acciones</th>
                                             </tr>
                                         </thead>
@@ -57,28 +54,35 @@
                                             @endphp
                                             @forelse ($registros as $item)
                                                 @php
-                                                    $img = ($imagenes[$cont]['nombre']!='') ? str_replace('.', '_small.', $imagenes[$cont]['nombre']) : 'productos/default.png';
-                                                    $imagen = ($imagenes[$cont]['nombre']!='') ? $imagenes[$cont]['nombre'] : 'productos/default.png';
-
+                                                    if($users[$cont]['tipo_login'] == 'facebook'){
+                                                        $imagen = $users[$cont]['avatar'];
+                                                    }else{
+                                                        $imagen = url('storage').'/'.$users[$cont]['avatar'];
+                                                    }
                                                 @endphp
                                                 <tr>
-                                                    <td>{{$item->codigo}}</td>
                                                     <td>{{$item->nombre}}</td>
-                                                    <td>{{$item->subcategoria}}</td>
-                                                    <td>{{$precios[$cont]['precio']}}</td>
-                                                    <td>{{$item->cantidad}}</td>
-                                                    <td><a href="{{url('storage').'/'.$imagen}}" data-fancybox="galeria1" data-caption="{{$item->nombre}}"><img src="{{url('storage').'/'.$img}}" width="50px" alt=""></a></td>
+                                                    <td>{{$item->movil}}</td>
+                                                    <td>{{$item->direccion}}</td>
+                                                    {{-- <td>{{$users[$cont]['usuario']}}</td> --}}
+                                                    <td>{{$users[$cont]['email']}}</td>
+                                                    <td><img src="{{$imagen}}" alt="" style="width:50px"></td>
                                                     <td class="no-sort no-click text-right" id="bread-actions">
-                                                        {{-- @if(auth()->user()->hasPermission('edit_productos'))
-                                                        <a href="{{route('productos_edit', ['id'=>$item->id])}}" title="Editar" class="btn btn-sm btn-primary edit">
+                                                        {{-- @if(auth()->user()->hasPermission('read_empleados'))
+                                                        <a href="{{route('sucursales_view', ['id' => $item->id])}}" title="Ver" class="btn btn-sm btn-warning view">
+                                                            <i class="voyager-eye"></i> <span class="hidden-xs hidden-sm">Ver</span>
+                                                        </a>
+                                                        @endif --}}
+                                                        @if(auth()->user()->hasPermission('edit_empleados'))
+                                                        <a href="{{route('empleados_edit', ['id'=>$item->id])}}" title="Editar" class="btn btn-sm btn-primary edit">
                                                             <i class="voyager-edit"></i> <span class="hidden-xs hidden-sm">Editar</span>
                                                         </a>
                                                         @endif
-                                                        @if(auth()->user()->hasPermission('delete_productos'))
+                                                        @if(auth()->user()->hasPermission('delete_empleados'))
                                                         <a href="#" title="Borrar" class="btn btn-sm btn-danger btn-delete" data-id="{{$item->id}}" data-toggle="modal" data-target="#modal_delete">
                                                             <i class="voyager-trash"></i> <span class="hidden-xs hidden-sm">Borrar</span>
                                                         </a>
-                                                        @endif --}}
+                                                        @endif
                                                     </td>
                                                 </tr>
                                                 @php
@@ -86,9 +90,9 @@
                                                 @endphp
                                             @empty
                                             <tr>
-                                                <td colspan="7"><p class="text-center"><br>No hay registros para mostrar.</p></td>
+                                                <td colspan="5"><p class="text-center"><br>No hay registros para mostrar.</p></td>
                                             </tr>
-                                            @endforelse
+                                        @endforelse
                                         </tbody>
                                     </table>
                                 </div>
@@ -112,7 +116,7 @@
         </div>
 
         {{-- modal delete --}}
-        <form action="{{route('productos_delete')}}" method="POST">
+        <form action="{{route('sucursales_delete')}}" method="POST">
             <div class="modal modal-danger fade" tabindex="-1" id="modal_delete" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -140,13 +144,11 @@
         </form>
     @stop
     @section('css')
-        <link href="{{url('landing_page/plugins/fancybox/fancybox.min.css')}}" type="text/css" rel="stylesheet">
         <style>
 
         </style>
     @stop
     @section('javascript')
-        <script src="{{url('landing_page/plugins/fancybox/fancybox.min.js')}}" type="text/javascript"></script>
         <script>
             $(document).ready(function() {
 
@@ -159,7 +161,7 @@
                 $('#form-search').on('submit', function(e){
                     e.preventDefault();
                     let value = (escape($('#search_value').val())!='') ? escape($('#search_value').val()) : 'all';
-                    window.location = '{{url("admin/depositos/ver/".$id."/buscar")}}/'+value;
+                    window.location = '{{url("admin/sucursales/buscar")}}/'+value;
                 });
             });
         </script>
@@ -170,3 +172,4 @@
         @include('errors.sin_permiso')
     @stop
 @endif
+

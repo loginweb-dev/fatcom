@@ -1,7 +1,7 @@
 @extends('voyager::master')
 @section('page_title', 'Viendo Producto')
 
-@if(auth()->user()->hasPermission('view_productos'))
+@if(auth()->user()->hasPermission('read_productos'))
     @section('page_header')
         <h1 class="page-title">
             <i class="voyager-home"></i> Viendo Producto

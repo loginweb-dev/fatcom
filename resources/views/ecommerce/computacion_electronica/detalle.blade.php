@@ -7,6 +7,9 @@
     <meta property="og:title"         content="{{$producto->nombre}}" />
     <meta property="og:description"   content=" {{$producto->descripcion_small}}" />
     <meta property="og:image"         content="{{url('storage').'/'.$producto->imagen}}" />
+
+    {{-- Script del evento --}}
+    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/es_LA/sdk.js#xfbml=1&version=v3.3&appId=302829090588863&autoLogAppEvents=1"></script>
 @endsection
 
 @section('banner')
@@ -93,8 +96,15 @@
                             <dt class="col-sm-3">Modelo</dt>
                             <dd class="col-sm-9">{{$producto->modelo}}</dd>
 
-                            <dt class="col-sm-3">Garantia</dt>
+                            @if(!empty($producto->garantia))
+                            <dt class="col-sm-3">Garantía</dt>
                             <dd class="col-sm-9">{{$producto->garantia}}</dd>
+                            @endif
+
+                            @if(!empty($producto->catalogo))
+                            <dt class="col-sm-3">Catálogo</dt>
+                            <dd class="col-sm-9"><a target="_blank" class="btn btn-success btn-sm" href="{{url('storage').'/'.$producto->catalogo}}">Ver <span class="fas fa-book"></span></a></dd>
+                            @endif
                         </dl>
                         @php
                             $puntuacion = number_format($puntuacion, 1, '.', '');
@@ -179,13 +189,18 @@
                     <h5 class="title">Descripción detallada del producto</h5>
                 </a>
             </header>
-            <div class="collapse" id="collapse11" style="">
+            <div class="" id="collapse11" style="">
                 <article class="card-body">
                         {!!$producto->descripcion_long!!}
                 </article>
             </div>
         </div>
         @endif
+        <div>
+            <div class="card card-filter">
+                <div class="fb-comments" data-href="{{route('detalle_producto_ecommerce', ['id' => $id])}}" data-width="" data-numposts="5"></div>
+            </div>
+        </div>
     </main>
     <aside class="col-md-3 col-sm-12">
         <div class="card card-filter">
@@ -205,6 +220,11 @@
                     </figure>
                 @endforeach
             </div>
+        </div>
+        {{-- Div del evento --}}
+        <br>
+        <div class="card card-filter">
+            <div class="fb-group" data-href="https://www.facebook.com/groups/443787396385175/" data-width="280" data-show-social-context="true" data-show-metadata="false"></div>
         </div>
     </aside>
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\User;
+use App\Cliente;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Hash;
@@ -61,13 +62,18 @@ class LoginController extends Controller
 
                 if($user){
                     Auth::login($user, true);
-                    // dd($user);
                 }else{
                     $user = User::create([
                                 'name' => $auth_user->name,
                                 'email' => $auth_user->email,
                                 'password' => Hash::make(str_random(10)),
+                                'avatar' => $auth_user->avatar,
+                                'tipo_login' => 'facebook'
                             ]);
+                    Cliente::create([
+                        'razon_social' => $auth_user->name,
+                        'user_id' => $user->id,
+                    ]);
 
                     Auth::login($user, true);
                 }

@@ -1,7 +1,7 @@
 @extends('voyager::master')
 @section('page_title', 'Viendo Caja')
 
-@if(auth()->user()->hasPermission('view_cajas'))
+@if(auth()->user()->hasPermission('read_cajas'))
     @section('page_header')
         <h1 class="page-title">
             <i class="voyager-treasure"></i> Viendo Caja

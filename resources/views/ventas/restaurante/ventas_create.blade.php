@@ -84,7 +84,7 @@
                             <div class="row">
                                 <div class="form-group col-md-6">
                                     <label>Monto entregado</label>
-                                    <input type="number" id="input-entregado" value="0" min="1" step="0.5" onchange="calcular_cambio()" onkeyup="calcular_cambio()" style="font-size:18px" name="monto_recibido" class="form-control" required>
+                                    <input type="number" id="input-entregado" value="0" min="0" step="0.5" onchange="calcular_cambio()" onkeyup="calcular_cambio()" style="font-size:18px" name="monto_recibido" class="form-control" required>
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label>Cambio</label>
@@ -105,13 +105,25 @@
                             <table class="table table-bordered">
                                 <thead>
                                     <th style="width:300px">Producto</th>
+                                    <th>observación</th>
                                     <th>Precio</th>
                                     <th>Cantidad</th>
                                     <th colspan="2">Subtotal</th>
                                 </thead>
                                 <tbody>
                                     <tr id="detalle_venta">
-                                        <td colspan="3" class="text-right"><h4>TOTAL</h4></td>
+                                        <td colspan="4" class="text-right"><h5>Costo de envío</h5></td>
+                                        <td id="label-costo_envio" colspan="2">
+                                            <div class="input-group">
+                                                <input type="number" name="cobro_adicional" class="form-control" style="width:80px" onchange="total();calcular_cambio()" onkeyup="total();calcular_cambio()" min="0" value="0" id="input-costo_envio">
+                                                <span class="input-group-addon">
+                                                    <input type="checkbox" name="incluir_envio" data-toggle="tooltip" data-placement="bottom" title="Incluir costo de envío en factura">
+                                                </span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="4" class="text-right"><h4>TOTAL</h4></td>
                                         <td id="label-total" colspan="2"><h4>0.00 Bs.</h4></td>
                                     </tr>
                                 </tbody>
@@ -146,7 +158,7 @@
                     <input type="hidden" name="lat" id="latitud" >
                     <input type="hidden" name="lon" id="longitud">
                     <input type="hidden" name="coordenada_id" id="input-coordenada_id">
-                    <textarea name="descripcion" class="form-control" id="input-descripcion" rows="2" maxlength="200" placeholder="Datos descriptivos de su ubicación..." required></textarea>
+                    <textarea name="descripcion" class="form-control" id="input-descripcion" rows="2" maxlength="200" placeholder="Datos descriptivos de su ubicación..."></textarea>
                 </div>
                 <div class="modal-footer">
                     <input type="button" class="btn btn-primary pull-right"value="Aceptar" data-dismiss="modal">
@@ -192,6 +204,7 @@
     <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
     <script src="{{url('js/ubicacion_cliente.js')}}" type="text/javascript"></script>
     <script>
+        let costo_envio = {{intval(setting('delivery.costo_envio'))}};
         let marcador = {};
         $(document).ready(function(){
             $('[data-toggle="tooltip"]').tooltip();
@@ -211,9 +224,8 @@
                         if(data){
                             let id = data;
                             toastr.success('Venta registrada correctamente.', 'Exito');
-                            @if(setting('empresa.facturas')==1)
+                            // Factura
                             window.open("{{url('admin/factura')}}/"+id, "Factura", `width=800, height=600`)
-                            @endif
                             $('#form')[0].reset();
                             $('.tr-detalle').remove();
                             $(".label-subtotal").text('0.00');
@@ -255,6 +267,7 @@
             let cont = 0;
             $('#check-domicilio').change(function() {
                 if($(this).prop('checked')){
+                    $('#input-costo_envio').val(costo_envio);
                     // $('#check-llevar').removeAttr('checked');
                     $('#check-llevar').bootstrapToggle('off');
                     $('#modal_mapa').modal('show');
@@ -311,7 +324,12 @@
                     }, 1000);
                 }else{
                     // $('#input-tipo').val('venta');
+                    $('#input-costo_envio').val(0);
                 }
+
+                total();
+                calcular_cambio();
+
             });
 
             $('#btn-cancel-map').click(function(){
@@ -321,8 +339,28 @@
 
         });
 
+        var adicional_id = '';
+        var adicional_nombre = '';
+        function combinar_producto(id, nombre, precio, stock,){
+            if(adicional_id==''){
+                $('#producto-'+id).css('border', '5px solid #096FA9')
+                adicional_id = id;
+                adicional_nombre = ', '+nombre;
+            }else{
+                if(adicional_id==id){
+                    $('#producto-'+adicional_id).css('border', 'none');
+                    adicional_id = '';
+                    adicional_nombre = '';
+                }else{
+                    $('#producto-'+adicional_id).css('border', 'none')
+                    agregar_detalle_restaurante(id, nombre, precio, stock, adicional_id, adicional_nombre)
+                    adicional_id = '';
+                }
+            }
+        }
+
         // Agregar detalle de venta
-        function agregar_detalle_restaurante(id, nombre, precio, stock){
+        function agregar_detalle_restaurante(id, nombre, precio, stock, adicional_id, adicional_nombre){
             let cantidad = $('#input_cantidad-'+id).val();
 
             if(cantidad>stock){
@@ -333,20 +371,23 @@
             // recorer la lista para ver si el producto existe
             let existe = false;
             $(".tr-detalle").each(function(){
-                if($(this).data('id')==id){
+                if($(this).data('id')==id+'_'+adicional_id){
                     existe = true;
                 }
             });
+
+
             if(existe){
-                $(`#tr-${id} .label-precio`).html(`<input type="hidden" value="${cantidad}" name="cantidad[]">${cantidad}`);
+                $(`#tr-${id}_${adicional_id} .label-precio`).html(`<input type="hidden" value="${cantidad}" name="cantidad[]">${cantidad}`);
                 $(`#subtotal-${id}`).html(`<h5>${precio*cantidad} Bs.</h5>`);
             }else{
-                $('#detalle_venta').before(`<tr class="tr-detalle" id="tr-${id}" data-id="${id}">
-                                                <td><input type="hidden" value="${id}" name="producto_id[]">${nombre}</td>
+                $('#detalle_venta').before(`<tr class="tr-detalle" id="tr-${id}_${adicional_id}" data-id="${id}_${adicional_id}">
+                                                <td><input type="hidden" value="${id}" name="producto_id[]"><input type="hidden" value="${adicional_id}" name="adicional_id[]">${nombre+adicional_nombre}</td>
+                                                <td><input type="text" class="form-control" name="observacion[]"></td>
                                                 <td><input type="hidden" value="${precio}" name="precio[]">${precio} Bs.</td>
                                                 <td class="label-precio"><input type="hidden" value="${cantidad}" name="cantidad[]">${cantidad}</td>
                                                 <td class="label-subtotal" id="subtotal-${id}"><h5>${precio*cantidad} Bs.</h5></td>
-                                                <td width="40px"><label onclick="borrarTr(${id})" class="text-danger" style="cursor:pointer;font-size:20px"><span class="voyager-trash"></span></label></td>
+                                                <td width="40px"><label onclick="borrarTr('${id}_${adicional_id}')" class="text-danger" style="cursor:pointer;font-size:20px"><span class="voyager-trash"></span></label></td>
                                             <tr>`);
                 toastr.remove();
                 toastr.info('Producto agregar correctamente', 'Bien hecho!');

@@ -33,8 +33,10 @@
                         </a>
 
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                            @if(Auth::user()->role_id == 1)
+                            @if(Auth::user()->role_id != 2)
                             <a class="dropdown-item link-page" href="{{ url('admin') }}">Administración</a>
+                            @else
+                            <a class="dropdown-item link-page" href="#">Perfil</a>
                             @endif
                             <a class="dropdown-item link-page" href="{{ route('logout') }}"
                                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -44,6 +46,9 @@
                                 @csrf
                             </form>
                         </div>
+                    </li>
+                    <li class="nav-item">
+                        <img src="{{url('storage').'/'.Auth::user()->avatar}}" alt="user_profile" style="width:30px">
                     </li>
                 @endguest
             </ul>

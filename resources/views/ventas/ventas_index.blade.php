@@ -39,6 +39,7 @@
                                     <table id="dataTable" class="table table-bordered table-hover">
                                         <thead>
                                             <tr>
+                                                <th>Ticket</th>
                                                 <th>Fecha</th>
                                                 <th>Cliente</th>
                                                 {{-- <th>N&deg; de factura</th>
@@ -55,6 +56,7 @@
                                             @endphp
                                             @forelse ($registros as $item)
                                                 <tr>
+                                                    <td>#{{$item->id}}</td>
                                                     <td>{{date('d-m-Y', strtotime($item->fecha))}} <br> <small>{{\Carbon\Carbon::parse($item->created_at)->diffForHumans()}}</small> </td>
                                                     <td>{{$item->cliente}}</td>
                                                     {{-- <td>{{$item->nro_factura}}</td>
@@ -63,18 +65,27 @@
                                                     {{-- Mostrar etiqueta del tipo de la venta --}}
                                                     <td>
                                                         @switch($item->tipo)
-                                                            @case('pedido') <label class="label label-success">Pedido</label> @break
                                                             @case('venta') <label class="label label-primary">Venta</label> @break
                                                             @case('llevar') <label class="label label-info">Para llevar</label> @break
+                                                            @case('pedido' || 'domicilio') <label class="label label-success">Pedido</label> @break
                                                             @default
                                                         @endswitch
                                                     </td>
+                                                    {{-- Calcular si el cluente debe --}}
+                                                    @php
+                                                        $debe = false;
+                                                        $deuda = '';
+                                                        if($item->importe_base > $item->monto_recibido){
+                                                            $debe = true;
+                                                            $deuda = number_format($item->importe_base - $item->monto_recibido, 2, ',', '');
+                                                        }
+                                                    @endphp
                                                     {{-- Mostrar etiqueta del estado de la venta --}}
                                                     <td>
                                                         @switch($item->tipo_estado)
                                                             @case(1) <label class="label label-warning">Pedido realizado</label> @break
                                                             @case(2) <label class="label label-info">En preparación</label> @break
-                                                            @case(3) <label class="label label-success">Listo</label> @break
+                                                            @case(3) <label class="label label-success">Listo</label> @if($debe) <label class="label label-danger" data-toggle="tooltip" data-placement="bottom" title="El cliente tiene una deuda de {{$deuda}} Bs.">Debe Bs. {{$deuda}}</label>@endif @break
                                                             @case(4) <label class="label label-dark">Enviado</label> @break
                                                             @case(5) <label class="label label-primary">Entregado</label> @break
                                                             @default
@@ -117,9 +128,9 @@
                                                                         </a>
                                                                         @break
                                                                     @case(4)
-                                                                        <a href="{{route('estado_update', ['id' => $item->id, 'valor' => $item->tipo_estado+1])}}" title="Entregado" class="btn btn-sm btn-primary">
+                                                                        {{-- <a href="{{route('estado_update', ['id' => $item->id, 'valor' => $item->tipo_estado+1])}}" title="Entregado" class="btn btn-sm btn-primary">
                                                                             <span class="hidden-xs hidden-sm">Entregado</span> <i class="voyager-basket"></i>
-                                                                        </a>
+                                                                        </a> --}}
                                                                         @break
                                                                     @default
 
@@ -132,7 +143,7 @@
                                                         {{-- <a href="{{route('productos_view', ['id' => $item->id])}}" title="Ver" class="btn btn-sm btn-warning view">
                                                             <i class="voyager-eye"></i> <span class="hidden-xs hidden-sm">Ver</span>
                                                         </a> --}}
-                                                        {{-- @if(auth()->user()->hasPermission('view_ventas'))
+                                                        {{-- @if(auth()->user()->hasPermission('read_ventas'))
                                                         <a href="{{route('productos_view', ['id' => $item->id])}}" title="Ver" class="btn btn-sm btn-warning view">
                                                             <i class="voyager-eye"></i> <span class="hidden-xs hidden-sm">Ver</span>
                                                         </a>
@@ -262,6 +273,7 @@
     @section('javascript')
         <script>
             $(document).ready(function() {
+                $('[data-toggle="tooltip"]').tooltip();
                 // set valor de delete
                 $('.btn-delete').click(function(){
                     $('#modal_delete input[name="id"]').val($(this).data('id'));

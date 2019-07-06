@@ -157,12 +157,33 @@ Route::get('admin/ventas/get_ubicaciones_cliente/{id}', 'VentasController@get_ub
 
 Route::get('admin/ventas/crear/productos_categoria/{id}', 'VentasController@productos_categoria');
 
+// =========================Código de control===========================
+// Route::get('admin/codigo_control', 'VentasController@codigo_control_index')->name('codigo_control_index');
+// Route::post('admin/generar_codigo_control', 'VentasController@codigo_control')->name('generar_codigo_control');
+Route::get('admin/factura/{id}', 'VentasController@generar_factura')->name('generar_factura');
+// Route::get('admin/factura/cambiar_tipo/{tipo}/{id}', 'VentasController@cambiar_tipo_factura');
+
 // Pedidos
 Route::post('admin/ventas/pedidos/store', 'VentasController@pedidos_store')->name('pedidos_store');
-Route::get('admin/ventas/pedidos/success', 'VentasController@pedidos_success')->name('pedidos_success');
+Route::get('pedidos/success', 'VentasController@pedidos_success')->name('pedidos_success');
 
 // ============================Delivery====================================
 Route::get('admin/ventas/delivery', 'VentasController@delivery_index')->name('delivery_index');
 Route::get('admin/ventas/delivery/view/{id}', 'VentasController@delivery_view')->name('delivery_view');
 Route::get('admin/ventas/delivery/set_ubicacion/{id}/{lat}/{lon}', 'VentasController@set_ubicacion');
 Route::get('admin/ventas/delivery/get_ubicacion/{id}', 'VentasController@get_ubicacion');
+
+
+// ============================Clientes====================================
+Route::get('admin/clientes', 'ClientesController@index')->name('clientes_index');
+Route::get('admin/clientes/crear', 'ClientesController@create')->name('clientes_create');
+Route::post('admin/clientes/store', 'ClientesController@store')->name('clientes_store');
+Route::get('admin/clientes/editar/{id}', 'ClientesController@edit')->name('clientes_edit');
+Route::post('admin/clientes/update', 'ClientesController@update')->name('clientes_update');
+
+// ============================Empleados====================================
+Route::get('admin/empleados', 'EmpleadosController@index')->name('empleados_index');
+Route::get('admin/empleados/crear', 'EmpleadosController@create')->name('empleados_create');
+Route::post('admin/empleados/store', 'EmpleadosController@store')->name('empleados_store');
+Route::get('admin/empleados/editar/{id}', 'EmpleadosController@edit')->name('empleados_edit');
+Route::post('admin/empleados/update', 'EmpleadosController@update')->name('empleados_update');
