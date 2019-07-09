@@ -21,7 +21,7 @@ class EcommerceController extends Controller
         $registros = DB::table('productos as p')
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
                             ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
-                            ->select('p.id', 'p.nombre', 's.nombre as subcategoria', 'e.updated_at', 'e.escasez', 'e.precio_envio', 'e.precio_envio_rapido', 'e.tags')
+                            ->select('p.id', 'p.nombre', 's.nombre as subcategoria', 'e.id as ecommerce_id', 'e.updated_at', 'e.escasez', 'e.precio_envio', 'e.precio_envio_rapido', 'e.tags')
                             ->where('e.deleted_at', NULL)
                             ->paginate(10);
         $imagenes = [];
@@ -106,7 +106,7 @@ class EcommerceController extends Controller
         $ecommerce = DB::table('ecommerce_productos as e')
                             ->join('productos as p', 'p.id', 'e.producto_id')
                             ->select('e.*', 'p.nombre')
-                            ->where('p.id', $id)
+                            ->where('e.id', $id)
                             ->first();
         return view('inventarios/ecommerce/ecommerce_edit', compact('ecommerce'));
 

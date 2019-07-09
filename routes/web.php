@@ -17,9 +17,16 @@
 # Socialite facebook
 Route::get('/login/facebook', 'Auth\LoginController@redirectToFacebookProvider');
 Route::get('login/facebook/callback', 'Auth\LoginController@handleProviderFacebookCallback');
-Route::get('/policies', 'LandingPageController@ecommerce_policies');
 # End Socialite facebook
 
+# Socialite google
+Route::get('/login/google', 'Auth\LoginController@redirectToGoogleProvider');
+Route::get('login/google/callback', 'Auth\LoginController@handleProviderGoogleCallback');
+# End Socialite google
+
+Route::get('/policies', 'LandingPageController@ecommerce_policies');
+
+// ================================Ecommerce===========================
 Route::get('/', 'LandingPageController@index')->name('ecommerce_home');
 Route::get('/detalle/{id}', 'LandingPageController@detalle_producto')->name('detalle_producto_ecommerce');
 Route::post('/search', 'LandingPageController@search')->name('busqueda_ecommerce');
@@ -149,6 +156,7 @@ Route::get('admin/compras/crear/{tipo}', 'ComprasController@compras_cargar_tipo'
 
 // ============================Ventas====================================
 Route::get('admin/ventas', 'VentasController@index')->name('ventas_index');
+Route::get('admin/ventas/ver/{id}', 'VentasController@view')->name('ventas_view');
 Route::get('admin/ventas/crear', 'VentasController@create')->name('ventas_create');
 Route::post('admin/ventas/store', 'VentasController@store')->name('ventas_store');
 Route::get('admin/ventas/update/estado/{id}/{valor}', 'VentasController@estado_update')->name('estado_update');

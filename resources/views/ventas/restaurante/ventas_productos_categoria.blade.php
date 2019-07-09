@@ -1,16 +1,14 @@
 <div class="row" style="overflow-y: auto;height:320px">
     <div class="panel-group" id="accordion">
-        @php
-            $class = '';
-        @endphp
         @forelse ($subcategorias as $item0)
+            @php
+                $class = '';
+                $cont = 0;
+            @endphp
             <div class="panel panel-default" style="margin:0px">
                 <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" href="#collapse{{$item0->id}}" style="cursor:pointer">
                     <h4 class="panel-title">{{$item0->nombre}}</h4>
                 </div>
-                @php
-                    $cont = 0;
-                @endphp
 
                 {{-- <h4 class="text-primary">{{$item0->nombre}}<hr style="margin:0px"></h4> --}}
                 <div id="collapse{{$item0->id}}" class="panel-collapse collapse {{$class}}">
@@ -38,17 +36,14 @@
 
                                     </div>
                                 </div>
-                                @php
-                                    $cont++;
-                                @endphp
                             @endif
+                            @php
+                                $cont++;
+                            @endphp
                         @endforeach
                         <div class="clearfix"></div>
                     </div>
                 </div>
-                @php
-                    $class = '';
-                @endphp
             </div>
         @empty
             <br>

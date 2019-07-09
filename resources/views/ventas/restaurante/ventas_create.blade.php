@@ -168,6 +168,7 @@
         </div>
     </div>
 
+
 </form>
 @include('partials.modal_load')
 {{-- Variables PHP para inicializar la vista --}}
@@ -222,21 +223,25 @@
                     data: datos,
                     success: function(data){
                         if(data){
-                            let id = data;
-                            toastr.success('Venta registrada correctamente.', 'Exito');
-                            // Factura
-                            window.open("{{url('admin/factura')}}/"+id, "Factura", `width=800, height=600`)
-                            $('#form')[0].reset();
-                            $('.tr-detalle').remove();
-                            $(".label-subtotal").text('0.00');
-                            $("#label-total").text('0.00 Bs.');
+                            if(data=='error 1'){
+                                toastr.error('Venta no realizada, el cliente seleccionado tiene un pedido pendiente.', 'Error');
+                            }else{
+                                let id = data;
+                                toastr.success('Venta registrada correctamente.', 'Exito');
+                                // Factura
+                                window.open("{{url('admin/factura')}}/"+id, "Factura", `width=800, height=600`)
+                                $('#form')[0].reset();
+                                $('.tr-detalle').remove();
+                                $(".label-subtotal").text('0.00');
+                                $("#label-total").text('0.00 Bs.');
 
-                            // resetear panel de productos
-                            @if(count($categorias)>0)
-                            $('.li-item').removeClass('active');
-                            $('#li-'+{{$categoria_id}}).addClass('active');
-                            productos_categoria({{$categoria_id}})
-                            @endif
+                                // resetear panel de productos
+                                @if(count($categorias)>0)
+                                $('.li-item').removeClass('active');
+                                $('#li-'+{{$categoria_id}}).addClass('active');
+                                productos_categoria({{$categoria_id}})
+                                @endif
+                            }
                         }else{
                             toastr.error('Ocurrio un error al ingresar la venta.', 'Error');
                         }

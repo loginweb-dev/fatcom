@@ -47,6 +47,7 @@
                                                 <th>Total</th>
                                                 <th>Tipo</th>
                                                 <th>Estado</th>
+                                                <th>Opción</th>
                                                 <th class="actions text-right">Acciones</th>
                                             </tr>
                                         </thead>
@@ -91,7 +92,7 @@
                                                             @default
                                                         @endswitch
                                                     </td>
-                                                    <td class="no-sort no-click text-right" id="bread-actions">
+                                                    <td>
                                                         {{-- Mostrar boton de opciones --}}
                                                         @switch($item->tipo)
                                                             @case('llevar')
@@ -140,9 +141,11 @@
                                                             @default
 
                                                         @endswitch
-                                                        {{-- <a href="{{route('productos_view', ['id' => $item->id])}}" title="Ver" class="btn btn-sm btn-warning view">
+                                                    </td>
+                                                    <td class="no-sort no-click text-right" id="bread-actions">
+                                                        <a href="{{route('ventas_view', ['id' => $item->id])}}" title="Ver" class="btn btn-sm btn-warning view">
                                                             <i class="voyager-eye"></i> <span class="hidden-xs hidden-sm">Ver</span>
-                                                        </a> --}}
+                                                        </a>
                                                         {{-- @if(auth()->user()->hasPermission('read_ventas'))
                                                         <a href="{{route('productos_view', ['id' => $item->id])}}" title="Ver" class="btn btn-sm btn-warning view">
                                                             <i class="voyager-eye"></i> <span class="hidden-xs hidden-sm">Ver</span>
@@ -165,7 +168,7 @@
                                                 @endphp
                                             @empty
                                             <tr>
-                                                <td colspan="7"><p class="text-center"><br>No hay registros para mostrar.</p></td>
+                                                <td colspan="8"><p class="text-center"><br>No hay registros para mostrar.</p></td>
                                             </tr>
                                         @endforelse
                                         </tbody>

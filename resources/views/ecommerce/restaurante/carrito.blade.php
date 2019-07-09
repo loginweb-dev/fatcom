@@ -135,7 +135,7 @@
         </div>
         <hr>
         <div class="text-right">
-            <button type="button" data-toggle="modal" data-target="#modal_confirmar" class="btn btn-outline-success">Realizar pedido <span class="fa fa-shopping-cart"></span> </button>
+            <button type="button" class="btn btn-outline-success" id="btn-pasarela">Realizar pedido <span class="fa fa-shopping-cart"></span> </button>
         </div>
 
         {{-- Modal de confirmación --}}
@@ -209,6 +209,18 @@
         let marcador = {};
         $(document).ready(function(){
             $('[data-toggle="tooltip"]').tooltip();
+
+            $('#btn-pasarela').click(function(){
+                let descripcion = $('#input-descripcion').val();
+                console.log(descripcion)
+                if(descripcion!=''){
+                    $('#modal_confirmar').modal();
+                }else{
+                    toastr.options = {"positionClass": "toast-top-right",}
+                    $('#input-descripcion').focus()
+                    toastr.warning('Debe proporcionar una descripción de su ubicación para su fácil localización', 'Advertencia');
+                }
+            });
         });
     </script>
 

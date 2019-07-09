@@ -93,12 +93,12 @@
                                                         </a>
                                                         @endif --}}
                                                         @if(auth()->user()->hasPermission('edit_ecommerce'))
-                                                        <a href="{{route('ecommerce_edit', ['id'=>$item->id])}}" title="Editar" class="btn btn-sm btn-primary edit">
+                                                        <a href="{{route('ecommerce_edit', ['id'=>$item->ecommerce_id])}}" title="Editar" class="btn btn-sm btn-primary edit">
                                                             <i class="voyager-edit"></i> <span class="hidden-xs hidden-sm">Editar</span>
                                                         </a>
                                                         @endif
                                                         @if(auth()->user()->hasPermission('delete_ecommerce'))
-                                                        <a href="#" title="Borrar" class="btn btn-sm btn-danger btn-delete" data-id="{{$item->id}}" data-toggle="modal" data-target="#modal_delete">
+                                                        <a href="#" title="Borrar" class="btn btn-sm btn-danger btn-delete" data-id="{{$item->ecommerce_id}}" data-toggle="modal" data-target="#modal_delete">
                                                             <i class="voyager-trash"></i> <span class="hidden-xs hidden-sm">Borrar</span>
                                                         </a>
                                                         @endif

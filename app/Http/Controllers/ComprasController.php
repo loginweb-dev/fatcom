@@ -9,6 +9,7 @@ use Carbon\Carbon;
 
 use App\Proveedore;
 use App\Compra;
+use App\IeCaja;
 
 use App\Http\Controllers\ProveedoresController as Proveedores;
 
@@ -31,14 +32,17 @@ class ComprasController extends Controller
     }
 
     public function create(){
+        $caja = IeCaja::where('abierta', 1)->first();
+
         $depositos = DB::table('depositos')
                             ->select('*')
                             ->where('deleted_at', NULL)
                             ->get();
-        return view('compras.compras_create', compact('depositos'));
+        return view('compras.compras_create', compact('depositos', 'caja'));
     }
 
     public function store(Request $data){
+        dd($data);
         // Si se envió un NIT crear nuevo proveedor
         if($data->nit!=''){
             $proveedor = (new Proveedores)->get_proveedor($data->nit);

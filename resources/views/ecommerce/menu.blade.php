@@ -48,7 +48,15 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <img src="{{url('storage').'/'.Auth::user()->avatar}}" alt="user_profile" style="width:30px">
+                        @php
+                            $user = App\User::find(Auth::user()->id);
+                            if($user->tipo_login == 'facebook' || $user->tipo_login == 'google'){
+                                $imagen = Auth::user()->avatar;
+                            }else{
+                                $imagen = url('storage').'/'.Auth::user()->avatar;
+                            }
+                        @endphp
+                        <img src="{{$imagen}}" alt="user_profile" style="width:30px">
                     </li>
                 @endguest
             </ul>

@@ -43,6 +43,8 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
+    // Login mediante Facebook
+
     public function redirectToFacebookProvider()
     {
         return Socialite::driver('facebook')->redirect();
@@ -69,6 +71,42 @@ class LoginController extends Controller
                                 'password' => Hash::make(str_random(10)),
                                 'avatar' => $auth_user->avatar,
                                 'tipo_login' => 'facebook'
+                            ]);
+                    Cliente::create([
+                        'razon_social' => $auth_user->name,
+                        'user_id' => $user->id,
+                    ]);
+
+                    Auth::login($user, true);
+                }
+                return redirect()->route('ecommerce_home');
+            }
+        }
+    }
+
+
+    // Login mediante Google
+    public function redirectToGoogleProvider()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    public function handleProviderGoogleCallback()
+    {
+        $auth_user = Socialite::driver('google')->user(); // Fetch authenticated user
+        if($auth_user){
+            if(!empty($auth_user->email)){
+                $user = User::where('email', $auth_user->email)->first();
+
+                if($user){
+                    Auth::login($user, true);
+                }else{
+                    $user = User::create([
+                                'name' => $auth_user->name,
+                                'email' => $auth_user->email,
+                                'password' => Hash::make(str_random(10)),
+                                'avatar' => $auth_user->avatar,
+                                'tipo_login' => 'google'
                             ]);
                     Cliente::create([
                         'razon_social' => $auth_user->name,

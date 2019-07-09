@@ -44,13 +44,13 @@ function total(){
 }
 
 // cargar vista de detalle de compra según tipo
-function cargar_detalle(tipo){
+function cargar_detalle(tipo, url){
     $('#input-subtotal').val('');
     $('#input-importe_base').val('');
     $('#input-credito_fiscal').val('');
 
     $.ajax({
-        url: `{{url('admin/compras/crear')}}/`+tipo,
+        url: `${url}/${tipo}`,
         type: 'get',
         success: function(data){
             $('#detalle_venta').html(data);

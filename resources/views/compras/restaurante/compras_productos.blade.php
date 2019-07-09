@@ -59,7 +59,6 @@
         </tr>
     </tbody>
 </table>
-{{-- <script type="text/javascript" src="{{ voyager_asset('js/app.js') }}"></script> --}}
 <script src="{{url('js/loginweb.js')}}"></script>
 <script>
     $(document).ready(function(){
@@ -74,7 +73,6 @@
                     url: '{{url("admin/productos/filtros/filtro_simple")}}/'+categoria+'/'+marca+'/'+talla,
                     type: 'get',
                     success: function(response){
-                        console.log(response)
                         select2_reload_simple('producto_id', response);
                     }
                 });

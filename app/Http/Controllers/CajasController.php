@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
+use App\IeCaja;
+
 class CajasController extends Controller
 {
     public function __construct()
@@ -143,27 +145,33 @@ class CajasController extends Controller
         return view('cajas.asientos_create', compact('cajas'));
     }
 
-    function asientos_store(Request $datos){
-        // dd($datos);
+    function asientos_store(Request $data){
+        if($data->tipo=='egreso'){
+            $caja = IeCaja::where('abierta', 1)->first();
+            $monto_caja = $caja ? $caja->monto : 0;
+            if($data->monto > $monto_caja){
+                return redirect()->route('asientos_create')->with(['message' => 'El monto ingresado supera al saldo actual en caja.', 'alert-type' => 'error']);
+            }
+        }
         $insert = DB::table('ie_asientos')
                         ->insert([
                             'created_at' => Carbon::now(),
                             'updated_at' => Carbon::now(),
-                            'caja_id' => $datos->caja_id,
-                            'fecha' => $datos->fecha,
-                            'hora' => $datos->hora,
-                            'concepto' => $datos->concepto,
-                            'tipo' => $datos->tipo,
-                            'monto' => $datos->monto,
+                            'caja_id' => $data->caja_id,
+                            'fecha' => $data->fecha,
+                            'hora' => $data->hora,
+                            'concepto' => $data->concepto,
+                            'tipo' => $data->tipo,
+                            'monto' => $data->monto,
                             'user_id' => Auth::user()->id
                         ]);
         if($insert){
-            if($datos->tipo=='ingreso'){
-                DB::table('ie_cajas')->where('id', $datos->caja_id)->increment('monto_final', $datos->monto);
-                DB::table('ie_cajas')->where('id', $datos->caja_id)->increment('total_ingresos', $datos->monto);
+            if($data->tipo=='ingreso'){
+                DB::table('ie_cajas')->where('id', $data->caja_id)->increment('monto_final', $data->monto);
+                DB::table('ie_cajas')->where('id', $data->caja_id)->increment('total_ingresos', $data->monto);
             }else{
-                DB::table('ie_cajas')->where('id', $datos->caja_id)->decrement('monto_final', $datos->monto);
-                DB::table('ie_cajas')->where('id', $datos->caja_id)->increment('total_egresos', $datos->monto);
+                DB::table('ie_cajas')->where('id', $data->caja_id)->decrement('monto_final', $data->monto);
+                DB::table('ie_cajas')->where('id', $data->caja_id)->increment('total_egresos', $data->monto);
             }
             return redirect()->route('asientos_index')->with(['message' => 'Ingreso a caja registrado exitosamente.', 'alert-type' => 'success']);
         }else{

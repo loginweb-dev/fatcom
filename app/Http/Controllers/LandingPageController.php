@@ -67,6 +67,7 @@ class LandingPageController extends Controller
                             ->select('p.id', 'p.nombre', 'p.nuevo', 'p.imagen', 'm.nombre as m', 'od.monto as descuento', 'od.tipo_descuento', 'mo.abreviacion as moneda')
                             // ->where('p.deleted_at', NULL)
                             ->where('o.deleted_at', NULL)
+                            ->where('e.deleted_at', NULL)
                             ->where('od.deleted_at', NULL)
                             ->where('o.inicio', '<', Carbon::now())
                             ->whereRaw(" (o.fin is NULL or o.fin > '".Carbon::now()."')")
@@ -87,6 +88,7 @@ class LandingPageController extends Controller
                             ->select('p.id', 'p.nombre', 'p.imagen', 'p.nuevo')
                             // ->where('deleted_at', NULL)
                             ->where('s.id', $item->id)
+                            ->where('e.deleted_at', NULL)
                             ->get();
 
             array_push($productos_categoria, $aux);

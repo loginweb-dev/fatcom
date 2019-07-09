@@ -28,7 +28,7 @@ class VentasController extends Controller
     public function index(){
         $consulta = '1';
         switch (Auth::user()->role_id) {
-            case '3':
+            case '5':
                 $consulta = " v.tipo = 'pedido'";
                 break;
             default:
@@ -49,6 +49,27 @@ class VentasController extends Controller
 
         $value = '';
         return view('ventas.ventas_index', compact('registros', 'value', 'delivery'));
+    }
+
+    public function view($id){
+        $venta = DB::table('ventas as v')
+                            ->join('clientes as c', 'c.id', 'v.cliente_id')
+                            ->select('v.*', 'c.razon_social as cliente', 'c.nit')
+                            ->where('v.id', $id)
+                            ->first();
+        $detalle = DB::table('ventas_detalles as d')
+                            ->join('productos as p', 'p.id', 'd.producto_id')
+                            ->select('d.*', 'p.nombre as producto')
+                            ->where('d.deleted_at', NULL)
+                            ->where('d.venta_id', $id)
+                            ->get();
+        $ubicacion = DB::table('clientes as c')
+                            ->join('users_coordenadas as u', 'u.user_id', 'c.user_id')
+                            ->select('u.*')
+                            ->where('c.id', $venta->cliente_id)
+                            ->where('ultima_ubicacion', 1)
+                            ->first();
+        return view('ventas.ventas_view', compact('venta', 'id', 'detalle', 'ubicacion'));
     }
 
     public function create(){
@@ -148,6 +169,15 @@ class VentasController extends Controller
             $cliente = Cliente::find($data->cliente_id);
             $cliente->nit = $data->nit;
             $cliente->save();
+        }
+
+        // Validar si el cliente tiene un pedido o pedido pendiente
+        $pedido_pendiente = Venta::where('tipo', 'pedido')
+                                    ->where('tipo_estado', '<', 5)
+                                    ->where('cliente_id', $data->cliente_id)
+                                    ->select()->first();
+        if($pedido_pendiente){
+            return 'error 1';
         }
 
         // insertar y obtener ultima venta

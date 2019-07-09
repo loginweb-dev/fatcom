@@ -106,10 +106,10 @@
                             <div class="col-md-12">
                                 <ul class="nav nav-tabs">
                                     <li class="active">
-                                        <a data-toggle="tab" href="#tab1" onclick="cargar_detalle('productos')">Productos</a>
+                                        <a data-toggle="tab" href="#tab1" onclick="cargar_detalle('productos', '{{url('admin/compras/crear')}}')">Productos</a>
                                     </li>
                                     <li id="btn-otra_compra">
-                                        <a data-toggle="tab" href="#tab1" onclick="cargar_detalle('normal')">Otras compras</a>
+                                        <a data-toggle="tab" href="#tab1" onclick="cargar_detalle('normal','{{url('admin/compras/crear')}}')">Otras compras</a>
                                     </li>
                                 </ul>
                                 <div class="tab-content">
@@ -143,6 +143,9 @@
                             </div>
                         </div>
                         <div class="panel-footer">
+                            <input type="checkbox" id="check-crear_asiento" @if($caja) value="{{$caja->id}}" @else disabled @endif name="crear_asiento" data-toggle="tooltip" data-placement="right" title="Crear un registro de egreso en caja con el monto de la compra realizada.">
+                            <label for="check-crear_asiento">Crear registro de egreso en caja</label>
+                            <br>
                             <button type="reset" id="btn-reset" class="btn btn-default">Vaciar</button>
                             <button type="button" data-toggle="modal" data-target="#confirm_modal" class="btn btn-primary">Guardar</button>
                         </div>
@@ -177,6 +180,12 @@
             .popover{
                 width: 350px
             }
+            .nav-tabs > li.active > a, .nav-tabs > li.active > a:focus, .nav-tabs > li.active > a:hover{
+                background:#fff !important;
+                color:#62a8ea !important;
+                border-bottom:1px solid #fff !important;
+                top:-1px !important;
+            }
         </style>
     @stop
 
@@ -186,6 +195,7 @@
             // cargar vista de detalle de compra según tipo
             $(document).ready(function(){
                 $('[data-toggle="popover"]').popover();
+                $('[data-toggle="tooltip"]').tooltip();
                 // obtener datos de proveedor
                 $('#input-nit').change(function(){
                     let nit = $(this).val();
