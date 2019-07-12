@@ -528,7 +528,6 @@ class LandingPageController extends Controller
                                 ->select('v.id', 'v.tipo_estado')
                                 ->where('c.user_id', Auth::user()->id)
                                 ->whereRaw($sentencia)
-                                ->orderBy('id', 'DESC')
                                 ->first();
         if($ultimo_pedido){
             $mi_ubicacion = DB::table('users_coordenadas as u')
@@ -565,7 +564,12 @@ class LandingPageController extends Controller
 
                 break;
             case 'electronica_computacion':
-
+                if($ultimo_pedido){
+                    return view('ecommerce/restaurante/pedidos', compact('ultimo_pedido', 'mi_ubicacion', 'detalle_pedido', 'pedidos', 'productos_pedidos'));
+                }else{
+                    return view('ecommerce/restaurante/pedidos_empty');
+                }
+                break;
                 break;
             case 'restaurante':
                 if($ultimo_pedido){
@@ -579,6 +583,16 @@ class LandingPageController extends Controller
                 break;
         }
     }
+
+    public function get_estado_pedido($id){
+        return DB::table('ventas as v')
+                                ->join('clientes as c', 'c.id', 'v.cliente_id')
+                                ->select('v.tipo_estado')
+                                ->where('c.user_id', Auth::user()->id)
+                                ->whereRaw('v.id', $id)
+                                ->first()->tipo_estado;
+    }
+
     public function ecommerce_policies(){
         return 'politicas';
     }

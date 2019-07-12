@@ -193,7 +193,7 @@
                             url: '{{url("admin/subcategorias/list/categoria")}}/'+id,
                             type: 'get',
                             success: function(response){
-                                select2_reload('subcategoria_id', response);
+                                select2_reload('subcategoria_id', response, false);
                             }
                         });
                     }else{

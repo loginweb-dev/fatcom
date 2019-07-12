@@ -12,32 +12,6 @@
 
     <link rel="stylesheet" href="{{url('css/style.css')}}">
 
-    {{-- PWA --}}
-    <!-- CODELAB: Add link rel manifest -->
-    <link rel="manifest" href="/manifest.json">
-    <!-- CODELAB: Add iOS meta tags and icons -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="{{setting('empresa.title')}}">
-    <link rel="apple-touch-icon" href="img/icons/icon-152x152.png">
-    <!-- CODELAB: Add description here -->
-    <meta name="description" content="{{setting('empresa.descripcion')}}">
-    <!-- CODELAB: Add meta theme-color -->
-    <meta name="theme-color" content="#261C34" />
-
-    <script>
-        // CODELAB: Register service worker.
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/service-worker.js')
-                .then((reg) => {
-                    // console.log('Service worker registered.', reg);
-                });
-            });
-        }
-    </script>
-    {{-- ====================== --}}
-
     <!-- jQuery -->
     <script src="{{url('ecommerce/js/jquery-2.0.0.min.js')}}" type="text/javascript"></script>
 
@@ -238,29 +212,65 @@
         }
 
         cantidad_carrito();
+        @isset(Auth::user()->id)
         cantidad_pedidos();
+        @endisset
     </script>
 
     <style>
         body{
             margin: 0px
         }
+        #load-bar{
+			position:fixed;
+            top:0px;
+            left:0px;
+            width:100%;
+            z-index: 10000;
+            /* display: none; */
+		}
     </style>
+
+    {{-- PWA --}}
+    <!-- CODELAB: Add link rel manifest -->
+    <link rel="manifest" href="/manifest.json">
+    <!-- CODELAB: Add iOS meta tags and icons -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="{{setting('empresa.title')}}">
+    <link rel="apple-touch-icon" href="img/icons/icon-152x152.png">
+    <!-- CODELAB: Add description here -->
+    <meta name="description" content="{{setting('empresa.descripcion')}}">
+    <!-- CODELAB: Add meta theme-color -->
+    <meta name="theme-color" content="#261C34" />
+
+    <script>
+        // CODELAB: Register service worker.
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then((reg) => {
+                    // console.log('Service worker registered.', reg);
+                });
+            });
+        }
+    </script>
+    {{-- END PWA --}}
 
     <!-- Facebook Pixel Code -->
     <script>
-        // !function(f,b,e,v,n,t,s)
-        // {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        // n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        // if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        // n.queue=[];t=b.createElement(e);t.async=!0;
-        // t.src=v;s=b.getElementsByTagName(e)[0];
-        // s.parentNode.insertBefore(t,s)}(window, document,'script',
-        // 'https://connect.facebook.net/en_US/fbevents.js');
-        // fbq('init', '314624272809898');
-        // fbq('track', 'PageView');
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '314624272809898');
+        fbq('track', 'PageView');
     </script>
-    <!--<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=314624272809898&ev=PageView&noscript=1"/></noscript>-->
+    <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=314624272809898&ev=PageView&noscript=1"/></noscript>
     <!-- End Facebook Pixel Code -->
     <!-- Load Facebook SDK for JavaScript -->
     <div id="fb-root"></div>
@@ -272,34 +282,25 @@
             });
         };
 
-        // (function(d, s, id) {
-        // var js, fjs = d.getElementsByTagName(s)[0];
-        // if (d.getElementById(id)) return;
-        // js = d.createElement(s); js.id = id;
-        // js.src = 'https://connect.facebook.net/es_LA/sdk/xfbml.customerchat.js';
-        // fjs.parentNode.insertBefore(js, fjs);
-        // }(document, 'script', 'facebook-jssdk'));
+        (function(d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return;
+            js = d.createElement(s); js.id = id;
+            js.src = 'https://connect.facebook.net/es_LA/sdk/xfbml.customerchat.js';
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
     </script>
 
     <!-- Your customer chat code -->
-    <!--<div class="fb-customerchat"-->
-    <!--    attribution=setup_tool-->
-    <!--    page_id="277693723065936"-->
-    <!--    theme_color="#ffc300"-->
-    <!--    logged_in_greeting="Hola! Te puedo ayudar ?"-->
-    <!--    logged_out_greeting="Hola! Te puedo ayudar ?">-->
-    <!--</div>-->
+    <div class="fb-customerchat"
+        attribution=setup_tool
+        page_id="277693723065936"
+        theme_color="#ffc300"
+        logged_in_greeting="Hola! Te puedo ayudar ?"
+        logged_out_greeting="Hola! Te puedo ayudar ?">
+    </div>
     <!-- End your customer chat code -->
-    <style>
-        #load-bar{
-			position:fixed;
-            top:0px;
-            left:0px;
-            width:100%;
-            z-index: 10000;
-            /* display: none; */
-		}
-    </style>
+
 </head>
 <body>
     <!-- ========================= SECTION INTRO ========================= -->

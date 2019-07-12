@@ -16,12 +16,12 @@
 // });
 # Socialite facebook
 Route::get('/login/facebook', 'Auth\LoginController@redirectToFacebookProvider');
-Route::get('login/facebook/callback', 'Auth\LoginController@handleProviderFacebookCallback');
+Route::get('/login/facebook/callback', 'Auth\LoginController@handleProviderFacebookCallback');
 # End Socialite facebook
 
 # Socialite google
 Route::get('/login/google', 'Auth\LoginController@redirectToGoogleProvider');
-Route::get('login/google/callback', 'Auth\LoginController@handleProviderGoogleCallback');
+Route::get('/login/google/callback', 'Auth\LoginController@handleProviderGoogleCallback');
 # End Socialite google
 
 Route::get('/policies', 'LandingPageController@ecommerce_policies');
@@ -39,6 +39,7 @@ Route::get('/carrito/agregar/{id}', 'LandingPageController@carrito_agregar');
 Route::get('/carrito/borrar/{id}', 'LandingPageController@carrito_borrar');
 Route::get('/carrito/cantidad_pedidos', 'LandingPageController@cantidad_pedidos')->name('cantidad_pedidos');
 Route::get('/carrito/mis_pepdidos/{id}', 'LandingPageController@pedidos_index')->name('pedidos_index');
+Route::get('/carrito/mis_pepdidos/get_estado_pedido/{id}', 'LandingPageController@get_estado_pedido');
 
 
 Route::group(['prefix' => 'admin'], function () {
@@ -84,6 +85,7 @@ Route::post('admin/productos/actualizar', 'ProductosController@update')->name('p
 Route::post('admin/productos/eliminar/', 'ProductosController@delete')->name('productos_delete');
 Route::post('admin/productos/puntuar/', 'ProductosController@puntuar')->name('productos_puntuar');
 
+Route::get('admin/productos/get_producto/{id}', 'ProductosController@get_producto');
 Route::get('admin/productos/cambiar_imagen_principal/{producto_id}/{imagen_id}', 'ProductosController@cambiar_imagen');
 Route::post('admin/productos/eliminar_imagen', 'ProductosController@delete_imagen')->name('delete_imagen');
 
@@ -163,7 +165,17 @@ Route::get('admin/ventas/update/estado/{id}/{valor}', 'VentasController@estado_u
 Route::post('admin/ventas/asignar_repartidor', 'VentasController@asignar_repartidor')->name('asignar_repartidor');
 Route::get('admin/ventas/get_ubicaciones_cliente/{id}', 'VentasController@get_ubicaciones_cliente');
 
+Route::get('admin/ventas/crear/productos_search', 'VentasController@productos_search');
 Route::get('admin/ventas/crear/productos_categoria/{id}', 'VentasController@productos_categoria');
+
+// ============================Dosificacion====================================
+Route::get('admin/dosificaciones', 'DosificacionesController@index')->name('dosificaciones_index');
+Route::get('admin/dosificaciones/view/{id}', 'DosificacionesController@view')->name('dosificaciones_view');
+Route::get('admin/dosificaciones/crear', 'DosificacionesController@create')->name('dosificaciones_create');
+Route::post('admin/dosificaciones/store', 'DosificacionesController@store')->name('dosificaciones_store');
+Route::get('admin/dosificaciones/editar/{id}', 'DosificacionesController@edit')->name('dosificaciones_edit');
+Route::post('admin/dosificaciones/update', 'DosificacionesController@update')->name('dosificaciones_update');
+Route::post('admin/dosificaciones/delete', 'DosificacionesController@delete')->name('dosificaciones_delete');
 
 // =========================Código de control===========================
 // Route::get('admin/codigo_control', 'VentasController@codigo_control_index')->name('codigo_control_index');
@@ -196,3 +208,12 @@ Route::post('admin/empleados/store', 'EmpleadosController@store')->name('emplead
 Route::get('admin/empleados/editar/{id}', 'EmpleadosController@edit')->name('empleados_edit');
 Route::post('admin/empleados/update', 'EmpleadosController@update')->name('empleados_update');
 Route::post('admin/empleados/delete', 'EmpleadosController@delete')->name('empleados_delete');
+
+
+// Clear cache
+Route::get('/clear-cache', function() {
+    Artisan::call('cache:clear');
+    Artisan::call('route:clear');
+    Artisan::call('view:clear');
+    return "La cache del sistema está limpia";
+});

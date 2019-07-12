@@ -773,6 +773,19 @@ class ProductosController extends Controller
         return $imagen;
     }
 
+    public function get_producto($id){
+        $producto = DB::table('productos as p')
+                            ->join('producto_unidades as pu', 'pu.producto_id', 'p.id')
+                            ->select('p.*', 'pu.precio')
+                            ->where('p.id', $id)
+                            ->first();
+        if($producto){
+            return response()->json($producto);
+        }else{
+            return null;
+        }
+    }
+
     public function ultimo_producto(){
         $producto = DB::table('productos')
                             ->select('id')

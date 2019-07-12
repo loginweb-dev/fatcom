@@ -17,20 +17,12 @@
         <div class="card">
             <div class="row no-gutters">
                 <aside class="col-sm-6 border-right">
-                    @php
-                        $estado = [  '',
-                                    '<span class="badge badge-warning">Pedido realizado</span>',
-                                    '<span class="badge badge-info">En preparación</span>',
-                                    '<span class="badge badge-dark">Listo</span>',
-                                    '<span class="badge badge-success">Enviado</span>',
-                                    '<span class="badge badge-primary">Entregado</span>'];
-                    @endphp
                     <table class="table table-hover shopping-cart-wrap">
                         <thead class="text-muted">
                             <tr>
                                 {{-- <th scope="col">Código</th> --}}
-                                <th scope="col">
-                                    Detalles del pedido actual @php echo $estado[$ultimo_pedido->tipo_estado]; @endphp
+                                <th scope="col" id="head-detalle_pedido">
+                                    Detalles del pedido actual
                                 </th>
                                 <th class="text-right">
                                     @if($ultimo_pedido->tipo_estado==5)
@@ -168,7 +160,6 @@
     $(document).ready(function(){
         $('[data-toggle="tooltip"]').tooltip();
         $('[data-toggle="popover"]').popover({ html : true });
-        let marcador = {};
 
         //mapa
 
@@ -198,26 +189,51 @@
         .bindPopup("Ubicación actual").openPopup();
 
         // Obtener posicion de mi pedido
-        let estado_pedido = {{$ultimo_pedido->tipo_estado}};
         setInterval(function(){
-            if(estado_pedido == 4){
-                $.ajax({
-                        url: '{{url("admin/ventas/delivery/get_ubicacion")}}/{{$ultimo_pedido->id}}',
-                        type: 'get',
-                        success: function(data){
-                            if(data.length){
-                                map.removeLayer(marcador);
-                                let lat = data[0].lat;
-                                let lon = data[0].lon;
-                                if(lat != '' && lon != ''){
-                                    marcador = L.marker([lat, lon], {icon: iconDelivery}).addTo(map).bindPopup('Tu pedido').openPopup();
-                                    map.setView([lat, lon]);
-                                }
-                            }
-                        }
-                    });
-            }
-
+            get_estado_pedido({{$ultimo_pedido->id}}, map, iconDelivery)
         }, 5000);
+        // setInterval(function(){
+        //
+
+        // }, 5000);
     });
+
+    let estado_pedido = {{$ultimo_pedido->tipo_estado}};
+    let label_estado = [  '',
+                    '<span class="badge badge-warning">Pedido realizado</span>',
+                    '<span class="badge badge-info">En preparación</span>',
+                    '<span class="badge badge-dark">Listo</span>',
+                    '<span class="badge badge-success">Enviado</span>',
+                    '<span class="badge badge-primary">Entregado</span>'];
+
+    function get_estado_pedido(id, map, iconDelivery){
+        if(estado_pedido<5){
+            $.get("{{url('carrito/mis_pepdidos/get_estado_pedido')}}/"+id, function(estado){
+                estado_pedido = estado;
+                $('#head-detalle_pedido').html(`Detalles del pedido actual ${label_estado[estado]}`);
+                if(estado_pedido == 4){
+                    get_ubicacion(id, map, iconDelivery)
+                }
+            });
+        }
+    }
+    let marcador = {};
+    function get_ubicacion(id, map, iconDelivery){
+        $.ajax({
+                url: '{{url("admin/ventas/delivery/get_ubicacion")}}/'+id,
+                type: 'get',
+                success: function(data){
+                    if(data.length){
+                        map.removeLayer(marcador);
+                        let lat = data[0].lat;
+                        let lon = data[0].lon;
+                        if(lat != '' && lon != ''){
+                            marcador = L.marker([lat, lon], {icon: iconDelivery}).addTo(map).bindPopup('Tu pedido').openPopup();
+                            map.setView([lat, lon]);
+                        }
+                    }
+                }
+            });
+    }
+
 </script>

@@ -4,7 +4,7 @@
 @if(auth()->user()->hasPermission('read_ventas'))
     @section('page_header')
         <h1 class="page-title">
-            <i class="voyager-basket"></i> Viendo Venta
+            <i class="voyager-basket"></i> Viendo Venta # {{str_pad($venta->id, 4, "0", STR_PAD_LEFT)}}
         </h1>
         {{-- @if(auth()->user()->hasPermission('edit_sucursales'))
         <a href="{{route('sucursales_edit', ['id'=>$id])}}" class="btn btn-primary btn-small">

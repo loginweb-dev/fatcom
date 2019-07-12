@@ -104,7 +104,7 @@
                                                                         @break
                                                                     @case(3)
                                                                         <a href="{{route('estado_update', ['id' => $item->id, 'valor' => $item->tipo_estado+2])}}" title="Listo" class="btn btn-sm btn-dark">
-                                                                            <span class="hidden-xs hidden-sm">Entregado</span> <i class="voyager-basket"></i>
+                                                                            <span class="hidden-xs hidden-sm">Entregar</span> <i class="voyager-basket"></i>
                                                                         </a>
                                                                     @break
                                                                     @default
@@ -114,8 +114,8 @@
                                                             @case('pedido' || 'domicilio')
                                                                 @switch($item->tipo_estado)
                                                                     @case(1)
-                                                                        <a href="{{route('estado_update', ['id' => $item->id, 'valor' => $item->tipo_estado+1])}}" title="En preparación" class="btn btn-sm btn-info">
-                                                                            <span class="hidden-xs hidden-sm">En preparación</span> <i class="voyager-alarm-clock"></i>
+                                                                        <a href="{{route('estado_update', ['id' => $item->id, 'valor' => $item->tipo_estado+1])}}" title="Preparar" class="btn btn-sm btn-info">
+                                                                            <span class="hidden-xs hidden-sm">Preparar</span> <i class="voyager-alarm-clock"></i>
                                                                         </a>
                                                                         @break
                                                                     @case(2)
@@ -124,8 +124,8 @@
                                                                         </a>
                                                                         @break
                                                                     @case(3)
-                                                                        <a href="#" data-toggle="modal" data-target="#modal_delivery" data-id="{{$item->id}}" title="Enviado" class="btn btn-sm btn-dark btn-delivery">
-                                                                            <span class="hidden-xs hidden-sm">Enviado</span> <i class="voyager-rocket"></i>
+                                                                        <a href="#" data-toggle="modal" data-target="#modal_delivery" data-id="{{$item->id}}" title="Enviar" class="btn btn-sm btn-dark btn-delivery">
+                                                                            <span class="hidden-xs hidden-sm">Enviar</span> <i class="voyager-rocket"></i>
                                                                         </a>
                                                                         @break
                                                                     @case(4)

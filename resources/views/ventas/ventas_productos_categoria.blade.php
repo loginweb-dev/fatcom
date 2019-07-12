@@ -1,4 +1,4 @@
-<div class="row" style="overflow-y: auto;height:320px">
+<div class="row" style="overflow-y: auto;height:370px">
     <div class="panel-group" id="accordion">
         @forelse ($subcategorias as $item0)
             @php
@@ -26,15 +26,14 @@
                                         <h6 class="card-title" style="padding: 0px">{{$item->nombre}}</h6>
                                         {{-- <p class="card-text" style="padding: 0px">{{$item->descripcion}}</p> --}}
                                     </div>
-                                    <div class="card-footer" style="padding: 4px">
+                                    {{-- <div class="card-footer" style="padding: 4px">
                                         <div class="input-group">
                                             <input type="number" value="1" min="1" step="1" class="form-control" id="input_cantidad-{{$item->id}}">
                                             <div class="input-group-btn" >
                                                 <button type="button" style="margin:0px;padding:5px" onclick="agregar_detalle_restaurante({{$item->id}}, '{{$item->nombre}}', {{$precios[$cont]['precio']}}, 1000, '', '')" class="btn btn-success btn-sm">{{$precios[$cont]['precio']}} Bs.</button>
                                             </div>
                                         </div>
-
-                                    </div>
+                                    </div> --}}
                                 </div>
                             @endif
                             @php

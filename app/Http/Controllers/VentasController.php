@@ -17,6 +17,7 @@ use App\User;
 
 use App\Http\Controllers\ProductosController as Productos;
 use App\Http\Controllers\LandingPageController as LandingPage;
+use App\Http\Controllers\DosificacionesController as Dosificacion;
 
 class VentasController extends Controller
 {
@@ -96,20 +97,37 @@ class VentasController extends Controller
             $caja_id = $aux->id;
         }
 
-        switch (setting('admin.modo_sistema')) {
-            case 'boutique':
+        $facturacion = (new Dosificacion)->get_dosificacion();
+        return view('ventas.ventas_create', compact('categorias', 'abierta', 'caja_id', 'clientes', 'facturacion'));
+        // dd($facturacion);
+        // switch (setting('admin.modo_sistema')) {
+        //     case 'boutique':
 
-                break;
-            case 'electronica_computacion':
+        //         break;
+        //     case 'electronica_computacion':
+        //         return view('ventas.ventas_create', compact('categorias', 'abierta', 'caja_id', 'clientes', 'facturacion'));
+        //         break;
+        //     case 'restaurante':
+        //         return view('ventas.restaurante.ventas_create', compact('categorias', 'abierta', 'caja_id', 'clientes', 'facturacion'));
+        //         break;
+        //     default:
+        //         # code...
+        //         break;
+        // }
+    }
 
-                break;
-            case 'restaurante':
-                return view('ventas.restaurante.ventas_create', compact('categorias', 'abierta', 'caja_id', 'clientes'));
-                break;
-            default:
-                # code...
-                break;
-        }
+    public function productos_search(){
+        $categorias = DB::table('categorias')
+                            ->select('id', 'nombre')
+                            ->where('deleted_at', NULL)
+                            ->where('id', '>', 1)
+                            ->get();
+        $productos = DB::table('productos as p')
+                            ->join('producto_unidades as pu', 'pu.producto_id', 'p.id')
+                            ->select('p.*', 'pu.precio')
+                            ->where('p.deleted_at', NULL)
+                            ->get();
+        return view('ventas.ventas_productos_search', compact('categorias', 'productos'));
     }
 
     public function productos_categoria($id){
@@ -135,7 +153,7 @@ class VentasController extends Controller
             array_push($precios, $precio);
         }
 
-        return view('ventas.restaurante.ventas_productos_categoria', compact('subcategorias', 'productos', 'precios'));
+        return view('ventas.ventas_productos_categoria', compact('subcategorias', 'productos', 'precios'));
     }
 
     public function store(Request $data){
@@ -270,7 +288,7 @@ class VentasController extends Controller
         // $monto_total = $detalle_venta[0]->importe_base;
         // $total_literal = NumerosEnLetras::convertir($monto_total,'Bolivianos',true);
 
-        return view('factura.factura_venta', compact('detalle_venta', 'producto_adicional'));
+        return view('facturas.factura_venta', compact('detalle_venta', 'producto_adicional'));
     }
 
     public function pedidos_store(Request $data){
@@ -364,12 +382,12 @@ class VentasController extends Controller
                             ->join('ventas as v', 'v.id', 'rp.pedido_id')
                             ->join('clientes as c', 'c.id', 'v.cliente_id')
                             ->select('v.id', 'c.razon_social', 'v.importe_base', 'v.tipo_estado', 'v.created_at')
-                            ->where('r.user_id', Auth::user()->id)
+                            ->where('e.user_id', Auth::user()->id)
                             ->orderBy('rp.id', 'DESC')
                             ->paginate(10);
         // dd($registros);
         $value = '';
-        return view('ventas.restaurante/delivery_index', compact('registros', 'value'));
+        return view('ventas.delivery/delivery_index', compact('registros', 'value'));
     }
 
     public function delivery_view($id){
@@ -391,7 +409,7 @@ class VentasController extends Controller
                                 ->where('r.pedido_id', $id)
                                 ->first();
         // dd($registros);
-        return view('ventas.restaurante/delivery_view', compact('pedido', 'detalle_pedido', 'repartidor_pedido'));
+        return view('ventas.delivery/delivery_view', compact('pedido', 'detalle_pedido', 'repartidor_pedido'));
     }
 
     public function set_ubicacion($id, $lat, $lon){

@@ -57,7 +57,7 @@
                                                     <h3 class="panel-title">Monto total de ingresos</h3>
                                                 </div>
                                                 <div class="panel-body" style="padding-top:0;">
-                                                    <p>{{$caja->total_egresos}}</p>
+                                                    <p>{{$caja->total_ingresos}}</p>
                                                 </div>
                                             </div>
                                             <div class="col-md-6" style="margin:0px">
@@ -65,7 +65,7 @@
                                                     <h3 class="panel-title">Monto total de egresos</h3>
                                                 </div>
                                                 <div class="panel-body" style="padding-top:0;">
-                                                    <p>{{$caja->total_ingresos}}</p>
+                                                    <p>{{$caja->total_egresos}}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -103,45 +103,6 @@
                                                 </thead>
                                                 <tbody>
                                                     @php
-                                                        $total_egreso = 0;
-                                                        $cont = 1;
-                                                    @endphp
-                                                    @forelse($egresos as $item)
-                                                    <tr>
-                                                        <td>{{$cont}}</td>
-                                                        <td>{{$item->hora}}</td>
-                                                        <td>{{$item->concepto}}</td>
-                                                        <td>{{$item->monto}} Bs.</td>
-                                                    </tr>
-                                                    @php
-                                                        $total_egreso+= $item->monto;
-                                                        $cont++;
-                                                    @endphp
-                                                    @empty
-                                                    <tr>
-                                                        <td colspan="4"><br><center><h5>No existen egresos registrados.</h5></center></td>
-                                                    </tr>
-                                                    @endforelse
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <div class="text-right">
-                                            <h4>Total egresos: {{number_format($total_egreso, 2, ',', '')}} Bs.</h4>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="table-responsive" style="height:300px">
-                                            <table class="table table-hover">
-                                                <thead>
-                                                    <tr>
-                                                        <th></th>
-                                                        <th>Hora</th>
-                                                        <th>Concepto</th>
-                                                        <th>Monto</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @php
                                                         $total_ingreso = 0;
                                                         $cont = 1;
                                                     @endphp
@@ -166,6 +127,45 @@
                                         </div>
                                         <div class="text-right">
                                             <h4>Total ingresos: {{number_format($total_ingreso, 2, ',', '')}} Bs.</h4>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="table-responsive" style="height:300px">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th>Hora</th>
+                                                        <th>Concepto</th>
+                                                        <th>Monto</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @php
+                                                        $total_egreso = 0;
+                                                        $cont = 1;
+                                                    @endphp
+                                                    @forelse($egresos as $item)
+                                                    <tr>
+                                                        <td>{{$cont}}</td>
+                                                        <td>{{$item->hora}}</td>
+                                                        <td>{{$item->concepto}}</td>
+                                                        <td>{{$item->monto}} Bs.</td>
+                                                    </tr>
+                                                    @php
+                                                        $total_egreso+= $item->monto;
+                                                        $cont++;
+                                                    @endphp
+                                                    @empty
+                                                    <tr>
+                                                        <td colspan="4"><br><center><h5>No existen egresos registrados.</h5></center></td>
+                                                    </tr>
+                                                    @endforelse
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="text-right">
+                                            <h4>Total egresos: {{number_format($total_egreso, 2, ',', '')}} Bs.</h4>
                                         </div>
                                     </div>
                                 </div>

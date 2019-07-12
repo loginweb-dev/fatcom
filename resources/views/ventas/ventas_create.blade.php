@@ -21,18 +21,19 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="panel panel-bordered">
-                    <div class="panel-body" style="padding:0px">
-                        <ul class="nav nav-tabs">
-                            @php
-                                $clase = 'active';
-                            @endphp
+                    <div class="panel-body" id="panel-productos" style="padding:0px">
+                        <div style="position:absolute;z-index:1;right:0px;margin:5px">
+                            <a href="#" class="btn-nav" data-direccion="left" title="Izquierda"><span class="voyager-double-left"></span></a>
+                            <a href="#" class="btn-nav" data-direccion="right" title="Derecha"><span class="voyager-double-right"></span></a>
+                        </div>
+                        <ul class="nav nav-tabs" style="width:2000px">
+                            <li class="li-item active" id="li-0">
+                                <a data-toggle="tab" href="#tab1" onclick="productos_buscar()">Buscador <i class="voyager-search"></i></a>
+                            </li>
                             @foreach ($categorias as $item)
-                            <li class="li-item {{$clase}}" id="li-{{$item->id}}">
+                            <li class="li-item" id="li-{{$item->id}}" style="display:inline">
                                 <a data-toggle="tab" href="#tab1" onclick="productos_categoria({{$item->id}})">{{$item->nombre}}</a>
                             </li>
-                            @php
-                                $clase = '';
-                            @endphp
                             @endforeach
                         </ul>
                         <div class="tab-content">
@@ -43,7 +44,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="panel panel-bordered" style="height:400px">
+                <div class="panel panel-bordered" style="height:450px">
                     <div class="panel-body">
                         <div class="row">
                             @csrf
@@ -77,7 +78,7 @@
                                 {{-- </div> --}}
                                 <div class="form-group col-md-6">
                                     <label>A domicilio</label><br>
-                                    <input type="checkbox" id="check-domicilio" name="llevar" data-toggle="toggle" data-onstyle="success" data-on="Sí" data-off="No">
+                                    <input type="checkbox" id="check-domicilio" name="domicilio" data-toggle="toggle" data-onstyle="success" data-on="Sí" data-off="No">
                                 </div>
                             </div>
                             <hr style="margin-bottom:10px;margin-top:0px">
@@ -90,6 +91,9 @@
                                     <label>Cambio</label>
                                     <input type="number" id="input-cambio" value="0" readonly style="font-size:18px" name="cambio" class="form-control" required>
                                 </div>
+                            </div>
+                            <div class="form-group col-md-12 text-right">
+                                <input type="checkbox" id="check-factura" name="factura" data-toggle="toggle" data-on="Con factura" data-off="Sin factura">
                             </div>
                             <input type="hidden" name="caja_id" value="{{$caja_id}}">
                         </div>
@@ -106,8 +110,8 @@
                                 <thead>
                                     <th style="width:300px">Producto</th>
                                     <th>observación</th>
-                                    <th>Precio</th>
-                                    <th>Cantidad</th>
+                                    <th style="width:150px">Precio</th>
+                                    <th style="width:100px">Cantidad</th>
                                     <th colspan="2">Subtotal</th>
                                 </thead>
                                 <tbody>
@@ -196,6 +200,11 @@
             border-bottom:1px solid #fff !important;
             top:-1px !important;
         }
+        .btn-nav{
+            font-size: 20px;
+            color: #2A363B;
+            background-color: #f9f9f9;
+        }
     </style>
 @stop
 
@@ -210,7 +219,31 @@
         $(document).ready(function(){
             $('[data-toggle="tooltip"]').tooltip();
             inicializar_select2('cliente_id');
-            productos_categoria({{$categoria_id}});
+            // productos_categoria({{$categoria_id}});
+            productos_buscar();
+
+            // Botones de desplazamiento
+            let defecto = $('#panel-productos').offset();
+            let posicion = 0;
+            $('.btn-nav').click(function(){
+                let direccion = $(this).data('direccion');
+                if(direccion=='right'){
+                    posicion += 100;
+                }else{
+                    posicion -= 100;
+                }
+                $(".nav-tabs").offset({left: '-'+posicion});
+                if(posicion<=0){
+                    posicion = 0;
+                    $(".nav-tabs").offset({left: defecto.left});
+                }
+            });
+
+            // si hay facturacion se habilita el boton de facturas
+            @if(!$facturacion || !setting('empresa.facturas'))
+                $('#check-factura').prop('checked', false).change()
+                $('#check-factura').attr('disabled', true);
+            @endif
 
             // formulario de envio de venta
             $('#form').on('submit', function(e){
@@ -366,9 +399,7 @@
 
         // Agregar detalle de venta
         function agregar_detalle_restaurante(id, nombre, precio, stock, adicional_id, adicional_nombre){
-            let cantidad = $('#input_cantidad-'+id).val();
-
-            if(cantidad>stock){
+            if(stock<1){
                 toastr.warning('La cantidad de producto ingresada sobrepasa la existente.', 'Atención');
                 return false;
             }
@@ -383,15 +414,21 @@
 
 
             if(existe){
-                $(`#tr-${id}_${adicional_id} .label-precio`).html(`<input type="hidden" value="${cantidad}" name="cantidad[]">${cantidad}`);
-                $(`#subtotal-${id}`).html(`<h5>${precio*cantidad} Bs.</h5>`);
+                // $(`#tr-${id}_${adicional_id} .label-precio`).html(`<input type="hidden" value="${cantidad}" name="cantidad[]">${cantidad}`);
+                // $(`#subtotal-${id}_${adicional_id}`).html(`<h5>${precio*cantidad} Bs.</h5>`);
+                toastr.warning('El producto ya se encuentra en la lista.', 'Atención');
             }else{
                 $('#detalle_venta').before(`<tr class="tr-detalle" id="tr-${id}_${adicional_id}" data-id="${id}_${adicional_id}">
                                                 <td><input type="hidden" value="${id}" name="producto_id[]"><input type="hidden" value="${adicional_id}" name="adicional_id[]">${nombre+adicional_nombre}</td>
                                                 <td><input type="text" class="form-control" name="observacion[]"></td>
-                                                <td><input type="hidden" value="${precio}" name="precio[]">${precio} Bs.</td>
-                                                <td class="label-precio"><input type="hidden" value="${cantidad}" name="cantidad[]">${cantidad}</td>
-                                                <td class="label-subtotal" id="subtotal-${id}"><h5>${precio*cantidad} Bs.</h5></td>
+                                                <td>
+                                                    <div class="input-group">
+                                                        <input type="number" id="input-precio_${id}_${adicional_id}" min="1" step="0.1" value="${precio}" name="precio[]" class="form-control" onchange="subtotal('${id}_${adicional_id}')" onkeyup="subtotal('${id}_${adicional_id}')" required />
+                                                        <span class="input-group-addon">Bs.</span>
+                                                    </div>
+                                                </td>
+                                                <td><input type="number" min="1" step="1" class="form-control" id="input-cantidad_${id}_${adicional_id}" value="1" name="cantidad[]" onchange="subtotal('${id}_${adicional_id}')" onkeyup="subtotal('${id}_${adicional_id}')" required></td>
+                                                <td class="label-subtotal" id="subtotal-${id}_${adicional_id}"><h4>${precio} Bs.</h4></td>
                                                 <td width="40px"><label onclick="borrarTr('${id}_${adicional_id}')" class="text-danger" style="cursor:pointer;font-size:20px"><span class="voyager-trash"></span></label></td>
                                             <tr>`);
                 toastr.remove();
@@ -400,6 +437,22 @@
             $('#input_cantidad-'+id).val('1');
             total();
             calcular_cambio();
+        }
+
+        // mostrar Buscador de productos
+        function productos_buscar(id){
+            $('#tab1').html(`  <div style="height:270px" class="text-center">
+                                    <br><br><br>
+                                    <img src="{{ voyager_asset('images/load.gif') }}" width="100px">
+                                </div>`);
+            $.ajax({
+                url: `{{url('admin/ventas/crear/productos_search')}}`,
+                type: 'get',
+                success: function(data){
+                    $('#tab1').html(data);
+                },
+                error: function(){console.log('Error');}
+            });
         }
 
         // mostrar los productos de la categoria seleccionada
@@ -435,6 +488,5 @@
                         });;
             map.setView([lat, lon]);
         }
-
     </script>
 @stop

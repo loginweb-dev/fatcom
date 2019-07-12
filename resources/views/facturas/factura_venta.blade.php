@@ -58,7 +58,14 @@
             </tr>
             <tr>
                 {{-- consulta para saber si es factura o recibo --}}
-                <td colspan="2" align="center"><h3>TICKET DE VENTA #{{$detalle_venta[0]->id}}<br>{{date('d/m/Y H:i:s')}}</h3><hr></td>
+                <td colspan="2" align="center">
+                    <h3>
+                        TICKET DE VENTA #{{$detalle_venta[0]->id}}<br>
+                        Atendido por: {{ Auth::user()->name}}<br>
+                        {{date('d/m/Y H:i:s')}}
+                    </h3>
+                    <hr>
+                </td>
             </tr>
             {{-- datos de la factura --}}
 
@@ -171,6 +178,9 @@
                 </td>
             </tr>
         </table>
+        <script>
+            window.print();
+        </script>
     </body>
 </html>
 

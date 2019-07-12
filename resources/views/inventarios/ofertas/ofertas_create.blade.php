@@ -95,7 +95,7 @@
                                                                 <div class="form-group col-md-4">
                                                                     <label for="">Sub categoria</label>
                                                                     <select id="select-subcategoria_id" class="form-control select2 select-filtro">
-                                                                        <option value="">Todas</option>
+                                                                        <option value="">Todos(as)</option>
                                                                     </select>
                                                                 </div>
                                                                 <div class="form-group col-md-4">
@@ -119,6 +119,7 @@
                                             <label for="">Producto</label>  @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Producto que se va agregar a la campaña. Este campo es obligatorio."></span> @endif
                                             <select class="form-control select2" id="select-producto_id">
                                                 @foreach($productos as $item)
+                                                <option value="">Todas</option>
                                                 <option value="{{$item->id}}">{{$item->nombre}}</option>
                                                 @endforeach
                                             </select>

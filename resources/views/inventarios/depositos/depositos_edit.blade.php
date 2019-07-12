@@ -1,5 +1,5 @@
 @extends('voyager::master')
-@section('page_title', 'Editar Depositos')
+@section('page_title', 'Editar Deposito')
 
 @if(auth()->user()->hasPermission('edit_depositos'))
     @section('page_header')

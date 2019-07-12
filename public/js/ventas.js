@@ -26,6 +26,14 @@ function borrarTr(num){
     total();
 }
 
+// Calcular subtotal
+function subtotal(id){
+    let precio = ($(`#input-precio_${id}`).val()!='') ? parseFloat($(`#input-precio_${id}`).val()) : 0;
+    let cantidad = ($(`#input-cantidad_${id}`).val()!='') ? parseFloat($(`#input-cantidad_${id}`).val()) : 0;
+    $(`#subtotal-${id}`).html(`<h4>${(precio*cantidad).toFixed(2)} Bs.</h4>`);
+    total();
+}
+
 // calcular total
 function total(){
     let total = 0;

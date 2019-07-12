@@ -9,7 +9,7 @@ use Carbon\Carbon;
 
 use App\Categoria;
 
-class CategoriaController extends Controller
+class CategoriasController extends Controller
 {
     public function __construct()
     {

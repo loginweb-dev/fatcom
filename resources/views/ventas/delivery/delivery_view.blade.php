@@ -1,7 +1,7 @@
 @extends('voyager::master')
 @section('page_title', 'Viendo pedido')
 
-@if(auth()->user()->hasPermission('read_ventasdelivery'))
+@if(auth()->user()->hasPermission('browse_ventasdelivery'))
     @section('page_header')
         <h1 class="page-title">
             <i class="voyager-harddrive"></i> Viendo pedido

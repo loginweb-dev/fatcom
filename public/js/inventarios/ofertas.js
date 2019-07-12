@@ -13,17 +13,11 @@ function subcategorias(id, url){
             url: url+'/'+id,
             type: 'get',
             success: function(response){
-                select2_reload_simple('subcategoria_id', response);
-
-                // agregar opcion por defecto
-                $('#select-subcategoria_id').prepend(`<option value="">Todas</option>`);
-                $('#select-subcategoria_id').select2('destroy');
-                $('#select-subcategoria_id').val('');
-                $('#select-subcategoria_id').select2();
+                select2_reload_simple('subcategoria_id', response, 'Todas');
             }
         });
     }else{
-        select2_reload_simple('subcategoria_id', [{'id':'','nombre':'Todas'}]);
+        select2_reload_simple('subcategoria_id', [], 'Todas');
     }
 }
 
@@ -41,7 +35,7 @@ function filtro(url){
         url: url+'/'+categoria+'/'+subcategoria+'/'+marca,
         type: 'get',
         success: function(response){
-            select2_reload_simple('producto_id', response);
+            select2_reload_simple('producto_id', response, 'Todos los productos');
         }
     });
 }
