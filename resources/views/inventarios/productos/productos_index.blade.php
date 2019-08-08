@@ -66,7 +66,8 @@
                                                     <td>{{$item->nombre}}</td>
                                                     <td>{{$item->subcategoria}}</td>
                                                     <td>{{$precios[$cont]['precio']}}</td>
-                                                    <td>{{$cantidades[$cont]['cantidad']}}</td>
+                                                    {{-- <td>{{$cantidades[$cont]['cantidad']}}</td> --}}
+                                                    <td>{{$item->stock}}</td>
                                                     <td><a href="{{url('storage').'/'.$imagen}}" data-fancybox="galeria1" data-caption="{{$item->nombre}}"><img src="{{url('storage').'/'.$img}}" width="50px" alt=""></a></td>
                                                     <td class="no-sort no-click text-right" id="bread-actions">
                                                         @if(auth()->user()->hasPermission('read_productos'))

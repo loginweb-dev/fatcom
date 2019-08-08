@@ -144,7 +144,7 @@
                             <div class="card-banner card-producto" style="background: url('{{url('storage').'/'.$imagen}}') center;background-size:cover">
                                 <article class="overlay bottom text-center">
                                     <h6 class="card-title">{{$item->nombre}}</h6>
-                                    <a href="{{route('detalle_producto_ecommerce', ['id'=>$item->id])}}" class="btn btn-warning btn-sm link-page"> Ver detalles </a>
+                                    <a href="{{route('detalle_producto_ecommerce', ['producto'=>$item->slug])}}" class="btn btn-warning btn-sm link-page"> Ver detalles </a>
                                 </article>
                             </div>
                         </figure>
@@ -180,7 +180,7 @@
                             <div class="card-banner card-producto" style="background: url('{{url('storage').'/'.$img}}') center;background-size:cover">
                                 <article class="overlay bottom text-center">
                                     <h6 class="card-title">{{$item2->nombre}}</h6>
-                                    <a href="{{route('detalle_producto_ecommerce', ['id'=>$item2->id])}}" class="btn btn-warning btn-sm link-page"> Ver detalles </a>
+                                    <a href="{{route('detalle_producto_ecommerce', ['producto'=>$item2->slug])}}" class="btn btn-warning btn-sm link-page"> Ver detalles </a>
                                 </article>
                             </div>
                         </figure>

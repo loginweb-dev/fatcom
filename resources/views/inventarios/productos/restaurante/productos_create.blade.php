@@ -31,7 +31,7 @@
                                 <input type="hidden" name="precio_minimo[]" value="0">
                                 <input type="hidden" name="cantidad_minima_venta[]" value="1">
                                 {{-- </datos por defecto> --}}
-                                <input type="hidden" name="stock" value="0">
+                                <input type="hidden" name="deposito_id" value="{{$depositos->id}}">
                                 <input type="hidden" name="codigo_grupo" value="{{$codigo_grupo}}">
                                 <div class="panel-body strong-panel">
                                     <div class="row">
@@ -39,12 +39,12 @@
                                             <div class="row">
                                                 <div class="form-group col-md-12">
                                                     <label for="">Nombre comercial</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Nombre comercial del producto. Este campo es obligatorio."></span> @endif
-                                                    <input type="text" name="nombre" class="form-control" placeholder="Nombre del producto" required>
+                                                    <input type="text" name="nombre" class="form-control" value="{{ old('nombre') }}" placeholder="Nombre del producto" required>
                                                     @error('nombre')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
                                                     <div  style="position:absolute;right:15px;top:27px">
-                                                        <input type="checkbox" name="nuevo" data-toggle="toggle" data-on="<span class='voyager-check'></span> Nuevo" data-off="<span class='voyager-x'></span> Nuevo">
+                                                        <input type="checkbox" name="nuevo" data-toggle="toggle" data-on="Nuevo <span class='voyager-check'></span>" data-off="Nuevo <span class='voyager-x'></span>">
                                                     </div>
                                                 </div>
                                             </div>
@@ -69,13 +69,23 @@
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="form-group col-md-12">
+                                                <div class="form-group col-md-6">
                                                     <label for="">Precio de venta</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Precio de venta del producto. Este campo es obligatorio."></span> @endif
                                                     <div class="input-group">
-                                                        <input type="number" name="precio_venta[]" class="form-control" min="1" step="0.1" required>
+                                                        <input type="number" name="precio_venta[]" class="form-control" value="{{ old('precio_venta') }}" min="1" step="0.1" required>
                                                         <span class="input-group-addon">Bs.</span>
                                                     </div>
                                                     @error('precio_venta')
+                                                    <strong class="text-danger">{{ $message }}</strong>
+                                                    @enderror
+                                                </div>
+                                                <div class="form-group col-md-6">
+                                                    <label for="">Cantidad</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Cantidad de productos en stock. Este campo es obligatorio."></span> @endif
+                                                    <input type="number" name="stock" class="form-control" value="{{ old('stock') ? old('stock') : 0 }}" min="0" step="1" required>
+                                                    <div  style="position:absolute;right:15px;top:27px">
+                                                        <input type="checkbox" name="se_almacena" data-toggle="toggle" data-on="<small>Se almacena</small> <span class='voyager-check'></span>" data-off="<small>Se almacena</small> <span class='voyager-x'></span>">
+                                                    </div>
+                                                    @error('stock')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
                                                 </div>
@@ -83,7 +93,7 @@
                                             <div class="row">
                                                 <div class="form-group col-md-12">
                                                     <label for="" id="label-descripcion">Descripción (0/255)</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Descripción breve del producto, no debe exceder los 255 caracteres. Este campo es obligatorio."></span> @endif
-                                                    <textarea name="descripcion_small" class="form-control" id="text-descripcion" maxlength="255" rows="6" placeholder="Descripción corta del producto" required></textarea>
+                                                    <textarea name="descripcion_small" class="form-control" id="text-descripcion" maxlength="255" rows="4" placeholder="Descripción corta del producto" required>{{ old('descripcion_small') }}</textarea>
                                                     @error('descripcion_small')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
@@ -149,7 +159,7 @@
                                 </div>
                                 <div class="panel-body collapse">
                                     <div class="form-group">
-                                        <textarea class="form-control richTextBox" name="descripcion_long" row="3"></textarea>
+                                        <textarea class="form-control richTextBox" name="descripcion_long" row="3">{{ old('descripcion_long') }}</textarea>
                                     </div>
                                 </div>
                                 <div class="panel-footer">

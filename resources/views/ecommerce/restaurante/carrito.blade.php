@@ -18,7 +18,8 @@
         <div class="card">
             <div class="table-responsive">
                 @csrf
-                <input type="hidden" name="tipo" value="pedido">
+                <input type="hidden" name="venta_tipo_id" value="3">
+                <input type="hidden" name="cliente_id" value="{{$cliente_id}}">
                 <table class="table table-hover shopping-cart-wrap">
                     <thead class="text-muted">
                     <tr>

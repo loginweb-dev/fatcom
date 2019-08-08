@@ -25,7 +25,7 @@
                                     Detalles del pedido actual
                                 </th>
                                 <th class="text-right">
-                                    @if($ultimo_pedido->tipo_estado==5)
+                                    @if($ultimo_pedido->venta_estado_id==5)
                                     <button type="button" class="btn btn-danger" title="Realizar el mismo pedido">Pedir <span class="fa fa-cart-plus"></span></button>
                                     @endif
                                 </th>
@@ -111,7 +111,7 @@
                             <a href="{{route('pedidos_index', ['id' => $item->id])}}"  class="link-page">
                                 <article class="box pedidos-list" style="{{$style}}@if($uri==$item->id) background-color: #ddd; @endif">
                                     <div class="icontext" style="color:black">
-                                        @if($item->tipo_estado<=4)
+                                        @if($item->venta_estado_id<=4)
                                         <i class="text-primary far fa-clock"></i>
                                         @else
                                         <i class="text-primary fa fa-check"></i>
@@ -185,7 +185,7 @@
             id: 'mapbox.streets'
         }).addTo(map);
 
-        L.marker([lat, lon] @if($ultimo_pedido->tipo_estado==5), {draggable: true} @endif).addTo(map)
+        L.marker([lat, lon] @if($ultimo_pedido->venta_estado_id==5), {draggable: true} @endif).addTo(map)
         .bindPopup("Ubicación actual").openPopup();
 
         // Obtener posicion de mi pedido
@@ -198,7 +198,7 @@
         // }, 5000);
     });
 
-    let estado_pedido = {{$ultimo_pedido->tipo_estado}};
+    let estado_pedido = {{$ultimo_pedido->venta_estado_id}};
     let label_estado = [  '',
                     '<span class="badge badge-warning">Pedido realizado</span>',
                     '<span class="badge badge-info">En preparación</span>',
@@ -209,8 +209,7 @@
     function get_estado_pedido(id, map, iconDelivery){
         if(estado_pedido<5){
             $.get("{{url('carrito/mis_pepdidos/get_estado_pedido')}}/"+id, function(estado){
-                estado_pedido = estado;
-                $('#head-detalle_pedido').html(`Detalles del pedido actual ${label_estado[estado]}`);
+                $('#head-detalle_pedido').html(`Detalles del pedido actual <span class="badge badge-${estado.etiqueta}">${estado.nombre}</span>`);
                 if(estado_pedido == 4){
                     get_ubicacion(id, map, iconDelivery)
                 }

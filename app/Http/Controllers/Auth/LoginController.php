@@ -65,17 +65,18 @@ class LoginController extends Controller
                 if($user){
                     Auth::login($user, true);
                 }else{
+                    $cliente = Cliente::create([
+                        'razon_social' => $auth_user->name
+                    ]);
+
                     $user = User::create([
                                 'name' => $auth_user->name,
                                 'email' => $auth_user->email,
                                 'password' => Hash::make(str_random(10)),
                                 'avatar' => $auth_user->avatar,
-                                'tipo_login' => 'facebook'
+                                'tipo_login' => 'facebook',
+                                'cliente_id' => $cliente->id
                             ]);
-                    Cliente::create([
-                        'razon_social' => $auth_user->name,
-                        'user_id' => $user->id,
-                    ]);
 
                     Auth::login($user, true);
                 }
@@ -101,17 +102,18 @@ class LoginController extends Controller
                 if($user){
                     Auth::login($user, true);
                 }else{
+                    $cliente = Cliente::create([
+                        'razon_social' => $auth_user->name
+                    ]);
+
                     $user = User::create([
                                 'name' => $auth_user->name,
                                 'email' => $auth_user->email,
                                 'password' => Hash::make(str_random(10)),
                                 'avatar' => $auth_user->avatar,
-                                'tipo_login' => 'google'
+                                'tipo_login' => 'google',
+                                'cliente_id' => $cliente->id
                             ]);
-                    Cliente::create([
-                        'razon_social' => $auth_user->name,
-                        'user_id' => $user->id,
-                    ]);
 
                     Auth::login($user, true);
                 }

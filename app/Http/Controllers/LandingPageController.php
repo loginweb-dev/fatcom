@@ -10,9 +10,11 @@ use App\Http\Controllers\LoginwebController as LW;
 use App\Http\Controllers\OfertasController as Ofertas;
 use App\Http\Controllers\ProductosController as Productos;
 
-use App\UsersCoordenada;
+use App\User;
+use App\ClientesCoordenada;
 use App\PasarelaPago;
 use App\Venta;
+use App\Producto;
 
 class LandingPageController extends Controller
 {
@@ -64,7 +66,7 @@ class LandingPageController extends Controller
                             ->join('ofertas_detalles as od', 'od.producto_id', 'p.id')
                             ->join('ofertas as o', 'o.id', 'od.oferta_id')
                             ->join('monedas as mo', 'mo.id', 'p.moneda_id')
-                            ->select('p.id', 'p.nombre', 'p.nuevo', 'p.imagen', 'm.nombre as m', 'od.monto as descuento', 'od.tipo_descuento', 'mo.abreviacion as moneda')
+                            ->select('p.id', 'p.nombre', 'p.nuevo', 'p.imagen', 'p.slug', 'm.nombre as m', 'od.monto as descuento', 'od.tipo_descuento', 'mo.abreviacion as moneda')
                             // ->where('p.deleted_at', NULL)
                             ->where('o.deleted_at', NULL)
                             ->where('e.deleted_at', NULL)
@@ -85,7 +87,7 @@ class LandingPageController extends Controller
             $aux = DB::table('productos as p')
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
                             ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
-                            ->select('p.id', 'p.nombre', 'p.imagen', 'p.nuevo')
+                            ->select('p.id', 'p.nombre', 'p.imagen', 'p.nuevo', 'p.slug')
                             // ->where('deleted_at', NULL)
                             ->where('s.id', $item->id)
                             ->where('e.deleted_at', NULL)
@@ -113,11 +115,23 @@ class LandingPageController extends Controller
     public function search(Request $data){
         // dd($data);
         $sentencia = '1';
+        $precio_min = $data->min;
+        $precio_max = $data->max;
 
         if($data->tipo_busqueda=='click'){
             $filtro_marca = ($data->marca_id != '') ? ' p.marca_id = '.$data->marca_id : ' 1';
             $filtro_subcategoria = ($data->subcategoria_id != '') ? ' and p.subcategoria_id = '.$data->subcategoria_id : ' and 1';
             $sentencia = $filtro_marca.$filtro_subcategoria;
+
+            // filtro de precios
+            if(empty($precio_min) && !empty($precio_max)){
+                $sentencia .= " and p.precio_venta < $precio_max";
+            }else if(!empty($precio_min) && empty($precio_max)){
+                $sentencia .= " and p.precio_venta > $precio_min";
+            }else if(!empty($precio_min) && !empty($precio_max)){
+                $sentencia .= " and p.precio_venta between $precio_min and $precio_max ";
+            }
+
         }
 
         if($data->tipo_busqueda=='text'){
@@ -139,7 +153,7 @@ class LandingPageController extends Controller
                             ->join('usos as u', 'u.id', 'p.uso_id')
                             ->join('generos as g', 'g.id', 'p.genero_id')
                             ->join('monedas as mn', 'mn.id', 'p.moneda_id')
-                            ->select('p.id', 'p.nombre', 'p.imagen', 'modelo', 'p.garantia', 'p.descripcion_small', 'p.vistas', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'u.nombre as uso', 'co.nombre as color', 'g.nombre as genero')
+                            ->select('p.id', 'p.nombre', 'p.precio_venta', 'p.imagen', 'modelo', 'p.garantia', 'p.descripcion_small', 'p.vistas', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'u.nombre as uso', 'co.nombre as color', 'g.nombre as genero')
                             // ->where('deleted_at', NULL)
                             ->whereRaw($sentencia)
                             ->where('s.deleted_at', NULL)
@@ -163,9 +177,6 @@ class LandingPageController extends Controller
             $puntuacion = (new Productos)->obtener_puntos($item->id);
             array_push($puntuaciones, ['puntos'=>$puntuacion]);
         }
-
-        $precio_min = $data->min;
-        $precio_max = $data->max;
 
         switch (setting('admin.modo_sistema')) {
             case 'boutique':
@@ -306,8 +317,8 @@ class LandingPageController extends Controller
         }
     }
 
-    public function detalle_producto($id){
-
+    public function detalle_producto(Producto $producto){
+        $id = $producto->id;
         // Incrementar numero de vistas a producto
         DB::table('productos')->where('id', $id)->increment('vistas', 1);
 
@@ -424,9 +435,10 @@ class LandingPageController extends Controller
     public function cantidad_pedidos(){
         $pedidos = DB::table('ventas as v')
                         ->join('clientes as c', 'c.id', 'v.cliente_id')
+                        ->join('users as u', 'u.cliente_id', 'c.id')
                         ->select('v.id')
-                        ->where('c.user_id', Auth::user()->id)
-                        ->where('v.tipo_estado', '<=', 4)
+                        ->where('u.id', Auth::user()->id)
+                        ->where('v.venta_estado_id', '<=', 4)
                         ->get();
         return count($pedidos);
     }
@@ -442,9 +454,9 @@ class LandingPageController extends Controller
 
     public function carrito_index(){
         // session()->forget('carrito_compra');
-        $user_id = isset(Auth::user()->id) ? Auth::user()->id : 0;
+        $cliente_id = isset(Auth::user()->id) ? User::find(Auth::user()->id)->cliente_id : 0;
 
-        $user_coords =  UsersCoordenada::where('user_id', $user_id)->where('descripcion', '<>', '')->orderBy('concurrencia', 'DESC')->limit(5)->get();
+        $user_coords =  ClientesCoordenada::where('cliente_id', $cliente_id)->where('descripcion', '<>', '')->orderBy('concurrencia', 'DESC')->limit(5)->get();
         $pasarela_pago = PasarelaPago::where('deleted_at', NULL)->get();
 
         $carrito = session()->has('carrito_compra') ? session()->get('carrito_compra') : array();
@@ -471,10 +483,10 @@ class LandingPageController extends Controller
 
                 break;
             case 'electronica_computacion':
-            return view('ecommerce/computacion_electronica/carrito', compact('carrito', 'precios', 'ofertas', 'user_coords', 'pasarela_pago'));
+            return view('ecommerce/computacion_electronica/carrito', compact('carrito', 'precios', 'ofertas', 'user_coords', 'pasarela_pago', 'cliente_id'));
                 break;
             case 'restaurante':
-            return view('ecommerce/restaurante/carrito', compact('carrito', 'precios', 'ofertas', 'user_coords', 'pasarela_pago'));
+            return view('ecommerce/restaurante/carrito', compact('carrito', 'precios', 'ofertas', 'user_coords', 'pasarela_pago', 'cliente_id'));
                 break;
             default:
                 # code...
@@ -525,15 +537,20 @@ class LandingPageController extends Controller
         $sentencia = ($id!='last') ? " v.id = $id" : 1;
         $ultimo_pedido = DB::table('ventas as v')
                                 ->join('clientes as c', 'c.id', 'v.cliente_id')
-                                ->select('v.id', 'v.tipo_estado')
-                                ->where('c.user_id', Auth::user()->id)
+                                ->join('users as u', 'u.cliente_id', 'c.id')
+                                ->join('ventas_estados as ve', 've.id', 'v.venta_estado_id')
+                                ->select('v.id', 'v.venta_estado_id')
+                                ->where('u.id', Auth::user()->id)
                                 ->whereRaw($sentencia)
+                                ->orderBy('id', 'DESC')
                                 ->first();
         if($ultimo_pedido){
-            $mi_ubicacion = DB::table('users_coordenadas as u')
-                                ->select('u.lat', 'u.lon')
-                                ->where('u.user_id', Auth::user()->id)
-                                ->where('u.ultima_ubicacion', 1)
+            $mi_ubicacion = DB::table('clientes_coordenadas as cc')
+                                ->join('clientes as c', 'c.id', 'cc.cliente_id')
+                                ->join('users as u', 'u.cliente_id', 'c.id')
+                                ->select('cc.lat', 'cc.lon')
+                                ->where('u.id', Auth::user()->id)
+                                ->where('cc.ultima_ubicacion', 1)
                                 ->first();
             $detalle_pedido = DB::table('ventas_detalles as dv')
                                     ->join('productos as p', 'p.id', 'dv.producto_id')
@@ -544,8 +561,9 @@ class LandingPageController extends Controller
 
             $pedidos = DB::table('ventas as v')
                             ->join('clientes as c', 'c.id', 'v.cliente_id')
-                            ->select('v.id', 'v.tipo_estado', 'v.created_at')
-                            ->where('c.user_id', Auth::user()->id)
+                            ->join('users as u', 'u.cliente_id', 'c.id')
+                            ->select('v.id', 'v.venta_estado_id', 'v.created_at')
+                            ->where('u.id', Auth::user()->id)
                             ->orderBy('id', 'DESC')
                             ->get();
             $productos_pedidos = [];
@@ -585,12 +603,15 @@ class LandingPageController extends Controller
     }
 
     public function get_estado_pedido($id){
-        return DB::table('ventas as v')
+        return response()->json(DB::table('ventas as v')
                                 ->join('clientes as c', 'c.id', 'v.cliente_id')
-                                ->select('v.tipo_estado')
-                                ->where('c.user_id', Auth::user()->id)
+                                ->join('users as u', 'u.cliente_id', 'c.id')
+                                ->join('ventas_estados as ve', 've.id', 'v.venta_estado_id')
+                                ->select('v.venta_estado_id as id', 've.nombre', 've.etiqueta')
+                                ->where('u.id', Auth::user()->id)
                                 ->whereRaw('v.id', $id)
-                                ->first()->tipo_estado;
+                                ->orderBy('v.id', 'DESC')
+                                ->first());
     }
 
     public function ecommerce_policies(){

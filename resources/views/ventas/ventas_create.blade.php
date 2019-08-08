@@ -48,16 +48,16 @@
                     <div class="panel-body">
                         <div class="row">
                             @csrf
-                            <input type="hidden" name="tipo" id="input-tipo" value="venta">
+                            <input type="hidden" name="venta_tipo_id" id="input-venta_tipo_id" value="1">
                             <input type="hidden" name="facturacion" value="{{setting('empresa.facturas')}}">
                             <div class="row">
                                 <div class="form-group col-md-12">
                                     <label>Nombre completo</label>
-                                    <select name="cliente_id" class="form-control" id="select-cliente_id">
-                                        <option value="1">--Ninguno--</option>
+                                    <select name="cliente_id" class="form-control select2" id="select-cliente_id">
+                                        {{-- <option value="1">--Ninguno--</option>
                                         @foreach ($clientes as $item)
                                         <option value="{{$item->id}}" data-nit="{{$item->nit}}">{{$item->razon_social}}</option>
-                                        @endforeach
+                                        @endforeach --}}
                                     </select>
                                 </div>
                                 <div class="form-group col-md-12">
@@ -85,7 +85,7 @@
                             <div class="row">
                                 <div class="form-group col-md-6">
                                     <label>Monto entregado</label>
-                                    <input type="number" id="input-entregado" value="0" min="0" step="0.5" onchange="calcular_cambio()" onkeyup="calcular_cambio()" style="font-size:18px" name="monto_recibido" class="form-control" required>
+                                    <input type="number" id="input-entregado" value="0" min="0" step="0.5" onchange="calcular_cambio()" onkeyup="calcular_cambio()" style="font-size:18px" name="monto_recibido" class="form-control cero_default" required>
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label>Cambio</label>
@@ -106,7 +106,7 @@
                 <div class="panel panel-bordered" style="margin-top:-30px">
                     <div class="panel-body">
                         <div class="col-md-12">
-                            <table class="table table-bordered">
+                            <table class="table table-bordered" style="font-size:18px">
                                 <thead>
                                     <th style="width:300px">Producto</th>
                                     <th>observación</th>
@@ -116,12 +116,21 @@
                                 </thead>
                                 <tbody>
                                     <tr id="detalle_venta">
+                                        <td colspan="4" class="text-right"><h5>Descuento</h5></td>
+                                        <td id="label-descuento" colspan="2">
+                                            <div class="input-group">
+                                                <input type="number" name="descuento" class="form-control cero_default" style="width:80px" onchange="total();calcular_cambio()" onkeyup="total();calcular_cambio()" min="0" value="0" id="input-descuento">
+                                                <span class="input-group-addon">Bs.</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
                                         <td colspan="4" class="text-right"><h5>Costo de envío</h5></td>
                                         <td id="label-costo_envio" colspan="2">
                                             <div class="input-group">
-                                                <input type="number" name="cobro_adicional" class="form-control" style="width:80px" onchange="total();calcular_cambio()" onkeyup="total();calcular_cambio()" min="0" value="0" id="input-costo_envio">
+                                                <input type="number" readonly name="cobro_adicional" class="form-control cero_default" style="width:80px" onchange="total();calcular_cambio()" onkeyup="total();calcular_cambio()" min="0" value="0" id="input-costo_envio">
                                                 <span class="input-group-addon">
-                                                    <input type="checkbox" name="incluir_envio" data-toggle="tooltip" data-placement="bottom" title="Incluir costo de envío en factura">
+                                                    <input type="checkbox" disabled id="check-cobro_adicional_factura" name="cobro_adicional_factura" data-toggle="tooltip" data-placement="bottom" title="Incluir costo de envío en factura">
                                                 </span>
                                             </div>
                                         </td>
@@ -138,7 +147,7 @@
                         <div class="col-md-12 text-right">
                             {{-- <button type="reset" id="btn-reset" class="btn btn-default">Vaciar</button> --}}
                             {{-- <input type="checkbox" id="check-factura" name="factura" data-toggle="toggle" data-on="Con factura" data-off="Sin factura" data-onstyle="success" data-offstyle="danger"> --}}
-                            <button type="submit" @if(!$abierta) disabled @endif class="btn btn-primary" style="padding:20px">Vender <span class="voyager-basket"></span> </button>
+                            <button type="submit" id="btn-vender" @if(!$abierta) disabled @endif class="btn btn-primary" style="padding:20px">Vender <span class="voyager-basket"></span> </button>
                         </div>
                     </div>
                 </div>
@@ -146,11 +155,10 @@
         </div>
     </div>
     {{-- Modal mapa --}}
-    <div class="modal modal-primary fade" tabindex="-1" id="modal_mapa" role="dialog">
+    <div class="modal modal-primary fade" tabindex="-1" id="modal_mapa" data-backdrop="static" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title"><i class="voyager-location"></i> Ubicación del pedido</h4>
                 </div>
                 <div class="modal-body">
@@ -194,7 +202,7 @@
         .img-producto:hover{
             border: 5px solid #096FA9;
         }
-        .nav-tabs > li.active > a, .nav-tabs > li.active > a:focus, .nav-tabs > li.active > a:hover{
+        /* .nav-tabs > li.active > a, .nav-tabs > li.active > a:focus, .nav-tabs > li.active > a:hover{
             background:#fff !important;
             color:#62a8ea !important;
             border-bottom:1px solid #fff !important;
@@ -204,7 +212,7 @@
             font-size: 20px;
             color: #2A363B;
             background-color: #f9f9f9;
-        }
+        } */
     </style>
 @stop
 
@@ -218,7 +226,10 @@
         let marcador = {};
         $(document).ready(function(){
             $('[data-toggle="tooltip"]').tooltip();
-            inicializar_select2('cliente_id');
+            // Obtener lista de clientes
+            $.get('{{route("clientes_list")}}', function(data){
+                select2_reload('cliente_id', data, false)
+            });
             // productos_categoria({{$categoria_id}});
             productos_buscar();
 
@@ -247,6 +258,7 @@
 
             // formulario de envio de venta
             $('#form').on('submit', function(e){
+                $('#btn-vender').attr('disabled', true);
                 $('#modal_load').modal('show');
                 e.preventDefault();
                 let datos = $(this).serialize();
@@ -262,23 +274,40 @@
                                 let id = data;
                                 toastr.success('Venta registrada correctamente.', 'Exito');
                                 // Factura
-                                window.open("{{url('admin/factura')}}/"+id, "Factura", `width=800, height=600`)
+                                @if($tamanio=='rollo')
+                                    $.get("{{url('admin/venta/impresion/rollo')}}/"+id, function(){});
+                                @else
+                                    window.open("{{url('admin/venta/impresion/normal')}}/"+id, "Factura", `width=700, height=400`)
+                                @endif
+                                
                                 $('#form')[0].reset();
                                 $('.tr-detalle').remove();
                                 $(".label-subtotal").text('0.00');
                                 $("#label-total").text('0.00 Bs.');
+                                $('#check-domicilio').bootstrapToggle('off');
+                                $('#check-llevar').bootstrapToggle('off');
+                                $('#check-factura').bootstrapToggle('off');
+                                inicializar_select2_simple('producto_id')
+
+                                // Reload select de clientes pendiente
 
                                 // resetear panel de productos
                                 @if(count($categorias)>0)
-                                $('.li-item').removeClass('active');
-                                $('#li-'+{{$categoria_id}}).addClass('active');
-                                productos_categoria({{$categoria_id}})
+                                // $('.li-item').removeClass('active');
+                                // $('#li-'+{{$categoria_id}}).addClass('active');
+                                // productos_categoria({{$categoria_id}})
                                 @endif
+
+                                // Obtener lista de clientes
+                                $.get('{{route("clientes_list")}}', function(data){
+                                    select2_reload('cliente_id', data, false)
+                                });
                             }
                         }else{
                             toastr.error('Ocurrio un error al ingresar la venta.', 'Error');
                         }
                         $('#modal_load').modal('hide');
+                        $('#btn-vender').removeAttr('disabled');
                     },
                     error: function(error){
                         console.log(error);
@@ -292,24 +321,26 @@
                     $('#input-nro_mesa').val('');
                     $('#input-nro_mesa').attr('readonly', true);
                     // $('#input-nro_mesa').removeAttr('required');
-                    $('#input-tipo').val('llevar');
+                    $('#input-venta_tipo_id').val('2');
                     $('#check-domicilio').bootstrapToggle('off')
                 }else{
                     $('#input-nro_mesa').removeAttr('readonly');
                     // $('#input-nro_mesa').attr('required', true);
-                    $('#input-tipo').val('venta');
+                    $('#input-venta_tipo_id').val('1');
                 }
+                total();
             });
-
+            
             // Activar mapa para llevar a domicilio
             let cont = 0;
             $('#check-domicilio').change(function() {
                 if($(this).prop('checked')){
                     $('#input-costo_envio').val(costo_envio);
+                    $('#input-costo_envio').removeAttr('readonly');
                     // $('#check-llevar').removeAttr('checked');
                     $('#check-llevar').bootstrapToggle('off');
                     $('#modal_mapa').modal('show');
-                    $('#input-tipo').val('domicilio');
+                    $('#input-venta_tipo_id').val('4');
                     let cliente_id = $('#select-cliente_id').val();
                     if(cliente_id > 1){
                         $.get('{{url("admin/ventas/get_ubicaciones_cliente")}}/'+cliente_id, function(data){
@@ -350,8 +381,8 @@
                                         .bindPopup("Localización actual")
                                         .openPopup()
                                         .on('drag', function(e) {
-                                            $('#latitud').val(lat);
-                                            $('#longitud').val(lon);
+                                            $('#latitud').val(e.latlng.lat);
+                                            $('#longitud').val(e.latlng.lng);
                                             $('#input-coordenada_id').val('');
                                             $('#input-descripcion').val('')
                                         });
@@ -361,18 +392,28 @@
                         });
                     }, 1000);
                 }else{
-                    // $('#input-tipo').val('venta');
+                    // $('#input-venta_tipo_id').val('1');
+                    $('#input-costo_envio').attr('readonly', true);
                     $('#input-costo_envio').val(0);
                 }
 
                 total();
                 calcular_cambio();
+            });
 
+            // anular o activar mesa si no es para llevar
+            $('#check-factura').change(function() {
+                if($(this).prop('checked')){
+                    $('#check-cobro_adicional_factura').removeAttr('disabled');
+                }else{
+                    $('#check-cobro_adicional_factura').removeAttr('checked');
+                    $('#check-cobro_adicional_factura').attr('disabled', true);
+                }
             });
 
             $('#btn-cancel-map').click(function(){
                 $('#check-domicilio').bootstrapToggle('off');
-                $('#input-tipo').val('venta');
+                $('#input-venta_tipo_id').val('1');
             });
 
         });
@@ -412,6 +453,11 @@
                 }
             });
 
+            // Si el usuario tiene permiso para editar productos puede editar el precio de venta
+            let editar_precio = 'readonly';
+            @if(auth()->user()->hasPermission('edit_productos'))
+            editar_precio = '';
+            @endif
 
             if(existe){
                 // $(`#tr-${id}_${adicional_id} .label-precio`).html(`<input type="hidden" value="${cantidad}" name="cantidad[]">${cantidad}`);
@@ -423,11 +469,11 @@
                                                 <td><input type="text" class="form-control" name="observacion[]"></td>
                                                 <td>
                                                     <div class="input-group">
-                                                        <input type="number" id="input-precio_${id}_${adicional_id}" min="1" step="0.1" value="${precio}" name="precio[]" class="form-control" onchange="subtotal('${id}_${adicional_id}')" onkeyup="subtotal('${id}_${adicional_id}')" required />
+                                                        <input type="number" ${editar_precio} id="input-precio_${id}_${adicional_id}" min="1" step="0.1" value="${precio}" name="precio[]" class="form-control" onchange="subtotal('${id}_${adicional_id}');calcular_cambio()" onkeyup="subtotal('${id}_${adicional_id}');calcular_cambio()" required />
                                                         <span class="input-group-addon">Bs.</span>
                                                     </div>
                                                 </td>
-                                                <td><input type="number" min="1" step="1" class="form-control" id="input-cantidad_${id}_${adicional_id}" value="1" name="cantidad[]" onchange="subtotal('${id}_${adicional_id}')" onkeyup="subtotal('${id}_${adicional_id}')" required></td>
+                                                <td><input type="number" min="1" step="1" class="form-control" id="input-cantidad_${id}_${adicional_id}" value="1" name="cantidad[]" onchange="subtotal('${id}_${adicional_id}');calcular_cambio()" onkeyup="subtotal('${id}_${adicional_id}');calcular_cambio()" required></td>
                                                 <td class="label-subtotal" id="subtotal-${id}_${adicional_id}"><h4>${precio} Bs.</h4></td>
                                                 <td width="40px"><label onclick="borrarTr('${id}_${adicional_id}')" class="text-danger" style="cursor:pointer;font-size:20px"><span class="voyager-trash"></span></label></td>
                                             <tr>`);
@@ -473,6 +519,8 @@
 
         function ubicacion_anterior(id, lat, lon, descripcion){
             map.removeLayer(marcador);
+            $('#latitud').val(lat);
+            $('#longitud').val(lon);
             $('#input-coordenada_id').val(id);
             $('#input-descripcion').val(descripcion)
 

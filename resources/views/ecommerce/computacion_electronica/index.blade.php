@@ -135,7 +135,7 @@
                     @php
                         $imagen = ($item->imagen!='') ? str_replace('.', '_medium.', $item->imagen) : 'productos/default.png';
                     @endphp
-                    <div class="item-slide link-page" style="cursor:pointer" onclick="window.location='{{route('detalle_producto_ecommerce', ['id'=>$item->id])}}'">
+                    <div class="item-slide link-page" style="cursor:pointer" onclick="window.location='{{route('detalle_producto_ecommerce', ['producto'=>$item->slug])}}'">
                         <figure class="card card-product">
                             @if(!empty($item->nuevo))
                             <span class="badge-new bg-info"> Nuevo </span>
@@ -144,7 +144,6 @@
                             <div class="card-banner card-producto" style="background: url('{{url('storage').'/'.$imagen}}') center;background-size:cover">
                                 <article class="overlay bottom text-center">
                                     <h6>{{$item->nombre}}</h6>
-                                    {{-- <a href="{{route('detalle_producto_ecommerce', ['id'=>$item->id])}}" class="btn btn-warning btn-sm link-page"> Ver detalles </a> --}}
                                 </article>
                             </div>
                         </figure>
@@ -172,7 +171,7 @@
                     @php
                         $img = ($item2->imagen!='') ? str_replace('.', '_medium.', $item2->imagen) : 'productos/default.png';
                     @endphp
-                    <div class="item-slide link-page" style="cursor:pointer" onclick="window.location='{{route('detalle_producto_ecommerce', ['id'=>$item2->id])}}'">
+                    <div class="item-slide link-page" style="cursor:pointer" onclick="window.location='{{route('detalle_producto_ecommerce', ['producto'=>$item2->slug])}}'">
                         <figure class="card card-product">
                             @if(!empty($item2->nuevo))
                             <span class="badge-new bg-info"> Nuevo </span>
@@ -180,7 +179,6 @@
                             <div class="card-banner card-producto" style="background: url('{{url('storage').'/'.$img}}') center;background-size:cover">
                                 <article class="overlay bottom text-center">
                                     <h6>{{$item2->nombre}}</h6>
-                                    {{-- <a href="{{route('detalle_producto_ecommerce', ['id'=>$item2->id])}}" class="btn btn-warning btn-sm link-page"> Ver detalles </a> --}}
                                 </article>
                             </div>
                         </figure>

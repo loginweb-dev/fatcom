@@ -64,16 +64,6 @@ function add_producto(indice, url){
         // obtener precios de ventas del producto
         let precios = '';
         let aux = indice;
-        $.ajax({
-            url: url+'/'+id,
-            type: 'get',
-            success: function(response){
-                response.forEach(element => {
-                    precios = precios+element.precio+' '+element.moneda+' mínimo '+element.cantidad_minima+'<br>';
-                });
-                $('#precios-'+aux).html(precios);
-            }
-        });
 
         // Crear fila con datos del producto
         $('#lista_productos').append(`<tr id="tr-${indice}">
@@ -88,6 +78,17 @@ function add_producto(indice, url){
                                         </td>
                                         <td style="padding-top:15px"><span onclick="borrarTr(${indice})" class="voyager-x text-danger"></span></td>
                                     </tr>`);
+        $.ajax({
+            url: url+'/'+id,
+            type: 'get',
+            success: function(response){
+                console.log(response)
+                response.forEach(element => {
+                    precios = precios+element.precio+' '+element.moneda+' mínimo '+element.cantidad_minima+'<br>';
+                });
+                $('#precios-'+aux).html(precios);
+            }
+        });
         $('#select-tipo'+indice).val(tipo);
     indice++;
     }else{

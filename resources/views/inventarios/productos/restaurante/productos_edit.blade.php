@@ -68,7 +68,7 @@
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="form-group col-md-12">
+                                                <div class="form-group col-md-6">
                                                     <label for="">Precio de venta</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Precio de venta del producto. Este campo es obligatorio."></span> @endif
                                                     <div class="input-group">
                                                         <input type="number" name="precio_venta[]" value="{{$precio_venta[0]->precio}}" class="form-control" min="1" step="0.1" required>
@@ -78,6 +78,13 @@
                                                     @error('precio_venta')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
+                                                </div>
+                                                <div class="form-group col-md-6">
+                                                    <label for="">Cantidad</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Cantidad de productos en stock. Este campo es obligatorio."></span> @endif
+                                                    <input type="number" name="stock" readonly class="form-control" value="{{$producto->stock}}" min="0" step="1" required>
+                                                    <div  style="position:absolute;right:15px;top:27px">
+                                                        <input type="checkbox" id="input-se_almacena" name="se_almacena" data-toggle="toggle" data-on="<small>Se almacena</small> <span class='voyager-check'></span>" data-off="<small>Se almacena</small> <span class='voyager-x'></span>">
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="row">
@@ -223,6 +230,10 @@
 
                 if('{{$producto->nuevo}}'=='1'){
                     $('#input-nuevo').bootstrapToggle('on')
+                }
+
+                if('{{$producto->se_almacena}}'=='1'){
+                    $('#input-se_almacena').bootstrapToggle('on')
                 }
 
                 $('#select-categoria_id').val('{{$producto->categoria_id}}');

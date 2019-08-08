@@ -94,12 +94,12 @@ class ComprasController extends Controller
                         ]);
                     // if($data->compra_mercaderia==1){
                     //     if(isset($data->nro_factura)){
-                    //         DB::table('deposito_productos')
+                    //         DB::table('productos_depositos')
                     //                 ->where('producto_id', $data->producto[$i])
                     //                 ->where('deposito_id', $data->deposito_id)
                     //                 ->increment('cantidad_compra', $data->cantidad[$i]);
                     //     }else{
-                    //         DB::table('deposito_productos')
+                    //         DB::table('productos_depositos')
                     //                 ->where('producto_id', $data->producto[$i])
                     //                 ->where('deposito_id', $data->deposito_id)
                     //                 ->increment('cantidad_adicional', $data->cantidad[$i]);

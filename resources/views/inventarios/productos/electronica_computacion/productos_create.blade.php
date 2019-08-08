@@ -26,6 +26,7 @@
                                 <input type="hidden" name="genero_id" value="1">
                                 <input type="hidden" name="uso_id" value="1">
                                 {{-- </datos por defecto> --}}
+                                <input type="hidden" name="deposito_id" value="{{$depositos->id}}">
                                 <input type="hidden" name="stock" value="0">
                                 <input type="hidden" name="codigo_grupo" value="{{$codigo_grupo}}">
                                 <div class="panel-body strong-panel">

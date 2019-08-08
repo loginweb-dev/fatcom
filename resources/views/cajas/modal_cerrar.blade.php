@@ -13,6 +13,8 @@
                 <div class="modal-body">
                     {{ csrf_field() }}
                     <input type="hidden" name="id" value="">
+                    <input type="hidden" name="total" id="input-total">
+                    <input type="hidden" name="faltante" id="input-faltante">
                     <textarea name="observaciones" class="form-control" rows="5" placeholder="Observaciones"></textarea>
                 </div>
                 <div class="modal-footer">

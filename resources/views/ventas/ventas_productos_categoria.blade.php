@@ -16,14 +16,14 @@
                         @foreach ($productos as $item)
                             @if($item0->id==$item->subcategoria_id)
                                 @php
-                                    $imagen = (!empty($item->imagen)) ? url('storage').'/'.$item->imagen : url('storage/productos/default.png');
+                                    $imagen = (!empty($item->imagen)) ? url('storage').'/'.str_replace('.', '_small.', $item->imagen) : url('storage/productos/default.png');
                                 @endphp
                                 <div class="card col-md-3 text-center" style="margin:5px 0px">
                                     <img class="card-img-top img-producto" id="producto-{{$item->id}}" style="width:130px;height:100px;cursor:pointer" src="{{$imagen}}" alt="Imagen del producto"
                                     onclick="combinar_producto({{$item->id}}, '{{$item->nombre}}', {{$precios[$cont]['precio']}}, 1000, '')" ondblclick="agregar_detalle_restaurante({{$item->id}}, '{{$item->nombre}}', {{$precios[$cont]['precio']}}, 1000, '', '')">
 
                                     <div class="card-body" style="padding: 4px">
-                                        <h6 class="card-title" style="padding: 0px">{{$item->nombre}}</h6>
+                                        <h4 class="card-title" style="padding: 0px"> <label class="label label-primary">{{$item->nombre}}</label> </h4>
                                         {{-- <p class="card-text" style="padding: 0px">{{$item->descripcion}}</p> --}}
                                     </div>
                                     {{-- <div class="card-footer" style="padding: 4px">

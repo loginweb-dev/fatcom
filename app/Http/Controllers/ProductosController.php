@@ -19,6 +19,7 @@ use App\Marca;
 use App\Talla;
 use App\Colore;
 use App\Modelo;
+use App\Producto;
 
 class ProductosController extends Controller
 {
@@ -50,21 +51,21 @@ class ProductosController extends Controller
                 }
                 array_push($precios, $precio);
 
-                // Obtener stock actual del producto en todos los deposito
-                $deposito_productos = DB::table('deposito_productos as d')
-                                        ->select(DB::raw('sum(d.stock) as stock'))
-                                        ->where('producto_id', $item->id)
-                                        ->first();
-                if($deposito_productos){
-                    if($deposito_productos->stock){
-                        $cantidad = ['cantidad' => $deposito_productos->stock];
-                    }else{
-                        $cantidad = ['cantidad' => 0];
-                    }
-                }else{
-                    $cantidad = ['cantidad' => 0];
-                }
-                array_push($cantidades, $cantidad);
+                // // Obtener stock actual del producto en todos los deposito
+                // $productos_depositos = DB::table('productos_depositos as d')
+                //                         ->select(DB::raw('sum(d.stock) as stock'))
+                //                         ->where('producto_id', $item->id)
+                //                         ->first();
+                // if($productos_depositos){
+                //     if($productos_depositos->stock){
+                //         $cantidad = ['cantidad' => $productos_depositos->stock];
+                //     }else{
+                //         $cantidad = ['cantidad' => 0];
+                //     }
+                // }else{
+                //     $cantidad = ['cantidad' => 0];
+                // }
+                // array_push($cantidades, $cantidad);
             }
         }
 
@@ -100,19 +101,19 @@ class ProductosController extends Controller
                 array_push($precios, $precio);
             }
 
-            // Obtener cantidad del producto
-            foreach ($registros as $item) {
-                $deposito_productos = DB::table('deposito_productos as d')
-                                        ->select(DB::raw('sum(d.stock) as stock'))
-                                        ->where('producto_id', $item->id)
-                                        ->first();
-                if($deposito_productos){
-                    $cantidad = ['cantidad' => $deposito_productos->stock];
-                }else{
-                    $cantidad = ['cantidad' => 0];
-                }
-                array_push($cantidades, $cantidad);
-            }
+            // // Obtener cantidad del producto
+            // foreach ($registros as $item) {
+            //     $productos_depositos = DB::table('productos_depositos as d')
+            //                             ->select(DB::raw('sum(d.stock) as stock'))
+            //                             ->where('producto_id', $item->id)
+            //                             ->first();
+            //     if($productos_depositos){
+            //         $cantidad = ['cantidad' => $productos_depositos->stock];
+            //     }else{
+            //         $cantidad = ['cantidad' => 0];
+            //     }
+            //     array_push($cantidades, $cantidad);
+            // }
         }
 
         return view('inventarios/productos/productos_index', compact('registros', 'value', 'precios', 'cantidades'));
@@ -233,15 +234,22 @@ class ProductosController extends Controller
                             // ->where('id', '>', 1)
                             ->get();
 
+        // Obtener el primer deposito registrado, en caso de ser mas de uno se debe especificar 
+        // de alguna forma que deposito se debe obtener
+        $depositos = DB::table('depositos')
+                            ->select('id')
+                            ->where('deleted_at', NULL)
+                            ->first();
+
         switch (setting('admin.modo_sistema')) {
             case 'boutique':
-            return view('inventarios/productos/boutique/productos_create', compact('codigo_grupo', 'categorias', 'subcategorias', 'marcas', 'tallas', 'colores', 'generos', 'usos', 'unidades'));
+            return view('inventarios/productos/boutique/productos_create', compact('codigo_grupo', 'categorias', 'subcategorias', 'marcas', 'tallas', 'colores', 'generos', 'usos', 'unidades', 'depositos'));
                 break;
             case 'electronica_computacion':
-                return view('inventarios/productos/electronica_computacion/productos_create', compact('codigo_grupo', 'categorias', 'subcategorias', 'marcas', 'tallas', 'colores', 'generos', 'usos', 'unidades', 'monedas'));
+                return view('inventarios/productos/electronica_computacion/productos_create', compact('codigo_grupo', 'categorias', 'subcategorias', 'marcas', 'tallas', 'colores', 'generos', 'usos', 'unidades', 'monedas', 'depositos'));
                 break;
             case 'restaurante':
-                return view('inventarios/productos/restaurante/productos_create', compact('codigo_grupo', 'categorias', 'subcategorias', 'insumos'));
+                return view('inventarios/productos/restaurante/productos_create', compact('codigo_grupo', 'categorias', 'subcategorias', 'insumos', 'depositos'));
                 break;
             default:
                 # code...
@@ -362,7 +370,7 @@ class ProductosController extends Controller
                 return view('inventarios/productos/electronica_computacion/productos_edit', compact('producto', 'imagen', 'precio_venta', 'precio_compra', 'categorias', 'subcategorias', 'marcas', 'monedas'));
                 break;
             case 'restaurante':
-                return view('inventarios/productos/restaurante/productos_edit', compact('producto', 'imagen', 'codigo_grupo', 'categorias', 'subcategorias', 'precio_venta', 'insumos', 'insumos_productos'));
+                return view('inventarios/productos/restaurante/productos_edit', compact('producto', 'imagen', 'categorias', 'subcategorias', 'precio_venta', 'insumos', 'insumos_productos'));
                 break;
             default:
                 # code...
@@ -381,6 +389,9 @@ class ProductosController extends Controller
 
         // Obtener valos si es un producto nuevo
         $nuevo = (isset($data->nuevo)) ? 1: NULL;
+
+        // Obtener valos si es un producto nuevo
+        $se_almacena = (isset($data->se_almacena)) ? 1: NULL;
 
         $query = DB::table('productos')
                     ->where('id', $data->id)
@@ -402,6 +413,7 @@ class ProductosController extends Controller
                         'moneda_id' => $data->moneda_id,
                         'modelo' => $data->modelo,
                         'nuevo' => $nuevo,
+                        'se_almacena' => $se_almacena,
                         // 'created_at' => Carbon::now(),
                         // 'updated_at' => Carbon::now()
                     ]);
@@ -618,33 +630,72 @@ class ProductosController extends Controller
             // Obtener valos si es un producto nuevo
             $nuevo = (isset($data->nuevo)) ? 1: NULL;
 
-            $query = DB::table('productos')
-                ->insert([
-                    'codigo_interno' => $data->codigo_interno,
-                    'nombre' => $data->nombre,
-                    'descripcion_small' => $data->descripcion_small,
-                    'descripcion_long' => $data->descripcion_long,
-                    'estante' => $data->estante,
-                    'bloque' => $data->bloque,
-                    // 'stock' => $data->stock,
-                    'garantia' => $data->garantia,
-                    // 'stock_minimo' => $data->stock_minimo,
-                    'subcategoria_id' => $data->subcategoria_id,
-                    'marca_id' => $data->marca_id,
-                    'talla_id' => $data->talla_id,
-                    'color_id' => $data->color_id,
-                    'genero_id' => $data->genero_id,
-                    'moneda_id' => $data->moneda_id,
-                    'modelo' => $data->modelo,
-                    'uso_id' => $data->uso_id,
-                    'codigo_grupo' => $data->codigo_grupo,
-                    'nuevo' => $nuevo
-                    // 'created_at' => Carbon::now(),
-                    // 'updated_at' => Carbon::now()
-                ]);
+            // Obtener valos si el producto se almacena
+            $se_almacena = (isset($data->se_almacena)) ? 1: NULL;
+
+            // Obtener primer precio ingresado
+            $precio_venta = 0;
+            $precio_minimo = 0;
+            if(isset($data->precio_venta)){
+                $precio_venta = $data->precio_venta[0];
+                $precio_minimo = $data->precio_minimo[0];
+            }
+
+            $producto = new Producto;
+            $producto->codigo_interno = $data->codigo_interno;
+            $producto->nombre = $data->nombre;
+            $producto->descripcion_small = $data->descripcion_small;
+            $producto->descripcion_long = $data->descripcion_long;
+            $producto->estante = $data->estante;
+            $producto->bloque = $data->bloque;
+            $producto->stock = $data->stock;
+            $producto->garantia = $data->garantia;
+            $producto->subcategoria_id = $data->subcategoria_id;
+            $producto->marca_id = $data->marca_id;
+            $producto->talla_id = $data->talla_id;
+            $producto->color_id = $data->color_id;
+            $producto->genero_id = $data->genero_id;
+            $producto->moneda_id = $data->moneda_id;
+            $producto->modelo = $data->modelo;
+            $producto->uso_id = $data->uso_id;
+            $producto->codigo_grupo = $data->codigo_grupo;
+            $producto->nuevo = $nuevo;
+            $producto->se_almacena = $se_almacena;
+            $producto->precio_venta = $precio_venta;
+            $producto->precio_minimo = $precio_minimo;
+            $producto->save();
+
+            // $query = DB::table('productos')
+            //     ->insert([
+            //         'codigo_interno' => $data->codigo_interno,
+            //         'nombre' => $data->nombre,
+            //         'descripcion_small' => $data->descripcion_small,
+            //         'descripcion_long' => $data->descripcion_long,
+            //         'estante' => $data->estante,
+            //         'bloque' => $data->bloque,
+            //         'stock' => $data->stock,
+            //         'garantia' => $data->garantia,
+            //         // 'stock_minimo' => $data->stock_minimo,
+            //         'subcategoria_id' => $data->subcategoria_id,
+            //         'marca_id' => $data->marca_id,
+            //         'talla_id' => $data->talla_id,
+            //         'color_id' => $data->color_id,
+            //         'genero_id' => $data->genero_id,
+            //         'moneda_id' => $data->moneda_id,
+            //         'modelo' => $data->modelo,
+            //         'uso_id' => $data->uso_id,
+            //         'codigo_grupo' => $data->codigo_grupo,
+            //         'nuevo' => $nuevo,
+            //         'se_almacena' => $se_almacena,
+            //         'precio_venta' => $precio_venta,
+            //         'precio_minimo' => $precio_minimo,
+            //         // 'created_at' => Carbon::now(),
+            //         // 'updated_at' => Carbon::now()
+            //     ]);
 
             // Obtener el ultmimo ingresado
-            $producto_id = $this->ultimo_producto();
+            $producto_id = Producto::all()->last()->id;
+            // $producto_id = $this->ultimo_producto();
 
             // agregar imagenes
             $imagen_portada = '';
@@ -720,6 +771,19 @@ class ProductosController extends Controller
                 }
             }
 
+            // Agregar stock a almacen si el producto es almacenable
+            if($se_almacena){
+                DB::table('productos_depositos')
+                            ->insert([
+                                'deposito_id' => $data->deposito_id,
+                                'producto_id' => $producto_id,
+                                'stock' => $data->stock,
+                                'stock_inicial' => $data->stock,
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ]);
+            }
+
             // Editar codigos del producto
             DB::table('productos')
                     ->where('id', $producto_id)
@@ -731,7 +795,7 @@ class ProductosController extends Controller
                             ]);
         // }
 
-        if($query){
+        if($producto){
             return $producto_id;
         }else{
             return 0;

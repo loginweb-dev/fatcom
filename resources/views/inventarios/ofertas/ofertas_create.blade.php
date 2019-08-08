@@ -30,20 +30,60 @@
                                             </div>
                                             <div class="row">
                                                 <div class="form-group col-md-12">
-                                                    <label for="" id="label-descripcion">Descripción (0/255)</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Descripción corta de la campaña, no debe exceder los 255 caracteres. Este campo es obligatorio."></span> @endif
-                                                    <textarea name="descripcion" id="text-descripcion" class="form-control" maxlength="255" rows="5" placeholder="Descripción de la campaña de oferta" required></textarea>
+                                                    <label for="">Duración</label>  @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Tipo y tiempo de duración de la oferta. Este campo es obligatorio."></span> @endif
                                                 </div>
+                                                <div class="clearfix"></div>
+                                                <ul class="nav nav-tabs">
+                                                    <li class="active"><a class="tab-duracion" data-toggle="tab" data-value="rango" href="#Rango">Rango de fecha</a></li>
+                                                    <li><a class="tab-duracion" data-toggle="tab" data-value="semanal" href="#semanal">Semanal</a></li>
+                                                    <li><a class="tab-duracion" data-toggle="tab" data-value="mensual" href="#mensual">Mensual</a></li>
+                                                </ul>    
+                                                <div class="tab-content">
+                                                    <div id="Rango" class="tab-pane fade in active">
+                                                        <div class="row">
+                                                            <div class="form-group col-md-6">
+                                                                <label for="">Inicio</label>  @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Fecha de inicio de la campaña. Este campo es obligatorio."></span> @endif
+                                                                <input type="date" name="inicio" id="input-inicio" class="form-control" value="{{date('Y-m-d')}}" required>
+                                                            </div>
+                                                            <div class="form-group col-md-6">
+                                                                <label for="">Fin</label>  @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="right" title="Fecha de finalización de la campaña. Este campo no es obligatorio."></span> @endif
+                                                                <input type="date" name="fin" class="form-control">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div id="semanal" class="tab-pane fade">
+                                                        <div class="row">
+                                                            <div class="form-group col-md-12">
+                                                                <label for="">Día</label>  @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Día de la semana en que se realizará la camáña periódicamente. Este campo es obligatorio."></span> @endif
+                                                                <select name="dia_semana" class="form-control" id="select-dia">
+                                                                    <option value="1">Lunes</option>
+                                                                    <option value="2">Martes</option>
+                                                                    <option value="3">Miércoles</option>
+                                                                    <option value="4">Jueves</option>
+                                                                    <option value="5">Viernes</option>
+                                                                    <option value="6">Sábado</option>
+                                                                    <option value="7">Domingo</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div id="mensual" class="tab-pane fade">
+                                                        <div class="row">
+                                                            <div class="form-group col-md-12">
+                                                                <label for="">Día del mes</label>  @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Día de la semana en que se realizará la camáña periódicamente. Este campo es obligatorio."></span> @endif
+                                                                <input type="number" id="input-dia" min="1" max="31" step="1" class="form-control" name="dia_mes" value="1">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <input type="hidden" name="tipo_duracion" id="input-tipo_duracion" value="rango">
                                             </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="row">
-                                                <div class="form-group col-md-6">
-                                                    <label for="">Inicio</label>  @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Fecha de inicio de la campaña. Este campo es obligatorio."></span> @endif
-                                                    <input type="date" name="inicio" class="form-control" value="{{date('Y-m-d')}}" required>
-                                                </div>
-                                                <div class="form-group col-md-6">
-                                                    <label for="">Fin</label>  @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="right" title="Fecha de finalización de la campaña. Este campo no es obligatorio."></span> @endif
-                                                    <input type="date" name="fin" class="form-control">
+                                                <div class="form-group col-md-12">
+                                                    <label for="" id="label-descripcion">Descripción (0/255)</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Descripción corta de la campaña, no debe exceder los 255 caracteres. Este campo es obligatorio."></span> @endif
+                                                    <textarea name="descripcion" id="text-descripcion" class="form-control" maxlength="255" rows="5" placeholder="Descripción de la campaña de oferta" required></textarea>
                                                 </div>
                                             </div>
                                             <div class="row">
@@ -118,8 +158,8 @@
                                         <div class="col-md-4">
                                             <label for="">Producto</label>  @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Producto que se va agregar a la campaña. Este campo es obligatorio."></span> @endif
                                             <select class="form-control select2" id="select-producto_id">
+                                                <option value="">Todos</option>
                                                 @foreach($productos as $item)
-                                                <option value="">Todas</option>
                                                 <option value="{{$item->id}}">{{$item->nombre}}</option>
                                                 @endforeach
                                             </select>
@@ -153,7 +193,6 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody id="lista_productos">
-
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -206,9 +245,33 @@
                 let indice = 1;
                 $('#btn-agregar').click(function(){
                     add_producto(indice, '{{url("admin/productos/obtener/precios_venta")}}');
+                    indice++;
                 });
 
-                // ================
+                // Cambiar duración de oferta
+                $('.tab-duracion').click(function(){
+                    let value = $(this).data('value');
+                    switch (value) {
+                        case 'rango':
+                            $('#input-inicio').attr('required', true)
+                            $('#select-dia').removeAttr('required')
+                            $('#input-dia').removeAttr('required')
+                            break;
+                        case 'semanal':
+                            $('#input-inicio').removeAttr('required')
+                            $('#select-dia').attr('required', true)
+                            $('#input-dia').removeAttr('required')
+                            break;
+                        case 'mensual':
+                            $('#input-inicio').removeAttr('required')
+                            $('#select-dia').removeAttr('required')
+                            $('#input-dia').attr('required', true)
+                            break;
+                        default:
+                            break;
+                    }
+                    $('#input-tipo_duracion').val(value)
+                });
             });
 
         </script>

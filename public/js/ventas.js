@@ -37,20 +37,28 @@ function subtotal(id){
 // calcular total
 function total(){
     let total = 0;
+    let descuento = parseFloat($('#input-descuento').val());
     let costo_envio = parseFloat($('#input-costo_envio').val());
     $(".label-subtotal").each(function(){
         total += parseFloat($(this).text().replace(" Bs.", ""));
     });
-    $('#label-total').html('<h4>'+(total+costo_envio).toFixed(2)+' Bs.</h4>');
+
+    $('#label-total').html('<h4>'+(total+costo_envio-descuento).toFixed(2)+' Bs.</h4>');
     $('#input-total').val(total+costo_envio);
-    // $('#input-entregado').prop('min', total)
+
+    if($('#check-domicilio').is(':checked') || $('#check-llevar').is(':checked')){
+        $('#input-entregado').prop('min', 0);
+    }else{
+        $('#input-entregado').prop('min', total-descuento)
+    }
 }
 
 // calcular cambio devuelto
 function calcular_cambio(){
     let total = parseFloat($('#input-total').val());
+    let descuento = parseFloat($('#input-descuento').val());
     let entregado = parseFloat($('#input-entregado').val());
-    let cambio = entregado-total;
+    let cambio = entregado-total+descuento;
 
     $('#input-cambio').val(parseFloat(cambio));
     if(cambio<0){
@@ -65,4 +73,15 @@ $('#btn-reset').click(function(){
     $(".tr-detalle").remove();
     $("#label-total").html('<h4>0.00 Bs.</h4>');
     $('#input-total').val('0');
+    $('#check-domicilio').bootstrapToggle('off');
+    $('#check-llevar').bootstrapToggle('off');
+});
+
+// asignar 0 por defecto a los campos que no pueden estar vacios
+$('.cero_default').keyup(function(){
+    if($(this).val()==''){
+        $(this).val('0');
+        total();
+        calcular_cambio();
+    }
 });

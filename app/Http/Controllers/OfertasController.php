@@ -86,6 +86,7 @@ class OfertasController extends Controller
     }
 
     public function store(Request $data){
+        // dd($data);
         $data->validate([
             'producto_id' => 'required'
         ]);
@@ -106,9 +107,18 @@ class OfertasController extends Controller
             $imagen = $path;
         }
 
+        // Si el tipo de duración es diferente de rango se debe obtener ya sea el dia de la semana o el dia del mes
+        if($data->tipo_duracion == 'rango'){
+            $dia = null;
+        }else{
+            $dia = ($data->tipo_duracion == 'semanal') ? $data->dia_semana : $data->dia_mes;
+        }
+
         $oferta = new Oferta;
         $oferta->nombre = $data->nombre;
         $oferta->descripcion = $data->descripcion;
+        $oferta->tipo_duracion = $data->tipo_duracion;
+        $oferta->dia = $dia;
         $oferta->inicio = $data->inicio.' 00:00:00';
         $oferta->fin = (!empty($data->fin)) ? $data->fin.' 23:00:00' : $data->fin;
         $oferta->imagen = $imagen;

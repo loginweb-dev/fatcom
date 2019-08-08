@@ -73,7 +73,7 @@ class DepositosController extends Controller
     public function view($id){
         $registros = DB::table('productos as p')
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
-                            ->join('deposito_productos as d', 'd.producto_id', 'p.id')
+                            ->join('productos_depositos as d', 'd.producto_id', 'p.id')
                             ->select('p.*', 's.nombre as subcategoria', 'd.stock as cantidad')
                             // ->where('deleted_at', NULL)
                             ->where('d.deposito_id', $id)
@@ -121,7 +121,7 @@ class DepositosController extends Controller
         $value = ($value != 'all') ? $value : '';
         $registros = DB::table('productos as p')
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
-                            ->join('deposito_productos as d', 'd.producto_id', 'p.id')
+                            ->join('productos_depositos as d', 'd.producto_id', 'p.id')
                             ->select('p.*', 's.nombre as subcategoria', 'd.stock as cantidad')
                             // ->where('deleted_at', NULL)
                             ->whereRaw("d.deposito_id = $id and d.stock > 0 and
@@ -278,11 +278,10 @@ class DepositosController extends Controller
         }
     }
 
-
     public function store_producto(Request $data){
         $producto = (new Productos)->crear_producto($data);
         if($producto){
-            DB::table('deposito_productos')
+            DB::table('productos_depositos')
                     ->insert([
                         'producto_id' => $producto,
                         'deposito_id' => $data->deposito_id,

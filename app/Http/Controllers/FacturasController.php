@@ -21,7 +21,7 @@ class FacturasController extends Controller
 
     // ===========================Código de Control==============================
     public function codigo_control_index(){
-        return view('factura.codigo_control');
+        return view('facturas.codigo_control');
     }
 
     public function codigo_control(Request $data){

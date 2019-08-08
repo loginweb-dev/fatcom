@@ -69,6 +69,8 @@
                                                             @if($item->venta_id == null && $item->compra_id == null)
                                                             <a href="#" @if(!$item->abierta) onclick="mensaje_error()" @else data-toggle="modal" data-target="#delete_modal" data-id="{{$item->id}}" data-caja_id="{{$item->caja_id}}" data-tipo="{{$item->tipo}}" data-monto="{{$item->monto}}" @endif class="btn btn-danger btn-delete delete"><span class="voyager-trash"> Anular</span></a>
                                                             @endif
+                                                        @else
+                                                        <label class="label label-danger">Eliminado</label>
                                                         @endif
                                                     @endif
                                                 </td>

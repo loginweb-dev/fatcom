@@ -36,7 +36,7 @@
                                             <div class="form-group col-md-6">
                                                 <label>Monto de apertura</label>
                                                 <div class="input-group">
-                                                    <input type="number" class="form-control" name="monto" required>
+                                                    <input type="number" class="form-control" name="monto" value="0" required>
                                                     <span class="input-group-addon">Bs.</span>
                                                 </div>
                                             </div>

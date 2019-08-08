@@ -8,11 +8,11 @@
         </h1>
     @stop
     @section('content')
-        <div class="page-content">
-            <div class="page-content browse container-fluid">
+        <div class="">
+            <div class="">
                 @include('voyager::alerts')
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="">
                         <div class="panel panel-bordered">
                             <div class="panel-body">
                                 <div class="row">
@@ -35,10 +35,10 @@
                                         <thead>
                                             <tr>
                                                 <th>Cliente</th>
-                                                <th>Monto</th>
+                                                {{-- <th>Monto</th> --}}
                                                 <th>Fecha de pedido</th>
                                                 <th>Estado</th>
-                                                <th class="actions text-right">Acciones</th>
+                                                {{-- <th class="actions text-right">Acciones</th> --}}
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -46,22 +46,22 @@
                                                 $cont = 0;
                                             @endphp
                                             @forelse ($registros as $item)
-                                                <tr>
+                                                <tr onclick="verDetalle('{{$item->id}}')" class="tr-registro" title="Ver detalles">
                                                     <td>{{$item->razon_social}}</td>
-                                                    <td>{{$item->importe_base}}</td>
+                                                    {{-- <td>{{$item->importe_base}}</td> --}}
                                                     <td>{{date('d-m-Y', strtotime($item->created_at))}} <br> <small>{{\Carbon\Carbon::parse($item->created_at)->diffForHumans()}}</small> </td>
                                                     <td>
-                                                        @switch($item->tipo_estado)
+                                                        @switch($item->venta_estado_id)
                                                             @case(4) <label class="label label-dark">Enviado</label> @break
                                                             @case(5) <label class="label label-primary">Entregado</label> @break
                                                             @default
                                                         @endswitch
                                                     </td>
-                                                    <td class="no-sort no-click text-right" id="bread-actions">
+                                                    {{-- <td class="no-sort no-click text-right" id="bread-actions">
                                                         <a href="{{route('delivery_view', ['id' => $item->id])}}" title="Ver" class="btn btn-sm btn-warning view">
                                                             <i class="voyager-eye"></i> <span class="hidden-xs hidden-sm">Ver</span>
                                                         </a>
-                                                    </td>
+                                                    </td> --}}
                                                 </tr>
                                                 @php
                                                     $cont++;
@@ -121,7 +121,9 @@
     @stop
     @section('css')
         <style>
-
+            .tr-registro{
+                cursor: pointer;
+            }
         </style>
     @stop
     @section('javascript')
@@ -141,6 +143,10 @@
                     window.location = '{{url("admin/productos/buscar")}}/'+value;
                 });
             });
+
+            function verDetalle(id){
+                window.location = "{{url('admin/ventas/delivery/view/')}}/"+id;
+            }
         </script>
     @stop
 

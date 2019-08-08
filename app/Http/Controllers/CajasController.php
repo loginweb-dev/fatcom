@@ -51,13 +51,13 @@ class CajasController extends Controller
                         ->first();
         $ingresos = DB::table('ie_asientos')
                         ->select('*')
-                        ->where('deleted_at', null)
+                        // ->where('deleted_at', null)
                         ->where('tipo', 'ingreso')
                         ->where('caja_id', $id)
                         ->get();
         $egresos = DB::table('ie_asientos')
                         ->select('*')
-                        ->where('deleted_at', null)
+                        // ->where('deleted_at', null)
                         ->where('tipo', 'egreso')
                         ->where('caja_id', $id)
                         ->get();
@@ -95,15 +95,17 @@ class CajasController extends Controller
         }
     }
 
-    function cajas_close(Request $datos){
+    function cajas_close(Request $data){
         $update = DB::table('ie_cajas')
-                        ->where('id', $datos->id)
+                        ->where('id', $data->id)
                         ->update([
                             'updated_at' => Carbon::now(),
                             'fecha_cierre' => date('Y-m-d'),
                             'hora_cierre' => date('H:i'),
-                            'observaciones' => $datos->observaciones,
-                            'abierta' => 0
+                            'observaciones' => $data->observaciones,
+                            'abierta' => 0,
+                            'monto_real' => $data->total,
+                            'monto_faltante' => $data->faltante
                         ]);
         if($update){
             return redirect()->route('cajas_index')->with(['message' => 'Cierre de caja registrado exitosamente.', 'alert-type' => 'success']);
@@ -118,7 +120,7 @@ class CajasController extends Controller
                         ->join('ie_cajas as c', 'c.id', 'i.caja_id')
                         ->join('users as u', 'u.id', 'i.user_id')
                         ->select('i.*', 'u.name', 'c.abierta')
-                        ->where('i.deleted_at', NULL)
+                        // ->where('i.deleted_at', NULL)
                         ->orderBy('i.id', 'DESC')
                         ->paginate(15);
         $clave = '';
@@ -148,7 +150,7 @@ class CajasController extends Controller
     function asientos_store(Request $data){
         if($data->tipo=='egreso'){
             $caja = IeCaja::where('abierta', 1)->first();
-            $monto_caja = $caja ? $caja->monto : 0;
+            $monto_caja = $caja ? $caja->monto_final : 0;
             if($data->monto > $monto_caja){
                 return redirect()->route('asientos_create')->with(['message' => 'El monto ingresado supera al saldo actual en caja.', 'alert-type' => 'error']);
             }

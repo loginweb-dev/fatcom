@@ -19,6 +19,11 @@ function inicializar_select2(id){
     });
 }
 
+function inicializar_select2_simple(id){
+    $('#select-'+id).select2('destroy');
+    $(`#select-${id}`).select2();
+}
+
 function select2_reload(id, data, head){
     $('#select-'+id).select2('destroy');
     let datos = head ? `<option value="">${head}</option>` : '';

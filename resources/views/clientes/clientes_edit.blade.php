@@ -34,7 +34,7 @@
                                                 </div>
                                                 <div class="col-md-6 form-group">
                                                     <label for="">NIT o CI</label>
-                                                    <input type="text" name="nit" class="form-control" value="{{$cliente->nit}}" placeholder="NIT o CI" required>
+                                                    <input type="text" name="nit" class="form-control" value="{{$cliente->nit}}" placeholder="NIT o CI">
                                                     @error('nit')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
@@ -43,14 +43,14 @@
                                             <div class="row">
                                                 <div class="col-md-6 form-group">
                                                     <label for="">Movil</label>
-                                                    <input type="number" name="movil" class="form-control" value="{{$cliente->movil}}" placeholder="Número celular" maxlength="20" required>
+                                                    <input type="number" name="movil" class="form-control" value="{{$cliente->movil}}" placeholder="Número celular" maxlength="20">
                                                     @error('movil')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
                                                 </div>
                                                 <div class="col-md-6 form-group">
                                                     <label for="">Ninkname</label>
-                                                    <input type="text" name="nickname" class="form-control" value="{{$user ? $user->name : ''}}" placeholder="Nombre para mostrar" maxlength="20" required>
+                                                    <input type="text" name="nickname" class="form-control" value="{{$user ? $user->name : ''}}" placeholder="Nombre para mostrar" maxlength="20">
                                                     @error('nickname')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
@@ -59,7 +59,7 @@
                                             <div class="row">
                                                 <div class="col-md-6 form-group">
                                                     <label for="">Email</label>
-                                                    <input type="email" name="email" class="form-control" value="{{$user ? $user->email : ''}}" placeholder="Email" maxlength="50" required>
+                                                    <input type="email" name="email" class="form-control" value="{{$user ? $user->email : ''}}" placeholder="Email" maxlength="50">
                                                     @error('email')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror

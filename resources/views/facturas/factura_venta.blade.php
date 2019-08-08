@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         <link href="https://fonts.googleapis.com/css?family=Noto+Sans" rel="stylesheet">
-        <title>Factura</title>
+        <title>Recibo de venta</title>
         <style>
             .btn-print{
                 background-color: #fa2a00;
@@ -20,166 +20,151 @@
                 }
             }
             body{
-                font-size: 10px;
+                font-size: 11px;
                 font-family: 'Noto Sans', sans-serif;
                 /* border: 1px solid black;
                 border-radius: 1px; */
-                padding: 5px 10px
+                padding: 5px 10px;
+                margin: 0px
             }
-        </style>
+
+			@media all {
+			   div.saltopagina{
+			      display: none;
+			   }
+			}
+
+			@media print{
+			   div.saltopagina{
+			      display:block;
+			      page-break-before:always;
+			   }
+			}
+		</style>
     </head>
     <body>
         <div style="text-align:right" id="print">
             <button onclick="javascript:window.print()" class="btn-print">Imprimir</button>
         </div>
 
-        <table width="300px">
-            <tr>
-                {{-- cabezera --}}
-                <td colspan="2" align="center" style="font-size:10px">
-                    <br>
-                    <!-- no se puede acceder a ruta del setting, hay q concatenar "../../storage/" -->
-                    {{-- <img src="../../storage/{{setting('empresa.logo')}}" alt="loginweb" width="80px"><br> --}}
-                    <h2>{{setting('empresa.title')}}</h2>
+        <table width="100%">
+                    <tr>
+                        <td width="33%" align="center" style="font-size:7px">
+                            <img src="{{url('storage').'/'.setting('empresa.logo')}}" alt="loginweb" width="60px"><br>
+                            <b>{{setting('empresa.nombre')}}</b><br>
 
-                    @if(setting('empresa.telefono')!='')
-                    <b>Telf: {{setting('empresa.telefono')}}</b>
-                    @endif
-                    @if(setting('empresa.telefono')!='' && setting('empresa.celular')!='')
-                        -
-                    @endif
-                    @if(setting('empresa.celular')!='')
-                    <b>Cel: {{setting('empresa.celular')}}</b>
-                    @endif
-                    <br>
-                    <b>{{setting('empresa.direccion')}}</b><br>
-                    <b>{{setting('empresa.ciudad')}}</b><br>
-                </td>
-            </tr>
-            <tr>
-                {{-- consulta para saber si es factura o recibo --}}
-                <td colspan="2" align="center">
-                    <h3>
-                        TICKET DE VENTA #{{$detalle_venta[0]->id}}<br>
-                        Atendido por: {{ Auth::user()->name}}<br>
-                        {{date('d/m/Y H:i:s')}}
-                    </h3>
-                    <hr>
-                </td>
-            </tr>
-            {{-- datos de la factura --}}
+                            @if(setting('empresa.telefono')!='')
+                            <b>Telf: {{setting('empresa.telefono')}}</b>
+                            @endif
+                            @if(setting('empresa.telefono')!='' && setting('empresa.celular')!='')
+                                -
+                            @endif
+                            @if(setting('empresa.celular')!='')
+                            <b>Cel: {{setting('empresa.celular')}}</b><br>
+                            @endif
 
-            {{-- datos de la venta --}}
-            <tr>
-                <td><b>Razón social</b></td>
-                <td>: {{$detalle_venta[0]->cliente}}</td>
-            </tr>
-            <tr>
-                <td><b>NIT/CI</b></td>
-                <td>: {{$detalle_venta[0]->nit}}</td>
-            </tr>
-            <tr>
-                <td><b>Fecha</b></td>
-                <td>: {{$detalle_venta[0]->fecha}}</td>
-            </tr>
-            {{-- <tr>
-                <td><b>Ubicación</b></td>
-                <td>: {{setting('empresa.ciudad')}}</td>
-            </tr> --}}
-            <tr>
-                {{-- detalle de la venta --}}
-                <td colspan="2">
-                    <table width="100%">
+                            <b>{{setting('empresa.direccion')}}</b><br>
+                            <b>{{setting('empresa.ciudad')}}</b><br>
+                        </td>
+                        <td width="33%" align="center"><span style="margin-bottom:0px;font-weight:bold;font-size:25px">FACTURA</span></td>
+                        <td width="33%" align="center">
+                            <table border="1px" cellspacing="0" cellpadding="1">
+                                <tr>
+                                    <td>NIT</td>
+                                    <td> <b>{{setting('empresa.nit')}}</b> </td>
+                                </tr>
+                                <tr>
+                                    <td>Nro. Factura</td>
+                                    <td style="color:red"> <b>{{str_pad($detalle_venta[0]->nro_factura, 5, "0", STR_PAD_LEFT)}}</b> </td>
+                                </tr>
+                                <tr>
+                                    <td>Autorización</td>
+                                    <td> <b>{{$detalle_venta[0]->nro_autorizacion}}</b> </td>
+                                </tr>
+                            </table>
+                            <small><b>@if($original) ORIGINAL @else COPIA @endif</b><br>{{setting('empresa.actividad_economica')}}</small>
+                        </td>
+                    </tr>
+                </table>
+                {{-- datos de la venta --}}
+                {{-- <div style="height:20px"></div> --}}
+                <table width="90%" align="center">
+                    <tr>
+                        <td><b>Razón social</b></td>
+                        <td>: {{$detalle_venta[0]->cliente}}</td>
+                        <td align="right"><b>NIT/CI</b></td>
+                        <td>: {{$detalle_venta[0]->nit}}</td>
+                    </tr>
+                    <tr>
+                        <td><b>Fecha</b></td>
+                        <td>: {{$detalle_venta[0]->fecha}}</td>
+                        <td align="right"><b>Ubicación</b></td>
+                        <td>: {{setting('empresa.ciudad')}}</td>
+                    </tr>
+                </table>
+                {{-- detalles de la venta --}}
+                {{-- <div style="height:10px"></div> --}}
+                <table width="100%" border="1px" cellspacing="0" cellpadding="2">
+                    <tr style="background-color:#022A81;color:#fff">
+                        <td align="center" width="40px"><b>N&deg;</b></td>
+                        {{-- <td align="center" width="80px"><b>Código</b></td> --}}
+                        <td align="center"><b>Detalle</b></td>
+                        <td align="center" width="50px" style="@if(setting('empresa.tipo_actividad')=='servicios') display:none @endif"><b>Cantidad</b></td>
+                        <td align="center" width="100px"><b>Precio unitario</b></td>
+                        <td align="center" width="100px"><b>Subtotal</b></td>
+                    </tr>
+                    @php
+                        $cont = 1;
+                        $total_venta = 0;
+                    @endphp
+                    @foreach ($detalle_venta as $item)
                         <tr>
-                           <th style="@if(setting('empresa.tipo_actividad')=='servicios') display:none @endif">CANTIDAD</th>
-                           <th>DETALLE</th>
-                           {{-- <th>P. UNITARIO</th> --}}
-                           <th>SUB TOTAL</th>
+                            <td align="center">{{$cont}}</td>
+                            {{-- <td>{{$item->codigo}}</td> --}}
+                            <td>{{$item->producto}}</td>
+                            <td align="center" style="@if(setting('empresa.tipo_actividad')=='servicios') display:none @endif">{{$item->cantidad}}</td>
+                            <td align="center">{{number_format($item->precio, 2, ',', '.')}}</td>
+                            <td align="center">{{number_format(($item->precio*$item->cantidad), 2, ',', '.')}}</td>
                         </tr>
                         @php
-                            $total_venta = 0;
-                            $indice = 0;
+                            $cont++;
+                            $total_venta += $item->precio*$item->cantidad;
                         @endphp
-                        @foreach ($detalle_venta as $item)
-                            <tr>
-                                <td align="center">{{$item->cantidad}}</td>
-                                <td>{{$item->producto}} {{$producto_adicional[$indice]['nombre']}}</td>
-                                {{-- <td align="center">{{number_format($item->precio, 2, ',', '.')}}</td> --}}
-                                <td align="right">{{number_format(($item->precio*$item->cantidad), 2, ',', '.')}}</td>
-                            </tr>
-                            @php
-                                $total_venta += $item->precio*$item->cantidad;
-                                $indice++;
-                            @endphp
-                        @endforeach
-                        <tr>
-                            <td colspan="2" align="right"><b>DESCUENTO Bs.</b></td>
-                            <td align="right"><b>{{number_format($detalle_venta[0]->descuento, 2, ',', '.')}}</b></td>
-                        </tr>
-                        <tr>
-                            <td colspan="2" align="right"><b>TOTAL Bs.</b></td>
-                            <td align="right"><b>{{number_format($detalle_venta[0]->importe_base, 2, ',', '.')}}</b></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2"><hr></td>
-            </tr>
-            <tr>
-                <td colspan="2">Gracias por su preferencia, vuelva pronto.</td>
-            </tr>
-        </table>
-
-        <div style="height:50px"></div>
-
-        <table width="300px">
-            <tr>
-                {{-- consulta para saber si es factura o recibo --}}
-                <td colspan="2" align="center"><h3>ORDEN #{{$detalle_venta[0]->id}}<br>{{date('d/m/Y H:i:s')}}</h3><hr></td>
-            </tr>
-            <tr>
-                {{-- detalle de la venta --}}
-                <td colspan="2">
-                    <table width="100%">
-                        <tr>
-                           <th style="@if(setting('empresa.tipo_actividad')=='servicios') display:none @endif">CANTIDAD</th>
-                           <th>DETALLE</th>
-                           <th>OBS.</th>
-                           {{-- <th>P. UNITARIO</th> --}}
-                           <th>SUB TOTAL</th>
-                        </tr>
+                    @endforeach
+                    <tr>
+                        <td @if(setting('empresa.tipo_actividad')=='servicios') colspan="3" @else colspan="4" @endif align="right"><b>DESCUENTO Bs.</b></td>
+                        <td align="center"><b>{{number_format($detalle_venta[0]->descuento, 2, ',', '.')}}</b></td>
+                    </tr>
+                    <tr>
+                        <td @if(setting('empresa.tipo_actividad')=='servicios') colspan="3" @else colspan="4" @endif align="right"><b>TOTAL Bs.</b></td>
+                        <td align="center"><b>{{number_format($detalle_venta[0]->importe_base, 2, ',', '.')}}</b></td>
+                    </tr>
+                </table>
+                {{-- datos de dosificacion --}}
+                <div style="height:10px"></div>
+                <table width="90%" align="center">
+                    <tr>
+                        <td><b>Son : </b> {{$total_literal}}</td>
+                        <td align="right"><b>Fecha limite de emisión : </b> {{date('d-m-Y', strtotime($detalle_venta[0]->fecha_limite))}}</td>
+                    </tr>
+                    <tr>
+                        <td><b>Código de control : </b>{{$detalle_venta[0]->codigo_control}}</td>
+                    </tr>
+                </table>
+                <center style="margin: 0px 110px">{{setting('empresa.leyenda_factura')}}</center>
+                <div style="text-align:right; margin-top:-30px">
+                        {{-- nit empresa | nro_factura | Autorización | fecha / | monto | monto | codigo de control | nit | 0.00 | 0.00 | 0.00 | 0.00 --}}
                         @php
-                            $total_venta = 0;
-                            $indice = 0;
+                            $qr = setting('empresa.nit').'|'.$detalle_venta[0]->nro_factura.'|'.$detalle_venta[0]->nro_autorizacion.'|'.$detalle_venta[0]->fecha.'|'.number_format($total_venta, 2, '.', '').'|'.number_format($total_venta, 2, '.', '').'|'.$detalle_venta[0]->codigo_control.'|'.$detalle_venta[0]->nit.'|0.00|0.00|0.00|0.00';
                         @endphp
-                        @foreach ($detalle_venta as $item)
-                            <tr>
-                                <td align="center">{{$item->cantidad}}</td>
-                                <td>{{$item->producto}}  {{$producto_adicional[$indice]['nombre']}}</td>
-                                <td>{{$item->observaciones}}</td>
-                                {{-- <td align="center">{{number_format($item->precio, 2, ',', '.')}}</td> --}}
-                                <td align="right">{{number_format(($item->precio*$item->cantidad), 2, ',', '.')}}</td>
-                            </tr>
-                            @php
-                                $total_venta += $item->precio*$item->cantidad;
-                                $indice++;
-                            @endphp
-                        @endforeach
-                        <tr>
-                            <td @if(setting('empresa.tipo_actividad')=='servicios') colspan="2" @else colspan="3" @endif align="right"><b>DESCUENTO Bs.</b></td>
-                            <td align="right"><b>{{number_format($detalle_venta[0]->descuento, 2, ',', '.')}}</b></td>
-                        </tr>
-                        <tr>
-                            <td @if(setting('empresa.tipo_actividad')=='servicios') colspan="2" @else colspan="3" @endif align="right"><b>TOTAL Bs.</b></td>
-                            <td align="right"><b>{{number_format($detalle_venta[0]->importe_base, 2, ',', '.')}}</b></td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        </table>
+                        <br>
+                        {!! QrCode::size(100)->generate("$qr"); !!}
+                </div>
         <script>
-            window.print();
+            // window.print();
+            // setTimeout(function(){
+            //     window.close();
+            // }, 10000);
         </script>
     </body>
 </html>

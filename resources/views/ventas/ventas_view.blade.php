@@ -14,7 +14,7 @@
         <a href="{{route('ventas_index')}}" class="btn btn-warning btn-small">
             <i class="voyager-list"></i> <span>Volver a la lista</span>
         </a>
-        @if($venta->tipo == 'pedido' || $venta->tipo == 'domicilio')
+        @if($venta->venta_tipo_id == '3' || $venta->venta_tipo_id == '4')
         <button class="btn btn-success btn-small btn-mapa" data-toggle="modal" data-target="#modal_mapa"><i class="voyager-location"></i> <span>Ubicación</span></button>
         @endif
     @stop
@@ -51,7 +51,7 @@
                                                 <h3 class="panel-title">Tipo</h3>
                                             </div>
                                             <div class="panel-body" style="padding-top:0;">
-                                                <p>{{$venta->tipo}}</p>
+                                                <p>{{$venta->tipo_nombre}}</p>
                                             </div>
                                         </div>
                                         <div class="col-md-6" style="margin:0px">
@@ -60,14 +60,11 @@
                                             </div>
                                             <div class="panel-body" style="padding-top:0;">
                                                 <p>
-                                                    @switch($venta->tipo_estado)
-                                                        @case(1) <label class="label label-warning">Pedido realizado</label> @break
-                                                        @case(2) <label class="label label-info">En preparación</label> @break
-                                                        @case(3) <label class="label label-success">Listo</label> @break
-                                                        @case(4) <label class="label label-dark">Enviado</label> @break
-                                                        @case(5) <label class="label label-primary">Entregado</label> @break
-                                                        @default
-                                                    @endswitch
+                                                    @if($venta->estado == 'A')
+                                                        <label class="label label-danger">Anulada</label>
+                                                    @else
+                                                        <label class="label label-{{$venta->estado_etiqueta}}">{{$venta->estado_nombre}}</label>
+                                                    @endif
                                                 </p>
                                             </div>
                                         </div>
@@ -82,8 +79,8 @@
                                                 <tr>
                                                     <th>N&deg;</th>
                                                     <th>Producto</th>
-                                                    <th>Cantidad</th>
                                                     <th>Precio</th>
+                                                    <th>Cantidad</th>
                                                     <th>Subtotal</th>
                                                 </tr>
                                             </thead>
@@ -160,7 +157,7 @@
 
             });
             //mapa
-            @if($venta->tipo == 'pedido' || $venta->tipo == 'domicilio')
+            @if($venta->venta_tipo_id == '3' || $venta->venta_tipo_id == '4')
                 let lat = -14.834622
                 let lon = -64.903837;
                 @if($ubicacion)

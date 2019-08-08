@@ -28,7 +28,7 @@ Route::get('/policies', 'LandingPageController@ecommerce_policies');
 
 // ================================Ecommerce===========================
 Route::get('/', 'LandingPageController@index')->name('ecommerce_home');
-Route::get('/detalle/{id}', 'LandingPageController@detalle_producto')->name('detalle_producto_ecommerce');
+Route::get('/detalle/{producto}', 'LandingPageController@detalle_producto')->name('detalle_producto_ecommerce');
 Route::post('/search', 'LandingPageController@search')->name('busqueda_ecommerce');
 Route::get('/ofertas', 'LandingPageController@ofertas')->name('ofertas_ecommerce');
 Route::get('/categoria/{id}', 'LandingPageController@categorias')->name('categorias_ecommerce');
@@ -158,13 +158,16 @@ Route::get('admin/compras/crear/{tipo}', 'ComprasController@compras_cargar_tipo'
 
 // ============================Ventas====================================
 Route::get('admin/ventas', 'VentasController@index')->name('ventas_index');
+Route::get('admin/ventas/buscar/{value}', 'VentasController@search')->name('ventas_search');
 Route::get('admin/ventas/ver/{id}', 'VentasController@view')->name('ventas_view');
 Route::get('admin/ventas/crear', 'VentasController@create')->name('ventas_create');
 Route::post('admin/ventas/store', 'VentasController@store')->name('ventas_store');
+Route::post('admin/ventas/delete', 'VentasController@delete')->name('venta_delete');
 Route::get('admin/ventas/update/estado/{id}/{valor}', 'VentasController@estado_update')->name('estado_update');
 Route::post('admin/ventas/asignar_repartidor', 'VentasController@asignar_repartidor')->name('asignar_repartidor');
 Route::get('admin/ventas/get_ubicaciones_cliente/{id}', 'VentasController@get_ubicaciones_cliente');
 
+Route::get('admin/ventas/lista_nuevos_pedidos/{last}', 'VentasController@get_nuevos_pedidos');
 Route::get('admin/ventas/crear/productos_search', 'VentasController@productos_search');
 Route::get('admin/ventas/crear/productos_categoria/{id}', 'VentasController@productos_categoria');
 
@@ -178,9 +181,9 @@ Route::post('admin/dosificaciones/update', 'DosificacionesController@update')->n
 Route::post('admin/dosificaciones/delete', 'DosificacionesController@delete')->name('dosificaciones_delete');
 
 // =========================Código de control===========================
-// Route::get('admin/codigo_control', 'VentasController@codigo_control_index')->name('codigo_control_index');
-// Route::post('admin/generar_codigo_control', 'VentasController@codigo_control')->name('generar_codigo_control');
-Route::get('admin/factura/{id}', 'VentasController@generar_factura')->name('generar_factura');
+Route::get('admin/codigo_control', 'FacturasController@codigo_control_index')->name('codigo_control_index');
+Route::post('admin/generar_codigo_control', 'FacturasController@codigo_control')->name('generar_codigo_control');
+Route::get('admin/venta/impresion/{tipo}/{id}', 'VentasController@generar_impresion');
 // Route::get('admin/factura/cambiar_tipo/{tipo}/{id}', 'VentasController@cambiar_tipo_factura');
 
 // Pedidos
@@ -188,8 +191,12 @@ Route::post('admin/ventas/pedidos/store', 'VentasController@pedidos_store')->nam
 Route::get('pedidos/success', 'VentasController@pedidos_success')->name('pedidos_success');
 
 // ============================Delivery====================================
+Route::get('admin/ventas/administracion/delivery', 'VentasController@delivery_admin_index')->name('delivery_admin_index');
+
+// Opciones del repartidor
 Route::get('admin/ventas/delivery', 'VentasController@delivery_index')->name('delivery_index');
 Route::get('admin/ventas/delivery/view/{id}', 'VentasController@delivery_view')->name('delivery_view');
+Route::get('admin/ventas/delivery/close/{id}', 'VentasController@delivery_close')->name('delivery_close');
 Route::get('admin/ventas/delivery/set_ubicacion/{id}/{lat}/{lon}', 'VentasController@set_ubicacion');
 Route::get('admin/ventas/delivery/get_ubicacion/{id}', 'VentasController@get_ubicacion');
 
@@ -200,6 +207,8 @@ Route::get('admin/clientes/crear', 'ClientesController@create')->name('clientes_
 Route::post('admin/clientes/store', 'ClientesController@store')->name('clientes_store');
 Route::get('admin/clientes/editar/{id}', 'ClientesController@edit')->name('clientes_edit');
 Route::post('admin/clientes/update', 'ClientesController@update')->name('clientes_update');
+
+Route::get('admin/clientes/lista', 'ClientesController@list')->name('clientes_list');
 
 // ============================Empleados====================================
 Route::get('admin/empleados', 'EmpleadosController@index')->name('empleados_index');
