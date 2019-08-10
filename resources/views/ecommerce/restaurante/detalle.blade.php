@@ -8,7 +8,7 @@
 
 @section('meta-datos')
     <title>{{$producto->nombre}}</title>
-    <meta property="og:url"           content="{{route('detalle_producto_ecommerce', ['id' => $id])}}" />
+    <meta property="og:url"           content="{{route('detalle_producto_ecommerce', ['producto' => $producto->slug])}}" />
     <meta property="og:type"          content="E-Commerce" />
     <meta property="og:title"         content="{{$producto->nombre}}" />
     <meta property="og:description"   content=" {{$producto->descripcion_small}}" />
@@ -72,17 +72,17 @@
                             </var>
                         </div>
                         @if($oferta)
-                        @php
-                            $monto_ahorro = $precio_venta-$precio_actual;
-                            $porcentaje_ahorro = ($monto_ahorro*100)/$precio_venta;
-                        @endphp
-                        <dl class="row">
-                            <dt class="col-sm-3">Ahorras</dt>
-                            <dd class="col-sm-9 b text-danger">{{$producto->moneda}} {{number_format($monto_ahorro, '2', ',', '.')}} ({{intval($porcentaje_ahorro)}}%)</dd>
-                            @if($oferta->fin!='')
-                            <dt class="col-md-12 b text-info">La oferta finaliza {{\Carbon\Carbon::parse($oferta->fin)->diffForHumans()}}</dt>
-                            @endif
-                        </dl>
+                            @php
+                                $monto_ahorro = $precio_venta-$precio_actual;
+                                $porcentaje_ahorro = round(($monto_ahorro*100)/$precio_venta, 0, PHP_ROUND_HALF_UP);
+                            @endphp
+                            <dl class="row">
+                                <dt class="col-sm-3">Ahorras</dt>
+                                <dd class="col-sm-9 b text-danger">{{$producto->moneda}} {{number_format($monto_ahorro, '2', ',', '.')}} ({{intval($porcentaje_ahorro)}}%)</dd>
+                                @if($oferta->fin!='')
+                                <dt class="col-md-12 b text-info">La oferta finaliza {{\Carbon\Carbon::parse($oferta->fin)->diffForHumans()}}</dt>
+                                @endif
+                            </dl>
                         @endif
                         <dl>
                             <dt>Descripción</dt>
@@ -150,16 +150,16 @@
                             <tr>
                                 <td>
                                     {{-- Compartir por Facebook --}}
-                                    <div class="fb-like" data-href="{{route('detalle_producto_ecommerce', ['id' => $id])}}" data-width="" data-layout="button_count" data-action="like" data-size="large" data-show-faces="true" data-share="true"></div>
+                                    <div class="fb-like" data-href="{{route('detalle_producto_ecommerce', ['producto' => $producto->slug])}}" data-width="" data-layout="button_count" data-action="like" data-size="large" data-show-faces="true" data-share="true"></div>
                                 </td>
                                 <td>
                                     {{-- Compratir por Whatsapp --}}
                                     @if($dispositivo=='pc')
-                                    <a href="https://api.whatsapp.com/send?phone=&text={{route('detalle_producto_ecommerce', ['id' => $id])}}&source=&data=" title="Compartir vía WhatsApp" class="btn btn-success btn-sm" target="_blank">
+                                    <a href="https://api.whatsapp.com/send?phone=&text={{route('detalle_producto_ecommerce', ['producto' => $producto->slug])}}&source=&data=" title="Compartir vía WhatsApp" class="btn btn-success btn-sm" target="_blank">
                                         WhatsApp <i class="fab fa-whatsapp"></i>
                                     </a>
                                     @else
-                                        <a href="whatsapp://send?text={{route('detalle_producto_ecommerce', ['id' => $id])}}" class="btn btn-success btn-sm"title="Compartir vía WhatsApp"  target="_blank">
+                                        <a href="whatsapp://send?text={{route('detalle_producto_ecommerce', ['producto' => $producto->slug])}}" class="btn btn-success btn-sm"title="Compartir vía WhatsApp"  target="_blank">
                                             WhatsApp <i class="fab fa-whatsapp"></i>
                                         </a>
                                     @endif
@@ -187,7 +187,7 @@
         @endif
         <div>
             <div class="card card-filter">
-                <div class="fb-comments" data-href="{{route('detalle_producto_ecommerce', ['id' => $id])}}" data-width="" data-numposts="5"></div>
+                <div class="fb-comments" data-href="{{route('detalle_producto_ecommerce', ['producto' => $producto->slug])}}" data-width="" data-numposts="5"></div>
             </div>
         </div>
     </main>
@@ -204,7 +204,7 @@
                         <figcaption class="text-wrap">
                             <p class="title b">{{$item['nombre']}}</p>
                             <button class="btn btn-warning btn-sm" type="button" title="Agregar al carrito de compra" onclick="agregar({{$item['id']}})"> <i class="fa fa-shopping-cart"></i> </button>
-                            <a href="{{route('detalle_producto_ecommerce', ['id'=>$item['id']])}}" title="Detalles" class="btn btn-primary btn-sm"> <i class="fa fa-list"></i> </a>
+                            <a href="{{route('detalle_producto_ecommerce', ['producto'=>$item['slug']])}}" title="Detalles" class="btn btn-primary btn-sm"> <i class="fa fa-list"></i> </a>
                         </figcaption>
                     </figure>
                 @endforeach

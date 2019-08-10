@@ -160,7 +160,7 @@
                                             <select class="form-control select2" id="select-producto_id">
                                                 <option value="">Todos</option>
                                                 @foreach($productos as $item)
-                                                <option value="{{$item->id}}">{{$item->nombre}}</option>
+                                                <option value="{{$item->id}}">{{$item->subcategoria}} - {{$item->nombre}}</option>
                                                 @endforeach
                                             </select>
                                         </div>

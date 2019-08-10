@@ -202,17 +202,6 @@
         .img-producto:hover{
             border: 5px solid #096FA9;
         }
-        /* .nav-tabs > li.active > a, .nav-tabs > li.active > a:focus, .nav-tabs > li.active > a:hover{
-            background:#fff !important;
-            color:#62a8ea !important;
-            border-bottom:1px solid #fff !important;
-            top:-1px !important;
-        }
-        .btn-nav{
-            font-size: 20px;
-            color: #2A363B;
-            background-color: #f9f9f9;
-        } */
     </style>
 @stop
 

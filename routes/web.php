@@ -31,7 +31,7 @@ Route::get('/', 'LandingPageController@index')->name('ecommerce_home');
 Route::get('/detalle/{producto}', 'LandingPageController@detalle_producto')->name('detalle_producto_ecommerce');
 Route::post('/search', 'LandingPageController@search')->name('busqueda_ecommerce');
 Route::get('/ofertas', 'LandingPageController@ofertas')->name('ofertas_ecommerce');
-Route::get('/categoria/{id}', 'LandingPageController@categorias')->name('categorias_ecommerce');
+Route::get('/subcategoria/{subcategoria}', 'LandingPageController@subcategorias')->name('subcategorias_ecommerce');
 Route::get('/carrito', 'LandingPageController@carrito_index')->name('carrito_compra');
 Route::get('/carrito/cantidad_carrito', 'LandingPageController@cantidad_carrito')->name('cantidad_carrito');
 Route::get('/carrito/agregar/comprar/{id}', 'LandingPageController@carrito_comprar');
@@ -132,7 +132,7 @@ Route::get('admin/ecommerce/filtros/filtro_simple/{categoria}/{subcategoria}/{ma
 
 // =============================Cajas======================================
 Route::get('/admin/cajas', 'CajasController@cajas_index')->name('cajas_index');
-Route::get('/admin/cajas/buscar/{clave}/{valor}', 'CajasController@cajas_buscar');
+Route::get('/admin/cajas/buscar/{valor}', 'CajasController@cajas_buscar');
 Route::get('admin/cajas/ver/{id}', 'CajasController@cajas_view')->name('cajas_view');
 Route::get('/admin/cajas/crear', 'CajasController@cajas_create')->name('cajas_create');
 Route::post('/admin/cajas/store', 'CajasController@cajas_store')->name('cajas_store');
@@ -140,7 +140,7 @@ Route::post('/admin/cajas/close', 'CajasController@cajas_close')->name('cajas_cl
 
 // Asientos
 Route::get('/admin/asientos', 'CajasController@asientos_index')->name('asientos_index');
-Route::get('/admin/asientos/buscar/{clave}/{valor}', 'CajasController@asientos_buscar');
+Route::get('/admin/asientos/buscar/{valor}', 'CajasController@asientos_buscar');
 Route::get('/admin/asientos/crear', 'CajasController@asientos_create')->name('asientos_create');
 Route::post('/admin/asientos/store', 'CajasController@asientos_store')->name('asientos_store');
 Route::post('/admin/asientos/delete', 'CajasController@asientos_delete')->name('asientos_delete');
@@ -191,18 +191,22 @@ Route::post('admin/ventas/pedidos/store', 'VentasController@pedidos_store')->nam
 Route::get('pedidos/success', 'VentasController@pedidos_success')->name('pedidos_success');
 
 // ============================Delivery====================================
-Route::get('admin/ventas/administracion/delivery', 'VentasController@delivery_admin_index')->name('delivery_admin_index');
+Route::get('admin/administracion/delivery', 'VentasController@delivery_admin_index')->name('delivery_admin_index');
+Route::get('admin/administracion/delivery/detalle/{id}', 'VentasController@delivery_admin_view')->name('delivery_admin_view');
+Route::get('admin/administracion/delivery/close/{id}', 'VentasController@delivery_admin_close')->name('delivery_admin_close');
 
 // Opciones del repartidor
-Route::get('admin/ventas/delivery', 'VentasController@delivery_index')->name('delivery_index');
-Route::get('admin/ventas/delivery/view/{id}', 'VentasController@delivery_view')->name('delivery_view');
-Route::get('admin/ventas/delivery/close/{id}', 'VentasController@delivery_close')->name('delivery_close');
-Route::get('admin/ventas/delivery/set_ubicacion/{id}/{lat}/{lon}', 'VentasController@set_ubicacion');
-Route::get('admin/ventas/delivery/get_ubicacion/{id}', 'VentasController@get_ubicacion');
+Route::get('admin/repartidor/delivery', 'VentasController@delivery_index')->name('delivery_index');
+Route::get('admin/repartidor/delivery/buscar/{value}', 'VentasController@delivery_search');
+Route::get('admin/repartidor/delivery/view/{id}', 'VentasController@delivery_view')->name('delivery_view');
+Route::get('admin/repartidor/delivery/close/{id}', 'VentasController@delivery_close')->name('delivery_close');
+Route::get('admin/repartidor/delivery/set_ubicacion/{id}/{lat}/{lon}', 'VentasController@set_ubicacion');
+Route::get('admin/repartidor/delivery/get_ubicacion/{id}', 'VentasController@get_ubicacion');
 
 
 // ============================Clientes====================================
 Route::get('admin/clientes', 'ClientesController@index')->name('clientes_index');
+Route::get('admin/clientes/buscar/{value}', 'ClientesController@search')->name('clientes_search');
 Route::get('admin/clientes/crear', 'ClientesController@create')->name('clientes_create');
 Route::post('admin/clientes/store', 'ClientesController@store')->name('clientes_store');
 Route::get('admin/clientes/editar/{id}', 'ClientesController@edit')->name('clientes_edit');
@@ -212,6 +216,7 @@ Route::get('admin/clientes/lista', 'ClientesController@list')->name('clientes_li
 
 // ============================Empleados====================================
 Route::get('admin/empleados', 'EmpleadosController@index')->name('empleados_index');
+Route::get('admin/empleados/buscar/{value}', 'EmpleadosController@search')->name('empleados_search');
 Route::get('admin/empleados/crear', 'EmpleadosController@create')->name('empleados_create');
 Route::post('admin/empleados/store', 'EmpleadosController@store')->name('empleados_store');
 Route::get('admin/empleados/editar/{id}', 'EmpleadosController@edit')->name('empleados_edit');

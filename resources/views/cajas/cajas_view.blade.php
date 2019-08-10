@@ -143,6 +143,8 @@
                                                     @php
                                                         $total_ingreso = 0;
                                                         $cont = 1;
+                                                        $ingresos_borrados = 0;
+                                                        $total_ingresos_borrados = 0;
                                                     @endphp
                                                     @forelse($ingresos as $item)
                                                     <tr>
@@ -154,6 +156,9 @@
                                                     @php
                                                         if(!$item->deleted_at){
                                                             $total_ingreso+= $item->monto;
+                                                        }else{
+                                                            $ingresos_borrados++;
+                                                            $total_ingresos_borrados+= $item->monto;
                                                         }
                                                         $cont++;
                                                     @endphp
@@ -168,6 +173,12 @@
                                         <div class="text-right">
                                             <h4>Total ingresos: {{number_format($total_ingreso, 2, ',', '')}} Bs.</h4>
                                         </div>
+                                        @if($ingresos_borrados)
+                                        <div class="alert alert-danger">
+                                            <strong>Atención:</strong>
+                                            <p>Se eliminaron {{$ingresos_borrados}} resgistro(s) de ingreso, sumando un total de <b>{{number_format($total_ingresos_borrados, 2, ',', '')}}</b> Bs.</p>
+                                        </div>
+                                        @endif
                                     </div>
                                     <div class="col-md-6">
                                         <div class="table-responsive" style="height:300px">
@@ -184,6 +195,8 @@
                                                     @php
                                                         $total_egreso = 0;
                                                         $cont = 1;
+                                                        $egresos_borrados = 0;
+                                                        $total_egresos_borrados = 0;
                                                     @endphp
                                                     @forelse($egresos as $item)
                                                     <tr>
@@ -195,6 +208,9 @@
                                                     @php
                                                         if(!$item->deleted_at){
                                                             $total_egreso+= $item->monto;
+                                                        }else{
+                                                            $egresos_borrados++;
+                                                            $total_egresos_borrados+= $item->monto;
                                                         }
                                                         $cont++;
                                                     @endphp
@@ -209,6 +225,12 @@
                                         <div class="text-right">
                                             <h4>Total egresos: {{number_format($total_egreso, 2, ',', '')}} Bs.</h4>
                                         </div>
+                                        @if($egresos_borrados)
+                                        <div class="alert alert-danger">
+                                            <strong>Atención:</strong>
+                                            <p>Se eliminaron {{$egresos_borrados}} resgistro(s)de engreso, sumando un total de <b>{{number_format($total_egresos_borrados, 2, ',', '')}}</b> Bs.</p>
+                                        </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -248,9 +270,9 @@
             });
 
             function calcular_subtottal(corte, cantidad){
-                let total = (parseFloat(corte)*parseFloat(cantidad)).toFixed(2)
-                $('#label-'+corte).text(total+' Bs.');
-                $('#input-'+corte).val(total);
+                let total = (parseFloat(corte)*parseFloat(cantidad)).toFixed(2);
+                $('#label-'+corte.toString().replace('.', '')).text(total+' Bs.');
+                $('#input-'+corte.toString().replace('.', '')).val(total);
                 calcular_total();
             }
 
@@ -275,12 +297,12 @@
             }
             @if($caja->abierta)
             calcular_total();
-            let cortes = new Array(1, 2, 5, 10, 20, 50, 100, 200)
+            let cortes = new Array('0.5', '1', '2', '5', '10', '20', '50', '100', '200')
             cortes.map(function(value){
                 $('#lista_cortes').append(`<tr>
-                                <td><h4><img src="{{url('img/billetes/${value}.jpg')}}" alt="${value} Bs." width="50px"> ${value} Bs. </h4></td>
+                                <td><h4><img src="{{url('img/billetes/${value}.jpg')}}" alt="${value} Bs." width="80px"> ${value} Bs. </h4></td>
                                 <td><input type="number" min="0" step="1" style="width:100px" data-value="${value}" class="form-control input-corte" value="0" required></td>
-                                <td><label id="label-${value}">0.00 Bs.</label><input type="hidden" class="input-subtotal" id="input-${value}"></td>
+                                <td><label id="label-${value.replace('.', '')}">0.00 Bs.</label><input type="hidden" class="input-subtotal" id="input-${value.replace('.', '')}"></td>
                             </tr>`)
             });
             @endif

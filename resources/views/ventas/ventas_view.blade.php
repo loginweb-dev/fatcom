@@ -116,7 +116,7 @@
         </div>
         {{-- Modal mapa --}}
         <div class="modal modal-primary fade" tabindex="-1" id="modal_mapa" role="dialog">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -131,9 +131,9 @@
                         <input type="hidden" name="lon" id="longitud">
                         {{-- <textarea name="descripcion" class="form-control" id="input-descripcion" rows="2" maxlength="200" placeholder="Datos descriptivos de su ubicación..."></textarea> --}}
                     </div>
-                    <div class="modal-footer">
+                    {{-- <div class="modal-footer">
                         <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Cerrar</button>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </div>
@@ -144,7 +144,7 @@
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
         <style>
             #map {
-                height: 390px;
+                height: 500px;
             }
         </style>
     @stop
@@ -154,7 +154,7 @@
         <script src="{{url('js/ubicacion_cliente.js')}}" type="text/javascript"></script>
         <script>
             $(document).ready(function(){
-
+                
             });
             //mapa
             @if($venta->venta_tipo_id == '3' || $venta->venta_tipo_id == '4')
@@ -180,15 +180,39 @@
                             L.marker([lat, lon], {
                                 draggable: true
                             }).addTo(map)
-                            .bindPopup("Localización actual").openPopup()
+                            .bindPopup("Localización del pedido").openPopup()
                             .on('drag', function(e) {
                                 $('#latitud').val(e.latlng.lat);
                                 $('#longitud').val(e.latlng.lng);
                             });
                         }, 1000);
+
+                        var iconoBase = L.Icon.extend({ options: { iconSize: [40, 40], iconAnchor: [15, 35], popupAnchor: [0, -30] } });
+                        let iconDelivery = new iconoBase({iconUrl: "{{ voyager_asset('images/delivery.png') }}"});
+                        setInterval(()=> get_ubicacion({{$venta->id}}, map, iconDelivery), 3000);
                 });
 
             @endif
+
+            // Nota: si se edita esta función, tambien debe editarse en la vista ver producto
+            let marcador = {};
+            function get_ubicacion(id, map, iconDelivery){
+                $.ajax({
+                        url: '{{url("admin/ventas/delivery/get_ubicacion")}}/'+id,
+                        type: 'get',
+                        success: function(data){
+                            if(data.length){
+                                map.removeLayer(marcador);
+                                let lat = data[0].lat;
+                                let lon = data[0].lon;
+                                if(lat != '' && lon != ''){
+                                    marcador = L.marker([lat, lon], {icon: iconDelivery}).addTo(map).bindPopup('Repartidor').openPopup();
+                                    map.setView([lat, lon]);
+                                }
+                            }
+                        }
+                    });
+            }
         </script>
     @endsection
 

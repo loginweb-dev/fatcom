@@ -25,7 +25,7 @@
                                         <div class="col-md-8"></div>
                                         <form id="form-search" class="form-search">
                                             <div class="input-group col-md-4">
-                                                <input type="text" id="search_value" class="form-control" name="s" value="{{$value}}" placeholder="Ingresar busqueda...">
+                                                <input type="text" id="search_value" class="form-control" name="s" value="{{$value}}" placeholder="Producto o categoría">
                                                 <span class="input-group-btn">
                                                     <button class="btn btn-default" style="margin-top:0px;padding:5px 10px" type="submit">
                                                         <i class="voyager-search"></i>
@@ -56,8 +56,8 @@
                                             @endphp
                                             @forelse ($registros as $item)
                                                 @php
-                                                    $img = ($imagenes[$cont]['nombre']!='') ? str_replace('.', '_small.', $imagenes[$cont]['nombre']) : 'productos/default.png';
-                                                    $imagen = ($imagenes[$cont]['nombre']!='') ? $imagenes[$cont]['nombre'] : 'productos/default.png';
+                                                    $img = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
+                                                    $imagen = ($item->imagen!='') ? $item->imagen : 'productos/default.png';
                                                 @endphp
                                                 <tr>
                                                     <td>{{$item->nombre}}</td>
@@ -183,7 +183,7 @@
                 $('#form-search').on('submit', function(e){
                     e.preventDefault();
                     let value = (escape($('#search_value').val())!='') ? escape($('#search_value').val()) : 'all';
-                    window.location = '{{url("admin/ofertas/buscar")}}/'+value;
+                    window.location = '{{url("admin/ecommerce/buscar")}}/'+value;
                 });
             });
         </script>

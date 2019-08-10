@@ -42,6 +42,33 @@ class EmpleadosController extends Controller
         return view('empleados.empleados_index', compact('registros', 'users', 'value'));
     }
 
+    public function search($value)
+    {
+        $value = ($value != 'all') ? $value : '';
+        $registros = DB::table('empleados as e')
+                            ->select('e.*')
+                            ->where('e.deleted_at', NULL)
+                            ->whereRaw("    (e.nombre like '%".$value."%' or
+                                             e.movil like '%".$value."%')
+                                        ")
+                            ->orderBy('id', 'DESC')
+                            ->paginate(10);
+        $users = [];
+        foreach ($registros as $item) {
+            $aux =  DB::table('users as u')
+                            ->select('u.*')
+                            ->where('u.id', $item->user_id)
+                            ->first();
+            if($aux){
+                $user = ['usuario'=>$aux->name,'email'=>$aux->email,'avatar'=>$aux->avatar,'tipo_login'=>$aux->tipo_login];
+            }else{
+                $user = ['usuario'=>'No definido','email'=>'No definido','avatar'=>'','tipo_login'=>''];
+            }
+            array_push($users, $user);
+        }
+        return view('empleados.empleados_index', compact('registros', 'users', 'value'));
+    }
+
     public function create(){
         $roles = DB::table('roles as r')
                         ->select('r.*')

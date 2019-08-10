@@ -15,6 +15,7 @@ use App\ClientesCoordenada;
 use App\PasarelaPago;
 use App\Venta;
 use App\Producto;
+use App\Subcategoria;
 
 class LandingPageController extends Controller
 {
@@ -59,27 +60,13 @@ class LandingPageController extends Controller
                             ->orderBy('productos', 'DESC')
                             ->limit(5)
                             ->get();
-
-        $ofertas = DB::table('productos as p')
-                            ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
-                            ->join('marcas as m', 'm.id', 'p.marca_id')
-                            ->join('ofertas_detalles as od', 'od.producto_id', 'p.id')
-                            ->join('ofertas as o', 'o.id', 'od.oferta_id')
-                            ->join('monedas as mo', 'mo.id', 'p.moneda_id')
-                            ->select('p.id', 'p.nombre', 'p.nuevo', 'p.imagen', 'p.slug', 'm.nombre as m', 'od.monto as descuento', 'od.tipo_descuento', 'mo.abreviacion as moneda')
-                            // ->where('p.deleted_at', NULL)
-                            ->where('o.deleted_at', NULL)
-                            ->where('e.deleted_at', NULL)
-                            ->where('od.deleted_at', NULL)
-                            ->where('o.inicio', '<', Carbon::now())
-                            ->whereRaw(" (o.fin is NULL or o.fin > '".Carbon::now()."')")
-                            ->limit(10)
-                            ->get();
-
+        $ofertas = (new Ofertas)->get_ofertas();    
+        // dd($ofertas);
+    
         $subcategoria_productos = DB::table('subcategorias as s')
                                     ->join('productos as p', 'p.subcategoria_id', 's.id')
                                     ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
-                                    ->select('s.id', 's.nombre')
+                                    ->select('s.id', 's.nombre', 's.slug')
                                     ->where('s.deleted_at', NULL)
                                     ->distinct()
                                     ->get();
@@ -153,7 +140,7 @@ class LandingPageController extends Controller
                             ->join('usos as u', 'u.id', 'p.uso_id')
                             ->join('generos as g', 'g.id', 'p.genero_id')
                             ->join('monedas as mn', 'mn.id', 'p.moneda_id')
-                            ->select('p.id', 'p.nombre', 'p.precio_venta', 'p.imagen', 'modelo', 'p.garantia', 'p.descripcion_small', 'p.vistas', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'u.nombre as uso', 'co.nombre as color', 'g.nombre as genero')
+                            ->select('p.id', 'p.nombre', 'p.precio_venta', 'p.imagen', 'modelo', 'p.garantia', 'p.descripcion_small', 'p.vistas', 'p.slug', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'u.nombre as uso', 'co.nombre as color', 'g.nombre as genero')
                             // ->where('deleted_at', NULL)
                             ->whereRaw($sentencia)
                             ->where('s.deleted_at', NULL)
@@ -195,28 +182,7 @@ class LandingPageController extends Controller
     }
 
     public function ofertas(){
-        $productos = DB::table('productos as p')
-                            ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
-                            ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
-                            ->join('categorias as c', 'c.id', 's.categoria_id')
-                            ->join('marcas as m', 'm.id', 'p.marca_id')
-                            ->join('tallas as t', 't.id', 'p.talla_id')
-                            ->join('colores as co', 'co.id', 'p.color_id')
-                            ->join('usos as u', 'u.id', 'p.uso_id')
-                            ->join('generos as g', 'g.id', 'p.genero_id')
-                            ->join('monedas as mn', 'mn.id', 'p.moneda_id')
-                            ->join('ofertas_detalles as df', 'df.producto_id', 'p.id')
-                            ->join('ofertas as o', 'o.id', 'df.oferta_id')
-                            ->select('p.id', 'p.nombre', 'p.imagen', 'modelo', 'p.garantia', 'p.descripcion_small', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'u.nombre as uso', 'co.nombre as color', 'g.nombre as genero', 'df.tipo_descuento', 'df.monto as monto_descuento')
-                            // ->where('deleted_at', NULL)
-                            ->where('o.inicio', '<', Carbon::now())
-                            ->whereRaw(" (o.fin is NULL or o.fin > '".Carbon::now()."')")
-                            ->where('s.deleted_at', NULL)
-                            ->where('m.deleted_at', NULL)
-                            ->where('e.deleted_at', NULL)
-                            ->where('df.deleted_at', NULL)
-                            ->where('o.deleted_at', NULL)
-                            ->paginate(5);
+        $productos = (new Ofertas)->get_ofertas();
         $precios = [];
         $puntuaciones = [];
         foreach ($productos as $item) {
@@ -233,7 +199,7 @@ class LandingPageController extends Controller
         $recomendaciones = DB::table('productos as p')
                                 ->join('ofertas_detalles as df', 'df.producto_id', 'p.id')
                                 ->join('ofertas as o', 'o.id', 'df.oferta_id')
-                                ->select('p.id', 'p.nombre', 'p.imagen')
+                                ->select('p.id', 'p.nombre', 'p.imagen', 'p.slug')
                                 ->where('o.inicio', '<', Carbon::now())
                                 ->whereRaw(" (o.fin is NULL or o.fin > '".Carbon::now()."')")
                                 ->where('df.deleted_at', NULL)
@@ -257,8 +223,9 @@ class LandingPageController extends Controller
         }
     }
 
-    public function categorias($id){
-        $subcategoria = DB::table('subcategorias')->select('nombre')->where('id', $id)->first()->nombre;
+    public function subcategorias(Subcategoria $subcategoria){
+        $id = $subcategoria->id;
+        $subcategoria = DB::table('subcategorias')->select('nombre', 'slug')->where('id', $id)->first();
 
         $productos = DB::table('productos as p')
                             ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
@@ -270,7 +237,7 @@ class LandingPageController extends Controller
                             ->join('usos as u', 'u.id', 'p.uso_id')
                             ->join('generos as g', 'g.id', 'p.genero_id')
                             ->join('monedas as mn', 'mn.id', 'p.moneda_id')
-                            ->select('p.id', 'p.nombre', 'p.imagen', 'modelo', 'p.garantia', 'p.descripcion_small', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'u.nombre as uso', 'co.nombre as color', 'g.nombre as genero')
+                            ->select('p.id', 'p.nombre', 'p.imagen', 'modelo', 'p.garantia', 'p.descripcion_small', 'p.slug', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'u.nombre as uso', 'co.nombre as color', 'g.nombre as genero')
                             // ->where('deleted_at', NULL)
                             ->where('s.deleted_at', NULL)
                             ->where('m.deleted_at', NULL)
@@ -296,7 +263,7 @@ class LandingPageController extends Controller
         }
 
         $recomendaciones = DB::table('productos as p')
-                                ->select('p.id', 'p.nombre', 'p.imagen')
+                                ->select('p.id', 'p.nombre', 'p.imagen', 'p.slug')
                                 ->where('p.subcategoria_id', $id)
                                 ->limit(10)
                                 ->get();
@@ -306,10 +273,10 @@ class LandingPageController extends Controller
 
                 break;
             case 'electronica_computacion':
-            return view('ecommerce/computacion_electronica/categorias', compact('productos', 'precios', 'ofertas', 'puntuaciones', 'recomendaciones', 'subcategoria', 'id'));
+            return view('ecommerce/computacion_electronica/subcategorias', compact('productos', 'precios', 'ofertas', 'puntuaciones', 'recomendaciones', 'subcategoria', 'id'));
                 break;
             case 'restaurante':
-            return view('ecommerce/restaurante/categorias', compact('productos', 'precios', 'ofertas', 'puntuaciones', 'recomendaciones', 'subcategoria', 'id'));
+            return view('ecommerce/restaurante/subcategorias', compact('productos', 'precios', 'ofertas', 'puntuaciones', 'recomendaciones', 'subcategoria', 'id'));
                 break;
             default:
                 # code...
@@ -331,7 +298,7 @@ class LandingPageController extends Controller
                             ->join('generos as g', 'g.id', 'p.genero_id')
                             ->join('monedas as mn', 'mn.id', 'p.moneda_id')
                             ->join('ecommerce_productos as ec', 'ec.producto_id', 'p.id')
-                            ->select('p.id', 'p.nombre', 'p.imagen', 'p.modelo', 'p.garantia', 'p.descripcion_small', 'p.descripcion_long', 'p.vistas', 'p.catalogo', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'u.nombre as uso', 'c.nombre as color', 'g.nombre as genero', 'ec.tags')
+                            ->select('p.id', 'p.nombre', 'p.imagen', 'p.modelo', 'p.garantia', 'p.descripcion_small', 'p.descripcion_long', 'p.vistas', 'p.catalogo', 'p.slug', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'u.nombre as uso', 'c.nombre as color', 'g.nombre as genero', 'ec.tags')
                             // ->where('deleted_at', NULL)
                             ->where('p.id', $id)
                             ->first();
@@ -362,7 +329,7 @@ class LandingPageController extends Controller
         foreach ($tags as $item) {
             $array = DB::table('productos as p')
                             ->join('ecommerce_productos as ec', 'ec.producto_id', 'p.id')
-                            ->select('p.id', 'p.nombre', 'p.imagen')
+                            ->select('p.id', 'p.nombre', 'p.imagen', 'p.slug')
                             ->where('ec.tags', 'like', "%$item%")
                             ->where('p.id', '<>', $id)
                             ->get();
@@ -379,7 +346,7 @@ class LandingPageController extends Controller
                 if($existe){
                     $recomendaciones[$indice]['coincidencias']++;
                 }else{
-                    array_push($recomendaciones, ['id'=>$item2->id, 'nombre'=>$item2->nombre, 'imagen'=>$item2->imagen, 'coincidencias'=>1]);
+                    array_push($recomendaciones, ['id'=>$item2->id, 'nombre'=>$item2->nombre, 'imagen'=>$item2->imagen, 'slug'=>$item2->slug, 'coincidencias'=>1]);
                 }
             }
         }
@@ -399,6 +366,10 @@ class LandingPageController extends Controller
                     $aux_imagen = $recomendaciones[$i]['imagen'];
                     $recomendaciones[$i]['imagen'] = $recomendaciones[$j]['imagen'];
                     $recomendaciones[$j]['imagen'] = $aux_imagen;
+
+                    $aux_slug = $recomendaciones[$i]['slug'];
+                    $recomendaciones[$i]['slug'] = $recomendaciones[$j]['slug'];
+                    $recomendaciones[$j]['slug'] = $aux_slug;
 
                     $aux_coincidencia = $recomendaciones[$i]['coincidencias'];
                     $recomendaciones[$i]['coincidencias'] = $recomendaciones[$j]['coincidencias'];

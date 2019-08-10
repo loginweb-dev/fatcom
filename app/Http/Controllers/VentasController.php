@@ -18,6 +18,7 @@ use App\User;
 
 
 use App\Http\Controllers\ProductosController as Productos;
+use App\Http\Controllers\OfertasController as Ofertas;
 use App\Http\Controllers\LandingPageController as LandingPage;
 use App\Http\Controllers\DosificacionesController as Dosificacion;
 use App\Http\Controllers\FacturasController as Facturacion;
@@ -92,6 +93,12 @@ class VentasController extends Controller
     }
 
     public function search($value){
+        // Obetener el tamaño de la factura o recibo
+        $tamanio = DB::table('settings')
+                            ->select('value')
+                            ->where('id', 26)
+                            ->first()->value;
+
         $value = ($value != 'all') ? $value : '';
 
         $consulta = '1';
@@ -113,8 +120,8 @@ class VentasController extends Controller
                             ->select('v.*', 'c.razon_social as cliente', 'vt.nombre as tipo_nombre', 'vt.etiqueta as tipo_etiqueta', 've.id as estado_id', 've.nombre as estado_nombre', 've.etiqueta as estado_etiqueta')
                             ->whereRaw($consulta." and
                                             (c.razon_social like '%".$value."%' or
-                                             c.nit like '%".$value."%' or
-                                             v.id like '%".$value."%')
+                                             vt.nombre like '%".$value."%' or
+                                             ve.nombre like '%".$value."%')
                                         ")
                             ->orderBy('v.id', 'DESC')
                             ->paginate(20);
@@ -142,7 +149,7 @@ class VentasController extends Controller
             array_push($siguiente_estado, $aux);
         }
 
-        return view('ventas.ventas_index', compact('registros', 'value', 'delivery', 'ultima_venta', 'siguiente_estado'));
+        return view('ventas.ventas_index', compact('registros', 'value', 'delivery', 'ultima_venta', 'siguiente_estado', 'tamanio'));
     }
 
     public function get_nuevos_pedidos($ultimo){
@@ -223,6 +230,31 @@ class VentasController extends Controller
                             ->select('p.*', 'pu.precio')
                             ->where('p.deleted_at', NULL)
                             ->get();
+        $precios = [];
+        foreach ($productos as $item) {
+            // Obtener precios de venta del producto
+            $producto_unidades =  (new Productos)->obtener_precios_venta($item->id);
+            if((count($producto_unidades)>0)){
+                $precio_venta = $producto_unidades[0]->precio;
+                $unidad = $producto_unidades[0]->unidad;
+
+                // Obtener si el producto está en oferta
+                $oferta = (new Ofertas)->obtener_oferta($item->id);
+                
+                if($oferta){
+                    if($oferta->tipo_descuento=='porcentaje'){
+                        $precio_venta -= ($precio_venta*($oferta->monto/100));
+                    }else{
+                        $precio_venta -= $oferta->monto;
+                    }
+                }
+            }else{
+                $precio_venta = 0;
+                $unidad = 'No definida';
+            }
+            array_push($precios, ['precio' => $precio_venta, 'unidad' => $unidad]);
+        }
+        
         return view('ventas.ventas_productos_search', compact('categorias', 'productos'));
     }
 
@@ -245,8 +277,25 @@ class VentasController extends Controller
         foreach ($productos as $item) {
             // Obtener precios de venta del producto
             $producto_unidades =  (new Productos)->obtener_precios_venta($item->id);
-            $precio = (count($producto_unidades)>0) ? ['precio' => $producto_unidades[0]->precio, 'unidad' => $producto_unidades[0]->unidad] : ['precio' => 0, 'unidad' => 'No definida'];
-            array_push($precios, $precio);
+            if((count($producto_unidades)>0)){
+                $precio_venta = $producto_unidades[0]->precio;
+                $unidad = $producto_unidades[0]->unidad;
+
+                // Obtener si el producto está en oferta
+                $oferta = (new Ofertas)->obtener_oferta($item->id);
+                
+                if($oferta){
+                    if($oferta->tipo_descuento=='porcentaje'){
+                        $precio_venta -= ($precio_venta*($oferta->monto/100));
+                    }else{
+                        $precio_venta -= $oferta->monto;
+                    }
+                }
+            }else{
+                $precio_venta = 0;
+                $unidad = 'No definida';
+            }
+            array_push($precios, ['precio' => $precio_venta, 'unidad' => $unidad]);
         }
 
         return view('ventas.ventas_productos_categoria', compact('subcategorias', 'productos', 'precios'));
@@ -452,14 +501,59 @@ class VentasController extends Controller
     public function delivery_admin_index(){
         $registros = DB::table('empleados as e')
                             ->join('repartidores_pedidos as rp', 'rp.repartidor_id', 'e.id')
+                            ->join('ventas as v', 'v.id', 'rp.pedido_id')
                             ->select(DB::raw('e.id, e.nombre, e.movil, e.direccion, count(rp.id) as pedidos'))
-                            ->where('rp.estado', '<=', 2)
+                            ->where('v.estado', 'V')
+                            ->where('rp.deleted_at', NULL)
+                            ->whereRaw('(rp.estado = 1 or rp.estado = 2)')
                             ->groupBy('e.id', 'e.nombre', 'e.movil', 'e.direccion')
                             ->paginate(10);
-        // dd($registros);
         return view('ventas.delivery_admin.delivery_index', compact('registros'));
     }
 
+    // Detalle de pedidos de un repartidor
+    public function delivery_admin_view($id){
+        $registros = DB::table('empleados as e')
+                            ->join('repartidores_pedidos as rp', 'rp.repartidor_id', 'e.id')
+                            ->join('ventas as v', 'v.id', 'rp.pedido_id')
+                            ->join('clientes as c', 'c.id', 'v.cliente_id')
+                            ->select('v.id', 'v.nro_venta', 'v.created_at', 'v.importe_base as monto', 'c.razon_social', 'v.importe_base', 'v.venta_estado_id', 'e.nombre', 'rp.estado')
+                            ->where('e.id', $id)
+                            ->where('v.estado', 'V')
+                            ->where('rp.deleted_at', NULL)
+                            ->whereRaw('(rp.estado = 1 or rp.estado = 2)')
+                            ->orderBy('rp.id', 'DESC')
+                            ->get();
+        return view('ventas.delivery_admin.delivery_view', compact('registros', 'id'));
+    }
+
+    // Pedidos cerrados por administrador
+    public function delivery_admin_close($id){
+        $pedidos = DB::table('empleados as e')
+                            ->join('repartidores_pedidos as rp', 'rp.repartidor_id', 'e.id')
+                            ->join('ventas as v', 'v.id', 'rp.pedido_id')
+                            ->join('clientes as c', 'c.id', 'v.cliente_id')
+                            ->select('v.id')
+                            ->where('e.id', $id)
+                            ->where('v.estado', 'V')
+                            ->where('rp.deleted_at', NULL)
+                            ->whereRaw('(rp.estado = 1 or rp.estado = 2)')
+                            ->orderBy('rp.id', 'DESC')
+                            ->get();
+        $cont_pedidos = count($pedidos);
+        $cont_updates = 0;
+        foreach ($pedidos as $item) {
+            $query = Venta::where('id', $item->id)->update(['venta_estado_id' => 5]);
+            $query = RepartidoresPedido::where('pedido_id', $item->id)->update(['estado' => 3]);
+            $cont_updates++;
+        }
+        
+        if($cont_updates == $cont_pedidos){
+            return redirect()->route('delivery_admin_index')->with(['message' => 'Pedidoscerrados exitosamente.', 'alert-type' => 'success']);
+        }else{
+            return redirect()->route('delivery_admin_index')->with(['message' => 'Ocurrio un problema al cerrar los pedidos.', 'alert-type' => 'error']);
+        }
+    }
 
     // Lista de pedidos que tiene un repartidor
     public function delivery_index(){
@@ -467,11 +561,31 @@ class VentasController extends Controller
                             ->join('repartidores_pedidos as rp', 'rp.repartidor_id', 'e.id')
                             ->join('ventas as v', 'v.id', 'rp.pedido_id')
                             ->join('clientes as c', 'c.id', 'v.cliente_id')
-                            ->select('v.id', 'c.razon_social', 'v.importe_base', 'v.venta_estado_id', 'v.created_at')
+                            ->select('v.id', 'c.razon_social', 'v.importe_base', 'v.venta_estado_id', 'v.created_at', 'rp.estado')
                             ->where('e.user_id', Auth::user()->id)
+                            ->where('v.estado', 'V')
+                            ->where('rp.deleted_at', NULL)
+                            ->whereRaw('(rp.estado = 1 or rp.estado = 2)')
                             ->orderBy('rp.id', 'DESC')
                             ->paginate(10);
         $value = '';
+        return view('ventas.delivery.delivery_index', compact('registros', 'value'));
+    }
+
+    // Lista de pedidos que tiene un repartidor
+    public function delivery_search($value){
+        $value = ($value != 'all') ? $value : '';
+        $registros = DB::table('empleados as e')
+                            ->join('repartidores_pedidos as rp', 'rp.repartidor_id', 'e.id')
+                            ->join('ventas as v', 'v.id', 'rp.pedido_id')
+                            ->join('clientes as c', 'c.id', 'v.cliente_id')
+                            ->select('v.id', 'c.razon_social', 'v.importe_base', 'v.venta_estado_id', 'v.created_at', 'rp.estado')
+                            ->where('e.user_id', Auth::user()->id)
+                            ->where('v.estado', 'V')
+                            ->where('rp.deleted_at', NULL)
+                            ->whereRaw("(rp.estado = 1 or rp.estado = 2) and (c.razon_social like '%".$value."%')")
+                            ->orderBy('rp.id', 'DESC')
+                            ->paginate(10);
         return view('ventas.delivery.delivery_index', compact('registros', 'value'));
     }
 
@@ -499,9 +613,8 @@ class VentasController extends Controller
 
     // Pedido entregado
     public function delivery_close($id){
-        $query = Venta::where('id', $id)->update(['venta_estado_id' => 5]);
+        $query = RepartidoresPedido::where('pedido_id', $id)->update(['estado' => 2]);
         if($query){
-            RepartidoresPedido::where('pedido_id', $id)->update(['estado' => 2]);
             return redirect()->route('delivery_index')->with(['message' => 'Pedido entregado exitosamente.', 'alert-type' => 'success']);
         }else{
             return redirect()->route('delivery_index')->with(['message' => 'Ocurrio un problema al actualizar el estado del pedido.', 'alert-type' => 'error']);
@@ -621,6 +734,7 @@ class VentasController extends Controller
 
         $venta = new Venta;
 
+        $venta->nro_venta = ($caja_id) ? Venta::where('caja_id', $caja_id)->count() + 1 : NULL;
         $venta->cliente_id = $data->cliente_id;
         $venta->fecha = date('Y-m-d');
         $venta->nro_factura = $nro_factura;

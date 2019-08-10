@@ -34,7 +34,13 @@ class OfertasController extends Controller
 
     public function search($value)
     {
-
+        $value = ($value != 'all') ? $value : '';
+        $registros = DB::table('ofertas as o')
+                            ->select('o.*')
+                            ->where('o.deleted_at', NULL)
+                            ->where('o.nombre', 'like', "%$value%")
+                            ->paginate(10);
+        return view('inventarios/ofertas/ofertas_index', compact('registros', 'value'));
     }
 
     public function view($id){
@@ -76,7 +82,7 @@ class OfertasController extends Controller
 
         $productos = DB::table('productos as p')
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
-                            ->select('p.id', 'p.nombre')
+                            ->select('p.id', 'p.nombre', 's.nombre as subcategoria')
                             // ->where('deleted_at', NULL)
                             ->whereNotIn('p.id', function($q){
                                 $q->select('producto_id')->from('ofertas_detalles')->where('deleted_at', null);
@@ -177,7 +183,7 @@ class OfertasController extends Controller
 
         $productos = DB::table('productos as p')
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
-                            ->select('p.id', 'p.nombre')
+                            ->select('p.id', 'p.nombre', 's.nombre as subcategoria')
                             // ->where('deleted_at', NULL)
                             ->whereNotIn('p.id', function($q){
                                 $q->select('producto_id')->from('ofertas_detalles')->where('deleted_at', null);
@@ -207,9 +213,18 @@ class OfertasController extends Controller
             $image_resize->save('storage/'.$path);
         }
 
+        // Si el tipo de duración es diferente de rango se debe obtener ya sea el dia de la semana o el dia del mes
+        if($data->tipo_duracion == 'rango'){
+            $dia = null;
+        }else{
+            $dia = ($data->tipo_duracion == 'semanal') ? $data->dia_semana : $data->dia_mes;
+        }
+
         $oferta = Oferta::find($data->id);
         $oferta->nombre = $data->nombre;
         $oferta->descripcion = $data->descripcion;
+        $oferta->tipo_duracion = $data->tipo_duracion;
+        $oferta->dia = $dia;
         $oferta->inicio = $data->inicio.' 00:00:00';
         $oferta->fin = (!empty($data->fin)) ? $data->fin.' 23:00:00' : $data->fin;
         if($path!=''){
@@ -237,7 +252,12 @@ class OfertasController extends Controller
     }
 
     public function delete(Request $data){
-
+        $query = DB::table('ofertas')->where('id', $data->id)->update(['deleted_at' => Carbon::now()]);
+        if($query){
+            return redirect()->route('ofertas_index')->with(['message' => 'Campaña de oferta eliminada exitosamenete.', 'alert-type' => 'success']);
+        }else{
+            return redirect()->route('ofertas_index')->with(['message' => 'Ocurrio un problema al eliminar la campaña de oferta.', 'alert-type' => 'error']);
+        }
     }
 
 // Filtros
@@ -261,15 +281,44 @@ class OfertasController extends Controller
     }
 
 // Obtener datos varios
+    public function get_ofertas(){
+
+        $dia_semana = date('N');
+        $dia_mes = date('j');
+        $ofertas = DB::table('productos as p')
+                    ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
+                    ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                    ->join('categorias as c', 'c.id', 's.categoria_id')
+                    ->join('marcas as m', 'm.id', 'p.marca_id')
+                    ->join('tallas as t', 't.id', 'p.talla_id')
+                    ->join('colores as co', 'co.id', 'p.color_id')
+                    ->join('usos as u', 'u.id', 'p.uso_id')
+                    ->join('generos as g', 'g.id', 'p.genero_id')
+                    ->join('monedas as mn', 'mn.id', 'p.moneda_id')
+                    ->join('ofertas_detalles as df', 'df.producto_id', 'p.id')
+                    ->join('ofertas as o', 'o.id', 'df.oferta_id')
+                    ->select('p.id', 'p.nombre', 'p.imagen', 'p.modelo', 'p.garantia', 'p.descripcion_small', 'p.slug', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'u.nombre as uso', 'co.nombre as color', 'g.nombre as genero', 'df.monto as descuento', 'df.tipo_descuento', 'df.monto as monto_descuento')
+                    ->whereRaw("( (o.tipo_duracion = 'rango' and o.inicio < '".Carbon::now()."' and (o.fin is NULL or o.fin > '".Carbon::now()."')) or (o.tipo_duracion = 'semanal' and o.dia = $dia_semana) or (o.tipo_duracion = 'mensual' and o.dia = $dia_mes) )")
+                    ->where('s.deleted_at', NULL)
+                    ->where('m.deleted_at', NULL)
+                    ->where('e.deleted_at', NULL)
+                    ->where('df.deleted_at', NULL)
+                    ->where('o.deleted_at', NULL)
+                    ->paginate(5);
+
+        return $ofertas;
+    }
+
     public function obtener_oferta($id){
+        $dia_semana = date('N');
+        $dia_mes = date('j');
         return DB::table('ofertas_detalles as d')
                     ->join('ofertas as o', 'o.id', 'd.oferta_id')
                     ->select('d.tipo_descuento', 'd.monto', 'o.fin')
                     ->where('d.producto_id', $id)
                     ->where('d.deleted_at', NULL)
                     ->where('o.deleted_at', NULL)
-                    ->where('o.inicio', '<', Carbon::now())
-                    ->whereRaw(" (o.fin is NULL or o.fin > '".Carbon::now()."')")
+                    ->whereRaw("( (o.tipo_duracion = 'rango' and o.inicio < '".Carbon::now()."' and (o.fin is NULL or o.fin > '".Carbon::now()."')) or (o.tipo_duracion = 'semanal' and o.dia = $dia_semana) or (o.tipo_duracion = 'mensual' and o.dia = $dia_mes) )")
                     ->first();
     }
 

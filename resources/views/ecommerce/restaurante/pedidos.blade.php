@@ -216,6 +216,8 @@
             });
         }
     }
+    
+    // Nota: si se edita esta función, tambien debe editarse en la vista ver producto
     let marcador = {};
     function get_ubicacion(id, map, iconDelivery){
         $.ajax({

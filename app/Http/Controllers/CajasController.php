@@ -30,18 +30,26 @@ class CajasController extends Controller
         if($aux){
             $abierta = true;
         }
-        $clave = '';
-        $valor = '';
-        return view('cajas.cajas_index', compact('cajas', 'clave', 'valor', 'abierta'));
+        $value = '';
+        return view('cajas.cajas_index', compact('cajas', 'value', 'abierta'));
     }
 
-    function cajas_buscar($clave, $valor){
+    function cajas_buscar($value){
+        $value = ($value != 'all') ? $value : '';
         $cajas = DB::table('ie_cajas as c')
                         ->select('c.*')
-                        ->where($clave, 'like', "%$valor%")
-                        ->orderBy('id', 'DESC')
+                        ->whereRaw("c.fecha_apertura like '%".$value."%'")
+                        ->orderBy('c.id', 'DESC')
                         ->paginate(15);
-        return view('cajas.cajas_index', compact('cajas', 'clave', 'valor'));
+        $aux = DB::table('ie_cajas as c')
+                        ->select('c.*')
+                        ->where('c.abierta', 1)
+                        ->first();
+        $abierta = false;
+        if($aux){
+            $abierta = true;
+        }
+        return view('cajas.cajas_index', compact('cajas', 'value', 'abierta'));
     }
 
     function cajas_view($id){
@@ -122,21 +130,21 @@ class CajasController extends Controller
                         ->select('i.*', 'u.name', 'c.abierta')
                         // ->where('i.deleted_at', NULL)
                         ->orderBy('i.id', 'DESC')
-                        ->paginate(15);
-        $clave = '';
-        $valor = '';
-        return view('cajas.asientos_index', compact('asientos', 'clave', 'valor'));
+                        ->paginate(20);
+        $value = '';
+        return view('cajas.asientos_index', compact('asientos', 'value'));
     }
 
-    function asientos_buscar($clave, $valor){
+    function asientos_buscar($value){
+        $value = ($value != 'all') ? $value : '';
         $asientos = DB::table('ie_asientos as i')
                         ->join('ie_cajas as c', 'c.id', 'i.caja_id')
                         ->join('users as u', 'u.id', 'i.user_id')
                         ->select('i.*', 'u.name', 'c.abierta')
-                        ->where($clave, 'like', "%$valor%")
+                        ->whereRaw("i.fecha like '%".$value."%'")
                         ->orderBy('i.id', 'DESC')
-                        ->paginate(15);
-        return view('cajas.asientos_index', compact('asientos', 'clave', 'valor'));
+                        ->paginate(20);
+        return view('cajas.asientos_index', compact('asientos', 'value'));
     }
 
     function asientos_create(){

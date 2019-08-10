@@ -45,8 +45,8 @@
                                             </div>
                                             <div class="row">
                                                 <div class="form-group col-md-6">
-                                                    <label for="">Código</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Código de identificación del producto. Este campo es obligatorio."></span> @endif
-                                                    <input type="text" name="codigo_interno" value="{{$producto->codigo_interno}}" class="form-control" placeholder="Código del producto" required>
+                                                    <label for="">Código</label> @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="right" title="Código de identificación del producto. Este campo no es obligatorio."></span> @endif
+                                                    <input type="text" name="codigo_interno" value="{{$producto->codigo_interno}}" class="form-control" placeholder="Código del producto">
                                                 </div>
                                                 <div class="form-group col-md-6">
                                                     <label for="">Moneda</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Moneda de comercialización del producto. Este campo es obligatorio."></span> @endif
@@ -97,6 +97,15 @@
                                                     <input type="text" name="garantia" value="{{$producto->garantia}}" class="form-control" placeholder="12 meses">
                                                 </div>
                                                 <div class="form-group col-md-6">
+                                                    <label for="">Cantidad</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Cantidad de productos en stock. Este campo es obligatorio."></span> @endif
+                                                    <input type="number" name="stock" readonly class="form-control" value="{{$producto->stock}}" min="0" step="1" required>
+                                                    <div  style="position:absolute;right:15px;top:27px">
+                                                        <input type="checkbox" id="input-se_almacena" name="se_almacena" data-toggle="toggle" data-on="<small>Se almacena</small> <span class='voyager-check'></span>" data-off="<small>Se almacena</small> <span class='voyager-x'></span>">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="form-group col-md-12">
                                                     <label for="">Catálogo</label> @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="right" title="Catálogo del producto. Este campo no es obligatorio."></span> @endif
                                                     <input type="file" name="catalogo" class="form-control">
                                                 </div>
@@ -178,8 +187,8 @@
                                 <div class="panel-body">
                                     <table class="table table-bordered">
                                         <thead>
-                                            <th>Precio @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Precio de compra del producto. Este campo es obligatorio."></span> @endif</th>
-                                            <th>Cantidad mínima @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Cantidad mínima de compra para tener dicho precio. Este campo es obligatorio."></span> @endif</th>
+                                            <th>Precio @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="right" title="Precio de compra del producto. Este campo no es obligatorio."></span> @endif</th>
+                                            <th>Cantidad mínima @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="right" title="Cantidad mínima de compra para tener dicho precio. Este campo no es obligatorio."></span> @endif</th>
                                             <th></th>
                                         </thead>
                                         <tbody id="tr-precioCompra">
@@ -189,8 +198,8 @@
                                             @for ($i = 0; $i < count($precio_compra); $i++)
                                                 @if ($i==0)
                                                 <tr>
-                                                    <td><input type="number" min="1" step="0.1" class="form-control" value="{{$precio_compra[$i]->monto}}" name="monto[]" required></td>
-                                                    <td><input type="number" min="1" step="1" class="form-control" value="{{$precio_compra[$i]->cantidad_minima}}" name="cantidad_minima_compra[]" required></td>
+                                                    <td><input type="number" min="1" step="0.1" class="form-control" value="{{$precio_compra[$i]->monto}}" name="monto[]"></td>
+                                                    <td><input type="number" min="1" step="1" class="form-control" value="{{$precio_compra[$i]->cantidad_minima}}" name="cantidad_minima_compra[]"></td>
                                                     <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
                                                 </tr>
                                                 @else
@@ -301,6 +310,10 @@
 
                 if('{{$producto->nuevo}}'=='1'){
                     $('#input-nuevo').bootstrapToggle('on')
+                }
+
+                if('{{$producto->se_almacena}}'=='1'){
+                    $('#input-se_almacena').bootstrapToggle('on')
                 }
 
                 $('#label-descripcion').text(`Descripción (${$('#text-descripcion').val().length}/255)`)

@@ -74,7 +74,7 @@
                 {{-- consulta para saber si es factura o recibo --}}
                 <td colspan="2" align="center">
                     <h3>
-                        TICKET DE VENTA #{{$detalle_venta[0]->id}}<br>
+                        TICKET DE VENTA #{{$detalle_venta[0]->nro_venta}}<br>
                         Atendido por: {{ Auth::user()->name}}<br>
                         {{date('d/m/Y H:i:s')}}<br>
                         {{$detalle_venta[0]->tipo_nombre}}
@@ -167,7 +167,7 @@
                 {{-- consulta para saber si es factura o recibo --}}
                 <td colspan="2" align="center">
                     <h3>
-                        ORDEN #{{$detalle_venta[0]->id}}<br>
+                        ORDEN #{{$detalle_venta[0]->nro_venta}}<br>
                         {{date('d/m/Y H:i:s')}}<br>
                         {{$detalle_venta[0]->tipo_nombre}}
                     </h3><hr>

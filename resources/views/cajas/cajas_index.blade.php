@@ -21,23 +21,21 @@
                     <div class="col-md-12">
                         <div class="panel panel-bordered">
                             <div class="panel-body">
-                                <form id="form-search" method="get" class="form-search" action="#">
-                                    <div id="search-input">
-                                        <select id="search_key" class="form-control" name="key">
-                                            <option value="c.fecha_apertura">Fecha de apertura</option>
-                                            {{-- <option value="u.name">Usuario</option>
-                                            <option value="eg.monto">Monto</option> --}}
-                                        </select>
-                                        <div class="input-group col-md-12">
-                                            <input type="text" id="search_value" class="form-control" placeholder="Ingresar busqueda..." name="s" value="{{$valor}}">
-                                            <span class="input-group-btn">
-                                                <button class="btn btn-info btn-lg" type="submit">
-                                                    <i class="voyager-search"></i>
-                                                </button>
-                                            </span>
-                                        </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="col-md-8"></div>
+                                        <form id="form-search" class="form-search">
+                                            <div class="input-group col-md-4">
+                                                <input type="date" id="search_value" class="form-control" name="s" value="{{$value}}">
+                                                <span class="input-group-btn">
+                                                    <button class="btn btn-default" style="margin-top:0px;padding:5px 10px" type="submit">
+                                                        <i class="voyager-search"></i>
+                                                    </button>
+                                                </span>
+                                            </div>
+                                        </form>
                                     </div>
-                                </form>
+                                </div>
                                 <div class="table-responsive">
                                     <table id="dataTable" class="table table-bordered table-hover">
                                         <thead>
@@ -131,12 +129,11 @@
                 // enviar formulario de busqueda
                 $('#form-search').on('submit', function(e){
                     e.preventDefault();
-                    let clave = $('#search_key').val();
                     let valor = $("#search_value").val();
                     if(valor==''){
-                        valor = 'todos';
+                        valor = 'all';
                     }
-                    window.location = `{{url('admin/cajas/lista/buscar/${clave}/${valor}')}}`;
+                    window.location = `{{url('admin/cajas/buscar/${valor}')}}`;
                 });
 
                 // set valor de cerrar caja
@@ -145,11 +142,6 @@
                 });
 
             });
-
-            let clave = '{{$clave}}';
-            if(clave!=''){
-                $('#search_key').val(clave);
-            }
 
             // error al eliminar un ingreso si la caja ya cerro
             function mensaje_error(){

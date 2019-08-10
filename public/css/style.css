@@ -49,10 +49,10 @@
     border: 1px solid #818e99 !important;
 }
 
-.select2 {
-    border: 1px solid #818e99 !important;
-}
-
 .table>thead>tr>th {
     background: #e6eef7 !important;
 } */
+
+.select2 {
+    border: 1px solid #c7c7c7 !important;
+}

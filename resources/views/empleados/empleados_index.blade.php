@@ -25,7 +25,7 @@
                                         <div class="col-md-8"></div>
                                         <form id="form-search" class="form-search">
                                             <div class="input-group col-md-4">
-                                                <input type="text" id="search_value" class="form-control" name="s" value="{{$value}}" placeholder="Ingresar busqueda...">
+                                                <input type="text" id="search_value" class="form-control" name="s" value="{{$value}}" placeholder="Nombre o movil">
                                                 <span class="input-group-btn">
                                                     <button class="btn btn-default" style="margin-top:0px;padding:5px 10px" type="submit">
                                                         <i class="voyager-search"></i>
@@ -161,7 +161,7 @@
                 $('#form-search').on('submit', function(e){
                     e.preventDefault();
                     let value = (escape($('#search_value').val())!='') ? escape($('#search_value').val()) : 'all';
-                    window.location = '{{url("admin/sucursales/buscar")}}/'+value;
+                    window.location = '{{url("admin/empleados/buscar")}}/'+value;
                 });
             });
         </script>

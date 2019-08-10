@@ -21,34 +21,27 @@ class EcommerceController extends Controller
         $registros = DB::table('productos as p')
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
                             ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
-                            ->select('p.id', 'p.nombre', 's.nombre as subcategoria', 'e.id as ecommerce_id', 'e.updated_at', 'e.escasez', 'e.precio_envio', 'e.precio_envio_rapido', 'e.tags')
+                            ->select('p.id', 'p.nombre', 'p.imagen', 's.nombre as subcategoria', 'e.id as ecommerce_id', 'e.updated_at', 'e.escasez', 'e.precio_envio', 'e.precio_envio_rapido', 'e.tags')
                             ->where('e.deleted_at', NULL)
                             ->paginate(10);
-        $imagenes = [];
-        if(count($registros)>0){
-            // Obtener imagenes del producto
-            foreach ($registros as $item) {
-                $producto_imagen = DB::table('producto_imagenes')
-                            ->select('imagen')
-                            ->where('producto_id', $item->id)
-                            ->where('tipo', 'principal')
-                            ->first();
-                if($producto_imagen){
-                    $imagen = $producto_imagen->imagen;
-                }else{
-                    $imagen = '';
-                }
-                array_push($imagenes, ['nombre' => $imagen]);
-            }
-        }
         $value = '';
 
-        return view('inventarios/ecommerce/ecommerce_index', compact('registros', 'imagenes', 'value'));
+        return view('inventarios/ecommerce/ecommerce_index', compact('registros', 'value'));
     }
 
     public function search($value)
     {
-
+        $value = ($value != 'all') ? $value : '';
+        $registros = DB::table('productos as p')
+                            ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                            ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
+                            ->select('p.id', 'p.nombre', 'p.imagen', 's.nombre as subcategoria', 'e.id as ecommerce_id', 'e.updated_at', 'e.escasez', 'e.precio_envio', 'e.precio_envio_rapido', 'e.tags')
+                            ->whereRaw("p.deleted_at is null and
+                                            (p.codigo like '%".$value."%' or
+                                            s.nombre like '%".$value."%')
+                                        ")
+                            ->paginate(10);
+        return view('inventarios/ecommerce/ecommerce_index', compact('registros', 'value'));
     }
 
     public function view($id){

@@ -27,7 +27,6 @@
                                 <input type="hidden" name="uso_id" value="1">
                                 {{-- </datos por defecto> --}}
                                 <input type="hidden" name="deposito_id" value="{{$depositos->id}}">
-                                <input type="hidden" name="stock" value="0">
                                 <input type="hidden" name="codigo_grupo" value="{{$codigo_grupo}}">
                                 <div class="panel-body strong-panel">
                                     <div class="row">
@@ -46,8 +45,8 @@
                                             </div>
                                             <div class="row">
                                                 <div class="form-group col-md-6">
-                                                    <label for="">Código</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Código de identificación del producto. Este campo es obligatorio."></span> @endif
-                                                    <input type="text" name="codigo_interno" class="form-control" placeholder="Código del producto" required>
+                                                    <label for="">Código</label> @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="right" title="Código de identificación del producto. Este campo no es obligatorio."></span> @endif
+                                                    <input type="text" name="codigo_interno" class="form-control" placeholder="Código del producto">
                                                 </div>
                                                 <div class="form-group col-md-6">
                                                     <label for="">Moneda</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Moneda de comercialización del producto. Este campo es obligatorio."></span> @endif
@@ -90,6 +89,18 @@
                                                 <div class="form-group col-md-6">
                                                     <label for="">Modelo</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Modelo del producto. Este campo es obligatorio."></span> @endif
                                                     <input type="text" name="modelo" class="form-control" placeholder="Modelo del producto" required>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="form-group col-md-12">
+                                                    <label for="">Cantidad</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Cantidad de productos en stock. Este campo es obligatorio."></span> @endif
+                                                    <input type="number" name="stock" class="form-control" value="{{ old('stock') ? old('stock') : 0 }}" min="0" step="1" required>
+                                                    <div  style="position:absolute;right:15px;top:27px">
+                                                        <input type="checkbox" name="se_almacena" data-toggle="toggle" data-on="<small>Se almacena</small> <span class='voyager-check'></span>" data-off="<small>Se almacena</small> <span class='voyager-x'></span>">
+                                                    </div>
+                                                    @error('stock')
+                                                    <strong class="text-danger">{{ $message }}</strong>
+                                                    @enderror
                                                 </div>
                                             </div>
                                         </div>
@@ -144,14 +155,14 @@
                                 <div class="panel-body">
                                     <table class="table table-bordered">
                                         <thead>
-                                            <th>Precio @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Precio de compra del producto. Este campo es obligatorio."></span> @endif</th>
-                                            <th>Cantidad mínima @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Cantidad mínima de compra para tener dicho precio. Este campo es obligatorio."></span> @endif</th>
+                                            <th>Precio @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="right" title="Precio de compra del producto. Este campo no es obligatorio."></span> @endif</th>
+                                            <th>Cantidad mínima @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="right" title="Cantidad mínima de compra para tener dicho precio. Este campo no es obligatorio."></span> @endif</th>
                                             <th></th>
                                         </thead>
                                         <tbody id="tr-precioCompra">
                                             <tr>
-                                                <td><input type="number" min="1" step="0.1" class="form-control" name="monto[]" required></td>
-                                                <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_compra[]" required></td>
+                                                <td><input type="number" min="1" step="0.1" class="form-control" name="monto[]" ></td>
+                                                <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_compra[]" ></td>
                                                 <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
                                             </tr>
                                         </tbody>

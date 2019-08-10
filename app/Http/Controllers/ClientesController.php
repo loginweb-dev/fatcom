@@ -42,6 +42,35 @@ class ClientesController extends Controller
         return view('clientes.clientes_index', compact('registros', 'users', 'value'));
     }
 
+    public function search($value)
+    {
+        $value = ($value != 'all') ? $value : '';
+        $registros = DB::table('clientes as c')
+                            ->select('c.*')
+                            ->where('c.deleted_at', NULL)
+                            ->whereRaw("c.id > 1 and
+                                            (c.razon_social like '%".$value."%' or
+                                             c.nit like '%".$value."%' or
+                                             c.movil like '%".$value."%')
+                                        ")
+                            ->paginate(10);
+        $users = [];
+        foreach ($registros as $item) {
+            $aux =  DB::table('users as u')
+                            ->select('u.*')
+                            ->where('u.cliente_id', $item->id)
+                            ->first();
+            if($aux){
+                $user = ['usuario'=>$aux->name,'email'=>$aux->email,'avatar'=>$aux->avatar,'tipo_login'=>$aux->tipo_login];
+            }else{
+                $user = ['usuario'=>'No definido','email'=>'No definido','avatar'=>'','tipo_login'=>''];
+            }
+            array_push($users, $user);
+        }
+
+        return view('clientes.clientes_index', compact('registros', 'users', 'value'));
+    }
+
     public function list(){
         return Cliente::where('deleted_at', NULL)->select(DB::raw("id, CONCAT(razon_social, CASE WHEN movil is NULL THEN '' ELSE CONCAT(' CEL:', movil) END) as nombre"))->get();
     }

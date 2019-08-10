@@ -123,6 +123,7 @@
         @if(count($ofertas)>0)
             @php
                 $cantidad = count($ofertas)<4 ? count($ofertas) : 4;
+                $size_image = count($ofertas)>=2 ? '_small.' : '_medium.';
             @endphp
             <br>
             <h4 class="display-6">Productos en Oferta <small> <a href="{{ route('ofertas_ecommerce') }}" class="link-page">(Ver más)</a></small> </h4><br>
@@ -133,7 +134,7 @@
                 @endphp
                 @foreach ($ofertas as $item)
                     @php
-                        $imagen = ($item->imagen!='') ? str_replace('.', '_medium.', $item->imagen) : 'productos/default.png';
+                        $imagen = ($item->imagen!='') ? str_replace('.', $size_image, $item->imagen) : 'productos/default.png';
                     @endphp
                     <div class="item-slide link-page" style="cursor:pointer" onclick="window.location='{{route('detalle_producto_ecommerce', ['producto'=>$item->slug])}}'">
                         <figure class="card card-product">
@@ -161,7 +162,7 @@
             $cont = 0;
         @endphp
         @forelse ($subcategoria_productos as $item)
-            <h4 class="display-6">{{ $item->nombre }} <small> <a href="{{route('categorias_ecommerce', ['id'=>$item->id])}}" class="link-page">(Ver más)</a></small> </h4><br>
+            <h4 class="display-6">{{ $item->nombre }} <small> <a href="{{route('subcategorias_ecommerce', ['subcategoria'=>$item->slug])}}" class="link-page">(Ver más)</a></small> </h4><br>
             <!-- ============== slick slide items  ============= -->
             @php
                 $cantidad = count($productos_categoria[$cont])<4 ? count($productos_categoria[$cont]) : 4;

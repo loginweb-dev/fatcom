@@ -25,7 +25,7 @@
                                         <div class="col-md-8"></div>
                                         <form id="form-search" class="form-search">
                                             <div class="input-group col-md-4">
-                                                <input type="text" id="search_value" class="form-control" name="s" value="{{$value}}" placeholder="Ingresar busqueda...">
+                                                <input type="text" id="search_value" class="form-control" name="s" value="{{$value}}" placeholder="Cliente, tipo o estado">
                                                 <span class="input-group-btn">
                                                     <button class="btn btn-default" style="margin-top:0px;padding:5px 10px" type="submit">
                                                         <i class="voyager-search"></i>
@@ -39,7 +39,8 @@
                                     <table id="dataTable" class="table table-bordered table-hover">
                                         <thead>
                                             <tr>
-                                                <th>Ticket</th>
+                                                <th>N&deg; venta</th>
+                                                <th>N&deg; ticket</th>
                                                 <th>Tipo</th>
                                                 <th>Fecha</th>
                                                 <th>Cliente</th>
@@ -55,9 +56,10 @@
                                             @endphp
                                             @forelse ($registros as $item)
                                                 <tr>
-                                                    <td>#{{$item->id}}</td>
+                                                    <td>{{$item->id}}</td>
+                                                    <td>#{{$item->nro_venta}}</td>
                                                     <td><ins class="text-{{$item->tipo_etiqueta}}" style="font-weight:bold">{{$item->tipo_nombre}}</ins></td>
-                                                    <td>{{date('d-m-Y', strtotime($item->fecha))}} {{date('H:i', strtotime($item->created_at))}} <br> <small>{{\Carbon\Carbon::parse($item->created_at)->diffForHumans()}}</small> </td>
+                                                    <td>{{date('d-m-Y H:i', strtotime($item->created_at))}} <br> <small>{{\Carbon\Carbon::parse($item->created_at)->diffForHumans()}}</small> </td>
                                                     <td>{{$item->cliente}}</td>
                                                     <td>{{$item->importe_base}}</td>
                                                     {{-- Calcular si el cluente debe --}}

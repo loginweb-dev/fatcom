@@ -44,25 +44,69 @@
                                     <hr style="margin:0;">
                                     <div class="row">
                                         <div class="col-md-6" style="margin:0px">
-                                            <div class="panel-heading" style="border-bottom:0;">
-                                                <h3 class="panel-title">Inicio</h3>
-                                            </div>
-                                            <div class="panel-body" style="padding-top:0;">
-                                                <p>{{date('d-m-Y', strtotime($oferta->inicio))}} <br> <small>{{\Carbon\Carbon::parse($oferta->inicio)->diffForHumans()}}</small></p>
-                                            </div>
+                                            @switch($oferta->tipo_duracion)
+                                                @case('rango')
+                                                    <div class="panel-heading" style="border-bottom:0;">
+                                                        <h3 class="panel-title">Inicio</h3>
+                                                    </div>
+                                                    <div class="panel-body" style="padding-top:0;">
+                                                        <p>{{date('d-m-Y', strtotime($oferta->inicio))}} <br> <small>{{\Carbon\Carbon::parse($oferta->inicio)->diffForHumans()}}</small></p>
+                                                    </div>
+                                                    @break
+                                                @case('semanal')
+                                                    <div class="panel-heading" style="border-bottom:0;">
+                                                        <h3 class="panel-title">Tipo</h3>
+                                                    </div>
+                                                    <div class="panel-body" style="padding-top:0;">
+                                                        <p>{{ucwords($oferta->tipo_duracion)}}</p>
+                                                    </div>
+                                                    @break
+                                                @case('mensual')
+                                                    <div class="panel-heading" style="border-bottom:0;">
+                                                        <h3 class="panel-title">Tipo</h3>
+                                                    </div>
+                                                    <div class="panel-body" style="padding-top:0;">
+                                                        <p>{{ucwords($oferta->tipo_duracion)}}</p>
+                                                    </div>
+                                                    @break
+                                                @default
+                                            @endswitch
                                         </div>
                                         <div class="col-md-6" style="margin:0px">
-                                            <div class="panel-heading" style="border-bottom:0;">
-                                                <h3 class="panel-title">Fin</h3>
-                                            </div>
-                                            <div class="panel-body" style="padding-top:0;">
-                                                @if($oferta->fin!='')
-                                                <p>{{date('d-m-Y', strtotime($oferta->fin))}} <br> <small>{{\Carbon\Carbon::parse($oferta->fin)->diffForHumans()}}</small></p>
-                                                @else
-                                                <p>No definido</p>
-                                                @endif
-
-                                            </div>
+                                            @switch($oferta->tipo_duracion)
+                                                @case('rango')
+                                                    <div class="panel-heading" style="border-bottom:0;">
+                                                        <h3 class="panel-title">Fin</h3>
+                                                    </div>
+                                                    <div class="panel-body" style="padding-top:0;">
+                                                        @if($oferta->fin!='')
+                                                        <p>{{date('d-m-Y', strtotime($oferta->fin))}} <br> <small>{{\Carbon\Carbon::parse($oferta->fin)->diffForHumans()}}</small></p>
+                                                        @else
+                                                        <p>No definido</p>
+                                                        @endif
+                                                    </div>
+                                                    @break
+                                                @case('semanal')
+                                                    <div class="panel-heading" style="border-bottom:0;">
+                                                        <h3 class="panel-title">Concurrecia</h3>
+                                                    </div>
+                                                    <div class="panel-body" style="padding-top:0;">
+                                                        @php
+                                                            $dia = array('', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo');
+                                                        @endphp
+                                                        <p>Cada {{$dia[$oferta->dia]}}</p>
+                                                    </div>
+                                                    @break
+                                                @case('mensual')
+                                                    <div class="panel-heading" style="border-bottom:0;">
+                                                        <h3 class="panel-title">Concurrecia</h3>
+                                                    </div>
+                                                    <div class="panel-body" style="padding-top:0;">
+                                                        <p>Cada {{$oferta->dia}}</p>
+                                                    </div>
+                                                    @break
+                                                @default
+                                            @endswitch
                                         </div>
                                     </div>
                                     <hr style="margin:0;"><br>

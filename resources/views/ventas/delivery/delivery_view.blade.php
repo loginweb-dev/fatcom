@@ -1,18 +1,24 @@
 @extends('voyager::master')
 @section('page_title', 'Viendo pedido')
 
-@if(auth()->user()->hasPermission('browse_ventasdelivery'))
+@if(auth()->user()->hasPermission('browse_repartidordelivery'))
     @section('page_header')
         <h1 class="page-title">
             <i class="voyager-harddrive"></i> Pedido de {{$pedido->razon_social}}
-            @if(auth()->user()->hasPermission('delivery_close'))
-            <a href="{{route('delivery_close', ['id' => $id])}}" class="btn btn-info btn-small">
-                <i class="voyager-check"></i> <span>Entregado</span>
-            </a>
-            @endif
             <a href="{{route('delivery_index')}}" class="btn btn-warning btn-small">
                 <i class="voyager-list"></i> <span>Volver a la lista</span>
             </a>
+            @if ($repartidor_pedido->estado == 1)
+                @if(auth()->user()->hasPermission('delivery_close'))
+                <a href="{{route('delivery_close', ['id' => $id])}}" class="btn btn-info btn-small">
+                    <i class="voyager-check"></i> <span>Entregar</span>
+                </a>
+                @endif
+            @else
+            <a href="#" disabled class="btn btn-primary btn-small">
+                <i class="voyager-check"></i> <span>Entregado</span>
+            </a>
+            @endif
         </h1>
         <br>
     @stop

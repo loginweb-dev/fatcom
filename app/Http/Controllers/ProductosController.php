@@ -10,6 +10,8 @@ use App\Http\Controllers\LoginwebController as LW;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManagerStatic as Image;
 
+use App\Http\Controllers\OfertasController as Ofertas;
+
 use App\Categoria;
 use App\Subcategoria;
 use App\Uso;
@@ -50,22 +52,6 @@ class ProductosController extends Controller
                     $precio = ['precio' => 0, 'unidad' => 'No definida'];
                 }
                 array_push($precios, $precio);
-
-                // // Obtener stock actual del producto en todos los deposito
-                // $productos_depositos = DB::table('productos_depositos as d')
-                //                         ->select(DB::raw('sum(d.stock) as stock'))
-                //                         ->where('producto_id', $item->id)
-                //                         ->first();
-                // if($productos_depositos){
-                //     if($productos_depositos->stock){
-                //         $cantidad = ['cantidad' => $productos_depositos->stock];
-                //     }else{
-                //         $cantidad = ['cantidad' => 0];
-                //     }
-                // }else{
-                //     $cantidad = ['cantidad' => 0];
-                // }
-                // array_push($cantidades, $cantidad);
             }
         }
 
@@ -79,10 +65,10 @@ class ProductosController extends Controller
         $registros = DB::table('productos as p')
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
                             ->select('p.*', 's.nombre as subcategoria')
-                            ->whereRaw("
-                                            p.codigo like '%".$value."%' or
+                            ->whereRaw("p.deleted_at is null and
+                                            (p.codigo like '%".$value."%' or
                                             p.nombre like '%".$value."%' or
-                                            s.nombre like '%".$value."%'
+                                            s.nombre like '%".$value."%')
                                         ")
                             ->paginate(10);
         $precios = [];
@@ -665,34 +651,6 @@ class ProductosController extends Controller
             $producto->precio_minimo = $precio_minimo;
             $producto->save();
 
-            // $query = DB::table('productos')
-            //     ->insert([
-            //         'codigo_interno' => $data->codigo_interno,
-            //         'nombre' => $data->nombre,
-            //         'descripcion_small' => $data->descripcion_small,
-            //         'descripcion_long' => $data->descripcion_long,
-            //         'estante' => $data->estante,
-            //         'bloque' => $data->bloque,
-            //         'stock' => $data->stock,
-            //         'garantia' => $data->garantia,
-            //         // 'stock_minimo' => $data->stock_minimo,
-            //         'subcategoria_id' => $data->subcategoria_id,
-            //         'marca_id' => $data->marca_id,
-            //         'talla_id' => $data->talla_id,
-            //         'color_id' => $data->color_id,
-            //         'genero_id' => $data->genero_id,
-            //         'moneda_id' => $data->moneda_id,
-            //         'modelo' => $data->modelo,
-            //         'uso_id' => $data->uso_id,
-            //         'codigo_grupo' => $data->codigo_grupo,
-            //         'nuevo' => $nuevo,
-            //         'se_almacena' => $se_almacena,
-            //         'precio_venta' => $precio_venta,
-            //         'precio_minimo' => $precio_minimo,
-            //         // 'created_at' => Carbon::now(),
-            //         // 'updated_at' => Carbon::now()
-            //     ]);
-
             // Obtener el ultmimo ingresado
             $producto_id = Producto::all()->last()->id;
             // $producto_id = $this->ultimo_producto();
@@ -840,10 +798,23 @@ class ProductosController extends Controller
     public function get_producto($id){
         $producto = DB::table('productos as p')
                             ->join('producto_unidades as pu', 'pu.producto_id', 'p.id')
-                            ->select('p.*', 'pu.precio')
+                            ->select('p.id', 'p.nombre', 'precio')
                             ->where('p.id', $id)
                             ->first();
+
         if($producto){
+            // Obtener si el producto está en oferta
+            $oferta = (new Ofertas)->obtener_oferta($producto->id);
+            $precio_venta = $producto->precio;
+            if($oferta){
+                if($oferta->tipo_descuento=='porcentaje'){
+                    $precio_venta -= ($precio_venta*($oferta->monto/100));
+                }else{
+                    $precio_venta -= $oferta->monto;
+                }
+                $producto->precio = $precio_venta;
+            }
+
             return response()->json($producto);
         }else{
             return null;

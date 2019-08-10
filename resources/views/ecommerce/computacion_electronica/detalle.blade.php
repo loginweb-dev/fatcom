@@ -2,7 +2,7 @@
 
 @section('meta-datos')
     <title>{{$producto->nombre}}</title>
-    <meta property="og:url"           content="{{route('detalle_producto_ecommerce', ['id' => $id])}}" />
+    <meta property="og:url"           content="{{route('detalle_producto_ecommerce', ['producto' => $producto->slug])}}" />
     <meta property="og:type"          content="E-Commerce" />
     <meta property="og:title"         content="{{$producto->nombre}}" />
     <meta property="og:description"   content=" {{$producto->descripcion_small}}" />
@@ -75,7 +75,7 @@
                         @if($oferta)
                         @php
                             $monto_ahorro = $precio_venta-$precio_actual;
-                            $porcentaje_ahorro = ($monto_ahorro*100)/$precio_venta;
+                            $porcentaje_ahorro = round(($monto_ahorro*100)/$precio_venta, 0, PHP_ROUND_HALF_UP);
                         @endphp
                         <dl class="row">
                             <dt class="col-sm-3">Ahorras</dt>
@@ -165,15 +165,15 @@
                         <a style="margin:5px" href="{{url('carrito/agregar/comprar').'/'.$id}}" class="btn  btn-outline-warning link-page"> Comprar ahora </a>
                         <hr>
                         {{-- Compartir por Facebook --}}
-                        <div class="fb-like" data-href="{{route('detalle_producto_ecommerce', ['id' => $id])}}" data-width="" data-layout="button_count" data-action="like" data-size="large" data-show-faces="true" data-share="true"></div>
+                        <div class="fb-like" data-href="{{route('detalle_producto_ecommerce', ['producto' => $producto->slug])}}" data-width="" data-layout="button_count" data-action="like" data-size="large" data-show-faces="true" data-share="true"></div>
                         {{-- Compratir por Whatsapp --}}
                         {{-- <br><br> --}}
                         @if($dispositivo=='pc')
-                        <a style="margin-top:-21px" href="https://api.whatsapp.com/send?phone=&text={{route('detalle_producto_ecommerce', ['id' => $id])}}&source=&data=" title="Compartir vía WhatsApp" class="btn btn-success btn-sm" target="_blank">
+                        <a style="margin-top:-21px" href="https://api.whatsapp.com/send?phone=&text={{route('detalle_producto_ecommerce', ['producto' => $producto->slug])}}&source=&data=" title="Compartir vía WhatsApp" class="btn btn-success btn-sm" target="_blank">
                             WhatsApp <i class="fab fa-whatsapp"></i>
                         </a>
                         @else
-                            <a style="margin-top:-22px" href="whatsapp://send?text={{route('detalle_producto_ecommerce', ['id' => $id])}}" class="btn btn-success btn-sm"title="Compartir vía WhatsApp"  target="_blank">
+                            <a style="margin-top:-22px" href="whatsapp://send?text={{route('detalle_producto_ecommerce', ['producto' => $producto->slug])}}" class="btn btn-success btn-sm"title="Compartir vía WhatsApp"  target="_blank">
                                 WhatsApp <i class="fab fa-whatsapp"></i>
                             </a>
                         @endif
@@ -198,7 +198,7 @@
         @endif
         <div>
             <div class="card card-filter">
-                <div class="fb-comments" data-href="{{route('detalle_producto_ecommerce', ['id' => $id])}}" data-width="" data-numposts="5"></div>
+                <div class="fb-comments" data-href="{{route('detalle_producto_ecommerce', ['producto' => $producto->slug])}}" data-width="" data-numposts="5"></div>
             </div>
         </div>
     </main>
@@ -215,7 +215,7 @@
                         <figcaption class="text-wrap">
                             <p class="title b">{{$item['nombre']}}</p>
                             <button class="btn btn-warning btn-sm" type="button" title="Agregar al carrito de compra" onclick="agregar({{$item['id']}})"> <i class="fa fa-shopping-cart"></i> </button>
-                            <a href="{{route('detalle_producto_ecommerce', ['id'=>$item['id']])}}" title="Detalles" class="btn btn-primary btn-sm link-page"> <i class="fa fa-list"></i> </a>
+                            <a href="{{route('detalle_producto_ecommerce', ['id'=>$item['slug']])}}" title="Detalles" class="btn btn-primary btn-sm link-page"> <i class="fa fa-list"></i> </a>
                         </figcaption>
                     </figure>
                 @endforeach

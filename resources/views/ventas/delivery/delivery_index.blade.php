@@ -1,7 +1,7 @@
 @extends('voyager::master')
 @section('page_title', 'Delivery')
 
-@if(auth()->user()->hasPermission('browse_ventasdelivery'))
+@if(auth()->user()->hasPermission('browse_repartidordelivery'))
     @section('page_header')
         <h1 class="page-title">
             <i class="voyager-harddrive"></i> Pedidos asignados
@@ -51,9 +51,9 @@
                                                     {{-- <td>{{$item->importe_base}}</td> --}}
                                                     <td>{{date('d-m-Y', strtotime($item->created_at))}} <br> <small>{{\Carbon\Carbon::parse($item->created_at)->diffForHumans()}}</small> </td>
                                                     <td>
-                                                        @switch($item->venta_estado_id)
-                                                            @case(4) <label class="label label-dark">Enviado</label> @break
-                                                            @case(5) <label class="label label-primary">Entregado</label> @break
+                                                        @switch($item->estado)
+                                                            @case(1) <label class="label label-dark">Enviado</label> @break
+                                                            @case(2) <label class="label label-primary">Entregado</label> @break
                                                             @default
                                                         @endswitch
                                                     </td>
@@ -140,7 +140,7 @@
                 $('#form-search').on('submit', function(e){
                     e.preventDefault();
                     let value = (escape($('#search_value').val())!='') ? escape($('#search_value').val()) : 'all';
-                    window.location = '{{url("admin/productos/buscar")}}/'+value;
+                    window.location = '{{url("admin/repartidor/delivery/buscar")}}/'+value;
                 });
             });
 

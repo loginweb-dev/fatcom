@@ -24,11 +24,7 @@ class SucursalesController extends Controller
                             ->where('deleted_at', NULL)
                             ->paginate(10);
         $value = '';
-        if( LW::userAgent()=='pc'){
-            return view('inventarios/sucursales/sucursales_index', compact('registros', 'value'));
-        }else{
-            return view('inventarios/sucursales/sucursales_index_movil', compact('registros', 'value'));
-        }
+        return view('inventarios/sucursales/sucursales_index', compact('registros', 'value'));
     }
 
     public function search($value)
@@ -44,12 +40,7 @@ class SucursalesController extends Controller
                                             s.direccion like '%".$value."%'
                                         )")
                             ->paginate(10);
-
-        if( LW::userAgent()=='pc'){
-            return view('inventarios/sucursales/sucursales_index', compact('registros', 'value'));
-        }else{
-            return view('inventarios/sucursales/sucursales_index_movil', compact('registros', 'value'));
-        }
+        return view('inventarios/sucursales/sucursales_index', compact('registros', 'value'));
     }
 
     public function view($id){
@@ -58,19 +49,11 @@ class SucursalesController extends Controller
                             ->where('deleted_at', NULL)
                             ->where('id', $id)
                             ->first();
-        if( LW::userAgent()=='pc'){
-            return view('inventarios/sucursales/sucursales_view', compact('registro', 'id'));
-        }else{
-            return view('inventarios/sucursales/sucursales_view_movil', compact('registro', 'id'));
-        }
+        return view('inventarios/sucursales/sucursales_view', compact('registro', 'id'));
     }
 
     public function create(){
-        if( LW::userAgent()=='pc'){
-            return view('inventarios/sucursales/sucursales_create');
-        }else{
-            return view('inventarios/sucursales/sucursales_create_movil');
-        }
+        return view('inventarios/sucursales/sucursales_create');
     }
 
     public function store(Request $data){
@@ -111,11 +94,7 @@ class SucursalesController extends Controller
                             ->where('deleted_at', NULL)
                             ->where('id', $id)
                             ->first();
-        if( LW::userAgent()=='pc'){
-            return view('inventarios/sucursales/sucursales_edit', compact('registro'));
-        }else{
-            return view('inventarios/sucursales/sucursales_edit_movil', compact('registro'));
-        }
+        return view('inventarios/sucursales/sucursales_edit', compact('registro'));
     }
 
     public function update(Request $data){
