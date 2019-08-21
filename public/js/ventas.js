@@ -1,9 +1,15 @@
 // Obtener nit de cliente
 $('#select-cliente_id').change(function(){
     let razon_social = $(this).val();
-    let nit = $('#select-cliente_id option:selected').data('nit');
-    if(razon_social!=''){
-        $('#input-nit').val(nit);
+    $.get(`../clientes/datos/${razon_social}`, function(data){
+        $('#input-nit').val(data.nit);
+    });
+
+    // Si se elige un cliente se debe desbloquear el modal del mapa
+    if (razon_social == 1) {
+        $('#check-domicilio').attr('disabled', true);
+    }else{
+        $('#check-domicilio').removeAttr('disabled');
     }
 });
 
@@ -28,6 +34,12 @@ function borrarTr(num){
 
 // Calcular subtotal
 function subtotal(id){
+    // Si la cantidad ingresada supera el stock, se mostrará una alerta y se pondrá el monto del stock en la cantidad
+    if(parseInt($('#input-cantidad_'+id).val()) > parseInt($('#input-cantidad_'+id).prop('max'))){
+        $('#input-cantidad_'+id).val($('#input-cantidad_'+id).prop('max'))
+            toastr.warning('La cantidad ingresada supera el stock existente del producto.', 'Atención');
+    }
+
     let precio = ($(`#input-precio_${id}`).val()!='') ? parseFloat($(`#input-precio_${id}`).val()) : 0;
     let cantidad = ($(`#input-cantidad_${id}`).val()!='') ? parseFloat($(`#input-cantidad_${id}`).val()) : 0;
     $(`#subtotal-${id}`).html(`<h4>${(precio*cantidad).toFixed(2)} Bs.</h4>`);

@@ -11,6 +11,7 @@
 @section('content')
 <form id="form" action="{{route('ventas_store')}}" method="post">
     <div class="page-content browse container-fluid">
+        <br>
         @if(!$abierta)
         <div class="alert alert-warning">
             <strong>Atención:</strong>
@@ -19,6 +20,15 @@
         @endif
         @include('voyager::alerts')
         <div class="row">
+            <div class="col-md-4 pull-right">
+                <label for="">Sucursal actual</label>
+                <select name="sucursal_id" id="select-sucursal_id" class="form-control">
+                    @foreach ($sucursales as $item)
+                    <option value="{{$item->id}}">{{$item->nombre}}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="clearfix"></div>
             <div class="col-md-8">
                 <div class="panel panel-bordered">
                     <div class="panel-body" id="panel-productos" style="padding:0px">
@@ -53,12 +63,13 @@
                             <div class="row">
                                 <div class="form-group col-md-12">
                                     <label>Nombre completo</label>
-                                    <select name="cliente_id" class="form-control select2" id="select-cliente_id">
-                                        {{-- <option value="1">--Ninguno--</option>
-                                        @foreach ($clientes as $item)
-                                        <option value="{{$item->id}}" data-nit="{{$item->nit}}">{{$item->razon_social}}</option>
-                                        @endforeach --}}
-                                    </select>
+                                    <div class="input-group">
+                                        <select name="cliente_id" class="form-control select2" id="select-cliente_id">
+                                        </select>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-primary" style="margin-top:0px;padding:8px" type="button" title="Ver filtros" data-toggle="modal" data-target="#modal-nuevo_cliente" aria-expanded="true" aria-controls="collapseOne">Nuevo <span class="voyager-plus" aria-hidden="true"></span></button>
+                                        </span>
+                                    </div>
                                 </div>
                                 <div class="form-group col-md-12">
                                     <label>NIT/CI</label>
@@ -166,7 +177,6 @@
                     <div id="contenedor_mapa">
                         <div id="map"></div>
                     </div>
-
                     <input type="hidden" name="lat" id="latitud" >
                     <input type="hidden" name="lon" id="longitud">
                     <input type="hidden" name="coordenada_id" id="input-coordenada_id">
@@ -179,9 +189,39 @@
             </div>
         </div>
     </div>
-
-
 </form>
+
+{{-- Modal nuevo cliente --}}
+<form id="form-nuevo_cliente" action="" method="post">
+    <div class="modal modal-info fade" tabindex="-1" id="modal-nuevo_cliente" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"><i class="voyager-person"></i> Nuevo cliente</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="">Nombre o razón social</label>@if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Nombre completo o razón social del cliente. este campo es obligatorio."></span> @endif
+                        <input type="text" name="razon_social" class="form-control" placeholder="Ingrese el nombre o razón social del cliente" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="">NIT o CI</label>@if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="NIT o CI del cliente. este campo no es obligatorio."></span> @endif
+                        <input type="text" name="nit" class="form-control" placeholder="Ingrese el NIT o CI del cliente">
+                    </div>
+                    <div class="form-group">
+                        <label for="">Movil</label>@if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Número de celular del cliente. este campo no es obligatorio."></span> @endif
+                        <input type="text" name="movil" class="form-control" placeholder="Ingrese el número de celular del cliente">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" class="btn btn-primary pull-right"value="Aceptar">
+                    <button type="button" class="btn btn-default pull-right" id="btn-cancel-map" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
 @include('partials.modal_load')
 {{-- Variables PHP para inicializar la vista --}}
 @php
@@ -214,13 +254,26 @@
         let costo_envio = {{intval(setting('delivery.costo_envio'))}};
         let marcador = {};
         $(document).ready(function(){
+            $('#select-sucursal_id').val({{$sucursal_actual}});
+            $('#select-sucursal_id').select2();
+
             $('[data-toggle="tooltip"]').tooltip();
+            // Deshabilitar el boton del mapa por defecto
+            $('#check-domicilio').attr('disabled', true);
+
             // Obtener lista de clientes
             $.get('{{route("clientes_list")}}', function(data){
-                select2_reload('cliente_id', data, false)
+                select2_reload('cliente_id', data, false, 1)
             });
+            
             // productos_categoria({{$categoria_id}});
             productos_buscar();
+
+            // Cambiar sucursal actual
+            $('#select-sucursal_id').change(function(){
+                let id = $(this).val();
+                window.location = '{{ url("admin/sucursales/cambiar") }}/'+id;
+            });
 
             // Botones de desplazamiento
             let defecto = $('#panel-productos').offset();
@@ -245,64 +298,73 @@
                 $('#check-factura').attr('disabled', true);
             @endif
 
-            // formulario de envio de venta
-            $('#form').on('submit', function(e){
-                $('#btn-vender').attr('disabled', true);
-                $('#modal_load').modal('show');
+            // formulario de nuevo cliente
+            $('#form-nuevo_cliente').on('submit', function(e){
                 e.preventDefault();
-                let datos = $(this).serialize();
+                let datos = $('#form-nuevo_cliente').serialize();
                 $.ajax({
-                    url: "{{route('ventas_store')}}",
+                    url: "{{url('admin/clientes/ventas/create')}}",
                     type: 'post',
                     data: datos,
                     success: function(data){
-                        if(data){
-                            if(data=='error 1'){
-                                toastr.error('Venta no realizada, el cliente seleccionado tiene un pedido pendiente.', 'Error');
-                            }else{
-                                let id = data;
-                                toastr.success('Venta registrada correctamente.', 'Exito');
-                                // Factura
-                                @if($tamanio=='rollo')
-                                    $.get("{{url('admin/venta/impresion/rollo')}}/"+id, function(){});
-                                @else
-                                    window.open("{{url('admin/venta/impresion/normal')}}/"+id, "Factura", `width=700, height=400`)
-                                @endif
-                                
-                                $('#form')[0].reset();
-                                $('.tr-detalle').remove();
-                                $(".label-subtotal").text('0.00');
-                                $("#label-total").text('0.00 Bs.');
-                                $('#check-domicilio').bootstrapToggle('off');
-                                $('#check-llevar').bootstrapToggle('off');
-                                $('#check-factura').bootstrapToggle('off');
-                                inicializar_select2_simple('producto_id')
-
-                                // Reload select de clientes pendiente
-
-                                // resetear panel de productos
-                                @if(count($categorias)>0)
-                                // $('.li-item').removeClass('active');
-                                // $('#li-'+{{$categoria_id}}).addClass('active');
-                                // productos_categoria({{$categoria_id}})
-                                @endif
-
-                                // Obtener lista de clientes
-                                $.get('{{route("clientes_list")}}', function(data){
-                                    select2_reload('cliente_id', data, false)
-                                });
-                            }
-                        }else{
-                            toastr.error('Ocurrio un error al ingresar la venta.', 'Error');
-                        }
-                        $('#modal_load').modal('hide');
-                        $('#btn-vender').removeAttr('disabled');
+                        let id = data.id;
+                        $.get('{{route("clientes_list")}}', function(data){
+                            select2_reload('cliente_id', data, false, id);
+                            $('#modal-nuevo_cliente').modal('hide');
+                            toastr.success('Cliente registrado correctamente.', 'Exito');
+                        });
                     },
-                    error: function(error){
-                        console.log(error);
-                    }
+                    error: () => console.log(error)
                 });
             });
+
+            // formulario de envio de venta
+            // $('#form').on('submit', function(e){
+            //     $('#btn-vender').attr('disabled', true);
+            //     $('#modal_load').modal('show');
+            //     e.preventDefault();
+            //     let datos = $(this).serialize();
+            //     $.ajax({
+            //         url: "{{route('ventas_store')}}",
+            //         type: 'post',
+            //         data: datos,
+            //         success: function(data){
+            //             if(data){
+            //                 if(data=='error 1'){
+            //                     toastr.error('Venta no realizada, el cliente seleccionado tiene un pedido pendiente.', 'Error');
+            //                 }else{
+            //                     let id = data;
+            //                     toastr.success('Venta registrada correctamente.', 'Exito');
+            //                     // Factura
+            //                     @if($tamanio=='rollo')
+            //                         $.get("{{url('admin/venta/impresion/rollo')}}/"+id, function(){});
+            //                     @else
+            //                         window.open("{{url('admin/venta/impresion/normal')}}/"+id, "Factura", `width=700, height=400`)
+            //                     @endif
+                                
+            //                     $('#form')[0].reset();
+            //                     $('.tr-detalle').remove();
+            //                     $(".label-subtotal").text('0.00');
+            //                     $("#label-total").text('0.00 Bs.');
+            //                     $('#check-domicilio').bootstrapToggle('off');
+            //                     $('#check-llevar').bootstrapToggle('off');
+            //                     $('#check-factura').bootstrapToggle('off');
+            //                     inicializar_select2_simple('producto_id')
+
+            //                     // Obtener lista de clientes
+            //                     $.get('{{route("clientes_list")}}', function(data){
+            //                         select2_reload('cliente_id', data, false, 1);
+            //                     });
+            //                 }
+            //             }else{
+            //                 toastr.error('Ocurrio un error al ingresar la venta.', 'Error');
+            //             }
+            //             $('#modal_load').modal('hide');
+            //             $('#btn-vender').removeAttr('disabled');
+            //         },
+            //         error: () => console.log(error)
+            //     });
+            // });
 
             // anular o activar mesa si no es para llevar
             $('#check-llevar').change(function() {
@@ -407,9 +469,16 @@
 
         });
 
+        function agregar_producto(id){
+            $.get("{{url('admin/productos/get_producto')}}/"+id, function(data){
+                let stock = data.se_almacena ? data.stock : 1000;
+                agregar_detalle_venta(data.id, data.nombre, data.precio, stock, '', '');
+            });
+        }
+
         var adicional_id = '';
         var adicional_nombre = '';
-        function combinar_producto(id, nombre, precio, stock,){
+        function combinar_producto(id, nombre){
             if(adicional_id==''){
                 $('#producto-'+id).css('border', '5px solid #096FA9')
                 adicional_id = id;
@@ -421,14 +490,17 @@
                     adicional_nombre = '';
                 }else{
                     $('#producto-'+adicional_id).css('border', 'none')
-                    agregar_detalle_restaurante(id, nombre, precio, stock, adicional_id, adicional_nombre)
+                    $.get("{{url('admin/productos/get_producto')}}/"+id, function(data){
+                        let stock = data.se_almacena ? data.stock : 1000;
+                        agregar_detalle_venta(data.id, data.nombre, data.precio, stock, adicional_id, adicional_nombre);
+                    });
                     adicional_id = '';
                 }
             }
         }
 
         // Agregar detalle de venta
-        function agregar_detalle_restaurante(id, nombre, precio, stock, adicional_id, adicional_nombre){
+        function agregar_detalle_venta(id, nombre, precio, stock, adicional_id, adicional_nombre){
             if(stock<1){
                 toastr.warning('La cantidad de producto ingresada sobrepasa la existente.', 'Atención');
                 return false;
@@ -449,8 +521,6 @@
             @endif
 
             if(existe){
-                // $(`#tr-${id}_${adicional_id} .label-precio`).html(`<input type="hidden" value="${cantidad}" name="cantidad[]">${cantidad}`);
-                // $(`#subtotal-${id}_${adicional_id}`).html(`<h5>${precio*cantidad} Bs.</h5>`);
                 toastr.warning('El producto ya se encuentra en la lista.', 'Atención');
             }else{
                 $('#detalle_venta').before(`<tr class="tr-detalle" id="tr-${id}_${adicional_id}" data-id="${id}_${adicional_id}">
@@ -462,7 +532,7 @@
                                                         <span class="input-group-addon">Bs.</span>
                                                     </div>
                                                 </td>
-                                                <td><input type="number" min="1" step="1" class="form-control" id="input-cantidad_${id}_${adicional_id}" value="1" name="cantidad[]" onchange="subtotal('${id}_${adicional_id}');calcular_cambio()" onkeyup="subtotal('${id}_${adicional_id}');calcular_cambio()" required></td>
+                                                <td><input type="number" min="1" max="${stock}" step="1" class="form-control" id="input-cantidad_${id}_${adicional_id}" value="1" name="cantidad[]" onchange="subtotal('${id}_${adicional_id}');calcular_cambio()" onkeyup="subtotal('${id}_${adicional_id}');calcular_cambio()" required></td>
                                                 <td class="label-subtotal" id="subtotal-${id}_${adicional_id}"><h4>${precio} Bs.</h4></td>
                                                 <td width="40px"><label onclick="borrarTr('${id}_${adicional_id}')" class="text-danger" style="cursor:pointer;font-size:20px"><span class="voyager-trash"></span></label></td>
                                             <tr>`);
@@ -476,7 +546,7 @@
 
         // mostrar Buscador de productos
         function productos_buscar(id){
-            $('#tab1').html(`  <div style="height:270px" class="text-center">
+            $('#tab1').html(`  <div style="height:370px" class="text-center">
                                     <br><br><br>
                                     <img src="{{ voyager_asset('images/load.gif') }}" width="100px">
                                 </div>`);
@@ -492,7 +562,7 @@
 
         // mostrar los productos de la categoria seleccionada
         function productos_categoria(id){
-            $('#tab1').html(`  <div style="height:270px" class="text-center">
+            $('#tab1').html(`  <div style="height:370px" class="text-center">
                                     <br><br><br>
                                     <img src="{{ voyager_asset('images/load.gif') }}" width="100px">
                                 </div>`);

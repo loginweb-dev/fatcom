@@ -7,9 +7,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
+use App\Producto;
 use App\Proveedore;
 use App\Compra;
 use App\IeCaja;
+use App\IeAsiento;
+use App\ProductosDeposito;
 
 use App\Http\Controllers\ProveedoresController as Proveedores;
 
@@ -42,9 +45,8 @@ class ComprasController extends Controller
     }
 
     public function store(Request $data){
-        dd($data);
         // Si se envió un NIT crear nuevo proveedor
-        if($data->nit!=''){
+        if(!empty($data->nit)){
             $proveedor = (new Proveedores)->get_proveedor($data->nit);
             if(!$proveedor){
                 $proveedor = new Proveedore;
@@ -79,6 +81,33 @@ class ComprasController extends Controller
         $compra->save();
         $compra_id = Compra::all()->last()->id;
 
+        $asiento_creado = null;
+        if($data->crear_asiento){
+            $monto_caja = IeCaja::find($data->crear_asiento)->monto_final;
+            if($data->importe_base <= $monto_caja){
+                // Crear asiento
+                $asiento = new IeAsiento;
+                $asiento->concepto = 'Compra realizada';
+                $asiento->monto = $data->importe_base;
+                $asiento->tipo = 'egreso';
+                $asiento->fecha = date('Y-m-d');
+                $asiento->hora = date('H:i:s');
+                $asiento->user_id =  Auth::user()->id;
+                $asiento->caja_id = $data->crear_asiento;
+                $asiento->compra_id = $compra_id;
+                $asiento->save();
+
+                // Actualizar datos de egresos en la caja
+                DB::table('ie_cajas')->where('id', $data->crear_asiento)->decrement('monto_final', $data->importe_base);
+                DB::table('ie_cajas')->where('id', $data->crear_asiento)->increment('total_egresos', $data->importe_base);
+                
+                $asiento_creado = 'success';
+            }else{
+                $asiento_creado = 'error';
+            }
+        }
+        // dd($data);
+
         // Ingresar detalle de compra
         if($compra_id!=''){
             for ($i=0; $i < count($data->producto); $i++) {
@@ -92,23 +121,41 @@ class ComprasController extends Controller
                             'created_at' => Carbon::now(),
                             'updated_at' => Carbon::now()
                         ]);
-                    // if($data->compra_mercaderia==1){
-                    //     if(isset($data->nro_factura)){
-                    //         DB::table('productos_depositos')
-                    //                 ->where('producto_id', $data->producto[$i])
-                    //                 ->where('deposito_id', $data->deposito_id)
-                    //                 ->increment('cantidad_compra', $data->cantidad[$i]);
-                    //     }else{
-                    //         DB::table('productos_depositos')
-                    //                 ->where('producto_id', $data->producto[$i])
-                    //                 ->where('deposito_id', $data->deposito_id)
-                    //                 ->increment('cantidad_adicional', $data->cantidad[$i]);
-                    //     }
 
-                    // }
+                    // Verificar si es compra de productos para incrementar su stock    
+                    if($data->compra_productos){
+                        // Si el producto ya está registrado en el almacen se incrementará, caso contrario se creara un nuevo registro
+                        $pd = ProductosDeposito::where('deposito_id', $data->deposito_id)->where('producto_id', $data->producto[$i])->first();
+                        if(!$pd){
+                            $pd = new ProductosDeposito;
+                            $pd->deposito_id = $data->deposito_id;
+                            $pd->producto_id = $data->producto[$i];
+                            $pd->stock = !isset($data->nro_factura) ? $data->cantidad[$i] : 0;
+                            $pd->stock_compra = isset($data->nro_factura) ? $data->cantidad[$i] : 0;
+                            $pd->stock_inicial = $data->cantidad[$i];
+                            $pd->save();
+                        }else{
+                            $campo_stock = isset($data->nro_factura) ? 'stock_compra' : 'stock';
+                            DB::table('productos_depositos')
+                                    ->where('producto_id', $data->producto[$i])
+                                    ->where('deposito_id', $data->deposito_id)
+                                    ->increment($campo_stock, $data->cantidad[$i]);
+                        }
+                        $producto = Producto::find($data->producto[$i]);
+                        $producto->stock = $data->cantidad[$i];
+                        $producto->save();
+                    }
                 }
             }
-            return redirect()->route('compras_index')->with(['message' => 'Compra registrada exitosamente.', 'alert-type' => 'success']);
+            if($asiento_creado){
+                if($asiento_creado == 'success'){
+                    return redirect()->route('compras_index')->with(['message' => 'Compra y asiento de compra registrado exitosamente.', 'alert-type' => 'success']);
+                }else{
+                    return redirect()->route('compras_index')->with(['message' => 'La compra fué registrada exitosamente, pero no se registró como un egreso de la caja debido a que el monto de compra es mayor al monto en caja.', 'alert-type' => 'warning']);
+                }
+            }else{
+                return redirect()->route('compras_index')->with(['message' => 'Compra registrada exitosamente.', 'alert-type' => 'success']);
+            }
         }else{
             return redirect()->route('compras_index')->with(['message' => 'Ocurrio un error al registrar la compra.', 'alert-type' => 'error']);
         }
@@ -120,27 +167,20 @@ class ComprasController extends Controller
                         ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
                         ->join('categorias as c', 'c.id', 's.categoria_id')
                         ->select('p.*', 's.nombre as subcategoria')
-                        // ->where('deleted_at', NULL)
+                        ->where('p.deleted_at', NULL)
+                        ->where('p.se_almacena', '<>', NULL)
                         ->orderBy('c.id', 'DESC')
                         ->get();
         // dd($productos);
         $categorias = [];
         $subcategorias = [];
-        // dd($productos);
+        $marcas = [];
+        $tallas = [];
+
         if($tipo=='normal'){
             return view('compras.compras_normal');
         }else{
-            switch (setting('admin.modo_sistema')) {
-                case 'restaurante':
-                    return view('compras.restaurante.compras_productos', compact('productos', 'categorias', 'subcategorias'));
-                    break;
-                case 'normal':
-
-                    break;
-                default:
-                    # code...
-                    break;
-            }
+            return view('compras.compras_productos', compact('productos', 'categorias', 'subcategorias', 'marcas', 'tallas'));
         }
 
     }
@@ -148,3 +188,4 @@ class ComprasController extends Controller
 
 
 }
+

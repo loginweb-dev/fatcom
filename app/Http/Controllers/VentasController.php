@@ -15,6 +15,9 @@ use App\Cliente;
 use App\ClientesCoordenada;
 use App\RepartidoresPedido;
 use App\User;
+use App\Sucursale;
+use App\UsersSucursale;
+use App\Producto;
 
 
 use App\Http\Controllers\ProductosController as Productos;
@@ -192,6 +195,18 @@ class VentasController extends Controller
                             ->select('value')
                             ->where('id', 26)
                             ->first()->value;
+        // Obtener ultima sucursal del usuario
+        $sucursal_user = DB::table('users_sucursales')->select('sucursal_id')->where('user_id', Auth::user()->id)->first();
+        if($sucursal_user){
+            $sucursal_actual = $sucursal_user->sucursal_id;
+        }else{
+            $sucursal_actual = Sucursale::all()->first()->id;
+            UsersSucursale::create([
+                'user_id' => Auth::user()->id,
+                'sucursal_id' => $sucursal_actual,
+            ]);
+        }
+
         $categorias = DB::table('categorias as c')
                             ->join('subcategorias as s', 's.categoria_id', 'c.id')
                             ->join('productos as p', 'p.subcategoria_id', 's.id')
@@ -199,14 +214,12 @@ class VentasController extends Controller
                             // ->where('p.deleted_at', NULL)
                             ->distinct()
                             ->get();
-        // $clientes = DB::table('clientes as c')
-        //                 ->select('c.*')
-        //                 ->where('c.deleted_at', NULL)
-        //                 ->where('c.id', '>', 1)
-        //                 ->get();
+
+        $sucursal_user = DB::table('users_sucursales')->select('sucursal_id')->where('user_id', Auth::user()->id)->first();
         $aux = DB::table('ie_cajas as c')
                             ->select('c.*')
                             ->where('c.abierta', 1)
+                            ->where('c.sucursal_id', $sucursal_user->sucursal_id)
                             ->first();
         $abierta = false;
         $caja_id = 0;
@@ -215,50 +228,30 @@ class VentasController extends Controller
             $caja_id = $aux->id;
         }
 
+        $sucursales = Sucursale::where('deleted_at', NULL)->select('id', 'nombre')->get();
+
         $facturacion = (new Dosificacion)->get_dosificacion();
-        return view('ventas.ventas_create', compact('categorias', 'abierta', 'caja_id', 'facturacion', 'tamanio'));
+        return view('ventas.ventas_create', compact('categorias', 'abierta', 'caja_id', 'facturacion', 'tamanio', 'sucursales', 'sucursal_actual'));
     }
 
     public function productos_search(){
+        $sucursal_actual = UsersSucursale::where('user_id', Auth::user()->id)->first()->sucursal_id;
+
         $categorias = DB::table('categorias')
                             ->select('id', 'nombre')
                             ->where('deleted_at', NULL)
                             ->where('id', '>', 1)
                             ->get();
-        $productos = DB::table('productos as p')
-                            ->join('producto_unidades as pu', 'pu.producto_id', 'p.id')
-                            ->select('p.*', 'pu.precio')
-                            ->where('p.deleted_at', NULL)
-                            ->get();
-        $precios = [];
-        foreach ($productos as $item) {
-            // Obtener precios de venta del producto
-            $producto_unidades =  (new Productos)->obtener_precios_venta($item->id);
-            if((count($producto_unidades)>0)){
-                $precio_venta = $producto_unidades[0]->precio;
-                $unidad = $producto_unidades[0]->unidad;
 
-                // Obtener si el producto está en oferta
-                $oferta = (new Ofertas)->obtener_oferta($item->id);
-                
-                if($oferta){
-                    if($oferta->tipo_descuento=='porcentaje'){
-                        $precio_venta -= ($precio_venta*($oferta->monto/100));
-                    }else{
-                        $precio_venta -= $oferta->monto;
-                    }
-                }
-            }else{
-                $precio_venta = 0;
-                $unidad = 'No definida';
-            }
-            array_push($precios, ['precio' => $precio_venta, 'unidad' => $unidad]);
-        }
+        // Obetener lista de productos a la venta en la sucursal actual
+        $productos = (new Productos)->get_productos_venta($sucursal_actual);
         
         return view('ventas.ventas_productos_search', compact('categorias', 'productos'));
     }
 
     public function productos_categoria($id){
+        $sucursal_actual = UsersSucursale::where('user_id', Auth::user()->id)->first()->sucursal_id;
+
         $subcategorias = DB::table('subcategorias as s')
                             ->join('productos as p', 'p.subcategoria_id', 's.id')
                             ->select('s.id', 's.nombre')
@@ -266,39 +259,11 @@ class VentasController extends Controller
                             ->where('s.categoria_id', $id)
                             ->distinct()
                             ->get();
-        $productos = DB::table('categorias as c')
-                            ->join('subcategorias as s', 's.categoria_id', 'c.id')
-                            ->join('productos as p', 'p.subcategoria_id', 's.id')
-                            ->select('p.*')
-                            // ->where('deleted_at', NULL)
-                            ->where('s.categoria_id', $id)
-                            ->get();
-        $precios = [];
-        foreach ($productos as $item) {
-            // Obtener precios de venta del producto
-            $producto_unidades =  (new Productos)->obtener_precios_venta($item->id);
-            if((count($producto_unidades)>0)){
-                $precio_venta = $producto_unidades[0]->precio;
-                $unidad = $producto_unidades[0]->unidad;
 
-                // Obtener si el producto está en oferta
-                $oferta = (new Ofertas)->obtener_oferta($item->id);
-                
-                if($oferta){
-                    if($oferta->tipo_descuento=='porcentaje'){
-                        $precio_venta -= ($precio_venta*($oferta->monto/100));
-                    }else{
-                        $precio_venta -= $oferta->monto;
-                    }
-                }
-            }else{
-                $precio_venta = 0;
-                $unidad = 'No definida';
-            }
-            array_push($precios, ['precio' => $precio_venta, 'unidad' => $unidad]);
-        }
+        // Obetener lista de productos a la venta en la sucursal actual
+        $productos = (new Productos)->get_productos_venta($sucursal_actual);
 
-        return view('ventas.ventas_productos_categoria', compact('subcategorias', 'productos', 'precios'));
+        return view('ventas.ventas_productos_categoria', compact('subcategorias', 'productos'));
     }
 
     public function store(Request $data){
@@ -330,6 +295,11 @@ class VentasController extends Controller
             return 'error 1';
         }
 
+        // Si la venta es adimicilio actualizar ultima ubicación del cliente
+        if($data->venta_tipo_id == 4){
+            $this->set_ultima_ubicacion($data->cliente_id, $data->coordenada_id, $data->lat, $data->lon, $data->descripcion);
+        }
+
         // insertar y obtener ultima venta
         $venta_id = $this->crear_venta($data);
 
@@ -340,7 +310,6 @@ class VentasController extends Controller
                     DB::table('ventas_detalles')
                         ->insert([
                             'venta_id' => $venta_id,
-                            // Se realiza una suma al primer item en caso de que el costo de envío se incluya en la factura, de lo contrario el incremento es 0
                             'producto_id' => $data->producto_id[$i],
                             'precio' => $data->precio[$i],
                             'cantidad' => $data->cantidad[$i],
@@ -349,6 +318,45 @@ class VentasController extends Controller
                             'created_at' => Carbon::now(),
                             'updated_at' => Carbon::now()
                         ]);
+
+                    // Si el producto se almacena en stock descontar la cantidad vendidad
+                    if(Producto::find($data->producto_id[$i])->se_almacena){
+                        $dp = DB::table('productos_depositos')->select('stock', 'stock_compra')
+                                    ->where('producto_id', $data->producto_id[$i])->where('deposito_id', $data->sucursal_id)
+                                    ->first();
+                        
+                        // Si la venta emitió factura se descontará del stock de compra, caso contrario del stock normal
+                        // Nota:   la variable stock_secuandario se usará en caso de que el stock primario sea menor a la cantidad
+                        //         de producto a vender, para así descontarselo al otro stock y no quede con número negativo.
+                        if($data->factura){
+                            $stock = $dp->stock_compra;
+                            $stock_primario = 'stock_compra';
+                            $stock_secundario = 'stock';
+                        }else{
+                            $stock = $dp->stock;
+                            $stock_primario = 'stock';
+                            $stock_secundario = 'stock_compra';
+                        }
+
+                        // Si el stock seleccionado es menor o igual a la cantidad vendida se decrementa, sino se deja en 0
+                        // y se decrementa al stock secundario la resta entre la cantidad vendida y el stock seleccionado
+                        if($stock >= $data->cantidad[$i]){
+                            DB::table('productos_depositos')
+                                    ->where('producto_id', $data->producto_id[$i])->where('deposito_id', $data->sucursal_id)
+                                    ->decrement($stock_primario, $data->cantidad[$i]);
+                        }else{
+                            $monto_sobrante = $data->cantidad[$i] - $stock;
+                            DB::table('productos_depositos')
+                                    ->where('producto_id', $data->producto_id[$i])->where('deposito_id', $data->sucursal_id)
+                                    ->update([$stock_primario => 0]);
+                            DB::table('productos_depositos')
+                                    ->where('producto_id', $data->producto_id[$i])->where('deposito_id', $data->sucursal_id)
+                                    ->decrement($stock_secundario, $monto_sobrante);
+                        }
+
+                        // Descontar stock del registro global
+                        DB::table('productos')->where('id', $data->producto_id[$i])->decrement('stock', $data->cantidad[$i]);
+                    }
                 }
             }
 
@@ -409,7 +417,7 @@ class VentasController extends Controller
     }
 
     public function pedidos_store(Request $data){
-
+        
         if((new LandingPage)->cantidad_pedidos() > 0){
             $alerta = 'pedido_pendiente';
             return redirect()->route('carrito_compra')->with(compact('alerta'));
@@ -424,8 +432,12 @@ class VentasController extends Controller
             $user = User::where('id', Auth::user()->id)->update(['cliente_id' => $cliente->id]);
         }
 
-        // Verificar coordenada
-        $this->set_ultima_ubicacion($user->cliente_id, $data);
+        // Verificar coordenadas si el producto se entrega a domicilio
+        if(isset($data->tipo_entrega)){
+            if($data->tipo_entrega == 'domicilio'){
+                $this->set_ultima_ubicacion($data->cliente_id, $data->coordenada_id, $data->lat, $data->lon, $data->descripcion);
+            }
+        }
 
         $carrito = session()->has('carrito_compra') ? session()->get('carrito_compra') : array();
         if(count($carrito)==0){
@@ -672,15 +684,15 @@ class VentasController extends Controller
     }
 
     // Asignar la ultima ubicación de un cliente
-    public function set_ultima_ubicacion($cliente_id, $data){
+    public function set_ultima_ubicacion($cliente_id, $coordenada_id, $lat, $lon, $descripcion){
         // Verificar coordenada
         ClientesCoordenada::where('cliente_id', $cliente_id)->update(['ultima_ubicacion' => NULL]);
-        if(empty($data->coordenada_id)){
+        if(empty($coordenada_id)){
             $coordenadas = new ClientesCoordenada;
             $coordenadas->cliente_id = $cliente_id;
-            $coordenadas->lat = $data->lat;
-            $coordenadas->lon = $data->lon;
-            $coordenadas->descripcion = $data->descripcion;
+            $coordenadas->lat = $lat;
+            $coordenadas->lon = $lon;
+            $coordenadas->descripcion = $descripcion;
             $coordenadas->concurrencia = 1;
             $coordenadas->ultima_ubicacion = 1;
             $coordenadas->save();
@@ -688,24 +700,20 @@ class VentasController extends Controller
         }else{
             // Setear ubicación actual
             ClientesCoordenada::where('cliente_id', $cliente_id)
-                                ->where('id',$data->coordenada_id)
+                                ->where('id',$coordenada_id)
                                 ->update(['ultima_ubicacion' => 1]);
             // Incrementar concurrencia a ubicacion
             ClientesCoordenada::where('cliente_id', $cliente_id)
-                                ->where('id',$data->coordenada_id)
+                                ->where('id',$coordenada_id)
                                 ->increment('concurrencia', 1);
         }
     }
 
     // Función creada para utilizarla tanto para crear una venta normal o realizar un pedido por parte de un cliente
     public function crear_venta($data){
-        if($data->venta_tipo_id == 4){
-            $this->set_ultima_ubicacion($data->cliente_id, $data);
-        }
-
-        // Nota: Falta obtener datos de facturación
 
         // Filtrar datos que no existen cuando se hace un pedido
+        $sucursal_id = isset($data->sucursal_id) ? $data->sucursal_id : NULL;
         $nro_factura = isset($data->nro_factura) ? $data->nro_factura : NULL;
         $codigo_control = isset($data->codigo_control) ? $data->codigo_control : NULL;
         $nro_autorizacion = isset($data->nro_autorizacion) ? $data->nro_autorizacion : NULL;
@@ -734,6 +742,7 @@ class VentasController extends Controller
 
         $venta = new Venta;
 
+        $venta->sucursal_id = $sucursal_id;
         $venta->nro_venta = ($caja_id) ? Venta::where('caja_id', $caja_id)->count() + 1 : NULL;
         $venta->cliente_id = $data->cliente_id;
         $venta->fecha = date('Y-m-d');
@@ -770,20 +779,7 @@ class VentasController extends Controller
                             ->select('*')
                             ->where('deleted_at', NULL)
                             ->first();
-        switch (setting('admin.modo_sistema')) {
-            case 'boutique':
-
-                break;
-            case 'electronica_computacion':
-                return view('ecommerce/computacion_electronica/agradecimiento', compact('sucursal'));
-                break;
-            case 'restaurante':
-                return view('ecommerce/restaurante/agradecimiento');
-                break;
-            default:
-                # code...
-                break;
-        }
+        return view('ecommerce/agradecimiento');
     }
 
     // Ipresion de factura y recibo

@@ -145,7 +145,7 @@
                     map.removeLayer(marcador);
                     marcador = L.marker([lat, lon], {icon: iconDelivery}).addTo(map).bindPopup('Mi ubicación');
                     $.ajax({
-                        url: '{{url("admin/ventas/delivery/set_ubicacion")}}/'+id+'/'+lat+'/'+lon,
+                        url: '{{url("admin/repartidor/delivery/set_ubicacion")}}/'+id+'/'+lat+'/'+lon,
                         type: 'get',
                         success: function(data){
                         }

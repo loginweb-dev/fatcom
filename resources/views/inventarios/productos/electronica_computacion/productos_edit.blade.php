@@ -33,7 +33,7 @@
                                         <div class="col-md-6">
                                             <div class="row">
                                                 <div class="form-group col-md-12">
-                                                    <label for="">Nombre comercial</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Nombre comercial del producto. Este campo es obligatorio."></span> @endif
+                                                    <label for="">Nombre comercial</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Nombre comercial del producto. Este campo es obligatorio."></span> @endif
                                                     <input type="text" name="nombre" value="{{$producto->nombre}}" class="form-control" placeholder="Nombre del producto" required>
                                                     @error('nombre')
                                                     <strong class="text-danger">{{ $message }}</strong>
@@ -45,11 +45,11 @@
                                             </div>
                                             <div class="row">
                                                 <div class="form-group col-md-6">
-                                                    <label for="">Código</label> @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="right" title="Código de identificación del producto. Este campo no es obligatorio."></span> @endif
+                                                    <label for="">Código</label> @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Código de identificación del producto. Este campo no es obligatorio."></span> @endif
                                                     <input type="text" name="codigo_interno" value="{{$producto->codigo_interno}}" class="form-control" placeholder="Código del producto">
                                                 </div>
                                                 <div class="form-group col-md-6">
-                                                    <label for="">Moneda</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Moneda de comercialización del producto. Este campo es obligatorio."></span> @endif
+                                                    <label for="">Moneda</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Moneda de comercialización del producto. Este campo es obligatorio."></span> @endif
                                                     <select name="moneda_id" id="select-moneda_id" class="form-control select2" required>
                                                         @foreach($monedas as $item)
                                                         <option value="{{$item->id}}" >{{$item->nombre}}</option>
@@ -59,7 +59,7 @@
                                             </div>
                                             <div class="row">
                                                 <div class="form-group col-md-6">
-                                                    <label for="">Categoría</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Categoría a la que pertenece el producto. Este campo es obligatorio."></span> @endif
+                                                    <label for="">Categoría</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Categoría a la que pertenece el producto. Este campo es obligatorio."></span> @endif
                                                     <select name="categoria_id" id="select-categoria_id" class="form-control select2" required>
                                                         @foreach($categorias as $item)
                                                         <option value="{{$item->id}}" >{{$item->nombre}}</option>
@@ -67,7 +67,7 @@
                                                     </select>
                                                 </div>
                                                 <div class="form-group col-md-6">
-                                                    <label for="">Sub categoría</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Sub categoría del producto. las subcategorías se despliegan en base a la categoría seleccionada previamente. Este campo es obligatorio."></span> @endif
+                                                    <label for="">Sub categoría</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Sub categoría del producto. las subcategorías se despliegan en base a la categoría seleccionada previamente. Este campo es obligatorio."></span> @endif
                                                     <div id="div-select_subcategorias">
                                                         <select name="subcategoria_id" id="select-subcategoria_id" class="form-control select2" required>
                                                             @foreach($subcategorias as $item)
@@ -79,7 +79,7 @@
                                             </div>
                                             <div class="row">
                                                 <div class="form-group col-md-6">
-                                                    <label for="">Marca</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Marca del producto. Este campo es obligatorio."></span> @endif
+                                                    <label for="">Marca</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Marca del producto. Este campo es obligatorio."></span> @endif
                                                     <select name="marca_id" id="select-marca_id" class="form-control" required>
                                                         @foreach($marcas as $item)
                                                         <option value="{{$item->id}}" >{{$item->nombre}}</option>
@@ -87,17 +87,17 @@
                                                     </select>
                                                 </div>
                                                 <div class="form-group col-md-6">
-                                                    <label for="">Modelo</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Modelo del producto. Este campo es obligatorio."></span> @endif
+                                                    <label for="">Modelo</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Modelo del producto. Este campo es obligatorio."></span> @endif
                                                     <input type="text" name="modelo" value="{{$producto->modelo}}" class="form-control" placeholder="Modelo del producto" required>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="form-group col-md-6">
-                                                    <label for="">Garantía</label> @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="right" title="Garantía del producto. Este campo no es obligatorio."></span> @endif
+                                                    <label for="">Garantía</label> @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Garantía del producto. Este campo no es obligatorio."></span> @endif
                                                     <input type="text" name="garantia" value="{{$producto->garantia}}" class="form-control" placeholder="12 meses">
                                                 </div>
                                                 <div class="form-group col-md-6">
-                                                    <label for="">Cantidad</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Cantidad de productos en stock. Este campo es obligatorio."></span> @endif
+                                                    <label for="">Cantidad</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad de productos en stock. Este campo es obligatorio."></span> @endif
                                                     <input type="number" name="stock" readonly class="form-control" value="{{$producto->stock}}" min="0" step="1" required>
                                                     <div  style="position:absolute;right:15px;top:27px">
                                                         <input type="checkbox" id="input-se_almacena" name="se_almacena" data-toggle="toggle" data-on="<small>Se almacena</small> <span class='voyager-check'></span>" data-off="<small>Se almacena</small> <span class='voyager-x'></span>">
@@ -106,13 +106,13 @@
                                             </div>
                                             <div class="row">
                                                 <div class="form-group col-md-12">
-                                                    <label for="">Catálogo</label> @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="right" title="Catálogo del producto. Este campo no es obligatorio."></span> @endif
+                                                    <label for="">Catálogo</label> @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Catálogo del producto. Este campo no es obligatorio."></span> @endif
                                                     <input type="file" name="catalogo" class="form-control">
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="form-group col-md-12">
-                                                    <label for="" id="label-descripcion"></label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Descripción breve del producto, no debe exceder los 255 caracteres. Este campo es obligatorio."></span> @endif
+                                                    <label for="" id="label-descripcion"></label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Descripción breve del producto, no debe exceder los 255 caracteres. Este campo es obligatorio."></span> @endif
                                                     <textarea name="descripcion_small" class="form-control" id="text-descripcion" maxlength="255" rows="2" placeholder="Descripción corta del producto" required>{{$producto->descripcion_small}}</textarea>
                                                     @error('descripcion_small')
                                                     <strong class="text-danger">{{ $message }}</strong>
@@ -166,7 +166,7 @@
                                                             <h1 style="font-size:50px;margin:10px"><span class="voyager-plus"></span></h1>
                                                         </button>
                                                     </div>
-                                                    <input type="file" name="imagen[]" style="display:none" accept="image/*" multiple id="gallery-photo-add">
+                                                    <input type="file" name="imagen[]" style="display:none" accept="image/png, image/jpeg" multiple id="gallery-photo-add">
                                                 </div>
                                             </div>
                                         </div>
@@ -187,8 +187,8 @@
                                 <div class="panel-body">
                                     <table class="table table-bordered">
                                         <thead>
-                                            <th>Precio @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="right" title="Precio de compra del producto. Este campo no es obligatorio."></span> @endif</th>
-                                            <th>Cantidad mínima @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="right" title="Cantidad mínima de compra para tener dicho precio. Este campo no es obligatorio."></span> @endif</th>
+                                            <th>Precio @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Precio de compra del producto. Este campo no es obligatorio."></span> @endif</th>
+                                            <th>Cantidad mínima @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad mínima de compra para tener dicho precio. Este campo no es obligatorio."></span> @endif</th>
                                             <th></th>
                                         </thead>
                                         <tbody id="tr-precioCompra">
@@ -229,8 +229,8 @@
                                 <div class="panel-body">
                                     <table class="table table-bordered">
                                         <thead>
-                                            <th>Precio @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Precio de venta del producto. Este campo es obligatorio."></span> @endif</th>
-                                            <th>Cantidad mínima @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Cantidad mínima de venta para tener dicho precio. Este campo es obligatorio."></span> @endif</th>
+                                            <th>Precio @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Precio de venta del producto. Este campo es obligatorio."></span> @endif</th>
+                                            <th>Cantidad mínima @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad mínima de venta para tener dicho precio. Este campo es obligatorio."></span> @endif</th>
                                             <th></th>
                                         </thead>
                                         <tbody id="tr-precioVenta">
@@ -273,7 +273,7 @@
                                         <a class="panel-action panel-collapsed voyager-angle-down" data-toggle="panel-collapse" aria-hidden="true"></a>
                                     </div>
                                 </div>
-                                <div class="panel-body collapse">
+                                <div class="panel-body @if($producto->descripcion_long == '') collapse @endif">
                                     <div class="form-group">
                                         <textarea class="form-control richTextBox" name="descripcion_long" row="3">{{$producto->descripcion_long}}</textarea>
                                     </div>
@@ -323,10 +323,13 @@
                 $('#select-marca_id').val('{{$producto->marca_id}}');
                 $('#select-moneda_id').val('{{$producto->moneda_id}}');
 
-                $('#select-categoria_id').select2();
-                $('#select-subcategoria_id').select2();
-                $('#select-marca_id').select2();
+                // $('#select-categoria_id').select2();
+                // $('#select-subcategoria_id').select2();
+                // $('#select-marca_id').select2();
                 $('#select-moneda_id').select2();
+                inicializar_select2('categoria_id');
+                inicializar_select2('subcategoria_id');
+                inicializar_select2('marca_id');
 
                 // cambiar imagen principal
                 $('.img-gallery').click(function(){
@@ -353,7 +356,7 @@
                             url: '{{url("admin/subcategorias/list/categoria")}}/'+id,
                             type: 'get',
                             success: function(response){
-                                select2_reload_simple('subcategoria_id', response);
+                                select2_reload_simple('subcategoria_id', response, false, '');
                             }
                         });
                     }

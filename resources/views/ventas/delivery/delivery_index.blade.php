@@ -145,7 +145,7 @@
             });
 
             function verDetalle(id){
-                window.location = "{{url('admin/ventas/delivery/view/')}}/"+id;
+                window.location = "{{url('admin/repartidor/delivery/view/')}}/"+id;
             }
         </script>
     @stop

@@ -216,8 +216,8 @@
                                 if ($('#check-clear').prop("checked")) {
                                     $('#form').trigger("reset");
                                     $('#form input[name="codigo_grupo"]').val(data.nuevo_grupo);
-                                    select2_reload('subcategoria_id', data.subcategorias);
-                                    select2_reload('marca_id', data.marcas);
+                                    select2_reload('subcategoria_id', data.subcategorias, false, '');
+                                    select2_reload('marca_id', data.marcas, false, '');
                                     $('.box').css('background-image', "url('{{url('storage/productos/default.png')}}')");
                                 }
                                 // =================================

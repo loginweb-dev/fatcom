@@ -63,7 +63,7 @@
                                                     @else
                                                     <td>{{$item->id}}</td>
                                                     @endif
-                                                    <td>{{$item->nombre}}</td>
+                                                    <td>{{$item->nombre}} <br> <small>{{\Carbon\Carbon::parse($item->created_at)->diffForHumans()}}</small> </td>
                                                     <td>{{$item->subcategoria}}</td>
                                                     <td>{{$precios[$cont]['precio']}}</td>
                                                     {{-- <td>{{$cantidades[$cont]['cantidad']}}</td> --}}

@@ -1,5 +1,5 @@
 @extends('voyager::master')
-@section('page_title', 'Editar producto de E-Commerce')
+@section('page_title', 'Editar producto del E-Commerce')
 
 @if(auth()->user()->hasPermission('edit_ecommerce'))
     @section('page_header')
@@ -15,39 +15,71 @@
         <div class="page-content">
             <form name="form" action="{{route('ecommerce_update')}}" method="post">
                 @csrf
+                <input type="hidden" name="id" value="{{$ecommerce->id}}">
+                <input type="hidden" name="producto_id" value="{{$ecommerce->producto_id}}">
                 <div class="page-content browse container-fluid">
                     <div class="row">
                         <div class="col-md-12">
                             <div class="panel panel-bordered">
-                                <div class="panel-body">
+                                <div class="panel-body" style="padding-top:0px">
                                     <div class="row">
-                                        <div class="col-md-6">
-                                            <label for="">Producto</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Producto que se agregará al E-Commerce. Este campo es obligatorio."></span> @endif
-                                            <input type="text" class="form-control" disabled value="{{$ecommerce->nombre}}">
-                                            <input type="hidden" name="id" value="{{$ecommerce->id}}">
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label for="">Mostrar escasez</label> @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="bottom" title="Cuando el stock del producto sea menor o igual al número ingresado en este campo, se mostrará un mensaje en el E-Commerce haciendo notar que hay pocas unidades del producto. Este campo no es obligatorio."></span> @endif
-                                            <input type="number" min="0" step="1" class="form-control" id="input-escasez" name="escasez" value="{{$ecommerce->escasez}}">
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label for="">Costo envío</label> @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="bottom" title="Costo de envío del producto en caso de que la compra sea en la ciudad actual. Este campo no es obligatorio."></span> @endif
-                                            <input type="number" min="0" step="0.1" class="form-control" id="input-envio" name="envio" value="{{$ecommerce->precio_envio}}">
-                                        </div>
-                                        <div class="col-md-2">
-                                            <label for="">Costo envío rápido</label> @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="bottom" title="Costo de envío rápido del producto en caso de que la compra sea en la ciudad actual. Este campo no es obligatorio."></span> @endif
-                                            <input type="number" min="0" step="0.1" class="form-control" id="input-envio_rapido" name="envio_rapido" value="{{$ecommerce->precio_envio_rapido}}">
+                                        <div class="col-md-12">
+                                            <label for="">Producto</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Producto que se agregará al E-Commerce. Este campo es obligatorio."></span> @endif
+                                            <h4>{{$ecommerce->nombre}}</h4>
                                         </div>
                                         <div class="col-md-12">
                                             <div class="input-group">
                                                 <input type="text" id="input-tags" data-role="tagsinput" class="form-control" name="tags" value="{{$ecommerce->tags}}" placeholder="Etiquetas">
-                                                <span class="input-group-addon">
-                                                        @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="left" title="Palabras claves que asociarán el producto con otros para hacer recomendaciones a la hora de buscar en el E-Commerce. Este campo no es obligatorio."></span> @endif
+                                                <span class="input-group-addon" style="margin-top:0px;padding:7px">
+                                                    @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="left" title="Palabras claves que asociarán el producto con otros para hacer recomendaciones a la hora de buscar en el E-Commerce. Este campo no es obligatorio."></span> @endif
                                                 </span>
                                             </div>
                                         </div>
                                     </div>
-                                    <br>
+                                    <hr>
+                                    <h4>Costos de envío @if(setting('admin.tips')) <span style="font-size:15px" class="voyager-question text-default" data-toggle="tooltip" data-placement="right" title="Costos de envío del producto a las diferentes localidades, si el producto no se envía a esa localidad dejar el campo vacío y si el envío es gratis ingresar 0. Este campo no es obligatorio."></span> @endif</h4>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Departamento</th>
+                                                            <th>Localidad</th>
+                                                            <th style="width:200px">Precio</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach ($localidades as $item)
+
+                                                        @php
+                                                            $costo = '';
+                                                            foreach ($envios as $envio) {
+                                                                if($envio->localidad_id == $item->id){
+                                                                    $costo = $envio->precio;
+                                                                }
+                                                            }
+                                                        @endphp
+
+                                                        <tr>
+                                                            <td>
+                                                                {{$item->departamento}}
+                                                                <input type="hidden" name="localidad_id[]" value="{{$item->id}}" class="form-control">
+                                                            </td>
+                                                            <td>{{$item->localidad}}</td>
+                                                            <td>
+                                                                <div class="input-group">
+                                                                    <input type="number" name="precio[]" value="{{$costo}}" class="form-control">
+                                                                    <span class="input-group-addon" style="margin-top:0px;padding:7px">Bs.</span>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="panel-footer">
                                     <button type="button" id="btn-submit" class="btn btn-primary">Guardar</button>
@@ -72,7 +104,6 @@
     @stop
 
     @section('javascript')
-        <script src="{{url('image-preview/image-preview.js')}}"></script>
         <script src="{{url('input-multiple/bootstrap-tagsinput.js')}}"></script>
         <script src="{{url('input-multiple/app.js')}}"></script>
         <script src="{{url('js/loginweb.js')}}"></script>

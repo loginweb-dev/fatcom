@@ -71,10 +71,6 @@ class ClientesController extends Controller
         return view('clientes.clientes_index', compact('registros', 'users', 'value'));
     }
 
-    public function list(){
-        return Cliente::where('deleted_at', NULL)->select(DB::raw("id, CONCAT(razon_social, CASE WHEN movil is NULL THEN '' ELSE CONCAT(' CEL:', movil) END) as nombre"))->get();
-    }
-
     public function create(){
         return view('clientes.clientes_create');
     }
@@ -95,9 +91,9 @@ class ClientesController extends Controller
             'movil' => $data->movil
         ]);
         
-        if(!empty($data->nickname) && !empty($data->email) && !empty($data->password)){
+        if(!empty($data->email) && !empty($data->password)){
             User::create([
-                'name' => $data->nickname,
+                'name' => !empty($data->nickname) ? $data->nickname : $data->razon_social,
                 'email' => $data->email,
                 'password' => Hash::make($data->password),
                 'avatar' => 'users/default.png',
@@ -105,10 +101,13 @@ class ClientesController extends Controller
                 'cliente_id' => $cliente->id
             ]);
         }
-        if($cliente){    
-            return redirect()->route('clientes_index')->with(['message' => 'Cliente registrado exitosamente.', 'alert-type' => 'success']);
+
+        $ruta = (isset($data->permanecer)) ? 'clientes_create' : 'clientes_index';
+
+        if($cliente){
+            return redirect()->route($ruta)->with(['message' => 'Cliente registrado exitosamente.', 'alert-type' => 'success']);
         }else{
-            return redirect()->route('clientes_index')->with(['message' => 'Ocurrio un error al registrar al cliente.', 'alert-type' => 'error']);
+            return redirect()->route($ruta)->with(['message' => 'Ocurrio un error al registrar al cliente.', 'alert-type' => 'error']);
         }
     }
 
@@ -144,9 +143,9 @@ class ClientesController extends Controller
 
 
         if(empty($data->user_id)){
-            if(!empty($data->nickname) && !empty($data->email) && !empty($data->password)){
+            if(!empty($data->email) && !empty($data->password)){
                 $user = User::create([
-                            'name' => $data->nickname,
+                            'name' => !empty($data->nickname) ? $data->nickname : $data->razon_social,
                             'email' => $data->email,
                             'password' => Hash::make($data->password),
                             'avatar' => 'users/default.png',
@@ -171,5 +170,25 @@ class ClientesController extends Controller
         }else{
             return redirect()->route('clientes_index')->with(['message' => 'Ocurrio un error al editar al cliente.', 'alert-type' => 'error']);
         }
+    }
+
+    // =================================================
+
+    // Obtener lista de clientes
+    public function clientes_list(){
+        return Cliente::where('deleted_at', NULL)->select(DB::raw("id, CONCAT(razon_social, CASE WHEN movil is NULL THEN '' ELSE CONCAT(' CEL:', movil) END) as nombre"))->get();
+    }
+
+    public function get_cliente($id){
+        return Cliente::find($id);
+    }
+
+    // Crear un usuario desde el formulario de nueva venta
+    public function createUserFromVentas(Request $data){
+        return $cliente = Cliente::create([
+                                'razon_social' => $data->razon_social,
+                                'nit' => $data->nit,
+                                'movil' => $data->movil
+                            ]);
     }
 }

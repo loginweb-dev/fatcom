@@ -75,7 +75,7 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password']),
             'tipo_login' => 'register',
             'cliente_id' => $cliente->id,
-
+            'localidad_id' => $data['localidad_id']
         ]);
     }
 }

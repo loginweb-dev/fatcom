@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 use App\IeCaja;
+use App\Sucursale;
 
 class CajasController extends Controller
 {
@@ -18,20 +19,42 @@ class CajasController extends Controller
 
     // Cajas=============================================
     function cajas_index(){
-        $cajas = DB::table('ie_cajas as c')
+        
+        if(Auth::user()->role_id <= 3){
+            $cajas_abiertas = DB::table('ie_cajas as c')
+                                    ->join('sucursales as s', 's.id', 'c.sucursal_id')
+                                    ->select('c.id')
+                                    ->where('c.abierta', 1)
+                                    ->where('s.deleted_at', NULL)
+                                    ->count();
+            $cont_suscursales = Sucursale::where('deleted_at', NULL)->select('id')->count();
+
+            $abiertas = ($cajas_abiertas < $cont_suscursales) ? false : true;
+
+            $cajas = DB::table('ie_cajas as c')
                         ->select('c.*')
                         ->orderBy('id', 'DESC')
                         ->paginate(15);
-        $aux = DB::table('ie_cajas as c')
+        }else{
+            // Si el usuario no es administrador solo puede abrir la caja de la ultima sucursal en la que estuvo
+            $s_u = DB::table('users_sucursales')->select('sucursal_id')->where('user_id', Auth::user()->id)->first();
+            $sucursal_user = $s_u ? "sucursal_id = $s_u->sucursal_id" : 1;
+            
+            $abiertas = DB::table('ie_cajas as c')
                         ->select('c.*')
                         ->where('c.abierta', 1)
-                        ->first();
-        $abierta = false;
-        if($aux){
-            $abierta = true;
+                        ->whereRaw($sucursal_user)
+                        ->first() ? true : false;
+
+            $cajas = DB::table('ie_cajas as c')
+                        ->select('c.*')
+                        ->whereRaw($sucursal_user)
+                        ->orderBy('id', 'DESC')
+                        ->paginate(15);
         }
+        
         $value = '';
-        return view('cajas.cajas_index', compact('cajas', 'value', 'abierta'));
+        return view('cajas.cajas_index', compact('cajas', 'value', 'abiertas'));
     }
 
     function cajas_buscar($value){
@@ -41,15 +64,29 @@ class CajasController extends Controller
                         ->whereRaw("c.fecha_apertura like '%".$value."%'")
                         ->orderBy('c.id', 'DESC')
                         ->paginate(15);
-        $aux = DB::table('ie_cajas as c')
+        if(Auth::user()->role_id <= 3){
+            $cajas_abiertas = DB::table('ie_cajas as c')
+                                    ->join('sucursales as s', 's.id', 'c.sucursal_id')
+                                    ->select('c.id')
+                                    ->where('c.abierta', 1)
+                                    ->where('s.deleted_at', NULL)
+                                    ->count();
+            $cont_suscursales = Sucursale::where('deleted_at', NULL)->select('id')->count();
+
+            $abiertas = ($cajas_abiertas < $cont_suscursales) ? false : true;
+
+        }else{
+            // Si el usuario no es administrador solo puede abrir la caja de la ultima sucursal en la que estuvo
+            $s_u = DB::table('users_sucursales')->select('sucursal_id')->where('user_id', Auth::user()->id)->first();
+            $sucursal_user = $s_u ? "sucursal_id = $s_u->sucursal_id" : 1;
+            
+            $abiertas = DB::table('ie_cajas as c')
                         ->select('c.*')
                         ->where('c.abierta', 1)
-                        ->first();
-        $abierta = false;
-        if($aux){
-            $abierta = true;
+                        ->whereRaw($sucursal_user)
+                        ->first() ? true : false;
         }
-        return view('cajas.cajas_index', compact('cajas', 'value', 'abierta'));
+        return view('cajas.cajas_index', compact('cajas', 'value', 'abiertas'));
     }
 
     function cajas_view($id){
@@ -73,30 +110,42 @@ class CajasController extends Controller
     }
 
     function cajas_create(){
-        // $cajas = DB::table('ie_cajas')
-        //                 ->select('*')
-        //                 ->where('abierta', 1)
-        //                 ->get();
-        return view('cajas.cajas_create');
+        if(Auth::user()->role_id <= 3){
+            $sucursales = Sucursale::where('deleted_at', NULL)
+                            ->whereNotIn('id', function($q){
+                                $q->select('sucursal_id')->from('ie_cajas')->where('abierta', 1);
+                            })
+                            ->select('*')->get();
+        }else{
+            $s_u = DB::table('users_sucursales')->select('sucursal_id')->where('user_id', Auth::user()->id)->first();
+            $sucursal_user = $s_u ? "id = $s_u->sucursal_id" : 0;
+            $sucursales = Sucursale::where('deleted_at', NULL)
+                            ->whereNotIn('id', function($q){
+                                $q->select('sucursal_id')->from('ie_cajas')->where('abierta', 1);
+                            })
+                            ->whereRaw($sucursal_user)
+                            ->select('*')->get();
+        }
+        
+        return view('cajas.cajas_create', compact('sucursales'));
     }
 
-    function cajas_store(Request $datos){
+    function cajas_store(Request $data){
         // dd($datos);
-        $insert = DB::table('ie_cajas')
-                        ->insert([
-                            'created_at' => Carbon::now(),
-                            'updated_at' => Carbon::now(),
-                            'nombre' => $datos->nombre,
-                            'fecha_apertura' => $datos->fecha,
-                            'hora_apertura' => $datos->hora,
-                            'monto_inicial' => $datos->monto,
-                            'monto_final' => $datos->monto,
-                            'total_ingresos' => 0,
-                            'total_egresos' => 0,
-                            'abierta' => 1,
-                            'user_id' => Auth::user()->id
-                        ]);
-        if($insert){
+        $query = IeCaja::create([
+            'sucursal_id' => $data->sucursal_id,
+            'nombre' => $data->nombre,
+            'fecha_apertura' => $data->fecha,
+            'hora_apertura' => $data->hora,
+            'monto_inicial' => $data->monto,
+            'monto_final' => $data->monto,
+            'total_ingresos' => 0,
+            'total_egresos' => 0,
+            'abierta' => 1,
+            'user_id' => Auth::user()->id
+        ]);
+        
+        if($query){
             return redirect()->route('cajas_index')->with(['message' => 'Caja aperturada exitosamente.', 'alert-type' => 'success']);
         }else{
             return redirect()->route('cajas_index')->with(['message' => 'Ocurrio un error al aperturar la caja.', 'alert-type' => 'error']);
@@ -148,10 +197,22 @@ class CajasController extends Controller
     }
 
     function asientos_create(){
-        $cajas = DB::table('ie_cajas')
-                        ->select('*')
-                        ->where('abierta', 1)
-                        ->get();
+        if(Auth::user()->role_id <= 3){
+            $cajas = DB::table('ie_cajas as c')
+                            ->join('sucursales as s', 's.id', 'c.sucursal_id')
+                            ->select('c.*', 's.nombre as sucursal')
+                            ->where('c.abierta', 1)
+                            ->get();
+        }else{
+            $s_u = DB::table('users_sucursales')->select('sucursal_id')->where('user_id', Auth::user()->id)->first();
+            $sucursal_user = $s_u ? "s.id = $s_u->sucursal_id" : 0;
+            $cajas = DB::table('ie_cajas as c')
+                            ->join('sucursales as s', 's.id', 'c.sucursal_id')
+                            ->select('c.*', 's.nombre as sucursal')
+                            ->where('c.abierta', 1)
+                            ->whereRaw($sucursal_user)
+                            ->get();
+        }
         return view('cajas.asientos_create', compact('cajas'));
     }
 

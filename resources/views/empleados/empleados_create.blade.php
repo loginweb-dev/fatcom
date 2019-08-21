@@ -24,20 +24,20 @@
                                         <div class="col-md-12">
                                             <div class="row">
                                                 <div class="col-md-6 form-group">
-                                                    <label for="">Nombre completo</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Nombre completo del empleado, este campo es obligatorio."></span> @endif
+                                                    <label for="">Nombre completo</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Nombre completo del empleado. este campo es obligatorio."></span> @endif
                                                     <input type="text" name="nombre" class="form-control" value="{{ old('nombre') }}" placeholder="Nombre completo del empleado" required>
                                                     @error('nombre')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
                                                 </div>
                                                 <div class="col-md-6 form-group">
-                                                    <label for="">Movil</label> @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="right" title="Número de celular del empleado, este campo no es obligatorio."></span> @endif
+                                                    <label for="">Movil</label> @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Número de celular del empleado. este campo no es obligatorio."></span> @endif
                                                     <input type="number" name="movil" class="form-control" value="{{ old('movil') }}" placeholder="Número celular" maxlength="20" >
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-12 form-group">
-                                                    <label for="">Dirección</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Dirección de domicilio del empleado, este campo no es obligatorio."></span> @endif
+                                                    <label for="">Dirección</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Dirección de domicilio del empleado. este campo no es obligatorio."></span> @endif
                                                     <textarea name="direccion" id="" class="form-control" maxlength="150" required>{{ old('direccion') }}</textarea>
                                                     @error('direccion')
                                                     <strong class="text-danger">{{ $message }}</strong>
@@ -46,14 +46,14 @@
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-6 form-group">
-                                                    <label for="">Nickname</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Nombre del empleado que se visualizará cuando ingrese al sistema, este campo es obligatorio."></span> @endif
+                                                    <label for="">Nickname</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Nombre del empleado que se visualizará cuando ingrese al sistema. este campo es obligatorio."></span> @endif
                                                     <input type="text" name="nickname" class="form-control" value="{{ old('nickname') }}" placeholder="Nick name del empleado" maxlength="20" required>
                                                     @error('nickname')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
                                                 </div>
                                                 <div class="col-md-6 form-group">
-                                                    <label for="">Rol del empleado</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Rol del acceso al sistema que tendrá el empleado, este campo es obligatorio."></span> @endif
+                                                    <label for="">Rol del empleado</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Rol del acceso al sistema que tendrá el empleado. este campo es obligatorio."></span> @endif
                                                     <select name="rol_id" id="select-rol_id" class="form-control" required>
                                                         <option value="">Selecciona el rol</option>
                                                         @foreach ($roles as $item)
@@ -64,14 +64,14 @@
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-6 form-group">
-                                                    <label for="">Email</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Email del empleado que servirá para que ingrese al sistema, este campo es obligatorio."></span> @endif
+                                                    <label for="">Email</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Email del empleado que servirá para que ingrese al sistema. este campo es obligatorio."></span> @endif
                                                     <input type="email" name="email" class="form-control" value="{{ old('email') }}" placeholder="Email" maxlength="50" required>
                                                     @error('email')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
                                                 </div>
                                                 <div class="col-md-6 form-group">
-                                                    <label for="">Password</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Contraseña del empleado que servirá para que ingrese al sistema, este campo es obligatorio."></span> @endif
+                                                    <label for="">Password</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Contraseña del empleado que servirá para que ingrese al sistema. este campo es obligatorio."></span> @endif
                                                     <input type="password" name="password" class="form-control" placeholder="Password" maxlength="20" required>
                                                     @error('password')
                                                     <strong class="text-danger">{{ $message }}</strong>

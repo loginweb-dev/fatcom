@@ -6,10 +6,12 @@
         <h1 class="page-title">
             <i class="voyager-treasure"></i> Cajas
         </h1>
-        @if(auth()->user()->hasPermission('add_cajas'))
-        <a @if(!$abierta) href="{{route('cajas_create')}}" @else href="#" disabled @endif class="btn btn-success btn-add-new">
-            <i class="voyager-plus"></i> <span>Añadir nueva</span>
-        </a>
+        @if(!$abiertas)
+            @if(auth()->user()->hasPermission('add_cajas'))
+            <a  href="{{route('cajas_create')}}" class="btn btn-success btn-add-new">
+                <i class="voyager-plus"></i> <span>Añadir nueva</span>
+            </a>
+            @endif
         @endif
     @stop
 
@@ -28,7 +30,7 @@
                                             <div class="input-group col-md-4">
                                                 <input type="date" id="search_value" class="form-control" name="s" value="{{$value}}">
                                                 <span class="input-group-btn">
-                                                    <button class="btn btn-default" style="margin-top:0px;padding:5px 10px" type="submit">
+                                                    <button class="btn btn-default" style="margin-top:0px;padding:8px" type="submit">
                                                         <i class="voyager-search"></i>
                                                     </button>
                                                 </span>
@@ -64,27 +66,21 @@
                                                 {{-- <td>{{$item->monto_final}} Bs.</td> --}}
                                                 <td>{{ strftime('%d-%B-%Y %H:%M', strtotime($item->fecha_apertura.' '.$item->hora_apertura)) }}<br><small>{{  \Carbon\Carbon::parse($item->fecha_apertura.' '.$item->hora_apertura)->diffForHumans() }}</small></td>
                                                 @if($item->abierta == 1)
-                                                <td></td>
+                                                <td><b>No definido</b></td>
                                                 @else
                                                 <td>{{ strftime('%d-%B-%Y %H:%M', strtotime($item->fecha_cierre.' '.$item->hora_cierre)) }}<br><small>{{  \Carbon\Carbon::parse($item->fecha_cierre.' '.$item->hora_cierre)->diffForHumans() }}</small></td>
                                                 @endif
                                                 {{-- <td>{{$item->observaciones}}</td> --}}
                                                 <td class="no-sort no-click text-right" id="bread-actions">
+                                                    @if($item->abierta == 1)
+                                                        <span class="label label-primary">Abierta</span>
+                                                    @else
+                                                        <span class="label label-danger">Cerrada</span>
+                                                    @endif
                                                     @if(auth()->user()->hasPermission('read_cajas'))
                                                     <a href="{{route('cajas_view', ['id' => $item->id])}}" title="Ver" class="btn btn-sm btn-warning view">
                                                         <i class="voyager-eye"></i> <span class="hidden-xs hidden-sm">Ver</span>
                                                     </a>
-                                                    @endif
-                                                    @if($item->abierta == 1)
-                                                        @if(auth()->user()->hasPermission('close_cajas'))
-                                                        <a href="#" title="Cerrar" class="btn btn-sm btn-danger delete btn-close" data-id="{{$item->id}}" data-toggle="modal" data-target="#modal_close">
-                                                            <i class="voyager-x"></i> <span class="hidden-xs hidden-sm">Cerrar</span>
-                                                        </a>
-                                                        @else
-                                                        <span class="label label-success">Abierta</span>
-                                                        @endif
-                                                    @else
-                                                    <span class="label label-danger">Cerrada</span>
                                                     @endif
                                                 </td>
                                             </tr>
@@ -112,7 +108,7 @@
                 </div>
             </div>
         </div>
-        @include('cajas.modal_cerrar')
+        {{-- @include('cajas.modal_cerrar') --}}
     @stop
     @section('css')
         <style>

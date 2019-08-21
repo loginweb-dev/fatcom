@@ -42,9 +42,6 @@
                                                 <th>Nombre</th>
                                                 <th>Subcategoria</th>
                                                 <th>Tags</th>
-                                                <th>Stock mínimo <a href="#" @if(setting('admin.tips')) data-toggle="tooltip" data-placement="right" title="Cuando el stock del producto sea menor o igual al número ingresado en este campo, se mostrará un mensaje en el E-Commerce haciendo notar que hay pocas unidades del producto. Este campo no es obligatorio." @endif><span class="voyager-question"></span></a></th>
-                                                <th>Costo de envío</th>
-                                                <th>Costo de envío rápido</th>
                                                 <th>última modificación</th>
                                                 <th>Imagen</th>
                                                 <th class="actions text-right">Acciones</th>
@@ -63,27 +60,6 @@
                                                     <td>{{$item->nombre}}</td>
                                                     <td>{{$item->subcategoria}}</td>
                                                     <td>@php echo str_replace(',', '<br>', $item->tags); @endphp</td>
-                                                    <td>
-                                                        @if(!empty($item->escasez))
-                                                        {{$item->escasez}}
-                                                        @else
-                                                        No definido
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        @if(!empty($item->precio_envio))
-                                                        {{$item->precio_envio}} Bs.
-                                                        @else
-                                                        No definido
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        @if(!empty($item->precio_envio_rapido))
-                                                        {{$item->precio_envio_rapido}} Bs.
-                                                        @else
-                                                        No definida
-                                                        @endif
-                                                    </td>
                                                     <td>{{date('d-m-Y', strtotime($item->updated_at))}} <br> <small>{{\Carbon\Carbon::parse($item->updated_at)->diffForHumans()}}</small> </td>
                                                     <td><a href="{{url('storage').'/'.$imagen}}" data-fancybox="galeria1" data-caption="{{$item->nombre}}"><img src="{{url('storage').'/'.$img}}" width="50px" alt=""></a></td>
                                                     <td class="no-sort no-click text-right" id="bread-actions">

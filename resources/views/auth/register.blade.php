@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('nombre_pagina')
-    <link rel="shortcut icon" href="{{ voyager_asset('images/logo-icon.png') }}" type="image/x-icon">
     <title>Registrarse</title>
 @endsection
 
@@ -126,7 +125,7 @@
                     <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password">
                 </div>
                 <div class="form-group">
-                        <label class="form-check form-check-inline">
+                    <label class="form-check form-check-inline">
                     <input class="form-check-input" type="radio" name="gender" value="option1">
                     <span class="form-check-label"> Masculino </span>
                     </label>
@@ -135,8 +134,19 @@
                     <span class="form-check-label"> Femenino</span>
                     </label>
                 </div>
+                @php
+                    $localidades = \App\Localidade::where('deleted_at', NULL)->select('*')->get();
+                @endphp
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary btn-block"> Registrarse  </button>
+                    <label>Ubicación <small>(En caso de que tu ciudad no este en la lista agregar presione el boton <b>+</b> )</small></label>
+                    <select name="localidad_id" class="form-control" id="select-localidad_id" required>
+                        @foreach ($localidades as $item)
+                        <option value="{{$item->id}}">{{$item->departamento}} - {{$item->localidad}}</option>
+                        @endforeach
+                    </select>
+                </div><br>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-block"> Registrarse </button>
                 </div>
                 <small class="text-muted">Al hacer clic en el botón "Registrarse", usted confirma que acepta nuestros Términos de uso y Política de privacidad.</small>
             </form>
@@ -146,4 +156,13 @@
 </div>
 
 </div>
+@endsection
+
+@section('script')
+    <script src="{{url('js/loginweb.js')}}"></script>
+    <script>
+        $(document).ready(function(){
+            $('#select-localidad_id').select2();
+        });
+    </script>
 @endsection

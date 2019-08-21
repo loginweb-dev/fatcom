@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use App\Http\Controllers\LoginwebController as LW;
 
 use App\Sucursale;
+use App\UsersSucursale;
 
 class SucursalesController extends Controller
 {
@@ -118,5 +119,14 @@ class SucursalesController extends Controller
 
     public function delete(Request $data){
 
+    }
+
+    // ===================================================
+    
+    // Asignar sucursal actual del usuario
+    public function sucursal_actual($id){
+        $sucursal = UsersSucursale::where('user_id', Auth::user()->id)
+                                        ->update(['sucursal_id' => $id]);
+                                        return redirect()->route('ventas_create')->with(['message' => 'Se realizo el cambio de sucursal exitosamente.', 'alert-type' => 'success']);
     }
 }

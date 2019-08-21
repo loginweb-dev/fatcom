@@ -25,34 +25,34 @@
                                         <div class="col-md-6">
                                             <div class="col-md-12">
                                                 <div class="form-group">
-                                                    <label for="">Nombre</label>
+                                                    <label for="">Nombre</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Nombre de la sucursal, en caso de solo existir una sucursal ingresar Casa matriz. Este campo es obligatorio."></span> @endif
                                                     <input type="text" name="nombre" value="{{$registro->nombre}}" class="form-control" placeholder="Nombre de la sucursal" required>
                                                     @error('nombre')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="">Telefono</label>
+                                                    <label for="">Telefono</label>@if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Telefono de la sucursal. Este campo no es obligatorio."></span> @endif
                                                     <input type="text" name="telefono" value="{{$registro->telefono}}" class="form-control" placeholder="Telefono">
                                                     @error('telefono')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="">Celular</label>
+                                                    <label for="">Celular</label>@if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Número de celular del encargado de la sucursal. Este campo no es obligatorio."></span> @endif
                                                     <input type="text" name="celular" value="{{$registro->celular}}" class="form-control" placeholder="Celular">
                                                     @error('celular')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="">Dirección</label>
+                                                    <label for="">Dirección</label>@if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Dirección de la sucursal. Este campo no es obligatorio."></span> @endif
                                                     <textarea name="direccion"class="form-control" rows="5">{{$registro->direccion}}</textarea>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
-                                            <label>Ubicaci&oacute;n de la sucursal</label>
+                                            <label>Ubicaci&oacute;n de la sucursal</label>@if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Ubicación de la sucursal, para editar la ubicación arrastre el marcador y sueltelo sobre la ubicación deseada. Este campo es obligatorio."></span> @endif
                                             <div id="map"></div>
                                             <input type="hidden" value="{{$registro->latitud}}" name="latitud" id="latitud" >
                                             <input type="hidden" value="{{$registro->longitud}}" name="longitud" id="longitud" >
@@ -84,7 +84,7 @@
         <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
         <script>
             $(document).ready(function(){
-
+                $('[data-toggle="tooltip"]').tooltip();
             });
             //mapa
             var map = L.map('map').setView([{{$registro->latitud}}, {{$registro->longitud}}], 13);

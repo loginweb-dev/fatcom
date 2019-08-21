@@ -20,14 +20,14 @@
                                 <div class="panel-body strong-panel">
                                     @csrf
                                     <div class="form-group col-md-12">
-                                        <label for="">Nombre</label>
+                                        <label for="">Nombre</label>@if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Nombre que se asigno al deposito, en caso de solo existir un deposito ingresar Deposito casa matriz. Este campo es obligatorio."></span> @endif
                                         <input type="text" name="nombre" class="form-control" placeholder="Nombre del almacen" required>
                                         @error('nombre')
                                         <strong class="text-danger">{{ $message }}</strong>
                                         @enderror
                                     </div>
                                     <div class="form-group col-md-12">
-                                        <label for="">Dirección</label>
+                                        <label for="">Dirección</label>@if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Dirección del deposito. Este campo es obligatorio."></span> @endif
                                         <textarea name="direccion"class="form-control" rows="5"></textarea>
                                     </div>
                                     <div class="col-md-12">
@@ -51,7 +51,7 @@
     @section('javascript')
         <script>
             $(document).ready(function() {
-
+                $('[data-toggle="tooltip"]').tooltip();
             });
         </script>
     @stop

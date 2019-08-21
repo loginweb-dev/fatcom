@@ -19,7 +19,7 @@ function calcular(){
     let descuento = parseFloat($('#input-descuento').val());
     let subtotal = importe-exento;
     let credito_fiscal = (subtotal-descuento)*0.13
-    $('#input-subtotal').val(subtotal.toFixed(2));
+    $('#input-importe_compra').val(subtotal.toFixed(2));
     $('#input-importe_base').val((subtotal-descuento).toFixed(2));
     $('#input-credito_fiscal').val(credito_fiscal.toFixed(2));
 }
@@ -28,9 +28,11 @@ function calcular(){
 function calcular_subtotal(num){
     let precio = parseFloat($(`#precio-${num}`).val());
     let cantidad = parseFloat($(`#cantidad-${num}`).val());
+
     $(`#label-subtotal-${num}`).text((precio*cantidad).toFixed(2));
     total();
     calcular()
+    calcular_ganancia(num)
 }
 
 // Calcular importe total de compra
@@ -45,7 +47,7 @@ function total(){
 
 // cargar vista de detalle de compra según tipo
 function cargar_detalle(tipo, url){
-    $('#input-subtotal').val('');
+    $('#input-importe_compra').val('');
     $('#input-importe_base').val('');
     $('#input-credito_fiscal').val('');
 

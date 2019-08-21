@@ -26,6 +26,10 @@ Route::get('/login/google/callback', 'Auth\LoginController@handleProviderGoogleC
 
 Route::get('/policies', 'LandingPageController@ecommerce_policies');
 
+// Perfil de ususario
+Route::get('/profile', 'LandingPageController@profile')->name('profile');
+Route::post('/profile/update', 'LandingPageController@profile_update')->name('profile_update');
+
 // ================================Ecommerce===========================
 Route::get('/', 'LandingPageController@index')->name('ecommerce_home');
 Route::get('/detalle/{producto}', 'LandingPageController@detalle_producto')->name('detalle_producto_ecommerce');
@@ -33,6 +37,7 @@ Route::post('/search', 'LandingPageController@search')->name('busqueda_ecommerce
 Route::get('/ofertas', 'LandingPageController@ofertas')->name('ofertas_ecommerce');
 Route::get('/subcategoria/{subcategoria}', 'LandingPageController@subcategorias')->name('subcategorias_ecommerce');
 Route::get('/carrito', 'LandingPageController@carrito_index')->name('carrito_compra');
+Route::get('/carrito/get_precio/{id}/{cantidad}', 'LandingPageController@get_precio');
 Route::get('/carrito/cantidad_carrito', 'LandingPageController@cantidad_carrito')->name('cantidad_carrito');
 Route::get('/carrito/agregar/comprar/{id}', 'LandingPageController@carrito_comprar');
 Route::get('/carrito/agregar/{id}', 'LandingPageController@carrito_agregar');
@@ -59,6 +64,8 @@ Route::post('admin/sucursales/guardar', 'SucursalesController@store')->name('suc
 Route::get('admin/sucursales/editar/{id}', 'SucursalesController@edit')->name('sucursales_edit');
 Route::post('admin/sucursales/actualizar', 'SucursalesController@update')->name('sucursales_update');
 Route::post('admin/sucursales/eliminar/', 'SucursalesController@delete')->name('sucursales_delete');
+
+Route::get('admin/sucursales/cambiar/{id}', 'SucursalesController@sucursal_actual');
 
 // ================================Depositos===========================
 Route::get('admin/depositos', 'DepositosController@index')->name('depositos_index');
@@ -212,7 +219,9 @@ Route::post('admin/clientes/store', 'ClientesController@store')->name('clientes_
 Route::get('admin/clientes/editar/{id}', 'ClientesController@edit')->name('clientes_edit');
 Route::post('admin/clientes/update', 'ClientesController@update')->name('clientes_update');
 
-Route::get('admin/clientes/lista', 'ClientesController@list')->name('clientes_list');
+Route::get('admin/clientes/lista', 'ClientesController@clientes_list')->name('clientes_list');
+Route::get('admin/clientes/datos/{id}', 'ClientesController@get_cliente')->name('get_cliente');
+Route::post('admin/clientes/ventas/create', 'ClientesController@createUserFromVentas');
 
 // ============================Empleados====================================
 Route::get('admin/empleados', 'EmpleadosController@index')->name('empleados_index');
@@ -222,6 +231,11 @@ Route::post('admin/empleados/store', 'EmpleadosController@store')->name('emplead
 Route::get('admin/empleados/editar/{id}', 'EmpleadosController@edit')->name('empleados_edit');
 Route::post('admin/empleados/update', 'EmpleadosController@update')->name('empleados_update');
 Route::post('admin/empleados/delete', 'EmpleadosController@delete')->name('empleados_delete');
+
+// ============================Reportes============================
+// Graficos
+Route::get('admin/reportes/graficos', 'ReportesController@graficos_index')->name('graficos_index');
+Route::post('admin/reportes/graficos/generar', 'ReportesController@graficos_generar')->name('graficos_generar');
 
 
 // Clear cache

@@ -10,7 +10,7 @@
         @if($caja->abierta)
             @if(auth()->user()->hasPermission('close_cajas'))
             <button class="btn btn-danger btn-small btn-close" data-id="{{$caja->id}}" data-toggle="modal" data-target="#modal_close">
-                <i class="voyager-x"></i> <span>Cerrar</span>
+                <i class="voyager-lock"></i> <span>Cerrar caja</span>
             </button>
             @else
             <button type="button" class="btn btn-success btn-small">Abierta</button>

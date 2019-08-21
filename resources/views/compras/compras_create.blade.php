@@ -67,10 +67,6 @@
                                 <label>Nro de autorización</label>
                                 <input type="number" min="0" name="nro_autorizacion" class="form-control con_factura">
                             </div>
-                            {{-- <div class="form-group">
-                                <label>Importe de compra</label>
-                                <input type="number" min="1" step="0.1" name="importe_compra" class="form-control calculable" id="input-importe" required>
-                            </div> --}}
                             <div class="row">
                                 <div class="form-group col-md-6" style="margin-bottom:10px">
                                     <label>Monto exento</label>
@@ -100,7 +96,7 @@
                 <div class="col-md-12" style="margin-top:-30px">
                     <div class="panel panel-bordered">
                         <div class="panel-body">
-                            <h4 class="text-center">Detalle de la compra <button type="button" class="btn btn-success btn-sm pull-right" onclick="agregarTr()"><span class="voyager-plus"></span></button></h4>
+                            <h4 class="text-center">Detalle de la compra</h4>
                             <div class="clearfix"></div>
                             <hr style="margin-top:0px">
                             <div class="col-md-12">
@@ -114,12 +110,10 @@
                                 </ul>
                                 <div class="tab-content">
                                     <div id="tab1" class="tab-pane fade in  active ">
-                                        <div class="table-responsive" id="detalle_venta">
-                                            <br></b><h5 class="text-center">Cargando...</h5>
+                                        <div id="detalle_venta">
                                         </div>
                                     </div>
                                 </div>
-                                <input type="hidden" name="importe_compra" id="input-importe_compra" value="0">
                             </div>
                             {{--  --}}
                             <div class="row" id="table-datos_calculados">
@@ -134,7 +128,7 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td><input type="text" readonly name="sub_total" id="input-subtotal" class="form-control" value=""></td>
+                                            <td><input type="text" readonly name="importe_compra" id="input-importe_compra" class="form-control" value=""></td>
                                             <td><input type="text" readonly name="importe_base" id="input-importe_base" class="form-control" value=""></td>
                                             <td><input type="text" readonly name="credito_fiscal" id="input-credito_fiscal" class="form-control" value=""></td>
                                         </tr>
@@ -146,15 +140,15 @@
                             <input type="checkbox" id="check-crear_asiento" @if($caja) value="{{$caja->id}}" @else disabled @endif name="crear_asiento" data-toggle="tooltip" data-placement="right" title="Crear un registro de egreso en caja con el monto de la compra realizada.">
                             <label for="check-crear_asiento">Crear registro de egreso en caja</label>
                             <br>
-                            <button type="reset" id="btn-reset" class="btn btn-default">Vaciar</button>
-                            <button type="button" data-toggle="modal" data-target="#confirm_modal" class="btn btn-primary">Guardar</button>
+                            {{-- <button type="reset" id="btn-reset" class="btn btn-default">Vaciar</button> --}}
+                            <button type="submit" data-toggle="modal" data-target="#confirm_modal" class="btn btn-primary">Guardar</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         {{-- modal confirmacion --}}
-        <div class="modal modal-info fade" tabindex="-1" id="confirm_modal" role="dialog">
+        {{-- <div class="modal modal-info fade" tabindex="-1" id="confirm_modal" role="dialog">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -171,7 +165,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> --}}
     </form>
     @stop
 
@@ -268,7 +262,7 @@
 
             cargar_detalle('productos')
             function cargar_detalle(tipo){
-                $('#detalle_venta').html(`<br></b><h5 class="text-center">Cargando...</h5>`);
+                $('#detalle_venta').html('<br><h4 class="text-center">Cargando...</h4><br>');
                 $.ajax({
                     url: `{{url('admin/compras/crear')}}/`+tipo,
                     type: 'get',

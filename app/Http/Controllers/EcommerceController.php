@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Http\Controllers\LoginwebController as LW;
 
+use App\Localidade;
+use App\EcommerceProducto;
+use App\EcommerceEnvio;
+
 
 class EcommerceController extends Controller
 {
@@ -21,8 +25,9 @@ class EcommerceController extends Controller
         $registros = DB::table('productos as p')
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
                             ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
-                            ->select('p.id', 'p.nombre', 'p.imagen', 's.nombre as subcategoria', 'e.id as ecommerce_id', 'e.updated_at', 'e.escasez', 'e.precio_envio', 'e.precio_envio_rapido', 'e.tags')
+                            ->select('p.id', 'p.nombre', 'p.imagen', 's.nombre as subcategoria', 'e.id as ecommerce_id', 'e.updated_at', 'e.escasez', 'e.tags')
                             ->where('e.deleted_at', NULL)
+                            ->orderBy('e.id', 'DESC')
                             ->paginate(10);
         $value = '';
 
@@ -35,11 +40,12 @@ class EcommerceController extends Controller
         $registros = DB::table('productos as p')
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
                             ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
-                            ->select('p.id', 'p.nombre', 'p.imagen', 's.nombre as subcategoria', 'e.id as ecommerce_id', 'e.updated_at', 'e.escasez', 'e.precio_envio', 'e.precio_envio_rapido', 'e.tags')
+                            ->select('p.id', 'p.nombre', 'p.imagen', 's.nombre as subcategoria', 'e.id as ecommerce_id', 'e.updated_at', 'e.escasez', 'e.tags')
                             ->whereRaw("p.deleted_at is null and
                                             (p.codigo like '%".$value."%' or
                                             s.nombre like '%".$value."%')
                                         ")
+                            ->orderBy('e.id', 'DESC')
                             ->paginate(10);
         return view('inventarios/ecommerce/ecommerce_index', compact('registros', 'value'));
     }
@@ -60,33 +66,41 @@ class EcommerceController extends Controller
                             ->where('deleted_at', NULL)
                             ->where('id', '>', 1)
                             ->get();
+        $localidades = Localidade::where('deleted_at', NULL)->where('activo', 1)->get();
 
         $productos = DB::table('productos as p')
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
-                            ->select('p.id', 'p.nombre')
+                            ->select('p.id', 'p.nombre', 's.nombre as subcategoria')
                             // ->where('deleted_at', NULL)
                             ->whereNotIn('p.id', function($q){
                                 $q->select('producto_id')->from('ecommerce_productos')->where('deleted_at', null);
                             })
                             ->get();
-        return view('inventarios/ecommerce/ecommerce_create', compact('productos', 'categorias', 'marcas'));
+        return view('inventarios/ecommerce/ecommerce_create', compact('productos', 'categorias', 'marcas', 'localidades'));
     }
 
     public function store(Request $data){
+        // dd($data);
         $data->validate([
             'producto_id' => 'required'
         ]);
+
         for ($i=0; $i < count($data->producto_id); $i++) {
-            $query = DB::table('ecommerce_productos')
-                            ->insert([
-                                'producto_id' => $data->producto_id[$i],
-                                'escasez' => $data->escasez[$i],
-                                'precio_envio' => $data->envio[$i],
-                                'precio_envio_rapido' => $data->envio_rapido[$i],
-                                'tags' => $data->tags[$i],
-                                'created_at' => Carbon::now(),
-                                'updated_at' => Carbon::now()
-                            ]);
+            $query = EcommerceProducto::create([
+                                        'producto_id' => $data->producto_id[$i],
+                                        'escasez' => $data->escasez[$i],
+                                        'tags' => $data->tags[$i]
+                                    ]);
+            for ($j=0; $j < count($data->localidad_id); $j++) {
+                if($data->precio[$j] != ''){
+                    EcommerceEnvio::create([
+                        'ecommerce_producto_id' => $query->id,
+                        'producto_id' => $data->producto_id[$i],
+                        'localidad_id' => $data->localidad_id[$j],
+                        'precio' => $data->precio[$j]
+                    ]);
+                }
+            }
         }
         if($query){
             return redirect()->route('ecommerce_index')->with(['message' => 'Productos agregados al E-Commerce exitosamenete.', 'alert-type' => 'success']);
@@ -96,27 +110,33 @@ class EcommerceController extends Controller
     }
 
     public function edit($id){
+        $localidades = Localidade::where('deleted_at', NULL)->where('activo', 1)->get();
         $ecommerce = DB::table('ecommerce_productos as e')
                             ->join('productos as p', 'p.id', 'e.producto_id')
                             ->select('e.*', 'p.nombre')
                             ->where('e.id', $id)
                             ->first();
-        return view('inventarios/ecommerce/ecommerce_edit', compact('ecommerce'));
+        $envios = EcommerceEnvio::where('deleted_at', NULL)->where('ecommerce_producto_id', $id)->get();
+        return view('inventarios/ecommerce/ecommerce_edit', compact('localidades', 'ecommerce', 'envios'));
 
     }
 
     public function update(Request $data){
         $query = DB::table('ecommerce_productos')
                     ->where('id', $data->id)
-                    ->update([
-                        'escasez' => $data->escasez,
-                        'precio_envio' => $data->envio,
-                        'precio_envio_rapido' => $data->envio_rapido,
-                        'tags' => $data->tags,
-                        'updated_at' => Carbon::now()
-                    ]);
-
+                    ->update(['tags' => $data->tags, 'updated_at' => Carbon::now()]);
         if($query){
+            DB::table('ecommerce_envios')->where('ecommerce_producto_id', $data->id)->update(['deleted_at' => Carbon::now()]);
+            for ($j=0; $j < count($data->localidad_id); $j++) {
+                if($data->precio[$j] != ''){
+                    EcommerceEnvio::create([
+                        'ecommerce_producto_id' => $data->id,
+                        'producto_id' => $data->producto_id,
+                        'localidad_id' => $data->localidad_id[$j],
+                        'precio' => $data->precio[$j]
+                    ]);
+                }
+            }
             return redirect()->route('ecommerce_index')->with(['message' => 'Producto de E-Commerce editado exitosamenete.', 'alert-type' => 'success']);
         }else{
             return redirect()->route('ecommerce_index')->with(['message' => 'Ocurrio un problema al editar el producto del E-Commerce.', 'alert-type' => 'error']);
@@ -127,7 +147,6 @@ class EcommerceController extends Controller
         $query = DB::table('ecommerce_productos')
                     ->where('id', $data->id)
                     ->update(['deleted_at' => Carbon::now()]);
-
         if($query){
             return redirect()->route('ecommerce_index')->with(['message' => 'Producto de E-Commerce eliminado exitosamenete.', 'alert-type' => 'success']);
         }else{

@@ -37,11 +37,16 @@
                                         </div>
                                     </div>
                                 </div>
+                                @php
+                                    // dd($productos);
+                                @endphp
                                 <div class="input-group">
                                     <select name="select_producto" class="form-control" id="select-producto_id" onchange="seleccionar_producto()">
                                         <option value="">Todos los productos</option>
                                         @foreach ($productos as $item)
-                                        <option value="{{$item->id}}">{{$item->nombre}} - {{$item->precio}} Bs.</option>
+                                            @if (!$item->se_almacena || ($item->se_almacena && $item->stock > 0))
+                                                <option value="{{$item->id}}" data-stock="{{$item->stock}}" data-almacena="{{$item->se_almacena}}">{{$item->nombre}} - {{$item->precio_venta}} Bs.</option>
+                                            @endif
                                         @endforeach
                                     </select>
                                     <span class="input-group-btn">
@@ -54,9 +59,6 @@
                             </div>
                             <div id="div-carga" class="text-center"></div>
                         </div>
-                        {{-- <div class="col-md-2">
-                            <input type="checkbox" id="switch-buscar" data-toggle="toggle" data-on="Código" data-off="Buscador" data-onstyle="success" data-offstyle="info">
-                        </div> --}}
                     </div>
                 </form>
             {{-- </div>
@@ -94,8 +96,10 @@
 
     function seleccionar_producto(){
         let id = $('#select-producto_id').val();
+        
         $.get("{{url('admin/productos/get_producto')}}/"+id, function(data){
-            agregar_detalle_restaurante(data.id, data.nombre, data.precio, 1000, '', '');
+            let stock = data.se_almacena ? data.stock : 1000;
+            agregar_detalle_venta(data.id, data.nombre, data.precio, stock, '', '');
         });
     }
 

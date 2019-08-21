@@ -7,12 +7,12 @@
         margin: 50px 0px;
     }
     .error_number{
-        font-size: 170px;
+        font-size: 150px;
         font-weight: bold;
     }
     .error_description{
-        margin-top: -60px;
-        font-size: 50px;
+        margin-top: -50px;
+        font-size: 40px;
         font-weight: bold;
     }
 </style>

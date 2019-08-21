@@ -24,7 +24,7 @@ function inicializar_select2_simple(id){
     $(`#select-${id}`).select2();
 }
 
-function select2_reload(id, data, head){
+function select2_reload(id, data, head, option_default){
     $('#select-'+id).select2('destroy');
     let datos = head ? `<option value="">${head}</option>` : '';
     if(data.length>0){
@@ -33,10 +33,11 @@ function select2_reload(id, data, head){
         });
     }
     $('#select-'+id).html(datos);
+    $('#select-'+id).val(option_default);
     inicializar_select2(id);
 }
 
-function select2_reload_simple(id, data, head){
+function select2_reload_simple(id, data, head, option_default){
     $('#select-'+id).select2('destroy');
     let datos = head ? `<option value="">${head}</option>` : '';
     if(data.length>0){
@@ -45,5 +46,6 @@ function select2_reload_simple(id, data, head){
         });
     }
     $('#select-'+id).html(datos);
+    $('#select-'+id).val(option_default);
     $(`#select-${id}`).select2();
 }

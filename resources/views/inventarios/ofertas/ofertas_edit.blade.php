@@ -25,13 +25,13 @@
                                         <div class="col-md-6">
                                             <div class="row">
                                                 <div class="form-group col-md-12">
-                                                    <label for="">Nombre</label>  @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Nombre o título de la campaña de ofertas. Este campo es obligatorio."></span> @endif
+                                                    <label for="">Nombre</label>  @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Nombre o título de la campaña de ofertas. Este campo es obligatorio."></span> @endif
                                                     <input type="text" name="nombre" class="form-control" placeholder="Nombre de la campaña" value="{{$oferta->nombre}}" required>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="form-group col-md-12">
-                                                    <label for="">Duración</label>  @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Tipo y tiempo de duración de la oferta. Este campo es obligatorio."></span> @endif
+                                                    <label for="">Duración</label>  @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Tipo y tiempo de duración de la oferta. Este campo es obligatorio."></span> @endif
                                                 </div>
                                                 <div class="clearfix"></div>
                                                 <ul class="nav nav-tabs">
@@ -43,11 +43,11 @@
                                                     <div id="Rango" class="tab-pane fade @if($oferta->tipo_duracion == 'rango') in active @endif">
                                                         <div class="row">
                                                             <div class="form-group col-md-6">
-                                                                <label for="">Inicio</label>  @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Fecha de inicio de la campaña. Este campo es obligatorio."></span> @endif
+                                                                <label for="">Inicio</label>  @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Fecha de inicio de la campaña. Este campo es obligatorio."></span> @endif
                                                                 <input type="date" name="inicio" id="input-inicio" class="form-control" value="{{date('Y-m-d', strtotime($oferta->inicio))}}" required>
                                                             </div>
                                                             <div class="form-group col-md-6">
-                                                                <label for="">Fin</label>  @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="right" title="Fecha de finalización de la campaña. Este campo no es obligatorio."></span> @endif
+                                                                <label for="">Fin</label>  @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Fecha de finalización de la campaña. Este campo no es obligatorio."></span> @endif
                                                                 <input type="date" name="fin" class="form-control" value="{{($oferta->fin) ? date('Y-m-d', strtotime($oferta->fin)) : ''}}">
                                                             </div>
                                                         </div>
@@ -55,7 +55,7 @@
                                                     <div id="semanal" class="tab-pane fade @if($oferta->tipo_duracion == 'semanal') in active @endif">
                                                         <div class="row">
                                                             <div class="form-group col-md-12">
-                                                                <label for="">Día</label>  @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Día de la semana en que se realizará la camáña periódicamente. Este campo es obligatorio."></span> @endif
+                                                                <label for="">Día</label>  @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Día de la semana en que se realizará la camáña periódicamente. Este campo es obligatorio."></span> @endif
                                                                 <select name="dia_semana" class="form-control" id="select-dia">
                                                                     <option value="1">Lunes</option>
                                                                     <option value="2">Martes</option>
@@ -71,7 +71,7 @@
                                                     <div id="mensual" class="tab-pane fade @if($oferta->tipo_duracion == 'mensual') in active @endif">
                                                         <div class="row">
                                                             <div class="form-group col-md-12">
-                                                                <label for="">Día del mes</label>  @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Día de la semana en que se realizará la camáña periódicamente. Este campo es obligatorio."></span> @endif
+                                                                <label for="">Día del mes</label>  @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Día de la semana en que se realizará la camáña periódicamente. Este campo es obligatorio."></span> @endif
                                                                 <input type="number" id="input-dia" min="1" max="31" step="1" class="form-control" name="dia_mes" value="1">
                                                             </div>
                                                         </div>
@@ -83,13 +83,13 @@
                                         <div class="col-md-6">
                                             <div class="row">
                                                 <div class="form-group col-md-12">
-                                                    <label for="" id="label-descripcion">Descripción (0/255)</label> @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Descripción corta de la campaña, no debe exceder los 255 caracteres. Este campo es obligatorio."></span> @endif
+                                                    <label for="" id="label-descripcion">Descripción (0/255)</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Descripción corta de la campaña, no debe exceder los 255 caracteres. Este campo es obligatorio."></span> @endif
                                                     <textarea name="descripcion" id="text-descripcion" class="form-control" maxlength="255" rows="5" placeholder="Descripción de la campaña de oferta" required>{{$oferta->descripcion}}</textarea>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-12">
-                                                    <label for="">Seleccionar imagen</label>  @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="right" title="Imagen de la campaña, esta imagen será la portada de las publicaciones en redes solciales. Este campo no es obligatorio."></span> @endif
+                                                    <label for="">Seleccionar imagen</label>  @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Imagen de la campaña, esta imagen será la portada de las publicaciones en redes solciales. Este campo no es obligatorio."></span> @endif
                                                     <div class="img-small-wrap" style="height:120px;overflow-y:auto;border:3px solid #096FA9;padding:5px">
                                                         <div class="item-gallery" id="img-preview">
                                                             <button type="button" class="btn" title="Agregar imagen" onclick="add_img()">
@@ -160,7 +160,7 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-md-4">
-                                            <label for="">Producto</label>  @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="right" title="Producto que se va agregar a la campaña. Este campo es obligatorio."></span> @endif
+                                            <label for="">Producto</label>  @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Producto que se va agregar a la campaña. Este campo es obligatorio."></span> @endif
                                             <select class="form-control select2" id="select-producto_id">
                                                 @foreach($productos as $item)
                                                 <option value="{{$item->id}}">{{$item->subcategoria}} - {{$item->nombre}}</option>
@@ -168,11 +168,11 @@
                                             </select>
                                         </div>
                                         <div class="col-md-3">
-                                            <label for="">Monto</label>  @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="bottom" title="Monto de descuento que se aplicará al producto. Este campo es obligatorio."></span> @endif
+                                            <label for="">Monto</label>  @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Monto de descuento que se aplicará al producto. Este campo es obligatorio."></span> @endif
                                             <input type="text" class="form-control" id="input-monto" >
                                         </div>
                                         <div class="col-md-3">
-                                            <label for="">Tipo de descuento</label>  @if(setting('admin.tips')) <span class="voyager-question text-info" data-toggle="tooltip" data-placement="bottom" title="Tipo de descuento que se aplicará al producto Porcentaje/Monto fijo. Este campo es obligatorio."></span> @endif
+                                            <label for="">Tipo de descuento</label>  @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Tipo de descuento que se aplicará al producto Porcentaje/Monto fijo. Este campo es obligatorio."></span> @endif
                                             <select class="form-control select2" id="select-tipo">
                                                 <option value="porcentaje">Porcentaje (%)</option>
                                                 <option value="monto">Monto fijo</option>

@@ -16,38 +16,36 @@ use App\PasarelaPago;
 use App\Venta;
 use App\Producto;
 use App\Subcategoria;
+use App\Sucursale;
+use App\Localidade;
+use App\Cliente;
 
 class LandingPageController extends Controller
 {
     public function index(){
 
-        $productos_categoria = [];
-        $categorias = DB::table('categorias as c')
+        $lista_categorias = DB::table('categorias as c')
                             ->join('subcategorias as s', 's.categoria_id', 'c.id')
                             ->join('productos as p', 'p.subcategoria_id', 's.id')
                             ->join('ecommerce_productos as ec', 'ec.producto_id', 'p.id')
                             ->select('c.*')
-                            // ->where('p.deleted_at', NULL)
                             ->where('c.deleted_at', NULL)
-                            // ->orderBy('c.nombre', 'DESC')
                             ->distinct()
-                            ->limit(5)
+                            // ->limit(10)
                             ->get();
-        $subcategorias = [];
-        if(count($categorias)>0){
-            // Obtener subcategotia de los productos
-            foreach ($categorias as $item) {
-                $aux = DB::table('subcategorias')
-                            ->select('*')
-                            ->where('categoria_id', $item->id)
-                            ->where('deleted_at', NULL)
-                            ->get();
-                if(count($aux)>0){
-                    $subcategoria = $aux;
-                }else{
-                    $subcategoria = [];
-                }
-                array_push($subcategorias, ['subcategoria' => $subcategoria]);
+        $categorias = collect();
+        // Recorrer las categorias
+        foreach ($lista_categorias as $item) {
+            $collect_aux = collect($item);
+            // Obetener las subcategorías de las categorías
+            $lista_subcategorias = DB::table('subcategorias')
+                                        ->select('*')
+                                        ->where('categoria_id', $item->id)->where('deleted_at', NULL)
+                                        ->get();
+            // Si exite al menos una la agrega a la colección
+            if(count($lista_subcategorias)){
+                $collect_aux->put('subcategorias',$lista_subcategorias);
+                $categorias->push($collect_aux);
             }
         }
 
@@ -61,42 +59,43 @@ class LandingPageController extends Controller
                             ->limit(5)
                             ->get();
         $ofertas = (new Ofertas)->get_ofertas();    
-        // dd($ofertas);
-    
-        $subcategoria_productos = DB::table('subcategorias as s')
+            
+        $lista_subcategorias = DB::table('subcategorias as s')
                                     ->join('productos as p', 'p.subcategoria_id', 's.id')
                                     ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
                                     ->select('s.id', 's.nombre', 's.slug')
                                     ->where('s.deleted_at', NULL)
                                     ->distinct()
                                     ->get();
-        foreach ($subcategoria_productos as $item) {
-            $aux = DB::table('productos as p')
+        $subcategoria_productos = collect();
+        // Recorrer las subcategorias     
+        foreach ($lista_subcategorias as $item) {
+            $collect_aux = collect($item);
+            // Recorrer los productos que no esten en oferta de la subcategoría
+            $lista_productos = DB::table('productos as p')
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
                             ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
                             ->select('p.id', 'p.nombre', 'p.imagen', 'p.nuevo', 'p.slug')
-                            // ->where('deleted_at', NULL)
-                            ->where('s.id', $item->id)
-                            ->where('e.deleted_at', NULL)
+                            ->whereNotIn('p.id', function($q){
+                                $dia_semana = date('N');
+                                $dia_mes = date('j');
+                                $q->from('productos as p')
+                                    ->join('ofertas_detalles as df', 'df.producto_id', 'p.id')
+                                    ->join('ofertas as o', 'o.id', 'df.oferta_id')
+                                    ->select('p.id')
+                                    ->whereRaw("( (o.tipo_duracion = 'rango' and o.inicio < '".Carbon::now()."' and (o.fin is NULL or o.fin > '".Carbon::now()."')) or (o.tipo_duracion = 'semanal' and o.dia = $dia_semana) or (o.tipo_duracion = 'mensual' and o.dia = $dia_mes) )")
+                                    ->where('df.deleted_at', NULL)
+                                    ->where('o.deleted_at', NULL)->get();
+                            })
+                            ->where('s.id', $item->id)->where('e.deleted_at', NULL)
                             ->get();
-
-            array_push($productos_categoria, $aux);
+            // Si existe al menos un producto se lo agrega a la colección
+            if(count($lista_productos)){
+                $collect_aux->put('productos',$lista_productos);
+                $subcategoria_productos->push($collect_aux);
+            }
         }
-
-        switch (setting('admin.modo_sistema')) {
-            case 'boutique':
-
-                break;
-            case 'electronica_computacion':
-            return view('ecommerce/computacion_electronica/index', compact('ofertas', 'subcategoria_productos', 'productos_categoria', 'marcas', 'categorias', 'subcategorias'));
-                break;
-            case 'restaurante':
-            return view('ecommerce/restaurante/index', compact('ofertas', 'subcategoria_productos', 'productos_categoria', 'marcas', 'categorias', 'subcategorias'));
-                break;
-            default:
-                # code...
-                break;
-        }
+        return view('ecommerce/index', compact('categorias', 'ofertas', 'subcategoria_productos', 'marcas'));
     }
 
     public function search(Request $data){
@@ -165,20 +164,7 @@ class LandingPageController extends Controller
             array_push($puntuaciones, ['puntos'=>$puntuacion]);
         }
 
-        switch (setting('admin.modo_sistema')) {
-            case 'boutique':
-
-                break;
-            case 'electronica_computacion':
-            return view('ecommerce/computacion_electronica/busqueda', compact('productos', 'precios', 'ofertas', 'precio_min', 'precio_max', 'puntuaciones'));
-                break;
-            case 'restaurante':
-            return view('ecommerce/restaurante/busqueda', compact('productos', 'precios', 'ofertas', 'precio_min', 'precio_max', 'puntuaciones'));
-                break;
-            default:
-                # code...
-                break;
-        }
+        return view('ecommerce/busqueda', compact('productos', 'precios', 'ofertas', 'precio_min', 'precio_max', 'puntuaciones'));
     }
 
     public function ofertas(){
@@ -207,20 +193,7 @@ class LandingPageController extends Controller
                                 ->limit(10)
                                 ->get();
 
-        switch (setting('admin.modo_sistema')) {
-            case 'boutique':
-
-                break;
-            case 'electronica_computacion':
-            return view('ecommerce/computacion_electronica/ofertas', compact('productos', 'precios', 'puntuaciones', 'recomendaciones'));
-                break;
-            case 'restaurante':
-            return view('ecommerce/restaurante/ofertas', compact('productos', 'precios', 'puntuaciones', 'recomendaciones'));
-                break;
-            default:
-                # code...
-                break;
-        }
+        return view('ecommerce/ofertas', compact('productos', 'precios', 'puntuaciones', 'recomendaciones'));
     }
 
     public function subcategorias(Subcategoria $subcategoria){
@@ -268,20 +241,7 @@ class LandingPageController extends Controller
                                 ->limit(10)
                                 ->get();
 
-        switch (setting('admin.modo_sistema')) {
-            case 'boutique':
-
-                break;
-            case 'electronica_computacion':
-            return view('ecommerce/computacion_electronica/subcategorias', compact('productos', 'precios', 'ofertas', 'puntuaciones', 'recomendaciones', 'subcategoria', 'id'));
-                break;
-            case 'restaurante':
-            return view('ecommerce/restaurante/subcategorias', compact('productos', 'precios', 'ofertas', 'puntuaciones', 'recomendaciones', 'subcategoria', 'id'));
-                break;
-            default:
-                # code...
-                break;
-        }
+        return view('ecommerce/subcategorias', compact('productos', 'precios', 'ofertas', 'puntuaciones', 'recomendaciones', 'subcategoria', 'id'));
     }
 
     public function detalle_producto(Producto $producto){
@@ -298,7 +258,7 @@ class LandingPageController extends Controller
                             ->join('generos as g', 'g.id', 'p.genero_id')
                             ->join('monedas as mn', 'mn.id', 'p.moneda_id')
                             ->join('ecommerce_productos as ec', 'ec.producto_id', 'p.id')
-                            ->select('p.id', 'p.nombre', 'p.imagen', 'p.modelo', 'p.garantia', 'p.descripcion_small', 'p.descripcion_long', 'p.vistas', 'p.catalogo', 'p.slug', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'u.nombre as uso', 'c.nombre as color', 'g.nombre as genero', 'ec.tags')
+                            ->select('p.id', 'p.nombre', 'p.precio_venta', 'p.imagen', 'p.modelo', 'p.garantia', 'p.descripcion_small', 'p.descripcion_long', 'p.vistas', 'p.catalogo', 'p.slug', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'u.nombre as uso', 'c.nombre as color', 'g.nombre as genero', 'ec.tags')
                             // ->where('deleted_at', NULL)
                             ->where('p.id', $id)
                             ->first();
@@ -379,23 +339,40 @@ class LandingPageController extends Controller
         }
         // ===============
 
+        // Costo de envío segun la localidad en la que se encuentre el cliente
+        // NOTA: Si el cliente no se encuentra logueado no se mostrará ningun dato
+        $envio = NULL;
+        if(Auth::user()){
+            if(Auth::user()->localidad_id){
+                $ubicacion = DB::table('ecommerce_envios as e')
+                                    ->join('localidades as l', 'l.id', 'e.localidad_id')
+                                    ->join('ecommerce_productos as ep', 'ep.id', 'e.ecommerce_producto_id')
+                                    ->select('l.*', 'e.precio')
+                                    ->where('localidad_id', Auth::user()->localidad_id)
+                                    ->where('ep.producto_id', $id)
+                                    ->where('l.deleted_at', NULL)->where('e.deleted_at', NULL)->first();
+                if($ubicacion){
+                    $envio = $ubicacion;
+                }else{
+                    $envio = 'no definido';
+                }
+            }else{
+                $envio = 'no asignado';
+            }
+        }
+
         $oferta = (new Ofertas)->obtener_oferta($id);
         $dispositivo = LW::userAgent();
 
-        switch (setting('admin.modo_sistema')) {
-            case 'boutique':
+        $localidades_disponibles = DB::table('ecommerce_productos as ep')
+                                    ->join('ecommerce_envios as ee', 'ee.ecommerce_producto_id', 'ep.id')
+                                    ->join('localidades as l', 'l.id', 'ee.localidad_id')
+                                    ->select('l.localidad as ciudad', 'ee.precio')
+                                    ->where('l.deleted_at', NULL)->where('ep.deleted_at', NULL)->where('ee.deleted_at', NULL)
+                                    ->where('l.activo', 1)->where('ep.producto_id', $id)
+                                    ->get();
 
-                break;
-            case 'electronica_computacion':
-            return view('ecommerce/computacion_electronica/detalle', compact('producto', 'imagenes', 'precios_venta', 'puntuacion', 'oferta', 'id', 'habilitar_puntuar', 'recomendaciones', 'dispositivo'));
-                break;
-            case 'restaurante':
-            return view('ecommerce/restaurante/detalle', compact('producto', 'imagenes', 'precios_venta', 'puntuacion', 'oferta', 'id', 'habilitar_puntuar', 'recomendaciones', 'dispositivo'));
-                break;
-            default:
-                # code...
-                break;
-        }
+        return view('ecommerce/detalle', compact('producto', 'imagenes', 'precios_venta', 'puntuacion', 'oferta', 'id', 'habilitar_puntuar', 'recomendaciones', 'dispositivo', 'envio', 'localidades_disponibles'));
     }
 
     public function cantidad_carrito(){
@@ -434,35 +411,59 @@ class LandingPageController extends Controller
         $precios = [];
         $ofertas = [];
         foreach ($carrito as $item) {
-            // Obetener precios
-            $producto_unidades = (new Productos)->obtener_precios_venta($item->id);
-
-            if(count($producto_unidades)>0){
-                $precio = ['precio' => $producto_unidades[0]->precio, 'unidad' => $producto_unidades[0]->unidad, 'moneda' => $producto_unidades[0]->moneda];
-            }else{
-                $precio = ['precio' => 0, 'unidad' => 'No definida', 'moneda' => 'No definida'];
-            }
-            array_push($precios, $precio);
-
             // Ver si esta en oferta
             $oferta = (new Ofertas)->obtener_oferta($item->id);
             array_push($ofertas, $oferta);
         }
 
-        switch (setting('admin.modo_sistema')) {
-            case 'boutique':
+        $sucursal = Sucursale::all()->first();
 
-                break;
-            case 'electronica_computacion':
-            return view('ecommerce/computacion_electronica/carrito', compact('carrito', 'precios', 'ofertas', 'user_coords', 'pasarela_pago', 'cliente_id'));
-                break;
-            case 'restaurante':
-            return view('ecommerce/restaurante/carrito', compact('carrito', 'precios', 'ofertas', 'user_coords', 'pasarela_pago', 'cliente_id'));
-                break;
-            default:
-                # code...
-                break;
+        $disponibles = [];
+        foreach ($carrito as $item) {
+            $envios = DB::table('ecommerce_productos as ep')
+                            ->join('ecommerce_envios as ee', 'ee.ecommerce_producto_id', 'ep.id')
+                            ->select('ep.producto_id as id', 'ee.precio as costo_envio', 'ee.localidad_id')
+                            ->where('ep.producto_id', $item->id)->where('ee.deleted_at', NULL)->first();
+            if($envios){
+                array_push($disponibles, $envios);
+            }
         }
+        // dd($disponibles);
+        return view('ecommerce/carrito', compact('carrito', 'precios', 'ofertas', 'user_coords', 'pasarela_pago', 'cliente_id', 'sucursal', 'disponibles'));
+    }
+
+    public function get_precio($id, $cantidad){
+        $aux = DB::table('producto_unidades as pu')
+                        ->join('productos as p', 'p.id', 'pu.producto_id')
+                        ->join('monedas as m', 'm.id', 'p.moneda_id')
+                        ->select('pu.precio', 'pu.cantidad_minima', 'm.abreviacion as moneda')
+                        ->where('pu.producto_id', $id)
+                        ->where('pu.cantidad_minima', '>=', $cantidad)
+                        ->orderBy('pu.cantidad_minima', 'ASC')
+                        ->first();
+        if($aux){
+            if($aux->cantidad_minima == $cantidad){
+                return response()->json($aux);
+            }else{
+                $registro = DB::table('producto_unidades as pu')
+                            ->join('productos as p', 'p.id', 'pu.producto_id')
+                            ->join('monedas as m', 'm.id', 'p.moneda_id')
+                            ->select('pu.precio', 'pu.cantidad_minima', 'm.abreviacion as moneda')
+                            ->where('pu.producto_id', $id)
+                            ->where('pu.cantidad_minima', '<', $aux->cantidad_minima)
+                            ->orderBy('pu.cantidad_minima', 'DESC')
+                            ->first();
+                return response()->json($registro);
+            }
+        }
+        $registro = DB::table('producto_unidades as pu')
+                            ->join('productos as p', 'p.id', 'pu.producto_id')
+                            ->join('monedas as m', 'm.id', 'p.moneda_id')
+                            ->select('pu.precio', 'pu.cantidad_minima', 'm.abreviacion as moneda')
+                            ->where('pu.producto_id', $id)
+                            ->orderBy('pu.cantidad_minima', 'DESC')
+                            ->first();
+            return response()->json($registro);
     }
 
     public function carrito_agregar($id){
@@ -477,7 +478,7 @@ class LandingPageController extends Controller
                             ->join('generos as g', 'g.id', 'p.genero_id')
                             ->join('monedas as mn', 'mn.id', 'p.moneda_id')
                             ->join('ecommerce_productos as ec', 'ec.producto_id', 'p.id')
-                            ->select('p.id', 'p.codigo', 'p.nombre', 'p.imagen', 'p.modelo', 'p.garantia', 'm.nombre as marca', 'mn.abreviacion as moneda', 'u.nombre as uso', 'c.nombre as color', 'g.nombre as genero')
+                            ->select('p.id', 'p.codigo', 'p.nombre', 'p.precio_venta', 'p.imagen', 'p.modelo', 'p.garantia', 'p.descripcion_small', 'p.slug', 'm.nombre as marca', 'mn.abreviacion as moneda', 'u.nombre as uso', 'c.nombre as color', 'g.nombre as genero')
                             // ->where('deleted_at', NULL)
                             ->where('p.id', $id)
                             ->first();
@@ -548,28 +549,10 @@ class LandingPageController extends Controller
             }
         }
 
-        switch (setting('admin.modo_sistema')) {
-            case 'boutique':
-
-                break;
-            case 'electronica_computacion':
-                if($ultimo_pedido){
-                    return view('ecommerce/restaurante/pedidos', compact('ultimo_pedido', 'mi_ubicacion', 'detalle_pedido', 'pedidos', 'productos_pedidos'));
-                }else{
-                    return view('ecommerce/restaurante/pedidos_empty');
-                }
-                break;
-                break;
-            case 'restaurante':
-                if($ultimo_pedido){
-                    return view('ecommerce/restaurante/pedidos', compact('ultimo_pedido', 'mi_ubicacion', 'detalle_pedido', 'pedidos', 'productos_pedidos'));
-                }else{
-                    return view('ecommerce/restaurante/pedidos_empty');
-                }
-                break;
-            default:
-                # code...
-                break;
+        if($ultimo_pedido){
+            return view('ecommerce/pedidos', compact('ultimo_pedido', 'mi_ubicacion', 'detalle_pedido', 'pedidos', 'productos_pedidos'));
+        }else{
+            return view('ecommerce/pedidos_empty');
         }
     }
 
@@ -587,6 +570,46 @@ class LandingPageController extends Controller
 
     public function ecommerce_policies(){
         return 'politicas';
+    }
+
+
+    public function profile(){
+        $registro = DB::table('users as u')
+                            ->join('clientes as c', 'c.id', 'u.cliente_id')
+                            ->select('c.*', 'u.localidad_id', 'u.name', 'u.email', 'avatar', 'tipo_login')
+                            ->where('c.deleted_at', NULL)->where('u.id', Auth::user()->id)
+                            ->first();
+        $localidad = $registro->localidad_id ? Localidade::find($registro->localidad_id) : NULL;
+
+        $localidades = Localidade::where('deleted_at', NULL)->get();
+
+        return view('auth.profile', compact('registro', 'localidad', 'localidades'));
+    }
+
+    public function profile_update(Request $data){
+        // actualizar datos de usuario
+        $user = User::find(Auth::user()->id);
+        $user->name = $data->name;
+        $user->email = $data->email;
+        $user->localidad_id = $data->localidad_id;
+        if(!empty($data->password) && !empty($data->new_password) && !empty($data->repeat_password)){
+            if($data->new_password != $data->repeat_password){
+                $alerta = '';
+                return redirect()->route('profile')->with(compact('alerta'));
+            }
+            dd($data);
+        }
+        $user->save();
+
+        // Actualizar datos de cliente
+        $cliente = Cliente::find(Auth::user()->cliente_id);
+        $cliente->razon_social = $data->razon_social;
+        $cliente->nit = $data->nit;
+        $cliente->movil = $data->movil;
+        $cliente->save();
+
+        $alerta = 'cliente_editado';
+        return redirect()->route('profile')->with(compact('alerta'));
     }
 }
 

@@ -70,6 +70,7 @@ class ProductosController extends Controller
                                             p.nombre like '%".$value."%' or
                                             s.nombre like '%".$value."%')
                                         ")
+                            ->orderBy('p.id', 'DESC')
                             ->paginate(10);
         $precios = [];
         $cantidades = [];
@@ -368,16 +369,43 @@ class ProductosController extends Controller
     public function update(Request $data){
         // dd($data);
         $data->validate([
-            'nombre' => 'required|max:100',
+            'nombre' => 'required|max:191',
             'precio_venta' => 'required|max:10',
             'descripcion_small' => 'required'
         ]);
+
+        // si la categoria no existe crearla
+        if(!is_numeric($data->categoria_id)){
+            $categoria = new Categoria;
+            $categoria->nombre = $data->categoria_id;
+            $categoria->save();
+            $data->categoria_id = Categoria::all()->last()->id;
+        }
+
+        // si la subcategoria no existe crearla
+        if(!is_numeric($data->subcategoria_id)){
+            $subcategoria = new Subcategoria;
+            $subcategoria->nombre = $data->subcategoria_id;
+            $subcategoria->categoria_id = $data->categoria_id;
+            $subcategoria->save();
+            $data->subcategoria_id = Subcategoria::all()->last()->id;
+        }
+
+        // si la marca no existe crearla
+        if(!is_numeric($data->marca_id)){
+            $marca = new Marca;
+            $marca->nombre = $data->marca_id;
+            $marca->save();
+            $data->marca_id = Marca::all()->last()->id;
+        }
 
         // Obtener valos si es un producto nuevo
         $nuevo = (isset($data->nuevo)) ? 1: NULL;
 
         // Obtener valos si es un producto nuevo
         $se_almacena = (isset($data->se_almacena)) ? 1: NULL;
+
+        $precio_venta = isset($data->precio_venta[0]) ? $data->precio_venta[0] : 0;
 
         $query = DB::table('productos')
                     ->where('id', $data->id)
@@ -389,6 +417,7 @@ class ProductosController extends Controller
                         'estante' => $data->estante,
                         'bloque' => $data->bloque,
                         'garantia' => $data->garantia,
+                        'precio_venta' => $precio_venta,
                         // 'stock_minimo' => $data->stock_minimo,
                         'subcategoria_id' => $data->subcategoria_id,
                         'marca_id' => $data->marca_id,
@@ -401,7 +430,7 @@ class ProductosController extends Controller
                         'nuevo' => $nuevo,
                         'se_almacena' => $se_almacena,
                         // 'created_at' => Carbon::now(),
-                        // 'updated_at' => Carbon::now()
+                        'updated_at' => Carbon::now()
                     ]);
         if(isset($data->precio_venta)){
             DB::table('producto_unidades')
@@ -531,6 +560,7 @@ class ProductosController extends Controller
     }
 
     public function puntuar(Request $data){
+        $slug = Producto::find($data->id)->slug;
         $query = DB::table('productos_puntuaciones')
                         ->insert([
                             'producto_id' => $data->id,
@@ -540,7 +570,7 @@ class ProductosController extends Controller
                             'updated_at' => Carbon::now()
                         ]);
         $alerta = 'producto_puntuado';
-        return redirect()->route('detalle_producto_ecommerce', ['id'=>$data->id])->with(compact('alerta'));
+        return redirect()->route('detalle_producto_ecommerce', ['producto'=>$slug])->with(compact('alerta'));
     }
 
     // *************funciones adicionales*************
@@ -798,7 +828,7 @@ class ProductosController extends Controller
     public function get_producto($id){
         $producto = DB::table('productos as p')
                             ->join('producto_unidades as pu', 'pu.producto_id', 'p.id')
-                            ->select('p.id', 'p.nombre', 'precio')
+                            ->select('p.id', 'p.nombre', 'precio', 'se_almacena', 'stock')
                             ->where('p.id', $id)
                             ->first();
 
@@ -849,6 +879,48 @@ class ProductosController extends Controller
                     ->where('producto_id', $id)
                     ->where('deleted_at', NULL)
                     ->avg('puntos');
+    }
+
+    public function get_productos_venta($sucursal_actual){
+        // Obetener productos que no se almacenan en depositos
+        $productos = collect();
+        $aux = DB::table('productos as p')
+                            ->select('p.*')
+                            ->where('p.deleted_at', NULL)
+                            ->where('p.se_almacena', NULL)
+                            ->get();
+        foreach ($aux as $item) {
+            $productos->push($item);
+        }
+
+        // Obetener productos que se almacenan en deposito
+        $aux = DB::table('productos as p')
+                            ->join('productos_depositos as pd', 'pd.producto_id', 'p.id')
+                            ->join('depositos as d', 'd.id', 'pd.deposito_id')
+                            ->select('p.*', 'd.sucursal_id')
+                            ->where('p.deleted_at', NULL)
+                            ->where('p.se_almacena', '<>', NULL)
+                            ->where('d.sucursal_id', $sucursal_actual)
+                            ->get();
+        foreach ($aux as $item) {
+            $productos->push($item);
+        }
+
+        for ($i=0; $i < count($productos); $i++) {
+            $precio_venta = $productos[$i]->precio_venta;
+            // Obtener si el producto está en oferta
+            $oferta = (new Ofertas)->obtener_oferta($productos[$i]->id);
+            if($oferta){
+                if($oferta->tipo_descuento=='porcentaje'){
+                    $precio_venta -= ($precio_venta*($oferta->monto/100));
+                }else{
+                    $precio_venta -= $oferta->monto;
+                }
+            }
+            $productos[$i]->precio_venta = $precio_venta;
+        }
+
+        return $productos;
     }
 
     // ===================================================

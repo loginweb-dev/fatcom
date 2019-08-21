@@ -85,7 +85,15 @@ class OfertasController extends Controller
                             ->select('p.id', 'p.nombre', 's.nombre as subcategoria')
                             // ->where('deleted_at', NULL)
                             ->whereNotIn('p.id', function($q){
-                                $q->select('producto_id')->from('ofertas_detalles')->where('deleted_at', null);
+                                // $dia_semana = date('N');
+                                // $dia_mes = date('j');
+                                $q->from('productos as p')
+                                    ->join('ofertas_detalles as df', 'df.producto_id', 'p.id')
+                                    ->join('ofertas as o', 'o.id', 'df.oferta_id')
+                                    ->select('p.id')
+                                    // ->whereRaw("( (o.tipo_duracion = 'rango' and o.inicio < '".Carbon::now()."' and (o.fin is NULL or o.fin > '".Carbon::now()."')) or (o.tipo_duracion = 'semanal' and o.dia = $dia_semana) or (o.tipo_duracion = 'mensual' and o.dia = $dia_mes) )")
+                                    ->where('df.deleted_at', NULL)
+                                    ->where('o.deleted_at', NULL)->get();
                             })
                             ->get();
         return view('inventarios/ofertas/ofertas_create', compact('productos', 'categorias', 'marcas'));
@@ -186,7 +194,15 @@ class OfertasController extends Controller
                             ->select('p.id', 'p.nombre', 's.nombre as subcategoria')
                             // ->where('deleted_at', NULL)
                             ->whereNotIn('p.id', function($q){
-                                $q->select('producto_id')->from('ofertas_detalles')->where('deleted_at', null);
+                                // $dia_semana = date('N');
+                                // $dia_mes = date('j');
+                                $q->from('productos as p')
+                                    ->join('ofertas_detalles as df', 'df.producto_id', 'p.id')
+                                    ->join('ofertas as o', 'o.id', 'df.oferta_id')
+                                    ->select('p.id')
+                                    // ->whereRaw("( (o.tipo_duracion = 'rango' and o.inicio < '".Carbon::now()."' and (o.fin is NULL or o.fin > '".Carbon::now()."')) or (o.tipo_duracion = 'semanal' and o.dia = $dia_semana) or (o.tipo_duracion = 'mensual' and o.dia = $dia_mes) )")
+                                    ->where('df.deleted_at', NULL)
+                                    ->where('o.deleted_at', NULL)->get();
                             })
                             ->get();
         return view('inventarios/ofertas/ofertas_edit', compact('oferta', 'detalle_oferta', 'precios', 'cantidad_productos', 'productos', 'categorias', 'marcas'));

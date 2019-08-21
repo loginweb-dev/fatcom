@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('nombre_pagina')
-    <link rel="shortcut icon" href="{{ voyager_asset('images/logo-icon.png') }}" type="image/x-icon">
     <title>Iniciar sesión</title>
 @endsection
 
