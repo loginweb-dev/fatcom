@@ -21,15 +21,6 @@ class SubcategoriasController extends Controller
 
     }
 
-    public function categoria_list($categoria_id)
-    {
-        return DB::table('subcategorias')
-                        ->select('*')
-                        ->where('deleted_at', NULL)
-                        ->where('categoria_id', $categoria_id)
-                        ->get();
-    }
-
     public function create_new($nombre)
     {
         $subcategoria = new Subcategoria;

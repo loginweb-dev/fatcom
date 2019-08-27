@@ -147,25 +147,20 @@
                 </div>
             </div>
         </div>
-        {{-- modal confirmacion --}}
-        {{-- <div class="modal modal-info fade" tabindex="-1" id="confirm_modal" role="dialog">
-            <div class="modal-dialog">
+        {{-- Modal de detalle de producto --}}
+        <div class="modal modal-primary fade" tabindex="-1" id="modal-info_producto" role="dialog">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title">
-                            <i class="voyager-check"></i> Estás seguro que quieres guardar compra?
-                        </h4>
+                        <h4 class="modal-title"><i class="voyager-harddrive"></i> Detalle de producto</h4>
                     </div>
-                    <div class="modal-body">
-                    </div>
+                    <div class="modal-body" id="info_producto"></div>
                     <div class="modal-footer">
-                        <input type="submit" id="btn-enviar" class="btn btn-primary pull-right delete-confirm"value="Sí, guardar!">
-                        <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Cancelar </button>
+                        <button type="button" class="btn btn-default pull-right" id="btn-cancel-map" data-dismiss="modal">cerrar</button>
                     </div>
                 </div>
             </div>
-        </div> --}}
+        </div>
     </form>
     @stop
 
@@ -272,6 +267,14 @@
                     error: function(){
                         console.log('error');
                     }
+                });
+            }
+
+            function producto_info(id){
+                $('#modal-info_producto').modal();
+                $('#info_producto').html('<br><h4 class="text-center">Cargando...</h4>');
+                $.get('{{url("admin/productos/ver/informacion")}}/'+id, function(data){
+                    $('#info_producto').html(data);
                 });
             }
         </script>

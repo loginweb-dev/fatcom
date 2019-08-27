@@ -120,7 +120,7 @@
                                                 @endphp
                                             @empty
                                             <tr>
-                                                <td colspan="8"><p class="text-center"><br>No hay registros para mostrar.</p></td>
+                                                <td colspan="9"><p class="text-center"><br>No hay registros para mostrar.</p></td>
                                             </tr>
                                         @endforelse
                                         </tbody>

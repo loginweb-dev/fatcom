@@ -13,6 +13,7 @@ use App\Compra;
 use App\IeCaja;
 use App\IeAsiento;
 use App\ProductosDeposito;
+use App\ProductoUnidade;
 
 use App\Http\Controllers\ProveedoresController as Proveedores;
 
@@ -45,6 +46,7 @@ class ComprasController extends Controller
     }
 
     public function store(Request $data){
+        // dd($data);
         // Si se envió un NIT crear nuevo proveedor
         if(!empty($data->nit)){
             $proveedor = (new Proveedores)->get_proveedor($data->nit);
@@ -136,13 +138,22 @@ class ComprasController extends Controller
                             $pd->save();
                         }else{
                             $campo_stock = isset($data->nro_factura) ? 'stock_compra' : 'stock';
-                            DB::table('productos_depositos')
-                                    ->where('producto_id', $data->producto[$i])
-                                    ->where('deposito_id', $data->deposito_id)
-                                    ->increment($campo_stock, $data->cantidad[$i]);
+                            DB::table('productos_depositos')->where('id', $pd->id)->increment($campo_stock, $data->cantidad[$i]);
+
+                            // Actualizar precio de compra y venta en tabla productos
+                            $producto = Producto::find($data->producto[$i]);
+                            $producto->precio_venta = $data->precio_venta[$i];
+                            $producto->ultimo_precio_compra = $data->precio[$i];
+                            $producto->save();
+
+                            // Actualizar precio de venta en tabla de producto por unidades
+                            $id = ProductoUnidade::where('producto_id', $data->producto[$i])->where('deleted_at', NULL)->first()->id;
+                            $producto_unidad = ProductoUnidade::find($id);
+                            $producto_unidad->precio = $data->precio_venta[$i];
+                            $producto_unidad->save();
                         }
                         $producto = Producto::find($data->producto[$i]);
-                        $producto->stock = $data->cantidad[$i];
+                        $producto->stock += $data->cantidad[$i];
                         $producto->save();
                     }
                 }
@@ -171,16 +182,21 @@ class ComprasController extends Controller
                         ->where('p.se_almacena', '<>', NULL)
                         ->orderBy('c.id', 'DESC')
                         ->get();
-        // dd($productos);
-        $categorias = [];
-        $subcategorias = [];
-        $marcas = [];
-        $tallas = [];
+        
+        $categorias = DB::table('categorias as c')
+                            ->join('subcategorias as s', 's.categoria_id', 'c.id')
+                            ->join('productos as p', 'p.subcategoria_id', 's.id')
+                            ->select('c.*')
+                            ->where('p.deleted_at', NULL)
+                            ->where('c.deleted_at', NULL)
+                            ->where('c.id', '>', 1)
+                            ->distinct()
+                            ->get();
 
         if($tipo=='normal'){
             return view('compras.compras_normal');
         }else{
-            return view('compras.compras_productos', compact('productos', 'categorias', 'subcategorias', 'marcas', 'tallas'));
+            return view('compras.compras_productos', compact('productos', 'categorias'));
         }
 
     }

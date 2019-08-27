@@ -7,40 +7,6 @@ $(function(){
     // ===================/Genérico====================
 });
 
-function subcategorias(id, url){
-    if(id!=''){
-        $.ajax({
-            url: url+'/'+id,
-            type: 'get',
-            success: function(response){
-                select2_reload_simple('subcategoria_id', response, 'Todas');
-            }
-        });
-    }else{
-        select2_reload_simple('subcategoria_id', [], 'Todas');
-    }
-}
-
-function filtro(url){
-    let categoria = $('#select-categoria_id').val() ? $('#select-categoria_id').val() : 'all';
-    let subcategoria = $('#select-subcategoria_id').val() ? $('#select-subcategoria_id').val() : 'all';
-    let marca = $('#select-marca_id').val() ? $('#select-marca_id').val() : 'all';
-
-    // evitar que se envie una sub categoria si no se esta enviando una categoria
-    if(categoria == 'all'){
-        subcategoria = 'all';
-    }
-
-    $.ajax({
-        url: url+'/'+categoria+'/'+subcategoria+'/'+marca,
-        type: 'get',
-        success: function(response){
-            select2_reload_simple('producto_id', response, 'Todos los productos');
-        }
-    });
-}
-
-
 function add_producto(indice, url){
     let id = $('#select-producto_id').val();
     let nombre = $('#select-producto_id option:selected').text();

@@ -69,15 +69,14 @@ class OfertasController extends Controller
 
     public function create(){
 
-        $categorias = DB::table('categorias')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
-                            ->get();
-        $marcas = DB::table('marcas')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+        $categorias = DB::table('categorias as c')
+                            ->join('subcategorias as s', 's.categoria_id', 'c.id')
+                            ->join('productos as p', 'p.subcategoria_id', 's.id')
+                            ->select('c.*')
+                            ->where('p.deleted_at', NULL)
+                            ->where('c.deleted_at', NULL)
+                            ->where('c.id', '>', 1)
+                            ->distinct()
                             ->get();
 
         $productos = DB::table('productos as p')
@@ -96,7 +95,7 @@ class OfertasController extends Controller
                                     ->where('o.deleted_at', NULL)->get();
                             })
                             ->get();
-        return view('inventarios/ofertas/ofertas_create', compact('productos', 'categorias', 'marcas'));
+        return view('inventarios/ofertas/ofertas_create', compact('productos', 'categorias'));
     }
 
     public function store(Request $data){
@@ -178,15 +177,14 @@ class OfertasController extends Controller
             array_push($precios, $precio);
         }
         $cantidad_productos = count($detalle_oferta);
-        $categorias = DB::table('categorias')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
-                            ->get();
-        $marcas = DB::table('marcas')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+        $categorias = DB::table('categorias as c')
+                            ->join('subcategorias as s', 's.categoria_id', 'c.id')
+                            ->join('productos as p', 'p.subcategoria_id', 's.id')
+                            ->select('c.*')
+                            ->where('p.deleted_at', NULL)
+                            ->where('c.deleted_at', NULL)
+                            ->where('c.id', '>', 1)
+                            ->distinct()
                             ->get();
 
         $productos = DB::table('productos as p')
@@ -205,7 +203,7 @@ class OfertasController extends Controller
                                     ->where('o.deleted_at', NULL)->get();
                             })
                             ->get();
-        return view('inventarios/ofertas/ofertas_edit', compact('oferta', 'detalle_oferta', 'precios', 'cantidad_productos', 'productos', 'categorias', 'marcas'));
+        return view('inventarios/ofertas/ofertas_edit', compact('oferta', 'detalle_oferta', 'precios', 'cantidad_productos', 'productos', 'categorias'));
     }
 
     public function update(Request $data){
@@ -270,31 +268,34 @@ class OfertasController extends Controller
     public function delete(Request $data){
         $query = DB::table('ofertas')->where('id', $data->id)->update(['deleted_at' => Carbon::now()]);
         if($query){
+            $query = DB::table('ofertas_detalles')->where('oferta_id', $data->id)->update(['deleted_at' => Carbon::now()]);
             return redirect()->route('ofertas_index')->with(['message' => 'Campaña de oferta eliminada exitosamenete.', 'alert-type' => 'success']);
         }else{
             return redirect()->route('ofertas_index')->with(['message' => 'Ocurrio un problema al eliminar la campaña de oferta.', 'alert-type' => 'error']);
         }
     }
 
-// Filtros
-    public function filtro_simple($categoria, $subcategoria, $marca){
+    // public function filtro_simple($categoria, $subcategoria, $marca, $talla, $genero, $color){
 
-        $filtro_categoria = ($categoria != 'all') ? " s.categoria_id = $categoria " : ' 1 ';
-        $filtro_subcategoria = ($subcategoria != 'all') ? " and  p.subcategoria_id = $subcategoria " : ' and 1';
-        $filtro_marca = ($marca != 'all') ? " and p.marca_id = $marca " : ' and 1';
+    //     $filtro_categoria = ($categoria != 'all') ? " s.categoria_id = $categoria " : ' 1 ';
+    //     $filtro_subcategoria = ($subcategoria != 'all') ? " and  p.subcategoria_id = $subcategoria " : ' and 1';
+    //     $filtro_marca = ($marca != 'all') ? " and p.marca_id = $marca " : ' and 1';
+    //     $filtro_talla = ($talla != 'all') ? " and p.talla_id = $talla " : ' and 1';
+    //     $filtro_genero = ($genero != 'all') ? " and p.genero_id = $genero " : ' and 1';
+    //     $filtro_color = ($color != 'all') ? " and p.color_id = $color " : ' and 1';
 
-        return DB::table('productos as p')
-                            ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
-                            ->join('categorias as c', 'c.id', 's.categoria_id')
-                            ->join('marcas as m', 'm.id', 'p.marca_id')
-                            ->select('p.id', 'p.nombre')
-                            ->whereRaw($filtro_categoria.$filtro_subcategoria.$filtro_marca)
-                            // ->where('deleted_at', NULL)
-                            ->whereNotIn('p.id', function($q){
-                                $q->select('producto_id')->from('ofertas_detalles')->where('deleted_at', null);
-                            })
-                            ->get();
-    }
+    //     return DB::table('productos as p')
+    //                         ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+    //                         ->join('categorias as c', 'c.id', 's.categoria_id')
+    //                         ->join('marcas as m', 'm.id', 'p.marca_id')
+    //                         ->select('p.id', 'p.nombre')
+    //                         ->whereRaw($filtro_categoria.$filtro_subcategoria.$filtro_marca.$filtro_talla.$filtro_genero.$filtro_color)
+    //                         // ->where('deleted_at', NULL)
+    //                         ->whereNotIn('p.id', function($q){
+    //                             $q->select('producto_id')->from('ofertas_detalles')->where('deleted_at', null);
+    //                         })
+    //                         ->get();
+    // }
 
 // Obtener datos varios
     public function get_ofertas(){

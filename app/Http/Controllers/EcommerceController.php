@@ -56,15 +56,14 @@ class EcommerceController extends Controller
 
     public function create(){
 
-        $categorias = DB::table('categorias')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
-                            ->get();
-        $marcas = DB::table('marcas')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+        $categorias = DB::table('categorias as c')
+                            ->join('subcategorias as s', 's.categoria_id', 'c.id')
+                            ->join('productos as p', 'p.subcategoria_id', 's.id')
+                            ->select('c.*')
+                            ->where('p.deleted_at', NULL)
+                            ->where('c.deleted_at', NULL)
+                            ->where('c.id', '>', 1)
+                            ->distinct()
                             ->get();
         $localidades = Localidade::where('deleted_at', NULL)->where('activo', 1)->get();
 
@@ -76,7 +75,7 @@ class EcommerceController extends Controller
                                 $q->select('producto_id')->from('ecommerce_productos')->where('deleted_at', null);
                             })
                             ->get();
-        return view('inventarios/ecommerce/ecommerce_create', compact('productos', 'categorias', 'marcas', 'localidades'));
+        return view('inventarios/ecommerce/ecommerce_create', compact('productos', 'categorias', 'localidades'));
     }
 
     public function store(Request $data){

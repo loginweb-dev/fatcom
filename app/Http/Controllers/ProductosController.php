@@ -22,6 +22,7 @@ use App\Talla;
 use App\Colore;
 use App\Modelo;
 use App\Producto;
+use App\ProductoUnidade;
 
 class ProductosController extends Controller
 {
@@ -32,31 +33,37 @@ class ProductosController extends Controller
 
     public function index()
     {
-        $registros = DB::table('productos as p')
-                            ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
-                            ->select('p.*', 's.nombre as subcategoria')
-                            // ->where('deleted_at', NULL)
-                            ->orderBy('p.id', 'DESC')
-                            ->paginate(10);
-        $precios = [];
-        $cantidades = [];
-        if(count($registros)>0){
-
-            foreach ($registros as $item) {
-                // Obtener precios de venta del producto
-                $producto_unidades = $this->obtener_precios_venta($item->id);
-
-                if(count($producto_unidades)>0){
-                    $precio = ['precio' => $producto_unidades[0]->precio, 'unidad' => $producto_unidades[0]->unidad];
-                }else{
-                    $precio = ['precio' => 0, 'unidad' => 'No definida'];
-                }
-                array_push($precios, $precio);
-            }
-        }
+        $categorias = DB::table('categorias as c')
+                            ->join('subcategorias as s', 's.categoria_id', 'c.id')
+                            ->join('productos as p', 'p.subcategoria_id', 's.id')
+                            ->select('c.*')
+                            ->where('p.deleted_at', NULL)
+                            ->where('c.deleted_at', NULL)
+                            ->where('c.id', '>', 1)
+                            ->distinct()
+                            ->get();
 
         $value = '';
-        return view('inventarios/productos/productos_index', compact('registros', 'value', 'precios', 'cantidades'));
+        return view('inventarios/productos/productos_index', compact('value', 'categorias'));
+    }
+
+    public function productos_list($categoria, $subcategoria, $marca, $talla, $genero, $color){
+        $filtro_categoria = ($categoria != 'all') ? " s.categoria_id = $categoria " : ' 1 ';
+        $filtro_subcategoria = ($subcategoria != 'all') ? " and  p.subcategoria_id = $subcategoria " : ' and 1';
+        $filtro_marca = ($marca != 'all') ? " and p.marca_id = $marca " : ' and 1';
+        $filtro_talla = ($talla != 'all') ? " and p.talla_id = $talla " : ' and 1';
+        $filtro_genero = ($genero != 'all') ? " and p.genero_id = $genero " : ' and 1';
+        $filtro_color = ($color != 'all') ? " and p.color_id = $color " : ' and 1';
+
+        $registros = DB::table('productos as p')
+                                ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                                ->join('categorias as c', 'c.id', 's.categoria_id')
+                                ->join('marcas as m', 'm.id', 'p.marca_id')
+                                ->select('p.*', 's.nombre as subcategoria')
+                                ->whereRaw($filtro_categoria.$filtro_subcategoria.$filtro_marca.$filtro_talla.$filtro_genero.$filtro_color)
+                                ->where('p.deleted_at', NULL)
+                                ->paginate(10);
+        return view('inventarios/productos/productos_list', compact('registros'));
     }
 
     public function search($value)
@@ -87,23 +94,26 @@ class ProductosController extends Controller
                 }
                 array_push($precios, $precio);
             }
-
-            // // Obtener cantidad del producto
-            // foreach ($registros as $item) {
-            //     $productos_depositos = DB::table('productos_depositos as d')
-            //                             ->select(DB::raw('sum(d.stock) as stock'))
-            //                             ->where('producto_id', $item->id)
-            //                             ->first();
-            //     if($productos_depositos){
-            //         $cantidad = ['cantidad' => $productos_depositos->stock];
-            //     }else{
-            //         $cantidad = ['cantidad' => 0];
-            //     }
-            //     array_push($cantidades, $cantidad);
-            // }
         }
 
         return view('inventarios/productos/productos_index', compact('registros', 'value', 'precios', 'cantidades'));
+    }
+
+    public function view_simple($id){
+        $producto = DB::table('productos as p')
+                            ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                            ->join('marcas as m', 'm.id', 'p.marca_id')
+                            ->join('tallas as t', 't.id', 'p.talla_id')
+                            ->join('colores as c', 'c.id', 'p.color_id')
+                            ->join('usos as u', 'u.id', 'p.uso_id')
+                            ->join('generos as g', 'g.id', 'p.genero_id')
+                            ->join('monedas as mn', 'mn.id', 'p.moneda_id')
+                            ->join('categorias as ca', 'ca.id', 's.categoria_id')
+                            ->select('p.*', 'ca.nombre as categoria', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'm.nombre as marca', 'u.nombre as uso', 'c.nombre as color', 'g.nombre as genero')
+                            ->where('p.id', $id)
+                            ->first();
+
+        return view('inventarios/productos/productos_view_simple', compact('producto'));
     }
 
     public function view($id){
@@ -116,7 +126,7 @@ class ProductosController extends Controller
                             ->join('generos as g', 'g.id', 'p.genero_id')
                             ->join('monedas as mn', 'mn.id', 'p.moneda_id')
                             ->join('categorias as ca', 'ca.id', 's.categoria_id')
-                            ->select('p.*', 'ca.nombre as categoria', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'm.nombre as marca', 'u.nombre as uso', 'c.nombre as color', 'g.nombre as genero')
+                            ->select('p.*', 'ca.nombre as categoria', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 't.nombre as talla', 'u.nombre as uso', 'c.nombre as color', 'g.nombre as genero')
                             // ->where('deleted_at', NULL)
                             ->where('p.id', $id)
                             ->first();
@@ -147,14 +157,17 @@ class ProductosController extends Controller
                                 ->get();
 
         switch (setting('admin.modo_sistema')) {
-            case 'boutique':
-                return view('inventarios/productos/boutique/productos_view', compact('producto', 'imagenes', 'id', 'precios'));
+            case 'repuestos':
+                return view('inventarios/productos/repuestos/productos_view', compact('producto', 'imagenes', 'id', 'precios_venta', 'precios_compra'));
                 break;
             case 'electronica_computacion':
                 return view('inventarios/productos/electronica_computacion/productos_view', compact('producto', 'imagenes', 'id', 'precios_venta', 'precios_compra'));
                 break;
             case 'restaurante':
                 return view('inventarios/productos/restaurante/productos_view', compact('producto', 'imagenes', 'id', 'precios_venta', 'precios_compra', 'insumos_productos'));
+                break;
+            case 'boutique':
+                return view('inventarios/productos/boutique/productos_view', compact('producto', 'imagenes', 'id', 'precios_venta', 'precios_compra', 'insumos_productos'));
                 break;
             default:
                 # code...
@@ -174,7 +187,7 @@ class ProductosController extends Controller
             $subcategorias = DB::table('subcategorias')
                                     ->select('*')
                                     ->where('deleted_at', NULL)
-                                    ->where('id', '>', 1)
+                                    // ->where('id', '>', 1)
                                     ->where('categoria_id', $categorias[0]->id)
                                     ->get();
         }
@@ -182,32 +195,32 @@ class ProductosController extends Controller
         $marcas = DB::table('marcas')
                             ->select('*')
                             ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+                            // ->where('id', '>', 1)
                             ->get();
         $tallas = DB::table('tallas')
                             ->select('*')
                             ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+                            // ->where('id', '>', 1)
                             ->get();
         $colores = DB::table('colores')
                             ->select('*')
                             ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+                            // ->where('id', '>', 1)
                             ->get();
         $generos = DB::table('generos')
                             ->select('*')
                             ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+                            // ->where('id', '>', 1)
                             ->get();
         $usos = DB::table('usos')
                             ->select('*')
                             ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+                            // ->where('id', '>', 1)
                             ->get();
         $unidades = DB::table('unidades')
                             ->select('*')
                             ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+                            // ->where('id', '>', 1)
                             ->get();
         $monedas = DB::table('monedas')
                             ->select('*')
@@ -224,19 +237,23 @@ class ProductosController extends Controller
         // Obtener el primer deposito registrado, en caso de ser mas de uno se debe especificar 
         // de alguna forma que deposito se debe obtener
         $depositos = DB::table('depositos')
-                            ->select('id')
+                            ->select('id', 'inventario')
                             ->where('deleted_at', NULL)
+                            ->where('inventario', 1)
                             ->first();
 
         switch (setting('admin.modo_sistema')) {
-            case 'boutique':
-            return view('inventarios/productos/boutique/productos_create', compact('codigo_grupo', 'categorias', 'subcategorias', 'marcas', 'tallas', 'colores', 'generos', 'usos', 'unidades', 'depositos'));
+            case 'repuestos':
+            return view('inventarios/productos/repuestos/productos_create', compact('codigo_grupo', 'categorias', 'subcategorias', 'marcas', 'tallas', 'colores', 'generos', 'usos', 'unidades', 'monedas', 'depositos'));
                 break;
             case 'electronica_computacion':
-                return view('inventarios/productos/electronica_computacion/productos_create', compact('codigo_grupo', 'categorias', 'subcategorias', 'marcas', 'tallas', 'colores', 'generos', 'usos', 'unidades', 'monedas', 'depositos'));
+                return view('inventarios/productos/electronica_computacion/productos_create', compact('codigo_grupo', 'categorias', 'subcategorias', 'marcas', 'monedas', 'depositos'));
                 break;
             case 'restaurante':
                 return view('inventarios/productos/restaurante/productos_create', compact('codigo_grupo', 'categorias', 'subcategorias', 'insumos', 'depositos'));
+                break;
+            case 'boutique':
+                return view('inventarios/productos/boutique/productos_create', compact('codigo_grupo', 'categorias', 'subcategorias', 'insumos', 'depositos', 'marcas', 'tallas', 'colores', 'generos', 'usos', 'unidades', 'depositos'));
                 break;
             default:
                 # code...
@@ -265,46 +282,104 @@ class ProductosController extends Controller
         }
     }
 
+    public function copy($id){
+        $p = DB::table('productos')->where('id', $id)->first();
+        $producto = Producto::create([
+                        'nombre' => $p->nombre,
+                        'descripcion_small' => $p->descripcion_small,
+                        'descripcion_long' => $p->descripcion_long,
+                        'precio_venta' => $p->precio_venta,
+                        'precio_minimo' => $p->precio_minimo,
+                        'ultimo_precio_compra' => $p->ultimo_precio_compra,
+                        'codigo' => $p->codigo,
+                        'codigo_grupo' => $p->codigo_grupo,
+                        'codigo_barras' => $p->codigo_barras,
+                        'estante' => $p->estante,
+                        'bloque' => $p->bloque,
+                        'stock' => 0,
+                        'stock_minimo' => $p->stock_minimo,
+                        'codigo_interno' => $p->codigo_interno,
+                        'subcategoria_id' => $p->subcategoria_id,
+                        'marca_id' => $p->marca_id,
+                        'talla_id' => $p->talla_id,
+                        'color_id' => $p->color_id,
+                        'genero_id' => $p->genero_id,
+                        'unidad_id' => $p->unidad_id,
+                        'uso_id' => $p->uso_id,
+                        'modelo' => $p->modelo,
+                        'moneda_id' => $p->moneda_id,
+                        'garantia' => $p->garantia,
+                        'catalogo' => $p->catalogo,
+                        'nuevo' => $p->nuevo,
+                        'se_almacena' => $p->se_almacena,
+                        'imagen' => $p->imagen,
+                        'vistas' => $p->vistas
+                        ]);
+        
+        // Actualizar los codigos del nuevo producto
+        Producto::where('id', $producto->id)
+                    ->update([
+                        'codigo' => setting('admin.prefijo_codigo').'-'.str_pad($producto->id, 5, "0", STR_PAD_LEFT),
+                        'codigo_barras' => date('Ymd').str_pad($producto->id, 5, "0", STR_PAD_LEFT),
+                    ]);
+        // Obtener los detalles de los precios por unidades del producto que se ha duplicado
+        $p_u = DB::table('producto_unidades')->where('producto_id', $id)->where('deleted_at', NULL)->get();
+        
+        // Recorrer los precios ingresados y crear nuevos registros con el ID del nuevo producto
+        foreach ($p_u as $item) {
+            ProductoUnidade::create([
+                'precio' => $item->precio,
+                'precio_minimo' => $item->precio_minimo,
+                'cantidad_minima' => $item->cantidad_minima,
+                'unidad_id' => $item->unidad_id,
+                'producto_id' => $producto->id,
+                'cantidad_pieza' => $item->cantidad_pieza
+            ]);
+        }
+
+        return redirect()->route('productos_index')->with(['message' => 'Copia del producto guardada exitosamenete.', 'alert-type' => 'success']);
+    }
+
     public function edit($id){
         $categorias = DB::table('categorias')
                             ->select('*')
                             ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+                            // ->where('id', '>', 1)
                             ->get();
         $subcategorias = DB::table('subcategorias')
                             ->select('*')
                             ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+                            // ->where('id', '>', 1)
                             ->get();
         $marcas = DB::table('marcas')
                             ->select('*')
                             ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+                            // ->where('id', '>', 1)
                             ->get();
         $tallas = DB::table('tallas')
                             ->select('*')
                             ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+                            // ->where('id', '>', 1)
                             ->get();
         $colores = DB::table('colores')
                             ->select('*')
                             ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+                            // ->where('id', '>', 1)
                             ->get();
         $generos = DB::table('generos')
                             ->select('*')
                             ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+                            // ->where('id', '>', 1)
                             ->get();
         $usos = DB::table('usos')
                             ->select('*')
                             ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+                            // ->where('id', '>', 1)
                             ->get();
         $unidades = DB::table('unidades')
                             ->select('*')
                             ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+                            // ->where('id', '>', 1)
                             ->get();
         $monedas = DB::table('monedas')
                             ->select('*')
@@ -350,14 +425,17 @@ class ProductosController extends Controller
                                 ->get();
 
         switch (setting('admin.modo_sistema')) {
-            case 'boutique':
-            return view('inventarios/productos/boutique/productos_edit', compact('producto', 'imagen', 'precio_venta', 'categorias', 'subcategorias', 'marcas', 'tallas', 'colores', 'generos', 'usos', 'unidades'));
+            case 'repuestos':
+            return view('inventarios/productos/repuestos/productos_edit', compact('producto', 'imagen', 'precio_venta', 'precio_compra', 'categorias', 'subcategorias', 'marcas', 'unidades'));
                 break;
             case 'electronica_computacion':
                 return view('inventarios/productos/electronica_computacion/productos_edit', compact('producto', 'imagen', 'precio_venta', 'precio_compra', 'categorias', 'subcategorias', 'marcas', 'monedas'));
                 break;
             case 'restaurante':
                 return view('inventarios/productos/restaurante/productos_edit', compact('producto', 'imagen', 'categorias', 'subcategorias', 'precio_venta', 'insumos', 'insumos_productos'));
+                break;
+            case 'boutique':
+                return view('inventarios/productos/boutique/productos_edit', compact('producto', 'imagen', 'precio_venta', 'precio_compra', 'categorias', 'subcategorias', 'marcas', 'tallas', 'colores', 'generos', 'usos', 'unidades'));
                 break;
             default:
                 # code...
@@ -407,6 +485,11 @@ class ProductosController extends Controller
 
         $precio_venta = isset($data->precio_venta[0]) ? $data->precio_venta[0] : 0;
 
+        if(isset($data->precio_venta)){
+            $precio_venta = $data->precio_venta[0];
+            $precio_minimo = $data->precio_minimo[0];
+        }
+
         $query = DB::table('productos')
                     ->where('id', $data->id)
                     ->update([
@@ -418,12 +501,14 @@ class ProductosController extends Controller
                         'bloque' => $data->bloque,
                         'garantia' => $data->garantia,
                         'precio_venta' => $precio_venta,
-                        // 'stock_minimo' => $data->stock_minimo,
+                        'precio_minimo' => $precio_minimo,
+                        'stock_minimo' => $data->stock_minimo,
                         'subcategoria_id' => $data->subcategoria_id,
                         'marca_id' => $data->marca_id,
                         'talla_id' => $data->talla_id,
                         'color_id' => $data->color_id,
                         'genero_id' => $data->genero_id,
+                        'unidad_id' => $data->unidad_id,
                         'uso_id' => $data->uso_id,
                         'moneda_id' => $data->moneda_id,
                         'modelo' => $data->modelo,
@@ -665,6 +750,7 @@ class ProductosController extends Controller
             $producto->estante = $data->estante;
             $producto->bloque = $data->bloque;
             $producto->stock = $data->stock;
+            $producto->stock_minimo = $data->stock_minimo;
             $producto->garantia = $data->garantia;
             $producto->subcategoria_id = $data->subcategoria_id;
             $producto->marca_id = $data->marca_id;
@@ -672,6 +758,7 @@ class ProductosController extends Controller
             $producto->color_id = $data->color_id;
             $producto->genero_id = $data->genero_id;
             $producto->moneda_id = $data->moneda_id;
+            $producto->unidad_id = $data->unidad_id;
             $producto->modelo = $data->modelo;
             $producto->uso_id = $data->uso_id;
             $producto->codigo_grupo = $data->codigo_grupo;
@@ -714,7 +801,7 @@ class ProductosController extends Controller
                 $catalogo = $path;
             }
 
-            // guardar precio de la unidad ingresada
+            // guardar precio de de venta del prodcuto
             if(isset($data->precio_venta)){
                 for ($i=0; $i < count($data->precio_venta); $i++) {
                     DB::table('producto_unidades')
@@ -761,7 +848,8 @@ class ProductosController extends Controller
 
             // Agregar stock a almacen si el producto es almacenable
             if($se_almacena){
-                DB::table('productos_depositos')
+                if($data->deposito_id){
+                    DB::table('productos_depositos')
                             ->insert([
                                 'deposito_id' => $data->deposito_id,
                                 'producto_id' => $producto_id,
@@ -770,6 +858,7 @@ class ProductosController extends Controller
                                 'created_at' => Carbon::now(),
                                 'updated_at' => Carbon::now()
                             ]);
+                }
             }
 
             // Editar codigos del producto
@@ -881,46 +970,133 @@ class ProductosController extends Controller
                     ->avg('puntos');
     }
 
-    public function get_productos_venta($sucursal_actual){
-        // Obetener productos que no se almacenan en depositos
-        $productos = collect();
-        $aux = DB::table('productos as p')
-                            ->select('p.*')
+    // public function get_productos_venta($sucursal_actual){
+    //     // Obetener productos que no se almacenan en depositos
+    //     $productos = collect();
+    //     $aux = DB::table('productos as p')
+    //                         ->select('p.*')
+    //                         ->where('p.deleted_at', NULL)
+    //                         ->where('p.se_almacena', NULL)
+    //                         ->get();
+    //     foreach ($aux as $item) {
+    //         $productos->push($item);
+    //     }
+
+    //     // Obetener productos que se almacenan en deposito
+    //     $aux = DB::table('productos as p')
+    //                         ->join('productos_depositos as pd', 'pd.producto_id', 'p.id')
+    //                         ->join('depositos as d', 'd.id', 'pd.deposito_id')
+    //                         ->select('p.*', 'd.sucursal_id')
+    //                         ->where('p.deleted_at', NULL)
+    //                         ->where('p.se_almacena', '<>', NULL)
+    //                         ->where('d.sucursal_id', $sucursal_actual)
+    //                         ->get();
+    //     foreach ($aux as $item) {
+    //         $productos->push($item);
+    //     }
+
+    //     for ($i=0; $i < count($productos); $i++) {
+    //         $precio_venta = $productos[$i]->precio_venta;
+    //         // Obtener si el producto está en oferta
+    //         $oferta = (new Ofertas)->obtener_oferta($productos[$i]->id);
+    //         if($oferta){
+    //             if($oferta->tipo_descuento=='porcentaje'){
+    //                 $precio_venta -= ($precio_venta*($oferta->monto/100));
+    //             }else{
+    //                 $precio_venta -= $oferta->monto;
+    //             }
+    //         }
+    //         $productos[$i]->precio_venta = $precio_venta;
+    //     }
+
+    //     return $productos;
+    // }
+
+    // Filtros
+    public function filtro_simple($filtro, $categoria, $subcategoria, $marca, $talla, $genero, $color){
+
+        $filtro_categoria = ($categoria != 'all') ? " s.categoria_id = $categoria " : ' 1 ';
+        $filtro_subcategoria = ($subcategoria != 'all') ? " and  p.subcategoria_id = $subcategoria " : ' and 1';
+        $filtro_marca = ($marca != 'all') ? " and p.marca_id = $marca " : ' and 1';
+        $filtro_talla = ($talla != 'all') ? " and p.talla_id = $talla " : ' and 1';
+        $filtro_genero = ($genero != 'all') ? " and p.genero_id = $genero " : ' and 1';
+        $filtro_color = ($color != 'all') ? " and p.color_id = $color " : ' and 1';
+
+        if($filtro == 'all'){
+            return DB::table('productos as p')
+                            ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                            ->join('categorias as c', 'c.id', 's.categoria_id')
+                            ->join('marcas as m', 'm.id', 'p.marca_id')
+                            ->select('p.id', 'p.nombre')
+                            ->whereRaw($filtro_categoria.$filtro_subcategoria.$filtro_marca.$filtro_talla.$filtro_genero.$filtro_color)
                             ->where('p.deleted_at', NULL)
-                            ->where('p.se_almacena', NULL)
                             ->get();
-        foreach ($aux as $item) {
-            $productos->push($item);
-        }
-
-        // Obetener productos que se almacenan en deposito
-        $aux = DB::table('productos as p')
-                            ->join('productos_depositos as pd', 'pd.producto_id', 'p.id')
-                            ->join('depositos as d', 'd.id', 'pd.deposito_id')
-                            ->select('p.*', 'd.sucursal_id')
+        }else{
+            return DB::table('productos as p')
+                            ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                            ->join('categorias as c', 'c.id', 's.categoria_id')
+                            ->join('marcas as m', 'm.id', 'p.marca_id')
+                            ->select('p.id', 'p.nombre')
+                            ->whereRaw($filtro_categoria.$filtro_subcategoria.$filtro_marca.$filtro_talla.$filtro_genero.$filtro_color)
                             ->where('p.deleted_at', NULL)
-                            ->where('p.se_almacena', '<>', NULL)
-                            ->where('d.sucursal_id', $sucursal_actual)
+                            ->whereNotIn('p.id', function($q) use($filtro){
+                                $q->select('producto_id')->from($filtro)->where('deleted_at', null);
+                            })
                             ->get();
-        foreach ($aux as $item) {
-            $productos->push($item);
         }
+    }
 
-        for ($i=0; $i < count($productos); $i++) {
-            $precio_venta = $productos[$i]->precio_venta;
-            // Obtener si el producto está en oferta
-            $oferta = (new Ofertas)->obtener_oferta($productos[$i]->id);
-            if($oferta){
-                if($oferta->tipo_descuento=='porcentaje'){
-                    $precio_venta -= ($precio_venta*($oferta->monto/100));
-                }else{
-                    $precio_venta -= $oferta->monto;
-                }
-            }
-            $productos[$i]->precio_venta = $precio_venta;
-        }
+    public function subcategorias_list($categoria_id){
+        return DB::table('subcategorias')
+                        ->select('*')
+                        ->where('deleted_at', NULL)
+                        ->where('categoria_id', $categoria_id)
+                        ->get();
+    }
 
-        return $productos;
+    public function marcas_list($subcategoria_id){
+        return DB::table('marcas as m')
+                        ->join('productos as p', 'p.marca_id', 'm.id')
+                        ->select('m.*')
+                        ->where('m.deleted_at', NULL)
+                        ->where('p.subcategoria_id', $subcategoria_id)
+                        ->distinct()
+                        ->get();
+    }
+
+    public function tallas_list($subcategoria_id, $marca_id){
+        return DB::table('tallas as t')
+                        ->join('productos as p', 'p.talla_id', 't.id')
+                        ->select('t.*')
+                        ->where('t.deleted_at', NULL)
+                        ->where('p.subcategoria_id', $subcategoria_id)
+                        ->where('p.marca_id', $marca_id)
+                        ->distinct()
+                        ->get();
+    }
+
+    public function generos_list($subcategoria_id, $marca_id, $talla_id){
+        return DB::table('generos as g')
+                        ->join('productos as p', 'p.genero_id', 'g.id')
+                        ->select('g.*')
+                        ->where('g.deleted_at', NULL)
+                        ->where('p.subcategoria_id', $subcategoria_id)
+                        ->where('p.marca_id', $marca_id)
+                        ->where('p.talla_id', $talla_id)
+                        ->distinct()
+                        ->get();
+    }
+
+    public function colores_list($subcategoria_id, $marca_id, $talla_id, $genero_id){
+        return DB::table('colores as c')
+                        ->join('productos as p', 'p.color_id', 'c.id')
+                        ->select('c.*')
+                        ->where('c.deleted_at', NULL)
+                        ->where('p.subcategoria_id', $subcategoria_id)
+                        ->where('p.marca_id', $marca_id)
+                        ->where('p.talla_id', $talla_id)
+                        ->distinct()
+                        ->get();
     }
 
     // ===================================================

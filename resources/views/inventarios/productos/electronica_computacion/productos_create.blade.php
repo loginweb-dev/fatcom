@@ -145,9 +145,9 @@
                     </div>
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="panel panel-bordered">
+                            <div class="panel panel-bordered" style="margin-top:-30px">
                                 <div class="panel-heading">
-                                    <h3 class="panel-title"><i class="icon wb-image"></i> Precio(s) de compra <button type="button" class="btn btn-success btn-small" id="btn-add_compra" title="Agregar precio"><span class="voyager-plus"></span></button></h3>
+                                    <h4 class=""><i class="icon wb-image"></i> Precio(s) de compra <button type="button" class="btn btn-success btn-small" id="btn-add_compra" title="Agregar precio"><span class="voyager-plus"></span></button></h4>
                                     <div class="panel-actions">
                                         <a class="panel-action voyager-angle-up" data-toggle="panel-collapse" aria-hidden="true"></a>
                                     </div>
@@ -171,9 +171,9 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="panel panel-bordered">
+                            <div class="panel panel-bordered" style="margin-top:-30px">
                                 <div class="panel-heading">
-                                    <h4 class="panel-title"><i class="icon wb-image"></i> Precio(s) de venta <button type="button" class="btn btn-success btn-small" id="btn-add_venta" title="Agregar precio"><span class="voyager-plus"></span></button></h4>
+                                    <h4 class=""><i class="icon wb-image"></i> Precio(s) de venta <button type="button" class="btn btn-success btn-small" id="btn-add_venta" title="Agregar precio"><span class="voyager-plus"></span></button></h4>
                                     <div class="panel-actions">
                                         <a class="panel-action voyager-angle-up" data-toggle="panel-collapse" aria-hidden="true"></a>
                                     </div>

@@ -24,5 +24,5 @@ class Producto extends Model
         return 'slug';
     }
     
-    protected $fillable = ['nombre', 'descripcion_small', 'descripcion_long', 'precio_venta', 'precio_minimo', 'ultimo_precio_compra', 'codigo', 'codigo_grupo', 'codigo_barras', 'estante', 'bloque', 'stock', 'stock_minimo', 'codigo_interno', 'subcategoria_id', 'marca_id', 'talla_id', 'color_id', 'genero_id', 'unidad_id', 'uso_id', 'modelo', 'modena_id', 'garantia', 'catalogo', 'nuevo', 'se_almacena', 'imagen', 'vistas', 'slug'];
+    protected $fillable = ['nombre', 'descripcion_small', 'descripcion_long', 'precio_venta', 'precio_minimo', 'ultimo_precio_compra', 'codigo', 'codigo_grupo', 'codigo_barras', 'estante', 'bloque', 'stock', 'stock_minimo', 'codigo_interno', 'subcategoria_id', 'marca_id', 'talla_id', 'color_id', 'genero_id', 'unidad_id', 'uso_id', 'modelo', 'moneda_id', 'garantia', 'catalogo', 'nuevo', 'se_almacena', 'imagen', 'vistas', 'slug'];
 }

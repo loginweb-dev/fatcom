@@ -67,6 +67,7 @@ class VentasController extends Controller
                             ->whereRaw($consulta)
                             ->orderBy('v.id', 'DESC')
                             ->paginate(20);
+        // dd($registros);
         $delivery = DB::table('empleados as e')
                             ->join('users as u', 'u.id', 'e.user_id')
                             ->select('e.*', 'u.name as nombre')
@@ -90,7 +91,6 @@ class VentasController extends Controller
                                 ->where('e.id', '>', $item->venta_estado_id)->first();
             array_push($siguiente_estado, $aux);
         }
-        // dd($registros);
         $value = '';
         return view('ventas.ventas_index', compact('registros', 'value', 'delivery', 'ultima_venta', 'siguiente_estado', 'tamanio'));
     }
@@ -211,7 +211,9 @@ class VentasController extends Controller
                             ->join('subcategorias as s', 's.categoria_id', 'c.id')
                             ->join('productos as p', 'p.subcategoria_id', 's.id')
                             ->select('c.*')
-                            // ->where('p.deleted_at', NULL)
+                            ->where('p.deleted_at', NULL)
+                            ->where('c.deleted_at', NULL)
+                            ->where('c.id', '>', 1)
                             ->distinct()
                             ->get();
 
@@ -244,26 +246,41 @@ class VentasController extends Controller
                             ->get();
 
         // Obetener lista de productos a la venta en la sucursal actual
-        $productos = (new Productos)->get_productos_venta($sucursal_actual);
+        $productos = DB::table('productos as p')
+                            ->join('productos_depositos as pd', 'pd.producto_id', 'p.id')
+                            ->join('depositos as d', 'd.id', 'pd.deposito_id')
+                            ->select('p.*', 'd.sucursal_id')
+                            ->where('p.deleted_at', NULL)
+                            // ->where('p.subcategoria_id', $id)
+                            ->where('d.sucursal_id', $sucursal_actual)
+                            ->get();
         
         return view('ventas.ventas_productos_search', compact('categorias', 'productos'));
     }
 
-    public function productos_categoria($id){
-        $sucursal_actual = UsersSucursale::where('user_id', Auth::user()->id)->first()->sucursal_id;
-
+    public function ventas_categorias($id){
         $subcategorias = DB::table('subcategorias as s')
                             ->join('productos as p', 'p.subcategoria_id', 's.id')
                             ->select('s.id', 's.nombre')
                             ->where('s.deleted_at', NULL)
                             ->where('s.categoria_id', $id)
                             ->distinct()
+                            ->orderBy('s.nombre', 'ASC')
                             ->get();
+        return view('ventas.ventas_categorias', compact('subcategorias'));
+    }
 
-        // Obetener lista de productos a la venta en la sucursal actual
-        $productos = (new Productos)->get_productos_venta($sucursal_actual);
-
-        return view('ventas.ventas_productos_categoria', compact('subcategorias', 'productos'));
+    public function ventas_productos_categorias($id){
+        $sucursal_actual = UsersSucursale::where('user_id', Auth::user()->id)->first()->sucursal_id;
+        $productos =  DB::table('productos as p')
+                            ->join('productos_depositos as pd', 'pd.producto_id', 'p.id')
+                            ->join('depositos as d', 'd.id', 'pd.deposito_id')
+                            ->select('p.*', 'd.sucursal_id')
+                            ->where('p.deleted_at', NULL)
+                            ->where('p.subcategoria_id', $id)
+                            ->where('d.sucursal_id', $sucursal_actual)
+                            ->get();
+        return view('ventas.ventas_productos_categoria', compact('productos'));
     }
 
     public function store(Request $data){
@@ -321,8 +338,10 @@ class VentasController extends Controller
 
                     // Si el producto se almacena en stock descontar la cantidad vendidad
                     if(Producto::find($data->producto_id[$i])->se_almacena){
-                        $dp = DB::table('productos_depositos')->select('stock', 'stock_compra')
-                                    ->where('producto_id', $data->producto_id[$i])->where('deposito_id', $data->sucursal_id)
+                        $dp = DB::table('productos_depositos as pd')
+                                    ->join('depositos as d', 'd.id', 'pd.deposito_id')
+                                    ->select('pd.id', 'pd.stock', 'pd.stock_compra', 'd.id as deposito_id')
+                                    ->where('pd.producto_id', $data->producto_id[$i])->where('d.sucursal_id', $data->sucursal_id)
                                     ->first();
                         
                         // Si la venta emitió factura se descontará del stock de compra, caso contrario del stock normal
@@ -341,17 +360,11 @@ class VentasController extends Controller
                         // Si el stock seleccionado es menor o igual a la cantidad vendida se decrementa, sino se deja en 0
                         // y se decrementa al stock secundario la resta entre la cantidad vendida y el stock seleccionado
                         if($stock >= $data->cantidad[$i]){
-                            DB::table('productos_depositos')
-                                    ->where('producto_id', $data->producto_id[$i])->where('deposito_id', $data->sucursal_id)
-                                    ->decrement($stock_primario, $data->cantidad[$i]);
+                            DB::table('productos_depositos')->where('id', $dp->id)->decrement($stock_primario, $data->cantidad[$i]);
                         }else{
                             $monto_sobrante = $data->cantidad[$i] - $stock;
-                            DB::table('productos_depositos')
-                                    ->where('producto_id', $data->producto_id[$i])->where('deposito_id', $data->sucursal_id)
-                                    ->update([$stock_primario => 0]);
-                            DB::table('productos_depositos')
-                                    ->where('producto_id', $data->producto_id[$i])->where('deposito_id', $data->sucursal_id)
-                                    ->decrement($stock_secundario, $monto_sobrante);
+                            DB::table('productos_depositos')->where('id', $dp->id)->update([$stock_primario => 0]);
+                            DB::table('productos_depositos')->where('id', $dp->id)->decrement($stock_secundario, $monto_sobrante);
                         }
 
                         // Descontar stock del registro global
@@ -405,11 +418,38 @@ class VentasController extends Controller
         // Eliminacion provisional para productos que no pertenencen a un almacen
         $query = Venta::where('id', $data->id)->update(['deleted_at' => Carbon::now(), 'estado' => $data->tipo]);
         if($query){
-            // Crear un asiento de eliminación en caja
+            // Eliminar asiento de la caja
             DB::table('ie_asientos')->where('venta_id', $data->id)->update(['deleted_at' => Carbon::now()]);
             // Incrementar el total de egresos en caja y decrementar el total existente
             DB::table('ie_cajas')->where('id', $data->caja_id)->decrement('total_ingresos', $data->importe);
             DB::table('ie_cajas')->where('id', $data->caja_id)->decrement('monto_final', $data->importe);
+
+            // Si el producto se almacena en stock agregar la cantidad del detalle de la venta
+            $vd = DB::table('ventas_detalles as d')
+                            ->join('ventas as v', 'v.id', 'd.venta_id')
+                            ->join('productos as p', 'p.id', 'd.producto_id')
+                            ->select('d.*', 'v.sucursal_id', 'p.se_almacena', 'v.nro_factura')
+                            ->where('d.venta_id', $data->id)
+                            ->get();
+            // dd($dp);
+            foreach ($vd as $item) {
+                if($item->se_almacena){
+
+                    $stock = ($item->nro_factura) ? 'stock_compra' : 'stock';
+
+                    $pd = DB::table('productos_depositos as pd')
+                                ->join('depositos as d', 'd.id', 'pd.deposito_id')
+                                ->select('pd.id', 'pd.stock', 'pd.stock_compra', 'd.id as deposito_id')
+                                ->where('pd.producto_id', $item->producto_id)->where('d.sucursal_id', $item->sucursal_id)
+                                ->first();
+
+                        DB::table('productos_depositos')->where('id', $pd->id)->increment($stock, $item->cantidad);
+                    
+                    // Descontar stock del registro global
+                    DB::table('productos')->where('id', $item->producto_id)->increment('stock', $item->cantidad);
+                }
+            }
+
             return redirect()->route('ventas_index')->with(['message' => 'Venta eliminada exitosamenete.', 'alert-type' => 'success']);              
         }else{
             return redirect()->route('ventas_index')->with(['message' => 'Ocurrio un problema al eliminar la venta.', 'alert-type' => 'error']);
@@ -821,7 +861,8 @@ class VentasController extends Controller
         $total_literal = NumerosEnLetras::convertir($monto_total,'Bolivianos',true);
 
         if(!$detalle_venta[0]->nro_factura){
-            return view('facturas.recibo_venta', compact('detalle_venta', 'producto_adicional'));
+            // return view('facturas.recibo_venta', compact('detalle_venta', 'producto_adicional', 'total_literal'));
+            return view('facturas.recibo_venta2', compact('detalle_venta', 'producto_adicional', 'total_literal'));
         }else{
             $original = true;
             return view('facturas.factura_venta', compact('detalle_venta', 'producto_adicional', 'total_literal', 'original'));

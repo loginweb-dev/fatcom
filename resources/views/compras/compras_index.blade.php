@@ -90,12 +90,12 @@
                                     </table>
                                 </div>
                                 <div class="col-md-12">
-                                    <div class="col-md-6" style="overflow-x:auto">
+                                    <div class="col-md-4" style="overflow-x:auto">
                                         @if(count($registros)>0)
                                             <p class="text-muted">Mostrando del {{$registros->firstItem()}} al {{$registros->lastItem()}} de {{$registros->total()}} registros.</p>
                                         @endif
                                     </div>
-                                    <div class="col-md-6" style="overflow-x:auto">
+                                    <div class="col-md-8" style="overflow-x:auto">
                                         <nav class="text-right">
                                             {{ $registros->links() }}
                                         </nav>

@@ -10,6 +10,9 @@
         <a href="{{route('productos_create')}}" class="btn btn-success btn-add-new">
             <i class="voyager-plus"></i> <span>Añadir nuevo</span>
         </a>
+        <button class="btn btn-dark btn-add-new" title="Ver filtros" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+            <i class="voyager-params"></i> <span>Filtros</span>
+        </button>
         @endif
     @stop
     @section('content')
@@ -20,7 +23,7 @@
                     <div class="col-md-12">
                         <div class="panel panel-bordered">
                             <div class="panel-body">
-                                <div class="row">
+                                {{-- <div class="row">
                                     <div class="col-md-12">
                                         <div class="col-md-8"></div>
                                         <form id="form-search" class="form-search">
@@ -34,80 +37,73 @@
                                             </div>
                                         </form>
                                     </div>
-                                </div>
-                                <div class="table-responsive">
-                                    <table id="dataTable" class="table table-bordered table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Código</th>
-                                                <th>Nombre</th>
-                                                <th>Categoria</th>
-                                                <th>Precio</th>
-                                                <th>Stock</th>
-                                                <th>Imagen</th>
-                                                <th class="actions text-right">Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @php
-                                                $cont = 0;
-                                            @endphp
-                                            @forelse ($registros as $item)
-                                                @php
-                                                    $img = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
-                                                    $imagen = ($item->imagen!='') ? $item->imagen : 'productos/default.png';
-                                                @endphp
-                                                <tr>
-                                                    @if(!empty($item->codigo_interno))
-                                                    <td>{{$item->codigo_interno}}</td>
-                                                    @else
-                                                    <td>{{$item->id}}</td>
-                                                    @endif
-                                                    <td>{{$item->nombre}} <br> <small>{{\Carbon\Carbon::parse($item->created_at)->diffForHumans()}}</small> </td>
-                                                    <td>{{$item->subcategoria}}</td>
-                                                    <td>{{$precios[$cont]['precio']}}</td>
-                                                    {{-- <td>{{$cantidades[$cont]['cantidad']}}</td> --}}
-                                                    <td>{{$item->stock}}</td>
-                                                    <td><a href="{{url('storage').'/'.$imagen}}" data-fancybox="galeria1" data-caption="{{$item->nombre}}"><img src="{{url('storage').'/'.$img}}" width="50px" alt=""></a></td>
-                                                    <td class="no-sort no-click text-right" id="bread-actions">
-                                                        @if(auth()->user()->hasPermission('read_productos'))
-                                                        <a href="{{route('productos_view', ['id' => $item->id])}}" title="Ver" class="btn btn-sm btn-warning view">
-                                                            <i class="voyager-eye"></i> <span class="hidden-xs hidden-sm">Ver</span>
-                                                        </a>
-                                                        @endif
-                                                        @if(auth()->user()->hasPermission('edit_productos'))
-                                                        <a href="{{route('productos_edit', ['id'=>$item->id])}}" title="Editar" class="btn btn-sm btn-primary edit">
-                                                            <i class="voyager-edit"></i> <span class="hidden-xs hidden-sm">Editar</span>
-                                                        </a>
-                                                        @endif
-                                                        @if(auth()->user()->hasPermission('delete_productos'))
-                                                        <a href="#" title="Borrar" class="btn btn-sm btn-danger btn-delete" data-id="{{$item->id}}" data-toggle="modal" data-target="#modal_delete">
-                                                            <i class="voyager-trash"></i> <span class="hidden-xs hidden-sm">Borrar</span>
-                                                        </a>
-                                                        @endif
-                                                    </td>
-                                                </tr>
-                                                @php
-                                                    $cont++;
-                                                @endphp
-                                            @empty
-                                            <tr>
-                                                <td colspan="7"><p class="text-center"><br>No hay registros para mostrar.</p></td>
-                                            </tr>
-                                        @endforelse
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="col-md-6" style="overflow-x:auto">
-                                        @if(count($registros)>0)
-                                            <p class="text-muted">Mostrando del {{$registros->firstItem()}} al {{$registros->lastItem()}} de {{$registros->total()}} registros.</p>
-                                        @endif
+                                </div> --}}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div id="accordion">
+                                            <div class="card">
+                                                <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+                                                    <div class="card-body" style="padding-bottom:0px">
+                                                        <div class="row">
+                                                            <div class="form-group col-md-4">
+                                                                <label class="text-primary" for=""><b>Categoria</b></label><br>
+                                                                <select id="select-categoria_id" class="form-control select-filtro" data-tipo="subcategorias" data-destino="subcategoria_id">
+                                                                    <option value="">Todas</option>
+                                                                    @foreach($categorias as $item)
+                                                                    <option value="{{$item->id}}" >{{$item->nombre}}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                            <div class="form-group col-md-4">
+                                                                <label class="text-primary" for=""><b>Subcategoria</b></label><br>
+                                                                <select id="select-subcategoria_id" class="form-control select-filtro" data-tipo="marcas" data-destino="marca_id">
+                                                                    <option value="">Todas</option>
+                                                                    <option disabled value="">Debe seleccionar una categoría</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="form-group col-md-4">
+                                                                <label class="text-primary" for=""><b>Marca</b></label><br>
+                                                                <select id="select-marca_id" class="form-control select-filtro" data-tipo="tallas" data-destino="talla_id">
+                                                                    <option value="">Todas</option>
+                                                                    <option disabled value="">Debe seleccionar una subcategoria</option>
+                                                                </select>
+                                                            </div>
+
+                                                            <div style="@if(setting('admin.modo_sistema') != 'boutique') display:none @endif">
+                                                                <div class="form-group col-md-4">
+                                                                    <label class="text-primary" for=""><b>Talla</b></label><br>
+                                                                    <select id="select-talla_id" class="form-control select-filtro" data-tipo="generos" data-destino="genero_id">
+                                                                        <option value="">Todas</option>
+                                                                        <option disabled value="">Debe seleccionar una marca</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div class="form-group col-md-4">
+                                                                    <label class="text-primary" for=""><b>Genero</b></label><br>
+                                                                    <select id="select-genero_id" class="form-control select-filtro" data-tipo="colores" data-destino="color_id">
+                                                                        <option value="">Todos</option>
+                                                                        <option disabled value="">Debe seleccionar una marca</option>
+                                                                    </select>
+                                                                </div>
+                                                                <div class="form-group col-md-4">
+                                                                    <label class="text-primary" for=""><b>Color</b></label><br>
+                                                                    <select id="select-color_id" class="form-control select-filtro">
+                                                                        <option value="">Todos</option>
+                                                                        <option disabled value="">Debe seleccionar una genero</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="col-md-6" style="overflow-x:auto">
-                                        <nav class="text-right">
-                                            {{ $registros->links() }}
-                                        </nav>
+                                </div>
+                                <div style="min-height:200px">
+                                    <div id="lista-productos"></div>
+                                    <div id="load-modal" style="display: none;justify-content: center;align-items: center;height:100%">
+                                        <img src="{{voyager_asset('images/load.gif')}}" width="80px" alt="">
                                     </div>
                                 </div>
                             </div>
@@ -153,21 +149,57 @@
     @stop
     @section('javascript')
         <script src="{{url('ecommerce/plugins/fancybox/fancybox.min.js')}}" type="text/javascript"></script>
+        <script src="{{url('js/loginweb.js')}}"></script>
+        <script src="{{url('js/inventarios/productos.js')}}"></script>
         <script>
             $(document).ready(function() {
 
-                // set valor de delete
-                $('.btn-delete').click(function(){
-                    $('#modal_delete input[name="id"]').val($(this).data('id'));
+                filtro('{{url("admin/productos/lista")}}', 1);
+
+                 // Cuando se abre el acordeon se inizializan los select2 que tiene dentro
+                $('#accordion').on('show.bs.collapse', function () {
+                    setTimeout(function(){
+                        $('#select-categoria_id').select2();
+                        $('#select-subcategoria_id').select2();
+                        $('#select-marca_id').select2();
+                        $('#select-talla_id').select2();
+                        $('#select-genero_id').select2();
+                        $('#select-color_id').select2();
+                    }, 100);
                 });
 
-                // enviar formulario de busqueda
-                $('#form-search').on('submit', function(e){
-                    e.preventDefault();
-                    let value = (escape($('#search_value').val())!='') ? escape($('#search_value').val()) : 'all';
-                    window.location = '{{url("admin/productos/buscar")}}/'+value;
+                // realizar filtro
+                $('.select-filtro').change(function(){
+                    let tipo = $(this).data('tipo');
+                    let destino = $(this).data('destino');
+
+                    if(tipo){
+                        obtener_lista(tipo, '{{url("admin/productos/list")}}', destino);
+                    }
+                    
+                    filtro('{{url("admin/productos/lista")}}', 1);
                 });
             });
+
+            function filtro(url, page){
+                $('#load-modal').css('display', 'flex');
+                $('#lista-productos').html('');
+                let categoria = $('#select-categoria_id').val() ? $('#select-categoria_id').val() : 'all';
+                let subcategoria = $('#select-subcategoria_id').val() ? $('#select-subcategoria_id').val() : 'all';
+                let marca = $('#select-marca_id').val() ? $('#select-marca_id').val() : 'all';
+                let talla = $('#select-talla_id').val() ? $('#select-talla_id').val() : 'all';
+                let genero = $('#select-genero_id').val() ? $('#select-genero_id').val() : 'all';
+                let color = $('#select-color_id').val() ? $('#select-color_id').val() : 'all';
+
+                $.ajax({
+                    url: url+'/'+categoria+'/'+subcategoria+'/'+marca+'/'+talla+'/'+genero+'/'+color+'?page='+page,
+                    type: 'get',
+                    success: function(response){
+                        $('#lista-productos').html(response);
+                        $('#load-modal').css('display', 'none');
+                    }
+                });
+            }
         </script>
     @stop
 

@@ -121,11 +121,11 @@
                                             <div id="accordion">
                                                 <div class="card">
                                                     <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
-                                                        <div class="card-body">
+                                                        <div class="card-body" style="padding-bottom:0px">
                                                             <div class="row">
                                                                 <div class="form-group col-md-4">
-                                                                    <label for="">Categoria</label>
-                                                                    <select id="select-categoria_id" class="form-control select2 select-filtro">
+                                                                    <label class="text-primary" for=""><b>Categoria</b></label><br>
+                                                                    <select id="select-categoria_id" class="form-control select-filtro" data-tipo="subcategorias" data-destino="subcategoria_id">
                                                                         <option value="">Todas</option>
                                                                         @foreach($categorias as $item)
                                                                         <option value="{{$item->id}}" >{{$item->nombre}}</option>
@@ -133,20 +133,44 @@
                                                                     </select>
                                                                 </div>
                                                                 <div class="form-group col-md-4">
-                                                                    <label for="">Sub categoria</label>
-                                                                    <select id="select-subcategoria_id" class="form-control select2 select-filtro">
-                                                                        <option value="">Todos(as)</option>
+                                                                    <label class="text-primary" for=""><b>Subcategoria</b></label><br>
+                                                                    <select id="select-subcategoria_id" class="form-control select-filtro" data-tipo="marcas" data-destino="marca_id">
+                                                                        <option value="">Todas</option>
+                                                                        <option disabled value="">Debe seleccionar una categoría</option>
                                                                     </select>
                                                                 </div>
                                                                 <div class="form-group col-md-4">
-                                                                    <label for="">Marca</label>
-                                                                    <select id="select-marca_id" class="form-control select2 select-filtro">
+                                                                    <label class="text-primary" for=""><b>Marca</b></label><br>
+                                                                    <select id="select-marca_id" class="form-control select-filtro" data-tipo="tallas" data-destino="talla_id">
                                                                         <option value="">Todas</option>
-                                                                        @foreach($marcas as $item)
-                                                                        <option value="{{$item->id}}" >{{$item->nombre}}</option>
-                                                                        @endforeach
+                                                                        <option disabled value="">Debe seleccionar una subcategoria</option>
                                                                     </select>
                                                                 </div>
+    
+                                                                <div style="@if(setting('admin.modo_sistema') != 'boutique') display:none @endif">
+                                                                    <div class="form-group col-md-4">
+                                                                        <label class="text-primary" for=""><b>Tallas</b></label><br>
+                                                                        <select id="select-talla_id" class="form-control select-filtro" data-tipo="generos" data-destino="genero_id">
+                                                                            <option value="">Todas</option>
+                                                                            <option disabled value="">Debe seleccionar una marca</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="form-group col-md-4">
+                                                                        <label class="text-primary" for=""><b>Genero</b></label><br>
+                                                                        <select id="select-genero_id" class="form-control select-filtro" data-tipo="colores" data-destino="color_id">
+                                                                            <option value="">Todos</option>
+                                                                            <option disabled value="">Debe seleccionar una marca</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="form-group col-md-4">
+                                                                        <label class="text-primary" for=""><b>Color</b></label><br>
+                                                                        <select id="select-color_id" class="form-control select-filtro">
+                                                                            <option value="">Todos</option>
+                                                                            <option disabled value="">Debe seleccionar una genero</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+    
                                                             </div>
                                                         </div>
                                                     </div>
@@ -210,7 +234,7 @@
         </div>
         @include('partials.modal_load')
     @stop
-
+    
     @section('css')
         <style>
 
@@ -220,7 +244,7 @@
     @section('javascript')
         <script src="{{url('image-preview/image-preview.js')}}"></script>
         <script src="{{url('js/loginweb.js')}}"></script>
-        <script src="{{url('js/inventarios/ofertas.js')}}"></script>
+        <script src="{{url('js/inventarios/productos.js')}}"></script>
         <script>
             $(document).ready(function(){
                 $('[data-toggle="popover"]').popover({ html : true });
@@ -230,22 +254,28 @@
                 toastr.error('Debe agregar al menos 1 producto a la lista.', 'Error');
                 @enderror
 
-                // Obtener subcategorias de una categoria
-                $('#select-categoria_id').change(function(){
-                    let id = $(this).val();
-                    subcategorias(id, '{{url("admin/subcategorias/list/categoria")}}');
+                // Cuando se abre el acordeon se inizializan los select2 que tiene dentro
+                $('#accordion').on('show.bs.collapse', function () {
+                    setTimeout(function(){
+                        $('#select-categoria_id').select2();
+                        $('#select-subcategoria_id').select2();
+                        $('#select-marca_id').select2();
+                        $('#select-talla_id').select2();
+                        $('#select-genero_id').select2();
+                        $('#select-color_id').select2();
+                    }, 100);
                 });
 
                 // realizar filtro
                 $('.select-filtro').change(function(){
-                    filtro('{{url("admin/ofertas/filtros/filtro_simple")}}');
-                });
+                    let tipo = $(this).data('tipo');
+                    let destino = $(this).data('destino');
 
-                // agregar productos
-                let indice = 1;
-                $('#btn-agregar').click(function(){
-                    add_producto(indice, '{{url("admin/productos/obtener/precios_venta")}}');
-                    indice++;
+                    if(tipo){
+                        obtener_lista(tipo, '{{url("admin/productos/list")}}', destino);
+                    }
+                    
+                    filtro('{{url("admin/ofertas/filtros/filtro_simple/ofertas_detalles")}}');
                 });
 
                 // Cambiar duración de oferta

@@ -83,9 +83,12 @@ Route::post('admin/depositos/producto/store', 'DepositosController@store_product
 
 // ================================Productos===========================
 Route::get('admin/productos', 'ProductosController@index')->name('productos_index');
+Route::get('admin/productos/lista/{categoria}/{subcategoria}/{marca}/{talla}/{genero}/{color}', 'ProductosController@productos_list');
 Route::get('admin/productos/buscar/{value}', 'ProductosController@search');
 Route::get('admin/productos/ver/{id}', 'ProductosController@view')->name('productos_view');
+Route::get('admin/productos/ver/informacion/{id}', 'ProductosController@view_simple');
 Route::get('admin/productos/crear', 'ProductosController@create')->name('productos_create');
+Route::get('admin/productos/copiar/{id}', 'ProductosController@copy')->name('productos_copy');
 Route::post('admin/productos/guardar', 'ProductosController@store')->name('productos_store');
 Route::get('admin/productos/editar/{id}', 'ProductosController@edit')->name('productos_edit');
 Route::post('admin/productos/actualizar', 'ProductosController@update')->name('productos_update');
@@ -99,13 +102,21 @@ Route::post('admin/productos/eliminar_imagen', 'ProductosController@delete_image
 // Obtener datos varios
 Route::get('admin/productos/obtener/precios_venta/{id}', 'ProductosController@obtener_precios_venta');
 
+// Filtros
+Route::get('admin/productos/list/subcategorias/{categoria_id}', 'ProductosController@subcategorias_list');
+Route::get('admin/productos/list/marcas/{subcategoria_id}', 'ProductosController@marcas_list');
+Route::get('admin/productos/list/tallas/{subcategoria_id}/{marca_id}', 'ProductosController@tallas_list');
+Route::get('admin/productos/list/generos/{subcategoria_id}/{marca_id}/{talla_id}', 'ProductosController@generos_list');
+Route::get('admin/productos/list/colores/{subcategoria_id}/{marca_id}/{talla_id}/{genero_id}', 'ProductosController@colores_list');
+
+Route::get('admin/ofertas/filtros/filtro_simple/{tipo}/{categoria}/{subcategoria}/{marca}/{talla}/{genero}/{color}', 'ProductosController@filtro_simple');
+
 
 // Llamadas a vistas para cargar el modal de nuevo registro
 Route::get('admin/productos/crear/agregar/{vista}', 'ProductosController@cargar_vista');
 
 
 // ================================Subcategorias===========================
-Route::get('admin/subcategorias/list/categoria/{id}', 'SubcategoriasController@categoria_list');
 Route::get('admin/subcategorias/create_new/{value}', 'SubcategoriasController@create_new');
 
 // ================================Marcas===========================
@@ -120,9 +131,6 @@ Route::post('admin/ofertas/guardar', 'OfertasController@store')->name('ofertas_s
 Route::get('admin/ofertas/editar/{id}', 'OfertasController@edit')->name('ofertas_edit');
 Route::post('admin/ofertas/actualizar', 'OfertasController@update')->name('ofertas_update');
 Route::post('admin/ofertas/eliminar/', 'OfertasController@delete')->name('ofertas_delete');
-
-// Filtros
-Route::get('admin/ofertas/filtros/filtro_simple/{categoria}/{subcategoria}/{marca}', 'OfertasController@filtro_simple');
 
 // ================================Ecommerce===========================
 Route::get('admin/ecommerce', 'EcommerceController@index')->name('ecommerce_index');
@@ -176,7 +184,8 @@ Route::get('admin/ventas/get_ubicaciones_cliente/{id}', 'VentasController@get_ub
 
 Route::get('admin/ventas/lista_nuevos_pedidos/{last}', 'VentasController@get_nuevos_pedidos');
 Route::get('admin/ventas/crear/productos_search', 'VentasController@productos_search');
-Route::get('admin/ventas/crear/productos_categoria/{id}', 'VentasController@productos_categoria');
+Route::get('admin/ventas/crear/ventas_categorias/{id}', 'VentasController@ventas_categorias');
+Route::get('admin/ventas/crear/ventas_productos_categorias/{id}', 'VentasController@ventas_productos_categorias');
 
 // ============================Dosificacion====================================
 Route::get('admin/dosificaciones', 'DosificacionesController@index')->name('dosificaciones_index');

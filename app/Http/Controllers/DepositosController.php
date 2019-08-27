@@ -78,7 +78,7 @@ class DepositosController extends Controller
                             // ->where('deleted_at', NULL)
                             ->where('d.deposito_id', $id)
                             // ->where('d.stock', '>', 0)
-                            ->paginate(10);
+                            ->paginate(20);
         $imagenes = [];
         $precios = [];
         if(count($registros)>0){

@@ -130,3 +130,72 @@ function add_precio_venta(indice_venta){
 function borrarTr(id, tipo){
     $('#tr-precio'+tipo+id).remove();
 }
+
+// Filtro de productos y sus caracteristicas
+
+async function obtener_lista(tipo, url, destino){
+    let categoria = $('#select-categoria_id').val() ? $('#select-categoria_id').val() : 'all';
+    let subcategoria = $('#select-subcategoria_id').val() ? $('#select-subcategoria_id').val() : 'all';
+    let marca = $('#select-marca_id').val() ? $('#select-marca_id').val() : 'all';
+    let talla = $('#select-talla_id').val() ? $('#select-talla_id').val() : 'all';
+    let genero = $('#select-genero_id').val() ? $('#select-genero_id').val() : 'all';
+    let color = $('#select-color_id').val() ? $('#select-color_id').val() : 'all';
+
+    // Según el tipo de busqueda agregar parametros a la url
+    switch (tipo) {
+        // case 'categorias'    : url += '/'+tipo+'/'+categoria; break;
+        case 'subcategorias':
+            url += '/'+tipo+'/'+categoria;
+            select2_reload_simple('marca_id', [], 'Todas(os)');
+            select2_reload_simple('talla_id', [], 'Todas(os)');
+            select2_reload_simple('genero_id', [], 'Todas(os)');
+            select2_reload_simple('color_id', [], 'Todas(os)');
+            break;
+        case 'marcas':
+            url += '/'+tipo+'/'+subcategoria;
+            select2_reload_simple('talla_id', [], 'Todas(os)');
+            select2_reload_simple('genero_id', [], 'Todas(os)');
+            select2_reload_simple('color_id', [], 'Todas(os)');
+            break;
+        case 'tallas':
+            url += '/'+tipo+'/'+subcategoria+'/'+marca;
+            select2_reload_simple('genero_id', [], 'Todas(os)');
+            select2_reload_simple('color_id', [], 'Todas(os)');
+            break;
+        case 'generos':
+            url += '/'+tipo+'/'+subcategoria+'/'+marca+'/'+talla;
+            select2_reload_simple('color_id', [], 'Todas(os)');
+            break;
+        case 'colores':
+            url += '/'+tipo+'/'+subcategoria+'/'+marca+'/'+talla+'/'+genero;
+            break;
+        default: break;
+    }
+    
+    $.get(url, function(response){
+        select2_reload_simple(destino, response, 'Todas(os)');
+    });
+}
+
+function filtro(url){
+    let categoria = $('#select-categoria_id').val() ? $('#select-categoria_id').val() : 'all';
+    let subcategoria = $('#select-subcategoria_id').val() ? $('#select-subcategoria_id').val() : 'all';
+    let marca = $('#select-marca_id').val() ? $('#select-marca_id').val() : 'all';
+    let talla = $('#select-talla_id').val() ? $('#select-talla_id').val() : 'all';
+    let genero = $('#select-genero_id').val() ? $('#select-genero_id').val() : 'all';
+    let color = $('#select-color_id').val() ? $('#select-color_id').val() : 'all';
+
+    // evitar que se envie una sub categoria si no se esta enviando una categoria
+    if(categoria == 'all'){
+        subcategoria = 'all';
+    }
+
+    $.ajax({
+        url: url+'/'+categoria+'/'+subcategoria+'/'+marca+'/'+talla+'/'+genero+'/'+color,
+        type: 'get',
+        success: function(response){
+            // console.log(response)
+            select2_reload_simple('producto_id', response, 'Todos los productos');
+        }
+    });
+}

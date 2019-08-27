@@ -42,7 +42,7 @@
                             </li>
                             @foreach ($categorias as $item)
                             <li class="li-item" id="li-{{$item->id}}" style="display:inline">
-                                <a data-toggle="tab" href="#tab1" onclick="productos_categoria({{$item->id}})">{{$item->nombre}}</a>
+                                <a data-toggle="tab" href="#tab1" onclick="lista_categorias({{$item->id}})">{{$item->nombre}}</a>
                             </li>
                             @endforeach
                         </ul>
@@ -76,20 +76,22 @@
                                     <input type="number" name="nit" id="input-nit" class="form-control">
                                 </div>
                             </div>
-                            <hr style="margin-bottom:10px;margin-top:0px">
-                            <div class="row">
-                                <div class="form-group col-md-6">
-                                    <label>¿Para llevar?</label><br>
-                                    <input type="checkbox" id="check-llevar" name="llevar" data-toggle="toggle" data-on="Sí" data-off="No">
-                                    <input type="hidden" name="fecha" class="form-control" value="{{date('Y-m-d')}}" required>
-                                </div>
-                                {{-- <div class="form-group col-md-4">
-                                    <label>N&deg; de Mesa</label> --}}
-                                    <input type="hidden" min="1" step="1" name="nro_mesa" id="input-nro_mesa" class="form-control" value="" required>
-                                {{-- </div> --}}
-                                <div class="form-group col-md-6">
-                                    <label>A domicilio</label><br>
-                                    <input type="checkbox" id="check-domicilio" name="domicilio" data-toggle="toggle" data-onstyle="success" data-on="Sí" data-off="No">
+                            <div style="@if(setting('admin.modo_sistema') != 'boutique') display:none @endif">
+                                <hr style="margin-bottom:10px;margin-top:0px">
+                                <div class="row">
+                                    <div class="form-group col-md-6">
+                                        <label>¿Para llevar?</label><br>
+                                        <input type="checkbox" id="check-llevar" name="llevar" data-toggle="toggle" data-on="Sí" data-off="No">
+                                        <input type="hidden" name="fecha" class="form-control" value="{{date('Y-m-d')}}" required>
+                                    </div>
+                                    {{-- <div class="form-group col-md-4">
+                                        <label>N&deg; de Mesa</label> --}}
+                                        <input type="hidden" min="1" step="1" name="nro_mesa" id="input-nro_mesa" class="form-control" value="" required>
+                                    {{-- </div> --}}
+                                    <div class="form-group col-md-6">
+                                        <label>A domicilio</label><br>
+                                        <input type="checkbox" id="check-domicilio" name="domicilio" data-toggle="toggle" data-onstyle="success" data-on="Sí" data-off="No">
+                                    </div>
                                 </div>
                             </div>
                             <hr style="margin-bottom:10px;margin-top:0px">
@@ -152,7 +154,7 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <textarea name="observaciones" id="" class="form-control" rows="3" placeholder="Observaciones del pedido..."></textarea>
+                            <textarea name="observaciones" id="" class="form-control" rows="3" placeholder="Observaciones de la venta..."></textarea>
                             <input type="hidden" name="importe" value="0" id="input-total">
                         </div>
                         <div class="col-md-12 text-right">
@@ -222,6 +224,21 @@
     </div>
 </form>
 
+    {{-- Modal de detalle de producto --}}
+    <div class="modal modal-primary fade" tabindex="-1" id="modal-info_producto" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title"><i class="voyager-harddrive"></i> Detalle de producto</h4>
+                </div>
+                <div class="modal-body" id="info_producto"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-right" id="btn-cancel-map" data-dismiss="modal">cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @include('partials.modal_load')
 {{-- Variables PHP para inicializar la vista --}}
 @php
@@ -266,7 +283,7 @@
                 select2_reload('cliente_id', data, false, 1)
             });
             
-            // productos_categoria({{$categoria_id}});
+            // lista_categorias({{$categoria_id}});
             productos_buscar();
 
             // Cambiar sucursal actual
@@ -319,52 +336,52 @@
             });
 
             // formulario de envio de venta
-            // $('#form').on('submit', function(e){
-            //     $('#btn-vender').attr('disabled', true);
-            //     $('#modal_load').modal('show');
-            //     e.preventDefault();
-            //     let datos = $(this).serialize();
-            //     $.ajax({
-            //         url: "{{route('ventas_store')}}",
-            //         type: 'post',
-            //         data: datos,
-            //         success: function(data){
-            //             if(data){
-            //                 if(data=='error 1'){
-            //                     toastr.error('Venta no realizada, el cliente seleccionado tiene un pedido pendiente.', 'Error');
-            //                 }else{
-            //                     let id = data;
-            //                     toastr.success('Venta registrada correctamente.', 'Exito');
-            //                     // Factura
-            //                     @if($tamanio=='rollo')
-            //                         $.get("{{url('admin/venta/impresion/rollo')}}/"+id, function(){});
-            //                     @else
-            //                         window.open("{{url('admin/venta/impresion/normal')}}/"+id, "Factura", `width=700, height=400`)
-            //                     @endif
+            $('#form').on('submit', function(e){
+                $('#btn-vender').attr('disabled', true);
+                $('#modal_load').modal('show');
+                e.preventDefault();
+                let datos = $(this).serialize();
+                $.ajax({
+                    url: "{{route('ventas_store')}}",
+                    type: 'post',
+                    data: datos,
+                    success: function(data){
+                        if(data){
+                            if(data=='error 1'){
+                                toastr.error('Venta no realizada, el cliente seleccionado tiene un pedido pendiente.', 'Error');
+                            }else{
+                                let id = data;
+                                toastr.success('Venta registrada correctamente.', 'Exito');
+                                // Factura
+                                @if($tamanio=='rollo')
+                                    $.get("{{url('admin/venta/impresion/rollo')}}/"+id, function(){});
+                                @else
+                                    window.open("{{url('admin/venta/impresion/normal')}}/"+id, "Factura", `width=700, height=400`)
+                                @endif
                                 
-            //                     $('#form')[0].reset();
-            //                     $('.tr-detalle').remove();
-            //                     $(".label-subtotal").text('0.00');
-            //                     $("#label-total").text('0.00 Bs.');
-            //                     $('#check-domicilio').bootstrapToggle('off');
-            //                     $('#check-llevar').bootstrapToggle('off');
-            //                     $('#check-factura').bootstrapToggle('off');
-            //                     inicializar_select2_simple('producto_id')
+                                $('#form')[0].reset();
+                                $('.tr-detalle').remove();
+                                $(".label-subtotal").text('0.00');
+                                $("#label-total").text('0.00 Bs.');
+                                $('#check-domicilio').bootstrapToggle('off');
+                                $('#check-llevar').bootstrapToggle('off');
+                                $('#check-factura').bootstrapToggle('off');
+                                inicializar_select2_simple('producto_id')
 
-            //                     // Obtener lista de clientes
-            //                     $.get('{{route("clientes_list")}}', function(data){
-            //                         select2_reload('cliente_id', data, false, 1);
-            //                     });
-            //                 }
-            //             }else{
-            //                 toastr.error('Ocurrio un error al ingresar la venta.', 'Error');
-            //             }
-            //             $('#modal_load').modal('hide');
-            //             $('#btn-vender').removeAttr('disabled');
-            //         },
-            //         error: () => console.log(error)
-            //     });
-            // });
+                                // Obtener lista de clientes
+                                $.get('{{route("clientes_list")}}', function(data){
+                                    select2_reload('cliente_id', data, false, 1);
+                                });
+                            }
+                        }else{
+                            toastr.error('Ocurrio un error al ingresar la venta.', 'Error');
+                        }
+                        $('#modal_load').modal('hide');
+                        $('#btn-vender').removeAttr('disabled');
+                    },
+                    error: () => console.log(error)
+                });
+            });
 
             // anular o activar mesa si no es para llevar
             $('#check-llevar').change(function() {
@@ -524,7 +541,7 @@
                 toastr.warning('El producto ya se encuentra en la lista.', 'Atención');
             }else{
                 $('#detalle_venta').before(`<tr class="tr-detalle" id="tr-${id}_${adicional_id}" data-id="${id}_${adicional_id}">
-                                                <td><input type="hidden" value="${id}" name="producto_id[]"><input type="hidden" value="${adicional_id}" name="adicional_id[]">${nombre+adicional_nombre}</td>
+                                                <td><input type="hidden" value="${id}" name="producto_id[]"><input type="hidden" value="${adicional_id}" name="adicional_id[]"><button type="button" class="btn btn-link" title="Ver información" onclick="producto_info(${id})">${nombre+adicional_nombre}</button></td>
                                                 <td><input type="text" class="form-control" name="observacion[]"></td>
                                                 <td>
                                                     <div class="input-group">
@@ -561,13 +578,13 @@
         }
 
         // mostrar los productos de la categoria seleccionada
-        function productos_categoria(id){
+        function lista_categorias(id){
             $('#tab1').html(`  <div style="height:370px" class="text-center">
                                     <br><br><br>
                                     <img src="{{ voyager_asset('images/load.gif') }}" width="100px">
                                 </div>`);
             $.ajax({
-                url: `{{url('admin/ventas/crear/productos_categoria/${id}')}}`,
+                url: `{{url('admin/ventas/crear/ventas_categorias/${id}')}}`,
                 type: 'get',
                 success: function(data){
                     $('#tab1').html(data);
@@ -594,6 +611,14 @@
                             $('#input-descripcion').val('')
                         });;
             map.setView([lat, lon]);
+        }
+
+        function producto_info(id){
+            $('#modal-info_producto').modal();
+            $('#info_producto').html('<br><h4 class="text-center">Cargando...</h4>');
+            $.get('{{url("admin/productos/ver/informacion")}}/'+id, function(data){
+                $('#info_producto').html(data);
+            });
         }
     </script>
 @stop

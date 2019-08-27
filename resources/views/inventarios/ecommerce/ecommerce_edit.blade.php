@@ -21,7 +21,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="panel panel-bordered">
-                                <div class="panel-body" style="padding-top:0px">
+                                <div class="panel-body">
                                     <div class="row">
                                         <div class="col-md-12">
                                             <label for="">Producto</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Producto que se agregará al E-Commerce. Este campo es obligatorio."></span> @endif
