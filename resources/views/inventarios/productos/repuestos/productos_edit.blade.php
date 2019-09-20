@@ -85,7 +85,7 @@
                                             <div class="row">
                                                 <div class="form-group col-md-6">
                                                     <label for="">Stock</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad de productos en stock. Este campo es obligatorio."></span> @endif
-                                                    <input type="number" name="stock" class="form-control" disabled value="{{$producto->stock}}" min="0" step="1" required>
+                                                    <input type="number" name="stock" class="form-control" readonly value="{{$producto->stock}}" min="0" step="1" required>
                                                     @error('stock')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
@@ -351,7 +351,7 @@
                     let id = $(this).val();
                     if(!isNaN(id)){
                         $.ajax({
-                            url: '{{url("admin/subcategorias/list/categoria")}}/'+id,
+                            url: '{{url("admin/productos/list/subcategorias")}}/'+id,
                             type: 'get',
                             success: function(response){
                                 select2_reload_simple('subcategoria_id', response, false, '');

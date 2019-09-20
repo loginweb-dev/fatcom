@@ -102,6 +102,25 @@
                                     <div class="row">
                                         <div class="col-md-6" style="margin:0px">
                                             <div class="panel-heading" style="border-bottom:0;">
+                                                <h3 class="panel-title">Stock actual</h3>
+                                            </div>
+                                            <div class="panel-body" style="padding-top:0;">
+                                                <p>{{$producto->stock}}</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6" style="margin:0px">
+                                            <div class="panel-heading" style="border-bottom:0;">
+                                                <h3 class="panel-title">Stock mínimo</h3>
+                                            </div>
+                                            <div class="panel-body" style="padding-top:0;">
+                                                <p>{{$producto->stock_minimo}}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr style="margin:0;">
+                                    <div class="row">
+                                        <div class="col-md-6" style="margin:0px">
+                                            <div class="panel-heading" style="border-bottom:0;">
                                                 <h3 class="panel-title">Estante</h3>
                                             </div>
                                             <div class="panel-body" style="padding-top:0;">

@@ -45,6 +45,59 @@
                     <div class="row">
                         <div class="col-md-6" style="margin:0px">
                             <div class="panel-heading" style="border-bottom:0;">
+                                <h3 class="panel-title">Stock actual</h3>
+                            </div>
+                            <div class="panel-body" style="padding-top:0;">
+                                <p>{{$producto->stock}}</p>
+                            </div>
+                        </div>
+                        {{-- Si el cliente maneja un código interno para su producto se mostrará, sino se mostrará el stock mínimo --}}
+                        @if($producto->codigo_interno)
+                        <div class="col-md-6" style="margin:0px">
+                            <div class="panel-heading" style="border-bottom:0;">
+                                <h3 class="panel-title">Código interno</h3>
+                            </div>
+                            <div class="panel-body" style="padding-top:0;">
+                                <p>{{$producto->codigo_interno}}</p>
+                            </div>
+                        </div>
+                        @else
+                        <div class="col-md-6" style="margin:0px">
+                            <div class="panel-heading" style="border-bottom:0;">
+                                <h3 class="panel-title">Stock mínimo</h3>
+                            </div>
+                            <div class="panel-body" style="padding-top:0;">
+                                <p>{{$producto->stock_minimo}}</p>
+                            </div>
+                        </div>
+                        @endif
+                        {{-- //// --}}
+                    </div>
+                    @if(setting('admin.modo_sistema')=='boutique')
+                    <hr style="margin:0;">
+                    <div class="row">
+                        <div class="col-md-6" style="margin:0px">
+                            <div class="panel-heading" style="border-bottom:0;">
+                                <h3 class="panel-title">Talla</h3>
+                            </div>
+                            <div class="panel-body" style="padding-top:0;">
+                                <p>{{$producto->talla}}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6" style="margin:0px">
+                            <div class="panel-heading" style="border-bottom:0;">
+                                <h3 class="panel-title">Genero</h3>
+                            </div>
+                            <div class="panel-body" style="padding-top:0;">
+                                <p>{{$producto->genero}}</p>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                    <hr style="margin:0;">
+                    <div class="row">
+                        <div class="col-md-6" style="margin:0px">
+                            <div class="panel-heading" style="border-bottom:0;">
                                 <h3 class="panel-title">Estante</h3>
                             </div>
                             <div class="panel-body" style="padding-top:0;">

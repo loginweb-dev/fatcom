@@ -31,7 +31,7 @@
                                 <input type="hidden" name="precio_minimo[]" value="0">
                                 <input type="hidden" name="cantidad_minima_venta[]" value="1">
                                 {{-- </datos por defecto> --}}
-                                <input type="hidden" name="deposito_id" value="{{$depositos->id}}">
+                                <input type="hidden" name="deposito_id" value="{{($depositos) ? $depositos->id : ''}}">
                                 <input type="hidden" name="codigo_grupo" value="{{$codigo_grupo}}">
                                 <div class="panel-body strong-panel">
                                     <div class="row">
@@ -81,7 +81,7 @@
                                                 </div>
                                                 <div class="form-group col-md-6">
                                                     <label for="">Cantidad</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad de productos en stock. Este campo es obligatorio."></span> @endif
-                                                    <input type="number" name="stock" class="form-control" value="{{ old('stock') ? old('stock') : 0 }}" min="0" step="1" required>
+                                                    <input type="number" name="stock" class="form-control" @if($depositos && $depositos->inventario) value="{{ old('stock') ? old('stock') : 0 }}"  @else value="0" readonly @endif min="0" step="1" required>
                                                     <div  style="position:absolute;right:15px;top:27px">
                                                         <input type="checkbox" name="se_almacena" data-toggle="toggle" data-on="<small>Se almacena</small> <span class='voyager-check'></span>" data-off="<small>Se almacena</small> <span class='voyager-x'></span>">
                                                     </div>
@@ -200,7 +200,7 @@
                     let id = $(this).val();
                     if(!isNaN(id)){
                         $.ajax({
-                            url: '{{url("admin/subcategorias/list/categoria")}}/'+id,
+                            url: '{{url("admin/productos/list/subcategorias")}}/'+id,
                             type: 'get',
                             success: function(response){
                                 select2_reload('subcategoria_id', response, false, '');

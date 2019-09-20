@@ -7,7 +7,7 @@ $('#select-cliente_id').change(function(){
 
     // Si se elige un cliente se debe desbloquear el modal del mapa
     if (razon_social == 1) {
-        $('#check-domicilio').attr('disabled', true);
+        // $('#check-domicilio').attr('disabled', true);
     }else{
         $('#check-domicilio').removeAttr('disabled');
     }
@@ -92,8 +92,8 @@ $('#btn-reset').click(function(){
 // asignar 0 por defecto a los campos que no pueden estar vacios
 $('.cero_default').keyup(function(){
     if($(this).val()==''){
-        $(this).val('0');
-        total();
-        calcular_cambio();
+        // $(this).val('0');
+        // total();
+        // calcular_cambio();
     }
 });

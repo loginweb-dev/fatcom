@@ -1,9 +1,9 @@
-<div class="row" style="overflow-y: auto;height:370px">
+<div class="row" style="overflow-y: auto;@if(setting('delivery.activo')) height:370px @else height:300px @endif">
     <div class="col-md-12">
         {{-- <div class="panel">
             <div class="panel-body" style="padding-bottom:0px"> --}}
-                <h3>Ingrese su busqueda</h3><br>
-                <form action="" id="form-buscar">
+                {{-- <h4>Ingrese su busqueda</h4> --}}
+                {{-- <form action="" id="form-buscar"> --}}
                     <div class="row">
                         <div class="col-md-12">
                             <div id="div-select_producto"  >
@@ -38,7 +38,7 @@
                                                                 </select>
                                                             </div>
 
-                                                            <div style="@if(setting('admin.modo_sistema') != 'boutique') display:none @endif">
+                                                            <div style="@if(setting('delivery.activo')) display:none @endif">
                                                                 <div class="form-group col-md-4">
                                                                     <label class="text-primary" for=""><b>Tallas</b></label><br>
                                                                     <select id="select-talla_id" class="form-control select-filtro" data-tipo="generos" data-destino="genero_id">
@@ -61,7 +61,6 @@
                                                                     </select>
                                                                 </div>
                                                             </div>
-
                                                         </div>
                                                     </div>
                                                 </div>
@@ -69,16 +68,25 @@
                                         </div>
                                     </div>
                                 </div>
-                                @php
-                                    // dd($productos);
-                                @endphp
                                 <div class="input-group">
                                     <select name="select_producto" class="form-control" id="select-producto_id" onchange="seleccionar_producto()">
-                                        <option value="">Todos los productos</option>
+                                        {{-- <option value="">Todos los productos</option>
                                         @foreach ($productos as $item)
                                             @if (!$item->se_almacena || ($item->se_almacena && $item->stock > 0))
-                                                <option value="{{$item->id}}" > @if($item->codigo) {{$item->codigo}}.- @endif {{$item->nombre}}</option>
+                                                <option value="{{$item->id}}" > @if($item->codigo) {{$item->codigo}}.- @endif {{$item->nombre}} @if($item->codigo_interno) #{{$item->codigo_interno}}@endif</option>
                                             @endif
+                                        @endforeach --}}
+                                        <option selected disabled value="">Seleccione una opción</option>
+                                        @foreach ($productos as $item)
+                                        @php
+                                            $imagen = $item->imagen ?? 'productos/default.png';
+                                        @endphp
+                                            <option value="{{ $item->id }}"
+                                                    data-imagen="{{ url('storage').'/'.$imagen }}"
+                                                    data-categoria="{{ $item->subcategoria }}"
+                                                    {{-- data-marca="{{ $item->marca }}" --}}
+                                                    data-detalle="{{ $item->descripcion_small }}"
+                                            >{{$item->nombre}} @if($item->codigo_interno) #{{$item->codigo_interno}}@endif</option>
                                         @endforeach
                                     </select>
                                     <span class="input-group-btn">
@@ -92,18 +100,20 @@
                             <div id="div-carga" class="text-center"></div>
                         </div>
                     </div>
-                </form>
+                {{-- </form> --}}
             {{-- </div>
         </div> --}}
     </div>
 </div>
 <style>
-
+    
 </style>
 <script src="{{url('js/inventarios/productos.js')}}"></script>
+<script src="{{ asset('js/rich_select.js') }}"></script>
 <script>
     $(document).ready(function(){
-        $('#select-producto_id').select2();
+        // $('#select-producto_id').select2();
+        rich_select('select-producto_id');
 
         // Cuando se abre el acordeon se inizializan los select2 que tiene dentro
         $('#accordion').on('show.bs.collapse', function () {
@@ -139,7 +149,8 @@
             agregar_detalle_venta(data.id, data.nombre, data.precio, stock, '', '');
             $('#select-producto_id').select2('destroy');
             $('#select-producto_id').val('');
-            $('#select-producto_id').select2();
+            // $('#select-producto_id').select2();
+            rich_select('select-producto_id');
         });
     }
 

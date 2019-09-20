@@ -62,10 +62,10 @@
     </div>
 </div>
 <div class="input-group">
-    <select name="select_producto" class="form-control select2" id="select-producto_id" onchange="agregarTr()">
+    <select name="select_producto" class="form-control select2" id="select-producto_id" onchange="agregar_producto()">
         <option value="">--Seleccionar producto--</option>
         @foreach ($productos as $item)
-        <option value="{{$item->id}}" data-nombre="{{$item->nombre}}" data-subcategoria="{{$item->subcategoria}}" data-precio_venta="{{$item->precio_venta}}">{{$item->subcategoria}} - {{$item->nombre}}</option>
+            <option value="{{$item->id}}" > @if($item->codigo) {{$item->codigo}}.- @endif {{$item->nombre}} @if($item->codigo_interno) #{{$item->codigo_interno}}@endif</option>
         @endforeach
     </select>
     <span class="input-group-btn">
@@ -86,8 +86,8 @@
     </thead>
     <tbody>
         <tr id="tr-total">
-            <td  colspan="6" class="text-right"><b>TOTAL</b></td>
-            <td colspan="2"><b id="label-total">0.00 Bs.</b></td>
+            <td colspan="6" class="text-right"><b>TOTAL</b></td>
+            <td><b id="label-total">0.00 Bs.</b></td>
         </tr>
     </tbody>
 </table>
@@ -136,40 +136,39 @@
         });
     });
 
+    function agregar_producto(){
+        let id = $('#select-producto_id').val();
+        $.get("{{url('admin/productos/get_producto')}}/"+id, function(data){
+            agregarTr(data.id, data.nombre, data.precio);
+        });
+    }
+
     // agregar fila
     // variable de numero de filas
     var cont = 1;
-    function agregarTr(){
-        let id = $('#select-producto_id').val()
-        if(id){
-            let subcategoria = $('#select-producto_id option:selected').data('subcategoria')
-            let nombre = $('#select-producto_id option:selected').data('nombre')
-            let precio_venta = $('#select-producto_id option:selected').data('precio_venta')
-
-
-            $('#tr-total').before(`<tr id="tr-${cont}" class="tr-detalle">
-                                    <td class="@if(setting('empresa.tipo_actividad')=='servicios') hidden @endif"><input style="width:80px" type="number" data-indice="${cont}" class="form-control" onchange="calcular_subtotal(${cont})" onkeyup="calcular_subtotal(${cont})" id="cantidad-${cont}" min="1" step="1" value="1" name="cantidad[]"></td>
-                                    <td>
-                                        <input type="hidden" class="input-producto_id" data-cont="${cont}" name="producto[]" value="${id}">
-                                        <button type="button" class="btn btn-link" title="Ver información" onclick="producto_info(${id})">${subcategoria} - ${nombre}</button>
-                                    </td>
-                                    <td>
-                                        <input style="width:100px" type="number" min="1" data-indice="${cont}" class="form-control" onchange="calcular_subtotal(${cont})" onkeyup="calcular_subtotal(${cont})" id="precio-${cont}" value="0" name="precio[]" required>
-                                    </td>
-                                    <td>
-                                        <input style="width:100px" type="number" class="form-control" id="precio_venta-${cont}" onchange="calcular_ganancia(${cont})" onkeyup="calcular_ganancia(${cont})" name="precio_venta[]" value="${precio_venta}" required>
-                                    </td>
-                                    <td>
-                                        <b id="label-ganancia-${cont}" style="font-weight:bold;font-size:18px">0.00</b>
-                                    </td>
-                                    <td><b class="label-subtotal" id="label-subtotal-${cont}" style="font-weight:bold;font-size:20px">0.00</b></td>
-                                    <td>
-                                        <button type="button" onclick="borrarTr(${cont})" class="btn btn-danger"><span class="voyager-trash"></span></button>
-                                    </td>
-                                </tr>`);
-            calcular_subtotal(cont)
-            cont++;
-        }
+    function agregarTr(id, nombre, precio_venta){
+        $('#tr-total').before(`<tr id="tr-${cont}" class="tr-detalle">
+                                <td class="@if(setting('empresa.tipo_actividad')=='servicios') hidden @endif"><input style="width:80px" type="number" data-indice="${cont}" class="form-control" onchange="calcular_subtotal(${cont})" onkeyup="calcular_subtotal(${cont})" id="cantidad-${cont}" min="1" step="1" value="1" name="cantidad[]"></td>
+                                <td>
+                                    <input type="hidden" class="input-producto_id" data-cont="${cont}" name="producto[]" value="${id}">
+                                    <button type="button" class="btn btn-link" title="Ver información" onclick="producto_info(${id})">${nombre}</button>
+                                </td>
+                                <td>
+                                    <input style="width:100px" type="number" min="1" data-indice="${cont}" class="form-control" onchange="calcular_subtotal(${cont})" onkeyup="calcular_subtotal(${cont})" id="precio-${cont}" value="0" name="precio[]" required>
+                                </td>
+                                <td>
+                                    <input style="width:100px" type="number" class="form-control" id="precio_venta-${cont}" onchange="calcular_ganancia(${cont})" onkeyup="calcular_ganancia(${cont})" name="precio_venta[]" value="${precio_venta}" required>
+                                </td>
+                                <td>
+                                    <b id="label-ganancia-${cont}" style="font-weight:bold;font-size:18px">0.00</b>
+                                </td>
+                                <td><b class="label-subtotal" id="label-subtotal-${cont}" style="font-weight:bold;font-size:20px">0.00</b></td>
+                                <td>
+                                    <button type="button" onclick="borrarDetalleCompra(${cont})" class="btn btn-danger"><span class="voyager-trash"></span></button>
+                                </td>
+                            </tr>`);
+        calcular_subtotal(cont)
+        cont++;
     }
 
     // calcular precio de producto seleccionado

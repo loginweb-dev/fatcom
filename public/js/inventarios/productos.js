@@ -195,7 +195,21 @@ function filtro(url){
         type: 'get',
         success: function(response){
             // console.log(response)
-            select2_reload_simple('producto_id', response, 'Todos los productos');
+            // select2_reload_simple('producto_id', response, 'Todos los productos');
+            $('#select-producto_id').select2('destroy');
+            let datos = `<option selected disabled value="">Seleccione una opción</option>`;
+            if(response.length>0){
+                response.forEach(item => {
+                    let imagen = item.imagen ? '../../storage/'+item.imagen : '../../storage/productos/default.png';
+                    datos += `<option value="${item.id}"
+                                    data-imagen="${imagen}"
+                                    data-categoria="${item.subcategoria}"
+                                    data-detalle="${item.descripcion_small}"
+                                >${item.nombre}</option>`;
+                });
+            }
+            $('#select-producto_id').html(datos);
+            rich_select('select-producto_id');
         }
     });
 }

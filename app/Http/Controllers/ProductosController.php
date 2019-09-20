@@ -62,6 +62,7 @@ class ProductosController extends Controller
                                 ->select('p.*', 's.nombre as subcategoria')
                                 ->whereRaw($filtro_categoria.$filtro_subcategoria.$filtro_marca.$filtro_talla.$filtro_genero.$filtro_color)
                                 ->where('p.deleted_at', NULL)
+                                ->orderBy('p.id', 'DESC')
                                 ->paginate(10);
         return view('inventarios/productos/productos_list', compact('registros'));
     }
@@ -109,7 +110,7 @@ class ProductosController extends Controller
                             ->join('generos as g', 'g.id', 'p.genero_id')
                             ->join('monedas as mn', 'mn.id', 'p.moneda_id')
                             ->join('categorias as ca', 'ca.id', 's.categoria_id')
-                            ->select('p.*', 'ca.nombre as categoria', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'm.nombre as marca', 'u.nombre as uso', 'c.nombre as color', 'g.nombre as genero')
+                            ->select('p.*', 'ca.nombre as categoria', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'm.nombre as marca', 'u.nombre as uso', 'c.nombre as color', 'g.nombre as genero', 't.nombre as talla')
                             ->where('p.id', $id)
                             ->first();
 
@@ -484,11 +485,12 @@ class ProductosController extends Controller
         $se_almacena = (isset($data->se_almacena)) ? 1: NULL;
 
         $precio_venta = isset($data->precio_venta[0]) ? $data->precio_venta[0] : 0;
+        $precio_minimo = isset($data->precio_minimo[0]) ? $data->precio_minimo[0] : 0;
 
-        if(isset($data->precio_venta)){
-            $precio_venta = $data->precio_venta[0];
-            $precio_minimo = $data->precio_minimo[0];
-        }
+        // if(isset($data->precio_venta)){
+        //     $precio_venta = $data->precio_venta[0];
+        //     $precio_minimo = $data->precio_minimo[0];
+        // }
 
         $query = DB::table('productos')
                     ->where('id', $data->id)
@@ -769,7 +771,7 @@ class ProductosController extends Controller
             $producto->save();
 
             // Obtener el ultmimo ingresado
-            $producto_id = Producto::all()->last()->id;
+            $producto_id = $producto->id;
             // $producto_id = $this->ultimo_producto();
 
             // agregar imagenes
@@ -1027,7 +1029,8 @@ class ProductosController extends Controller
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
                             ->join('categorias as c', 'c.id', 's.categoria_id')
                             ->join('marcas as m', 'm.id', 'p.marca_id')
-                            ->select('p.id', 'p.nombre')
+                            // ->select('p.id', 'p.nombre')
+                            ->select("p.*", "s.nombre as subcategoria")
                             ->whereRaw($filtro_categoria.$filtro_subcategoria.$filtro_marca.$filtro_talla.$filtro_genero.$filtro_color)
                             ->where('p.deleted_at', NULL)
                             ->get();
@@ -1036,7 +1039,8 @@ class ProductosController extends Controller
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
                             ->join('categorias as c', 'c.id', 's.categoria_id')
                             ->join('marcas as m', 'm.id', 'p.marca_id')
-                            ->select('p.id', 'p.nombre')
+                            // ->select('p.id', 'p.nombre')
+                            ->select("p.*", "s.nombre as subcategoria")
                             ->whereRaw($filtro_categoria.$filtro_subcategoria.$filtro_marca.$filtro_talla.$filtro_genero.$filtro_color)
                             ->where('p.deleted_at', NULL)
                             ->whereNotIn('p.id', function($q) use($filtro){

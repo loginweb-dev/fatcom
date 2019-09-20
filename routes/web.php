@@ -152,6 +152,7 @@ Route::get('admin/cajas/ver/{id}', 'CajasController@cajas_view')->name('cajas_vi
 Route::get('/admin/cajas/crear', 'CajasController@cajas_create')->name('cajas_create');
 Route::post('/admin/cajas/store', 'CajasController@cajas_store')->name('cajas_store');
 Route::post('/admin/cajas/close', 'CajasController@cajas_close')->name('cajas_close');
+Route::get('/admin/cajas/generar/pdf/{id}', 'CajasController@cajas_generarPDF')->name('cajas_generarPDF');
 
 // Asientos
 Route::get('/admin/asientos', 'CajasController@asientos_index')->name('asientos_index');
@@ -181,6 +182,21 @@ Route::post('admin/ventas/delete', 'VentasController@delete')->name('venta_delet
 Route::get('admin/ventas/update/estado/{id}/{valor}', 'VentasController@estado_update')->name('estado_update');
 Route::post('admin/ventas/asignar_repartidor', 'VentasController@asignar_repartidor')->name('asignar_repartidor');
 Route::get('admin/ventas/get_ubicaciones_cliente/{id}', 'VentasController@get_ubicaciones_cliente');
+Route::get('admin/ventas/detalles/{id}', 'VentasController@ventas_details');
+
+// Ventas a crédito
+Route::get('admin/ventas/credito', 'VentasController@ventas_credito_index')->name('ventas_credito_index');
+Route::get('admin/ventas/credito/buscar/{value}', 'VentasController@ventas_credito_search');
+Route::post('admin/ventas/credito/store', 'VentasController@ventas_credito_store')->name('ventas_credito_store');
+Route::get('admin/ventas/credito/detalles/{id}', 'VentasController@ventas_credito_details');
+
+// Proformas
+Route::get('admin/proformas', 'VentasController@proformas_index')->name('proformas_index');
+Route::get('admin/proformas/buscar/{value}', 'VentasController@proformas_search');
+Route::get('admin/proformas/crear', 'VentasController@proformas_create')->name('proformas_create');
+Route::post('admin/proformas/store', 'VentasController@proformas_store')->name('proformas_store');
+Route::get('admin/proformas/impresion/{tipo}/{id}', 'VentasController@proformas_print');
+Route::get('admin/proformas/detalle/{id}', 'VentasController@proformas_detalle');
 
 Route::get('admin/ventas/lista_nuevos_pedidos/{last}', 'VentasController@get_nuevos_pedidos');
 Route::get('admin/ventas/crear/productos_search', 'VentasController@productos_search');
@@ -199,7 +215,7 @@ Route::post('admin/dosificaciones/delete', 'DosificacionesController@delete')->n
 // =========================Código de control===========================
 Route::get('admin/codigo_control', 'FacturasController@codigo_control_index')->name('codigo_control_index');
 Route::post('admin/generar_codigo_control', 'FacturasController@codigo_control')->name('generar_codigo_control');
-Route::get('admin/venta/impresion/{tipo}/{id}', 'VentasController@generar_impresion');
+Route::get('admin/venta/impresion/{tipo}/{id}', 'VentasController@ventas_print');
 // Route::get('admin/factura/cambiar_tipo/{tipo}/{id}', 'VentasController@cambiar_tipo_factura');
 
 // Pedidos

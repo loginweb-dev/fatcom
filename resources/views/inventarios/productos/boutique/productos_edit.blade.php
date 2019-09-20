@@ -47,7 +47,7 @@
                                                 </div>
                                                 <div class="form-group col-md-6">
                                                     <label for="">Stock</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad de productos en stock. Este campo es obligatorio."></span> @endif
-                                                    <input type="number" name="stock" class="form-control" disabled value="{{$producto->stock}}" min="0" step="1" required>
+                                                    <input type="number" name="stock" class="form-control" readonly value="{{$producto->stock}}" min="0" step="1" required>
                                                 </div>
                                             </div>
                                             <div class="row">
@@ -266,13 +266,14 @@
                                                 @if ($i==0)
                                                 <tr>
                                                     <td><input type="number" min="1" step="0.1" class="form-control" value="{{$precio_venta[$i]->precio}}" name="precio_venta[]" required></td>
-                                                    <td><input type="number" min="1" step="0.1" class="form-control" value="{{$precio_venta[$i]->precio_minimo}}" name="precio_minimo[]"></td>
+                                                    <td><input type="number" min="0" step="0.1" class="form-control" value="{{$precio_venta[$i]->precio_minimo}}" name="precio_minimo[]"></td>
                                                     <td><input type="number" min="1" step="1" class="form-control" value="{{$precio_venta[$i]->cantidad_minima}}" name="cantidad_minima_venta[]" required></td>
                                                     <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
                                                 </tr>
                                                 @else
                                                     <tr id="tr-precioVenta{{$indiceVenta}}">
                                                         <td><input type="number" min="1" step="0.1" class="form-control" value="{{$precio_venta[$i]->precio}}" name="precio_venta[]" required></td>
+                                                        <td><input type="number" min="0" step="0.1" class="form-control" value="{{$precio_venta[$i]->precio_minimo}}" name="precio_minimo[]"></td>
                                                         <td><input type="number" min="1" step="1" class="form-control" value="{{$precio_venta[$i]->cantidad_minima}}" name="cantidad_minima_venta[]" required></td>
                                                         <td style="padding-top:15px"><span onclick="borrarTr({{$indiceVenta}}, 'Venta')" class="voyager-x text-danger"></span></td>
                                                     </tr>
@@ -382,7 +383,7 @@
                     let id = $(this).val();
                     if(!isNaN(id)){
                         $.ajax({
-                            url: '{{url("admin/subcategorias/list/categoria")}}/'+id,
+                            url: '{{url("admin/productos/list/subcategorias")}}/'+id,
                             type: 'get',
                             success: function(response){
                                 select2_reload_simple('subcategoria_id', response, false, '');

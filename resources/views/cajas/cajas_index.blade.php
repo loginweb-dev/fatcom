@@ -81,6 +81,9 @@
                                                     <a href="{{route('cajas_view', ['id' => $item->id])}}" title="Ver" class="btn btn-sm btn-warning view">
                                                         <i class="voyager-eye"></i> <span class="hidden-xs hidden-sm">Ver</span>
                                                     </a>
+                                                    <a href="{{route('cajas_generarPDF', ['id' => $item->id])}}" target="_blank" title="Generar PDF" class="btn btn-sm btn-danger">
+                                                        <i class="voyager-cloud-download"></i> <span class="hidden-xs hidden-sm">PDF</span>
+                                                    </a>
                                                     @endif
                                                 </td>
                                             </tr>

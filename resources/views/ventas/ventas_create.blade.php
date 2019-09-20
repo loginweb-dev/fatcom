@@ -54,7 +54,7 @@
                 </div>
             </div>
             <div class="col-md-4">
-                <div class="panel panel-bordered" style="height:450px">
+                <div class="panel panel-bordered" style="@if(setting('delivery.activo')) height:450px @else height:380px @endif">
                     <div class="panel-body">
                         <div class="row">
                             @csrf
@@ -67,7 +67,7 @@
                                         <select name="cliente_id" class="form-control select2" id="select-cliente_id">
                                         </select>
                                         <span class="input-group-btn">
-                                            <button class="btn btn-primary" style="margin-top:0px;padding:8px" type="button" title="Ver filtros" data-toggle="modal" data-target="#modal-nuevo_cliente" aria-expanded="true" aria-controls="collapseOne">Nuevo <span class="voyager-plus" aria-hidden="true"></span></button>
+                                            <button class="btn btn-primary" style="margin-top:0px;padding:8px" type="button" title="Crear nuevo" data-toggle="modal" data-target="#modal-nuevo_cliente" aria-expanded="true" aria-controls="collapseOne">Nuevo <span class="voyager-plus" aria-hidden="true"></span></button>
                                         </span>
                                     </div>
                                 </div>
@@ -76,7 +76,7 @@
                                     <input type="number" name="nit" id="input-nit" class="form-control">
                                 </div>
                             </div>
-                            <div style="@if(setting('admin.modo_sistema') != 'boutique') display:none @endif">
+                            <div style="@if(!setting('delivery.activo')) display:none @endif">
                                 <hr style="margin-bottom:10px;margin-top:0px">
                                 <div class="row">
                                     <div class="form-group col-md-6">
@@ -105,7 +105,12 @@
                                     <input type="number" id="input-cambio" value="0" readonly style="font-size:18px" name="cambio" class="form-control" required>
                                 </div>
                             </div>
-                            <div class="form-group col-md-12 text-right">
+                            <div class="form-group col-md-6 ">
+                                @if(setting('ventas.ventas_credito'))
+                                <input type="checkbox" id="check-credito" name="credito" data-toggle="toggle" data-on="Crédito" data-off="Contado">
+                                @endif
+                            </div>
+                            <div class="form-group col-md-6 text-right">
                                 <input type="checkbox" id="check-factura" name="factura" data-toggle="toggle" data-on="Con factura" data-off="Sin factura">
                             </div>
                             <input type="hidden" name="caja_id" value="{{$caja_id}}">
@@ -193,36 +198,7 @@
     </div>
 </form>
 
-{{-- Modal nuevo cliente --}}
-<form id="form-nuevo_cliente" action="" method="post">
-    <div class="modal modal-info fade" tabindex="-1" id="modal-nuevo_cliente" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title"><i class="voyager-person"></i> Nuevo cliente</h4>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="">Nombre o razón social</label>@if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Nombre completo o razón social del cliente. este campo es obligatorio."></span> @endif
-                        <input type="text" name="razon_social" class="form-control" placeholder="Ingrese el nombre o razón social del cliente" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="">NIT o CI</label>@if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="NIT o CI del cliente. este campo no es obligatorio."></span> @endif
-                        <input type="text" name="nit" class="form-control" placeholder="Ingrese el NIT o CI del cliente">
-                    </div>
-                    <div class="form-group">
-                        <label for="">Movil</label>@if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Número de celular del cliente. este campo no es obligatorio."></span> @endif
-                        <input type="text" name="movil" class="form-control" placeholder="Ingrese el número de celular del cliente">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <input type="submit" class="btn btn-primary pull-right"value="Aceptar">
-                    <button type="button" class="btn btn-default pull-right" id="btn-cancel-map" data-dismiss="modal">Cancelar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</form>
+@include('ventas.partials.modal_cliente_create')
 
     {{-- Modal de detalle de producto --}}
     <div class="modal modal-primary fade" tabindex="-1" id="modal-info_producto" role="dialog">
@@ -276,7 +252,7 @@
 
             $('[data-toggle="tooltip"]').tooltip();
             // Deshabilitar el boton del mapa por defecto
-            $('#check-domicilio').attr('disabled', true);
+            // $('#check-domicilio').attr('disabled', true);
 
             // Obtener lista de clientes
             $.get('{{route("clientes_list")}}', function(data){
@@ -398,6 +374,16 @@
                 }
                 total();
             });
+
+            // Anular casilla de factura y quitar propiedad min de monto entregado
+            $('#check-credito').change(function() {
+                if($(this).prop('checked')){
+                    $('#input-entregado').prop('min', 0);
+                    $('#check-factura').bootstrapToggle('off')
+                }else{
+                    
+                }
+            });
             
             // Activar mapa para llevar a domicilio
             let cont = 0;
@@ -484,6 +470,19 @@
                 $('#input-venta_tipo_id').val('1');
             });
 
+
+            // Si existe una proforma obtenemos los datos y agregamos los productos
+            @if($proforma_id)
+            let proforma_id = {{$proforma_id}};
+            $.get('{{url("admin/proformas/detalle")}}/'+proforma_id, function(data){
+                if(data){
+                    data.forEach(element => {
+                        agregar_producto(element.producto_id);
+                    });
+                }
+            });
+            @endif
+
         });
 
         function agregar_producto(id){
@@ -510,8 +509,8 @@
                     $.get("{{url('admin/productos/get_producto')}}/"+id, function(data){
                         let stock = data.se_almacena ? data.stock : 1000;
                         agregar_detalle_venta(data.id, data.nombre, data.precio, stock, adicional_id, adicional_nombre);
+                        adicional_id = '';
                     });
-                    adicional_id = '';
                 }
             }
         }
@@ -551,7 +550,7 @@
                                                 </td>
                                                 <td><input type="number" min="1" max="${stock}" step="1" class="form-control" id="input-cantidad_${id}_${adicional_id}" value="1" name="cantidad[]" onchange="subtotal('${id}_${adicional_id}');calcular_cambio()" onkeyup="subtotal('${id}_${adicional_id}');calcular_cambio()" required></td>
                                                 <td class="label-subtotal" id="subtotal-${id}_${adicional_id}"><h4>${precio} Bs.</h4></td>
-                                                <td width="40px"><label onclick="borrarTr('${id}_${adicional_id}')" class="text-danger" style="cursor:pointer;font-size:20px"><span class="voyager-trash"></span></label></td>
+                                                <td width="40px"><label onclick="borrarDetalle('${id}_${adicional_id}')" class="text-danger" style="cursor:pointer;font-size:20px"><span class="voyager-trash"></span></label></td>
                                             <tr>`);
                 toastr.remove();
                 toastr.info('Producto agregar correctamente', 'Bien hecho!');
@@ -563,7 +562,7 @@
 
         // mostrar Buscador de productos
         function productos_buscar(id){
-            $('#tab1').html(`  <div style="height:370px" class="text-center">
+            $('#tab1').html(`  <div style="@if(setting('delivery.activo')) height:370px @else height:300px @endif" class="text-center">
                                     <br><br><br>
                                     <img src="{{ voyager_asset('images/load.gif') }}" width="100px">
                                 </div>`);
@@ -579,7 +578,7 @@
 
         // mostrar los productos de la categoria seleccionada
         function lista_categorias(id){
-            $('#tab1').html(`  <div style="height:370px" class="text-center">
+            $('#tab1').html(`  <div style="@if(setting('delivery.activo')) height:370px @else height:300px @endif" class="text-center">
                                     <br><br><br>
                                     <img src="{{ voyager_asset('images/load.gif') }}" width="100px">
                                 </div>`);
@@ -619,6 +618,12 @@
             $.get('{{url("admin/productos/ver/informacion")}}/'+id, function(data){
                 $('#info_producto').html(data);
             });
+        }
+
+        function borrarDetalle(num){
+            $(`#tr-${num}`).remove();
+            subtotal();
+            calcular_cambio()
         }
     </script>
 @stop

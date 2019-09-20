@@ -64,7 +64,7 @@ function cargar_detalle(tipo, url){
 }
 
 // eliminar fila
-function borrarTr(num){
+function borrarDetalleCompra(num){
     $(`#tr-${num}`).remove();
     total();
     calcular()

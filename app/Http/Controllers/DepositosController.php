@@ -78,6 +78,7 @@ class DepositosController extends Controller
                             // ->where('deleted_at', NULL)
                             ->where('d.deposito_id', $id)
                             // ->where('d.stock', '>', 0)
+                            ->orderBy('p.id', 'DESC')
                             ->paginate(20);
         $imagenes = [];
         $precios = [];
@@ -224,50 +225,66 @@ class DepositosController extends Controller
     public function create_producto($deposito_id){
         $codigo_grupo = (new Productos)->ultimo_producto() + 1;
 
-        $subcategorias = DB::table('subcategorias')
+        $categorias = DB::table('categorias')
                             ->select('*')
                             ->where('deleted_at', NULL)
                             ->where('id', '>', 1)
                             ->get();
+        $subcategorias = [];
+        if(count($categorias)>0){
+            $subcategorias = DB::table('subcategorias')
+                                    ->select('*')
+                                    ->where('deleted_at', NULL)
+                                    // ->where('id', '>', 1)
+                                    ->where('categoria_id', $categorias[0]->id)
+                                    ->get();
+        }
+
         $marcas = DB::table('marcas')
                             ->select('*')
                             ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+                            // ->where('id', '>', 1)
                             ->get();
         $tallas = DB::table('tallas')
                             ->select('*')
                             ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+                            // ->where('id', '>', 1)
                             ->get();
         $colores = DB::table('colores')
                             ->select('*')
                             ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+                            // ->where('id', '>', 1)
                             ->get();
         $generos = DB::table('generos')
                             ->select('*')
                             ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+                            // ->where('id', '>', 1)
                             ->get();
         $usos = DB::table('usos')
                             ->select('*')
                             ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+                            // ->where('id', '>', 1)
                             ->get();
         $unidades = DB::table('unidades')
                             ->select('*')
                             ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+                            // ->where('id', '>', 1)
                             ->get();
         $monedas = DB::table('monedas')
                             ->select('*')
                             ->where('deleted_at', NULL)
                             ->where('id', '>', 1)
                             ->get();
+        $insumos = DB::table('insumos as i')
+                            ->join('unidades as u', 'u.id', 'i.unidad_id')
+                            ->select('i.*', 'u.abreviacion as unidad')
+                            ->where('i.deleted_at', NULL)
+                            // ->where('id', '>', 1)
+                            ->get();
 
         switch (setting('admin.modo_sistema')) {
             case 'boutique':
-                return view('inventarios/depositos/boutique/depositos_create_producto', compact('codigo_grupo', 'deposito_id', 'subcategorias', 'marcas', 'tallas', 'colores', 'generos', 'usos', 'unidades'));
+                return view('inventarios/depositos/boutique/depositos_create_producto', compact('codigo_grupo', 'deposito_id', 'categorias', 'subcategorias', 'insumos', 'marcas', 'tallas', 'colores', 'generos', 'usos', 'unidades'));
                 break;
             case 'electronica_computacion':
             return view('inventarios/depositos/electronica_computacion/depositos_create_producto', compact('codigo_grupo', 'deposito_id', 'subcategorias', 'marcas', 'monedas'));
@@ -285,8 +302,8 @@ class DepositosController extends Controller
                     ->insert([
                         'producto_id' => $producto,
                         'deposito_id' => $data->deposito_id,
-                        'stock' => $data->cantidad,
-                        'stock_inicial' => $data->cantidad,
+                        'stock' => $data->stock,
+                        'stock_inicial' => $data->stock,
                         'created_at' => Carbon::now(),
                         'updated_at' => Carbon::now()
                     ]);
@@ -294,7 +311,7 @@ class DepositosController extends Controller
         }else{
             $response = 0;
         }
-        $nuevo_grupo = (new Productos)->ultimo_producto()+1;
+
         $subcategorias = DB::table('subcategorias')
                             ->select('*')
                             ->where('deleted_at', NULL)
@@ -336,12 +353,20 @@ class DepositosController extends Controller
                             ->where('id', '>', 1)
                             ->get();
 
+        $reload = 0;
+        $nuevo_grupo = 0;
+        if(isset($data->clear)){
+            $reload = $data->clear;
+            $nuevo_grupo = (new Productos)->ultimo_producto()+1;
+        }
+        
+
         switch (setting('admin.modo_sistema')) {
             case 'boutique':
-                return ['response' => $response, 'nuevo_grupo' => $nuevo_grupo];
+                return response()->json(['success' => $response, 'nuevo_grupo' => $nuevo_grupo, 'reload' => $reload]);
                 break;
             case 'electronica_computacion':
-                return ['response' => $response, 'nuevo_grupo' => $nuevo_grupo, 'subcategorias' => $subcategorias, 'marcas' =>$marcas];
+                return response()->json(['success' => $response, 'nuevo_grupo' => $nuevo_grupo, 'subcategorias' => $subcategorias, 'marcas' =>$marcas, 'reload' => $reload]);
                 break;
             default:
                 # code...

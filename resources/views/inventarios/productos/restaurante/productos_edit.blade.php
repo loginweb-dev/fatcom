@@ -268,7 +268,7 @@
                     let id = $(this).val();
                     if(!isNaN(id)){
                         $.ajax({
-                            url: '{{url("admin/subcategorias/list/categoria")}}/'+id,
+                            url: '{{url("admin/productos/list/subcategorias")}}/'+id,
                             type: 'get',
                             success: function(response){
                                 select2_reload('subcategoria_id', response, false, '');

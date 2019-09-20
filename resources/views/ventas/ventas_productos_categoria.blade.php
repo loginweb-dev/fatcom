@@ -10,6 +10,23 @@
 
                 <div class="card-body" style="padding: 4px">
                     <h4 class="card-title" style="padding: 0px"> <label class="label label-primary">{{$item->nombre}}</label> </h4>
+                    {{-- Detalles del producto --}}
+                    @if (setting('admin.modo_sistema') == 'boutique')
+                    <table width="100%" style="align:leftfont-size:12px">
+                        <tr>
+                            <td>Marca</td><td>:</td><td><b>{{ $item->marca }}</b></td>
+                        </tr>
+                        <tr>
+                            <td>Talla</td><td>:</td><td><b>{{ $item->talla }}</b></td>
+                        </tr>
+                        <tr>
+                            <td>Genero</td><td>:</td><td><b>{{ $item->genero }}</b></td>
+                        </tr>
+                        <tr>
+                            <td>Código</td><td>:</td><td><b>{{ $item->codigo_interno }}</b></td>
+                        </tr>
+                    </table>
+                    @endif
                 </div>
             </div>
         @endif

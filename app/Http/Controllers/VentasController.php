@@ -18,6 +18,10 @@ use App\User;
 use App\Sucursale;
 use App\UsersSucursale;
 use App\Producto;
+use App\VentasPago;
+use App\IeAsiento;
+use App\Proforma;
+use App\ProformasDetalle;
 
 
 use App\Http\Controllers\ProductosController as Productos;
@@ -189,7 +193,7 @@ class VentasController extends Controller
         return view('ventas.ventas_view', compact('venta', 'id', 'detalle', 'ubicacion'));
     }
 
-    public function create(){
+    public function create(Request $data){
         // Obetener el tamaño de la factura o recibo
         $tamanio = DB::table('settings')
                             ->select('value')
@@ -233,7 +237,10 @@ class VentasController extends Controller
         $sucursales = Sucursale::where('deleted_at', NULL)->select('id', 'nombre')->get();
 
         $facturacion = (new Dosificacion)->get_dosificacion();
-        return view('ventas.ventas_create', compact('categorias', 'abierta', 'caja_id', 'facturacion', 'tamanio', 'sucursales', 'sucursal_actual'));
+
+        // En caso de recibir un variable de tipo Request la asignamos a proforma_id
+        $proforma_id = $data->query('proforma');
+        return view('ventas.ventas_create', compact('categorias', 'abierta', 'caja_id', 'facturacion', 'tamanio', 'sucursales', 'sucursal_actual', 'proforma_id'));
     }
 
     public function productos_search(){
@@ -245,15 +252,9 @@ class VentasController extends Controller
                             ->where('id', '>', 1)
                             ->get();
 
-        // Obetener lista de productos a la venta en la sucursal actual
-        $productos = DB::table('productos as p')
-                            ->join('productos_depositos as pd', 'pd.producto_id', 'p.id')
-                            ->join('depositos as d', 'd.id', 'pd.deposito_id')
-                            ->select('p.*', 'd.sucursal_id')
-                            ->where('p.deleted_at', NULL)
-                            // ->where('p.subcategoria_id', $id)
-                            ->where('d.sucursal_id', $sucursal_actual)
-                            ->get();
+        $productos = $this->ventas_productos($sucursal_actual, '');
+
+        // dd($productos);
         
         return view('ventas.ventas_productos_search', compact('categorias', 'productos'));
     }
@@ -272,14 +273,8 @@ class VentasController extends Controller
 
     public function ventas_productos_categorias($id){
         $sucursal_actual = UsersSucursale::where('user_id', Auth::user()->id)->first()->sucursal_id;
-        $productos =  DB::table('productos as p')
-                            ->join('productos_depositos as pd', 'pd.producto_id', 'p.id')
-                            ->join('depositos as d', 'd.id', 'pd.deposito_id')
-                            ->select('p.*', 'd.sucursal_id')
-                            ->where('p.deleted_at', NULL)
-                            ->where('p.subcategoria_id', $id)
-                            ->where('d.sucursal_id', $sucursal_actual)
-                            ->get();
+        // dd($id);
+        $productos = $this->ventas_productos($sucursal_actual, $id);
         return view('ventas.ventas_productos_categoria', compact('productos'));
     }
 
@@ -406,12 +401,40 @@ class VentasController extends Controller
                 DB::table('dosificaciones')->where('id', $dosificacion->id)->increment('numero_actual', 1);
             }
 
+            // Si es una venta a credito crear un registro de pago
+            if(isset($data->credito) && $data->monto_recibido){
+                VentasPago::create([
+                    'venta_id' => $venta_id,
+                    'monto' => $data->monto_recibido,
+                    'observacion' => 'Primer pago',
+                    'user_id' => Auth::user()->id,
+                ]);
+            }
+
             return $venta_id;
         }else{
             return null;
         }
         // ============================
 
+    }
+
+    public function ventas_details($id){
+        $detalle_venta = DB::table('ventas as v')
+                                ->join('ventas_detalles as d', 'd.venta_id', 'v.id')
+                                ->join('ventas_tipos as vt', 'vt.id', 'v.venta_tipo_id')
+                                ->join('productos as p', 'p.id', 'd.producto_id')
+                                ->join('marcas as m', 'm.id', 'p.marca_id')
+                                ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                                ->join('clientes as c', 'c.id', 'v.cliente_id')
+                                ->select('v.*', 'vt.nombre as tipo_nombre', 'c.razon_social as cliente', 'c.nit', 'p.nombre as producto', 'd.precio', 'd.cantidad', 'd.producto_adicional', 'd.observaciones', 's.nombre as subcategoria')
+                                ->where('v.id', $id)
+                                ->get();
+
+        $monto_total = $detalle_venta[0]->importe_base;
+        $total_literal = NumerosEnLetras::convertir($monto_total,'Bolivianos',true);
+
+        return view('ventas.partials.ventas_detalles', compact('detalle_venta', 'total_literal'));
     }
 
     public function delete(Request $data){
@@ -455,6 +478,9 @@ class VentasController extends Controller
             return redirect()->route('ventas_index')->with(['message' => 'Ocurrio un problema al eliminar la venta.', 'alert-type' => 'error']);
         }
     }
+
+
+    // Manejo de pedidos
 
     public function pedidos_store(Request $data){
         
@@ -660,7 +686,7 @@ class VentasController extends Controller
                                 ->select('r.*')
                                 ->where('r.pedido_id', $id)
                                 ->first();
-        return view('ventas.delivery/delivery_view', compact('id' ,'pedido', 'detalle_pedido', 'repartidor_pedido'));
+        return view('ventas.delivery.delivery_view', compact('id' ,'pedido', 'detalle_pedido', 'repartidor_pedido'));
     }
 
     // Pedido entregado
@@ -749,6 +775,221 @@ class VentasController extends Controller
         }
     }
 
+    // Manejo de cuentas por cobrar
+    public function ventas_credito_index(){
+        $registros = DB::table('ventas as v')
+                            ->join('clientes as c', 'c.id', 'v.cliente_id')
+                            ->select('v.*', 'c.razon_social')
+                            ->where('v.deleted_at', NULL)
+                            ->where('v.estado', 'V')
+                            ->where('v.pagada', 0)
+                            ->orderBy('v.id', 'DESC')
+                            ->paginate(20);
+        $cajas = DB::table('ie_cajas as c')
+                        ->join('sucursales as s', 's.id', 'c.sucursal_id')
+                        ->select('c.*', 's.nombre as sucursal')
+                        ->where('c.abierta', 1)
+                        ->where('c.deleted_at', NULL)
+                        ->where('s.deleted_at', NULL)
+                        ->get();
+
+        $value = '';
+        return view('ventas.creditos.ventas_credito_index', compact('registros', 'value', 'cajas'));
+    }
+
+    public function ventas_credito_search($value){
+        $value = ($value != 'all') ? $value : '';
+        $registros = DB::table('ventas as v')
+                            ->join('clientes as c', 'c.id', 'v.cliente_id')
+                            ->select('v.*', 'c.razon_social')
+                            ->where('v.deleted_at', NULL)
+                            ->where('v.estado', 'V')
+                            ->where('v.pagada', 0)
+                            ->where('c.razon_social', 'like', "%$value%")
+                            ->orderBy('v.id', 'DESC')
+                            ->paginate(20);
+        $cajas = DB::table('ie_cajas as c')
+                        ->join('sucursales as s', 's.id', 'c.sucursal_id')
+                        ->select('c.*', 's.nombre as sucursal')
+                        ->where('c.abierta', 1)
+                        ->where('c.deleted_at', NULL)
+                        ->where('s.deleted_at', NULL)
+                        ->get();
+
+        
+        return view('ventas.creditos.ventas_credito_index', compact('registros', 'value', 'cajas'));
+    }
+
+    public function ventas_credito_store(Request $data){
+        // dd($data);
+        $query = VentasPago::create([
+                    'venta_id' => $data->id,
+                    'monto' => $data->monto,
+                    'observacion' => $data->observacion,
+                    'user_id' => Auth::user()->id,
+                ]);
+        if($query){
+            // Incrementar monto recibido por la venta
+            DB::table('ventas')->where('id', $data->id)->increment('monto_recibido', $data->monto);
+            
+            // Buscar la venta y si el monto recibido es igual al importe de la venta actualizar su estado a pagada
+            $venta = DB::table('ventas')
+                            ->select('importe', 'monto_recibido')
+                            ->where('id', $data->id)
+                            ->first();
+            if($venta->importe == $venta->monto_recibido){
+                DB::table('ventas')->where('id', $data->id)->update(['pagada'=> 1]);
+            }
+
+            // crear el asiento de ingreso
+            IeAsiento::create([
+                'caja_id' => $data->caja_id,
+                'fecha' => date('Y-m-d', strtotime(Carbon::now())),
+                'hora' => date('H:i:s', strtotime(Carbon::now())),
+                'concepto' => 'Pago de deuda',
+                'tipo' => 'ingreso',
+                'monto' => $data->monto,
+                'venta_id' => $data->id,
+                'user_id' => Auth::user()->id
+            ]);
+            DB::table('ie_cajas')->where('id', $data->caja_id)->increment('monto_final', $data->monto);
+            DB::table('ie_cajas')->where('id', $data->caja_id)->increment('total_ingresos', $data->monto);
+
+            return redirect()->route('ventas_credito_index')->with(['message' => 'Pago de deuda registrado exitosamente.', 'alert-type' => 'success']);
+        }else{
+            return redirect()->route('ventas_credito_index')->with(['message' => 'Ocurrio un error al registrar el pago.', 'alert-type' => 'error']);
+        }
+    }
+
+    public function ventas_credito_details($id){
+        $detalle = DB::table('ventas_pagos as vp')
+                                ->join('ventas as v', 'v.id', 'vp.venta_id')
+                                ->join('users as u', 'u.id', 'vp.user_id')
+                                ->select('vp.*', 'v.importe', 'v.monto_recibido', 'u.name')
+                                ->where('vp.venta_id', $id)
+                                ->get();
+
+        return view('ventas.creditos.ventas_credito_details', compact('detalle'));
+    }
+
+    // Manejo de proformas
+    public function proformas_index(){
+        $registros = DB::table('proformas as p')
+                ->join('clientes as c', 'c.id', 'p.cliente_id')
+                ->select('p.*', 'c.razon_social')
+                ->where('p.deleted_at', NULL)
+                ->orderBy('p.id', 'DESC')
+                ->paginate(20);
+
+        // Obetener el tamaño de la factura o recibo
+        $tamanio = DB::table('settings')
+        ->select('value')
+        ->where('id', 26)
+        ->first()->value;
+
+        $value = '';
+        return view('ventas.proformas.proformas_index', compact('registros', 'tamanio', 'value'));
+    }
+
+    public function proformas_search($value){
+        $value = ($value != 'all') ? $value : '';
+        $registros = DB::table('proformas as p')
+                ->join('clientes as c', 'c.id', 'p.cliente_id')
+                ->select('p.*', 'c.razon_social')
+                ->where('p.deleted_at', NULL)
+                ->whereRaw("(c.razon_social like '%$value%' or p.codigo like '%$value%')")
+                ->orderBy('p.id', 'DESC')
+                ->paginate(20);
+
+        // Obetener el tamaño de la factura o recibo
+        $tamanio = DB::table('settings')
+        ->select('value')
+        ->where('id', 26)
+        ->first()->value;
+
+        return view('ventas.proformas.proformas_index', compact('registros', 'tamanio', 'value'));
+    }
+
+    public function proformas_create(){
+        $categorias = DB::table('categorias')
+                            ->select('id', 'nombre')
+                            ->where('deleted_at', NULL)
+                            ->where('id', '>', 1)
+                            ->get();
+
+        // Obetener lista de productos a la venta en la sucursal actual
+        $productos = DB::table('productos as p')
+                            ->join('productos_depositos as pd', 'pd.producto_id', 'p.id')
+                            ->join('depositos as d', 'd.id', 'pd.deposito_id')
+                            ->select('p.*', 'd.sucursal_id')
+                            ->where('p.deleted_at', NULL)
+                            // ->where('p.subcategoria_id', $id)
+                            ->get();
+        return view('ventas.proformas.proformas_create', compact('categorias', 'productos'));
+    }
+
+    public function proformas_store(Request $data){
+        // dd($data);
+        $proforma = Proforma::create(['cliente_id' => $data->cliente_id]);
+        // insertar detalle de la proforma
+        if($proforma){
+            for ($i=0; $i < count($data->producto_id); $i++) {
+                if(!is_null($data->producto_id[$i])){
+                    ProformasDetalle::create([
+                        'proforma_id' => $proforma->id,
+                        'producto_id' => $data->producto_id[$i],
+                        'cantidad' => $data->cantidad[$i]
+                    ]);
+                }
+            }
+
+            // Editar codigos de la proforma
+            DB::table('proformas')->where('id', $proforma->id)
+                    ->update(['codigo' => 'PRO-'.str_pad($proforma->id, 5, "0", STR_PAD_LEFT)]);
+
+            return redirect()->route('proformas_index')->with(['message' => 'Proforma guardada exitosamenete.', 'alert-type' => 'success']);
+        }else{
+            return redirect()->route('proformas_index')->with(['message' => 'Ocurrio un error al guardar la proforma.', 'alert-type' => 'error']);
+        }
+    }
+
+    public function proformas_print($tipo, $id){
+        if($tipo == 'rollo'){
+            // return $this->imprimir_rollo($id);
+        }else{
+            $detalle_proforma = DB::table('proformas as pr')
+                                    ->join('proformas_detalles as d', 'd.proforma_id', 'pr.id')
+                                    ->join('productos as p', 'p.id', 'd.producto_id')
+                                    ->join('marcas as m', 'm.id', 'p.marca_id')
+                                    ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                                    ->join('clientes as c', 'c.id', 'pr.cliente_id')
+                                    ->select('pr.*', 'pr.created_at as fecha', 'c.razon_social as cliente', 'c.nit', 'p.nombre as producto', 'p.precio_venta as precio', 'd.cantidad', 's.nombre as subcategoria')
+                                    ->where('pr.id', $id)
+                                    ->get();
+            $monto_total = 0;
+            foreach($detalle_proforma as $item){
+                $monto_total += $item->precio * $item->cantidad;
+            }
+
+            $total_literal = NumerosEnLetras::convertir($monto_total,'Bolivianos',true);
+
+            return view('facturas.proforma_venta', compact('detalle_proforma', 'monto_total', 'total_literal'));
+        }
+    }
+
+    public function proformas_detalle($id){
+        $detalle = DB::table('proformas as pr')
+                                    ->join('proformas_detalles as d', 'd.proforma_id', 'pr.id')
+                                    ->join('productos as p', 'p.id', 'd.producto_id')
+                                    ->join('marcas as m', 'm.id', 'p.marca_id')
+                                    ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                                    ->join('clientes as c', 'c.id', 'pr.cliente_id')
+                                    ->select('pr.*', 'pr.created_at as fecha', 'c.razon_social as cliente', 'c.nit', 'p.nombre as producto', 'p.precio_venta as precio', 'd.producto_id', 'd.cantidad', 's.nombre as subcategoria')
+                                    ->where('pr.id', $id)
+                                    ->get();
+        return response()->json($detalle);
+    }
+
     // Función creada para utilizarla tanto para crear una venta normal o realizar un pedido por parte de un cliente
     public function crear_venta($data){
 
@@ -771,11 +1012,13 @@ class VentasController extends Controller
         $caja_id = isset($data->caja_id) ? $data->caja_id : NULL;
         $autorizacion_id = isset($data->autorizacion_id) ? $data->autorizacion_id : NULL;
         $monto_recibido = isset($data->monto_recibido) ? $data->monto_recibido : 0;
+        $pagada = isset($data->credito) ? 0 : 1;
 
         $venta_estado_id = DB::table('ventas_detalle_tipo_estados as d')
                                 ->join('ventas_estados as e', 'e.id', 'd.venta_estado_id')
                                 ->select('d.venta_estado_id')
                                 ->where('d.venta_tipo_id', $data->venta_tipo_id)
+                                ->where('d.deleted_at', NULL)
                                 ->first()->venta_estado_id;
 
         $nro_mesa = isset($data->nro_mesa) ? $data->nro_mesa : NULL;
@@ -802,6 +1045,7 @@ class VentasController extends Controller
         $venta->cobro_adicional = $cobro_adicional;
         $venta->cobro_adicional_factura = $cobro_adicional_factura;        
         $venta->caja_id = $caja_id;
+        $venta->pagada = $pagada;
         $venta->user_id = Auth::user()->id;
         $venta->venta_tipo_id = $data->venta_tipo_id;
         $venta->venta_estado_id = $venta_estado_id;
@@ -824,7 +1068,7 @@ class VentasController extends Controller
 
     // Ipresion de factura y recibo
 
-    public function generar_impresion($tipo, $id){
+    public function ventas_print($tipo, $id){
         if($tipo == 'rollo'){
             return $this->imprimir_rollo($id);
         }else{
@@ -861,8 +1105,8 @@ class VentasController extends Controller
         $total_literal = NumerosEnLetras::convertir($monto_total,'Bolivianos',true);
 
         if(!$detalle_venta[0]->nro_factura){
-            // return view('facturas.recibo_venta', compact('detalle_venta', 'producto_adicional', 'total_literal'));
-            return view('facturas.recibo_venta2', compact('detalle_venta', 'producto_adicional', 'total_literal'));
+            return view('facturas.recibo_venta', compact('detalle_venta', 'producto_adicional', 'total_literal'));
+            // return view('facturas.recibo_venta2', compact('detalle_venta', 'producto_adicional', 'total_literal'));
         }else{
             $original = true;
             return view('facturas.factura_venta', compact('detalle_venta', 'producto_adicional', 'total_literal', 'original'));
@@ -981,6 +1225,49 @@ class VentasController extends Controller
         } catch (Exception $e) {
             // echo "Couldn't print to this printer: " . $e -> getMessage() . "\n";
         }
+    }
+
+    // Obtener todos los productos de disponibles para la venta
+    public function ventas_productos($sucursal_id, $subcategoria_id){
+        $filtro_subcategoria = !empty($subcategoria_id) ? "s.id = $subcategoria_id" : 1;
+        // dd($filtro_subcategoria);
+        $productos = collect();
+
+        // Obetener lista de productos a la venta en la sucursal actual
+        $productos_deposito = DB::table('productos as p')
+                            ->join('productos_depositos as pd', 'pd.producto_id', 'p.id')
+                            ->join('depositos as d', 'd.id', 'pd.deposito_id')
+                            ->join('marcas as m', 'm.id', 'p.marca_id')
+                            ->join('tallas as t', 't.id', 'p.talla_id')
+                            ->join('generos as g', 'g.id', 'p.genero_id')
+                            ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                            ->select('p.*', 'm.nombre as marca', 't.nombre as talla', 'g.nombre as genero', 's.nombre as subcategoria')
+                            ->where('p.deleted_at', NULL)
+                            ->where('p.se_almacena', 1)
+                            ->where('p.stock', '>', 0)
+                            ->where('d.sucursal_id', $sucursal_id)
+                            ->whereRaw($filtro_subcategoria)
+                            ->get();
+        foreach ($productos_deposito as $item) {
+            $productos->push($item);
+        }
+
+        // Obetener lista de productos a la venta en todas las sucursales (Productos que no se almacenan)
+        $productos_deposito = DB::table('productos as p')
+                            ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                            ->join('marcas as m', 'm.id', 'p.marca_id')
+                            ->join('tallas as t', 't.id', 'p.talla_id')
+                            ->join('generos as g', 'g.id', 'p.genero_id')
+                            ->select('p.*', 'm.nombre as marca', 't.nombre as talla', 'g.nombre as genero', 's.nombre as subcategoria')
+                            ->where('p.deleted_at', NULL)
+                            ->where('p.se_almacena', NULL)
+                            ->whereRaw($filtro_subcategoria)
+                            ->get();
+        foreach ($productos_deposito as $item) {
+            $productos->push($item);
+        }
+
+        return $productos;
     }
 }
 

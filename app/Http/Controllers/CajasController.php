@@ -171,6 +171,47 @@ class CajasController extends Controller
         }
     }
 
+    public function cajas_generarPDF($id){
+        $cajas  = DB::table('ie_cajas as c')
+                            ->join('ie_asientos as a', 'a.caja_id', 'c.id')
+                            ->join('sucursales as s', 's.id', 'c.sucursal_id')
+                            ->select('c.*', 's.nombre as sucursal', 'a.concepto', 'a.monto', 'a.tipo', 'a.fecha', 'a.hora', 'a.compra_id', 'a.venta_id')
+                            ->where('c.id', $id)
+                            ->where('a.deleted_at', NULL)
+                            ->get();
+        $registros = collect();
+        // Recorrer las categorias
+        foreach ($cajas as $item) {
+            $collect_aux = collect($item);
+            // Obetener detalle de la compra si el asiento pertenece a una compra
+            $detalle_compra = DB::table('compras_detalles as cd')
+                                        ->join('compras as c', 'c.id', 'cd.compra_id')
+                                        ->join('productos as p', 'p.id', 'cd.producto_id')
+                                        ->select('p.nombre', 'cd.cantidad')
+                                        ->where('c.id', $item->compra_id)->where('c.deleted_at', NULL)
+                                        ->get();
+            $collect_aux->put('detalle_compra',$detalle_compra);
+
+            // Obetener detalle de la venta si el asiento pertenece a una venta
+            $detalle_venta = DB::table('ventas_detalles as vd')
+                                        ->join('ventas as v', 'v.id', 'vd.venta_id')
+                                        ->join('productos as p', 'p.id', 'vd.producto_id')
+                                        ->select('p.nombre', 'vd.cantidad')
+                                        ->where('v.id', $item->venta_id)->where('v.estado', 'V')
+                                        ->get();
+            $collect_aux->put('detalle_venta',$detalle_venta);
+
+            // Agregar registro a la colección
+            $registros->push($collect_aux);
+        }
+        // dd($registros);
+
+        $pdf = \App::make('dompdf.wrapper');
+        // return view('cajas.cajas_pdf', compact('registros'));
+        $pdf->loadHTML(view('cajas.cajas_pdf', compact('registros')))->setPaper('letter', 'landscape');
+        return $pdf->stream();
+    }
+
     // ==================================Asientos=================================
     function asientos_index(){
         $asientos = DB::table('ie_asientos as i')

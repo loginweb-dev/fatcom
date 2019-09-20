@@ -206,15 +206,14 @@
                                     <table class="table table-bordered">
                                         <thead>
                                             <th>Precio @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Precio de venta del producto. Este campo es obligatorio."></span> @endif</th>
+                                            <th>Precio mínimo @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Precio mínimo de venta del producto. Este campo no es obligatorio."></span> @endif</th>
                                             <th>Cantidad mínima @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad mínima de venta para tener dicho precio. Este campo es obligatorio."></span> @endif</th>
                                             <th></th>
                                         </thead>
                                         <tbody id="tr-precioVenta">
                                             <tr>
-                                                <td>
-                                                    <input type="number" min="1" step="0.1" class="form-control" name="precio_venta[]" required>
-                                                    <input type="hidden" name="precio_minimo[]" value="0">
-                                                </td>
+                                                <td><input type="number" min="1" step="0.1" class="form-control" name="precio_venta[]" required><input type="hidden" name="precio_minimo[]" value="0"></td>
+                                                <td><input type="number" min="0" step="0.1" class="form-control" name="precio_minimo[]"></td>
                                                 <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_venta[]" value="1" required></td>
                                                 <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
                                             </tr>
@@ -278,7 +277,7 @@
                     let id = $(this).val();
                     if(!isNaN(id)){
                         $.ajax({
-                            url: '{{url("admin/subcategorias/list/categoria")}}/'+id,
+                            url: '{{url("admin/productos/list/subcategorias")}}/'+id,
                             type: 'get',
                             success: function(response){
                                 select2_reload('subcategoria_id', response, false, '');
