@@ -63,9 +63,21 @@
 </div>
 <div class="input-group">
     <select name="select_producto" class="form-control select2" id="select-producto_id" onchange="agregar_producto()">
-        <option value="">--Seleccionar producto--</option>
+        {{-- <option value="">--Seleccionar producto--</option>
         @foreach ($productos as $item)
             <option value="{{$item->id}}" > @if($item->codigo) {{$item->codigo}}.- @endif {{$item->nombre}} @if($item->codigo_interno) #{{$item->codigo_interno}}@endif</option>
+        @endforeach --}}
+        <option selected disabled value="">Seleccione una opción</option>
+        @foreach ($productos as $item)
+        @php
+            $imagen = $item->imagen ?? 'productos/default.png';
+        @endphp
+            <option value="{{ $item->id }}"
+                    data-imagen="{{ url('storage').'/'.$imagen }}"
+                    data-categoria="{{ $item->subcategoria }}"
+                    {{-- data-marca="{{ $item->marca }}" --}}
+                    data-detalle="{{ $item->descripcion_small }}"
+            >{{$item->nombre}} @if($item->codigo_interno) #{{$item->codigo_interno}}@endif</option>
         @endforeach
     </select>
     <span class="input-group-btn">
@@ -93,9 +105,11 @@
 </table>
 <script src="{{url('js/loginweb.js')}}"></script>
 <script src="{{url('js/inventarios/productos.js')}}"></script>
+<script src="{{ asset('js/rich_select.js') }}"></script>
 <script>
     $(document).ready(function(){
-        $('#select-producto_id').select2();
+        // $('#select-producto_id').select2();
+        rich_select('select-producto_id');
 
         // Cuando se abre el acordeon se inizializan los select2 que tiene dentro
         $('#accordion').on('show.bs.collapse', function () {

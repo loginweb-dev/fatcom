@@ -33,7 +33,9 @@ Route::post('/profile/update', 'LandingPageController@profile_update')->name('pr
 // ================================Ecommerce===========================
 Route::get('/', 'LandingPageController@index')->name('ecommerce_home');
 Route::get('/detalle/{producto}', 'LandingPageController@detalle_producto')->name('detalle_producto_ecommerce');
+Route::get('/detalle/producto/get_producto/{id}', 'LandingPageController@get_producto');
 Route::post('/search', 'LandingPageController@search')->name('busqueda_ecommerce');
+Route::get('/search/{value}', 'LandingPageController@search_product');
 Route::get('/ofertas', 'LandingPageController@ofertas')->name('ofertas_ecommerce');
 Route::get('/subcategoria/{subcategoria}', 'LandingPageController@subcategorias')->name('subcategorias_ecommerce');
 Route::get('/carrito', 'LandingPageController@carrito_index')->name('carrito_compra');
@@ -41,6 +43,7 @@ Route::get('/carrito/get_precio/{id}/{cantidad}', 'LandingPageController@get_pre
 Route::get('/carrito/cantidad_carrito', 'LandingPageController@cantidad_carrito')->name('cantidad_carrito');
 Route::get('/carrito/agregar/comprar/{id}', 'LandingPageController@carrito_comprar');
 Route::get('/carrito/agregar/{id}', 'LandingPageController@carrito_agregar');
+Route::get('/carrito/editar/{id}/{cantidad}', 'LandingPageController@carrito_editar');
 Route::get('/carrito/borrar/{id}', 'LandingPageController@carrito_borrar');
 Route::get('/carrito/cantidad_pedidos', 'LandingPageController@cantidad_pedidos')->name('cantidad_pedidos');
 Route::get('/carrito/mis_pepdidos/{id}', 'LandingPageController@pedidos_index')->name('pedidos_index');

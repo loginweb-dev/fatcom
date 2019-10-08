@@ -9,12 +9,14 @@ use Carbon\Carbon;
 use App\Http\Controllers\LoginwebController as LW;
 use App\Http\Controllers\OfertasController as Ofertas;
 use App\Http\Controllers\ProductosController as Productos;
+use App\Http\Controllers\LandingPageController as LandingPage;
 
 use App\User;
 use App\ClientesCoordenada;
 use App\PasarelaPago;
 use App\Venta;
 use App\Producto;
+use App\Oferta;
 use App\Subcategoria;
 use App\Sucursale;
 use App\Localidade;
@@ -95,7 +97,36 @@ class LandingPageController extends Controller
                 $subcategoria_productos->push($collect_aux);
             }
         }
-        return view('ecommerce/index', compact('categorias', 'ofertas', 'subcategoria_productos', 'marcas'));
+
+        // SE USA EN LA VISTA DE RESTAURANTES V1
+        // Mas vendidos
+        $mas_vendidos = $this->get_masVendidos();
+
+        $populares = DB::table('productos as p')
+                                ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                                ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
+                                ->join('monedas as mn', 'mn.id', 'p.moneda_id')
+                                ->select(DB::raw('p.id, p.nombre, s.nombre as subcategoria, p.precio_venta, p.nuevo, p.imagen, p.vistas, (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos,
+                                                mn.abreviacion as moneda, p.slug, p.deleted_at as monto_oferta, p.deleted_at as tipo_descuento, p.deleted_at as fin_descuento'))
+                                ->orderBy('vistas', 'DESC')
+                                ->where('e.deleted_at', NULL)
+                                ->limit(6)->get();
+        $cont = 0;
+        foreach ($populares as $item) {
+            // Obtener si el producto está en oferta
+            $oferta = (new Ofertas)->obtener_oferta($item->id);
+            if($oferta){
+                $populares[$cont]->monto_oferta = $oferta->monto;
+                $populares[$cont]->tipo_descuento = $oferta->tipo_descuento;
+                $populares[$cont]->fin = $oferta->fin;
+            }
+            $cont++;
+        }
+        // ============
+
+        $oferta_princial = Oferta::all()->where('deleted_at', NULL)->first();
+
+        return view('ecommerce.'.setting('admin.ecommerce').'index', compact('categorias', 'marcas', 'ofertas', 'subcategoria_productos', 'mas_vendidos', 'populares', 'oferta_princial'));
     }
 
     public function search(Request $data){
@@ -107,7 +138,8 @@ class LandingPageController extends Controller
         if($data->tipo_busqueda=='click'){
             $filtro_marca = ($data->marca_id != '') ? ' p.marca_id = '.$data->marca_id : ' 1';
             $filtro_subcategoria = ($data->subcategoria_id != '') ? ' and p.subcategoria_id = '.$data->subcategoria_id : ' and 1';
-            $sentencia = $filtro_marca.$filtro_subcategoria;
+            $filtro_categoria = ($data->categoria_id != '') ? ' and s.categoria_id = '.$data->categoria_id : ' and 1';
+            $sentencia = $filtro_marca.$filtro_subcategoria.$filtro_categoria;
 
             // filtro de precios
             if(empty($precio_min) && !empty($precio_max)){
@@ -119,7 +151,7 @@ class LandingPageController extends Controller
             }
 
         }
-
+        // Sentencia
         if($data->tipo_busqueda=='text'){
             // dd($data);
             if($data->tipo_dato=='all'){
@@ -139,32 +171,44 @@ class LandingPageController extends Controller
                             ->join('usos as u', 'u.id', 'p.uso_id')
                             ->join('generos as g', 'g.id', 'p.genero_id')
                             ->join('monedas as mn', 'mn.id', 'p.moneda_id')
-                            ->select('p.id', 'p.nombre', 'p.precio_venta', 'p.imagen', 'modelo', 'p.garantia', 'p.descripcion_small', 'p.vistas', 'p.slug', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'u.nombre as uso', 'co.nombre as color', 'g.nombre as genero')
+                            ->select(DB::raw('p.id, p.nombre, p.precio_venta, p.imagen, p.modelo, p.garantia,
+                                            p.descripcion_small, p.vistas, p.slug, s.nombre as subcategoria, m.nombre as marca,
+                                            mn.abreviacion as moneda, u.nombre as uso, co.nombre as color, g.nombre as genero, p.codigo_grupo,
+                                            (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos, p.deleted_at as monto_oferta, p.deleted_at as tipo_descuento, p.deleted_at as fin_descuento'))
                             // ->where('deleted_at', NULL)
                             ->whereRaw($sentencia)
                             ->where('s.deleted_at', NULL)
                             ->where('m.deleted_at', NULL)
                             ->where('e.deleted_at', NULL)
-                            ->paginate(5);
-        $precios = [];
-        $ofertas = [];
-        $puntuaciones = [];
+                            ->groupBy('p.id', 'p.nombre', 'p.precio_venta', 'p.imagen', 'p.modelo', 'p.garantia', 'p.descripcion_small', 'p.vistas', 'p.slug', 's.nombre', 'm.nombre', 'mn.abreviacion', 'u.nombre', 'co.nombre', 'g.nombre', 'p.codigo_grupo', 'p.deleted_at')
+                            ->paginate(10);
+        $cont = 0;
         foreach ($productos as $item) {
-            // Obtener precios de venta del producto
-            $producto_unidades =  (new Productos)->obtener_precios_venta($item->id);
-            $precio = (count($producto_unidades)>0) ? ['precio' => $producto_unidades[0]->precio, 'unidad' => $producto_unidades[0]->unidad] : ['precio' => 0, 'unidad' => 'No definida'];
-            array_push($precios, $precio);
-
             // Obtener si el producto está en oferta
             $oferta = (new Ofertas)->obtener_oferta($item->id);
-            array_push($ofertas, ['oferta'=>$oferta]);
-
-            // Obtener puntuaciones
-            $puntuacion = (new Productos)->obtener_puntos($item->id);
-            array_push($puntuaciones, ['puntos'=>$puntuacion]);
+            if($oferta){
+                $productos[$cont]->monto_oferta = $oferta->monto;
+                $productos[$cont]->tipo_descuento = $oferta->tipo_descuento;
+                $productos[$cont]->fin = $oferta->fin;
+            }
+            $cont++;
         }
 
-        return view('ecommerce/busqueda', compact('productos', 'precios', 'ofertas', 'precio_min', 'precio_max', 'puntuaciones'));
+
+
+        return view('ecommerce.'.setting('admin.ecommerce').'busqueda', compact('productos', 'precio_min', 'precio_max'));
+    }
+
+    public function search_product($busqueda){
+        return DB::table('productos as p')
+                        ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
+                        ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                        ->join('categorias as c', 'c.id', 's.categoria_id')
+                        ->select('p.nombre', 'p.precio_venta', 'p.vistas', 's.nombre as subcategoria', 'p.slug')
+                        ->where('p.deleted_at', NULL)->where('s.deleted_at', NULL)->where('s.deleted_at', NULL)
+                        ->whereRaw("(p.nombre like '%$busqueda%' or s.nombre like '%$busqueda%' or c.nombre like '%$busqueda%')")
+                        ->groupBy('p.nombre', 'p.precio_venta', 'p.vistas', 's.nombre', 'p.slug')
+                        ->orderBy('p.vistas', 'DESC')->orderBy('p.precio_venta', 'ASC')->limit(10)->get();
     }
 
     public function ofertas(){
@@ -258,10 +302,18 @@ class LandingPageController extends Controller
                             ->join('generos as g', 'g.id', 'p.genero_id')
                             ->join('monedas as mn', 'mn.id', 'p.moneda_id')
                             ->join('ecommerce_productos as ec', 'ec.producto_id', 'p.id')
-                            ->select('p.id', 'p.nombre', 'p.precio_venta', 'p.imagen', 'p.modelo', 'p.garantia', 'p.descripcion_small', 'p.descripcion_long', 'p.vistas', 'p.catalogo', 'p.slug', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'u.nombre as uso', 'c.nombre as color', 'g.nombre as genero', 'ec.tags')
+                            ->select(DB::raw('p.id, p.nombre, p.precio_venta, p.imagen, p.modelo, p.garantia, p.descripcion_small, p.descripcion_long, p.vistas, p.catalogo, p.slug,
+                                            s.nombre as subcategoria, m.nombre as marca, mn.abreviacion as moneda, u.nombre as uso, c.nombre as color, g.nombre as genero,
+                                            ec.tags, p.nuevo, (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos, p.codigo_grupo'))
                             // ->where('deleted_at', NULL)
                             ->where('p.id', $id)
                             ->first();
+        // Nota: Lo ideal seria que los productos (pizzas) se diferencien por tallas (tamaño)
+        $presentaciones = DB::table('productos as p')
+                                ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                                ->select('p.*', 's.nombre as subcategoria')
+                                ->where('p.codigo_grupo', $producto->codigo_grupo)->where('p.deleted_at', NULL)->orderBy('p.precio_venta', 'ASC')->get();
+
         $imagenes = DB::table('producto_imagenes')
                             ->select('imagen')
                             ->where('producto_id', $id)
@@ -278,9 +330,7 @@ class LandingPageController extends Controller
             $habilitar_puntuar = DB::table('productos_puntuaciones')
                                         ->select('id')
                                         ->where('user_id', Auth::user()->id)
-                                        ->where('producto_id', $id)
-                                        ->where('deleted_at', NULL)
-                                        ->first();
+                                        ->where('producto_id', $id)->where('deleted_at', NULL)->first();
         }
 
         // Recomendaciones
@@ -289,9 +339,10 @@ class LandingPageController extends Controller
         foreach ($tags as $item) {
             $array = DB::table('productos as p')
                             ->join('ecommerce_productos as ec', 'ec.producto_id', 'p.id')
-                            ->select('p.id', 'p.nombre', 'p.imagen', 'p.slug')
+                            ->select(DB::raw('p.id, p.nombre, p.imagen, p.slug, (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos, p.codigo_grupo'))
                             ->where('ec.tags', 'like', "%$item%")
                             ->where('p.id', '<>', $id)
+                            ->groupBy('p.id', 'p.nombre', 'p.imagen', 'p.slug', 'p.codigo_grupo')
                             ->get();
             foreach ($array as $item2) {
                 $existe = false;
@@ -306,7 +357,7 @@ class LandingPageController extends Controller
                 if($existe){
                     $recomendaciones[$indice]['coincidencias']++;
                 }else{
-                    array_push($recomendaciones, ['id'=>$item2->id, 'nombre'=>$item2->nombre, 'imagen'=>$item2->imagen, 'slug'=>$item2->slug, 'coincidencias'=>1]);
+                    array_push($recomendaciones, ['id'=>$item2->id, 'nombre'=>$item2->nombre, 'imagen'=>$item2->imagen, 'slug'=>$item2->slug, 'puntos'=>$item2->puntos, 'coincidencias'=>1]);
                 }
             }
         }
@@ -315,25 +366,29 @@ class LandingPageController extends Controller
             for ($j=$i+1; $j < count($recomendaciones); $j++) {
                 if($recomendaciones[$i]['coincidencias'] < $recomendaciones[$j]['coincidencias']){
 
-                    $aux_id = $recomendaciones[$i]['id'];
+                    $aux = $recomendaciones[$i]['id'];
                     $recomendaciones[$i]['id'] = $recomendaciones[$j]['id'];
-                    $recomendaciones[$j]['id'] = $aux_id;
+                    $recomendaciones[$j]['id'] = $aux;
 
-                    $aux_nombre = $recomendaciones[$i]['nombre'];
+                    $aux = $recomendaciones[$i]['nombre'];
                     $recomendaciones[$i]['nombre'] = $recomendaciones[$j]['nombre'];
-                    $recomendaciones[$j]['nombre'] = $aux_nombre;
+                    $recomendaciones[$j]['nombre'] = $aux;
 
-                    $aux_imagen = $recomendaciones[$i]['imagen'];
+                    $aux = $recomendaciones[$i]['imagen'];
                     $recomendaciones[$i]['imagen'] = $recomendaciones[$j]['imagen'];
-                    $recomendaciones[$j]['imagen'] = $aux_imagen;
+                    $recomendaciones[$j]['imagen'] = $aux;
 
-                    $aux_slug = $recomendaciones[$i]['slug'];
+                    $aux = $recomendaciones[$i]['slug'];
                     $recomendaciones[$i]['slug'] = $recomendaciones[$j]['slug'];
-                    $recomendaciones[$j]['slug'] = $aux_slug;
+                    $recomendaciones[$j]['slug'] = $aux;
 
-                    $aux_coincidencia = $recomendaciones[$i]['coincidencias'];
+                    $aux = $recomendaciones[$i]['puntos'];
+                    $recomendaciones[$i]['puntos'] = $recomendaciones[$j]['puntos'];
+                    $recomendaciones[$j]['puntos'] = $aux;
+
+                    $aux = $recomendaciones[$i]['coincidencias'];
                     $recomendaciones[$i]['coincidencias'] = $recomendaciones[$j]['coincidencias'];
-                    $recomendaciones[$j]['coincidencias'] = $aux_coincidencia;
+                    $recomendaciones[$j]['coincidencias'] = $aux;
                 }
             }
         }
@@ -371,8 +426,7 @@ class LandingPageController extends Controller
                                     ->where('l.deleted_at', NULL)->where('ep.deleted_at', NULL)->where('ee.deleted_at', NULL)
                                     ->where('l.activo', 1)->where('ep.producto_id', $id)
                                     ->get();
-
-        return view('ecommerce/detalle', compact('producto', 'imagenes', 'precios_venta', 'puntuacion', 'oferta', 'id', 'habilitar_puntuar', 'recomendaciones', 'dispositivo', 'envio', 'localidades_disponibles'));
+        return view('ecommerce.'.setting('admin.ecommerce').'detalle', compact('producto', 'presentaciones', 'imagenes', 'precios_venta', 'puntuacion', 'oferta', 'id', 'habilitar_puntuar', 'recomendaciones', 'dispositivo', 'envio', 'localidades_disponibles'));
     }
 
     public function cantidad_carrito(){
@@ -408,6 +462,7 @@ class LandingPageController extends Controller
         $pasarela_pago = PasarelaPago::where('deleted_at', NULL)->get();
 
         $carrito = session()->has('carrito_compra') ? session()->get('carrito_compra') : array();
+        // dd($carrito);
         $precios = [];
         $ofertas = [];
         foreach ($carrito as $item) {
@@ -428,8 +483,13 @@ class LandingPageController extends Controller
                 array_push($disponibles, $envios);
             }
         }
+
+        $mas_vendidos = $this->get_masVendidos();
+
+        $pedido_pendiente = Venta::where('estado', 'V')->where('deleted_at', NULL)->first();
+
         // dd($disponibles);
-        return view('ecommerce/carrito', compact('carrito', 'precios', 'ofertas', 'user_coords', 'pasarela_pago', 'cliente_id', 'sucursal', 'disponibles'));
+        return view('ecommerce.'.setting('admin.ecommerce').'carrito', compact('carrito', 'precios', 'ofertas', 'user_coords', 'pasarela_pago', 'cliente_id', 'sucursal', 'disponibles', 'mas_vendidos', 'pedido_pendiente'));
     }
 
     public function get_precio($id, $cantidad){
@@ -478,10 +538,22 @@ class LandingPageController extends Controller
                             ->join('generos as g', 'g.id', 'p.genero_id')
                             ->join('monedas as mn', 'mn.id', 'p.moneda_id')
                             ->join('ecommerce_productos as ec', 'ec.producto_id', 'p.id')
-                            ->select('p.id', 'p.codigo', 'p.nombre', 'p.precio_venta', 'p.imagen', 'p.modelo', 'p.garantia', 'p.descripcion_small', 'p.slug', 'm.nombre as marca', 'mn.abreviacion as moneda', 'u.nombre as uso', 'c.nombre as color', 'g.nombre as genero')
+                            ->select('p.id', 'p.codigo', 'p.nombre', 'p.precio_venta', 'p.imagen', 'p.modelo', 'p.garantia', 'p.descripcion_small', 'p.slug', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'u.nombre as uso', 'c.nombre as color', 'g.nombre as genero', 'p.deleted_at as cantidad')
                             // ->where('deleted_at', NULL)
                             ->where('p.id', $id)
                             ->first();
+        $producto->cantidad = 1;
+
+        $oferta = (new Ofertas)->obtener_oferta($id);
+        if($oferta){
+            $precio_venta = $producto->precio_venta;
+            if($oferta->tipo_descuento=='porcentaje'){
+                $precio_venta -= ($precio_actual*($oferta->monto_oferta/100));
+            }else{
+                $precio_venta -= $oferta->monto;
+            }
+            $producto->precio_venta = $precio_venta;
+        }
         if($producto){
             $carrito[$id] = $producto;
             session()->put('carrito_compra', $carrito);
@@ -491,18 +563,26 @@ class LandingPageController extends Controller
         }
     }
 
+    public function carrito_editar($id, $cantidad){
+        $carrito = session()->has('carrito_compra') ? session()->get('carrito_compra') : array();
+        $carrito[$id]->cantidad = $cantidad;
+        session()->put('carrito_compra', $carrito);
+    }
+
     public function carrito_borrar($id){
+        // dd($id);
         // session()->forget('carrito_compra');
         $carrito = session()->has('carrito_compra') ? session()->get('carrito_compra') : array();
         $carrito_aux = array();
         foreach ($carrito as $item) {
-            if($item->id!=$id){
-                array_push($carrito_aux, $item);
+            if($item->id != $id){
+                $carrito_aux[$item->id] = $item;
             }
         }
         session()->put('carrito_compra', $carrito_aux);
-        $alerta = 'producto_eliminado';
-        return redirect()->route('carrito_compra')->with(compact('alerta'));
+        return 1;
+        // $alerta = 'producto_eliminado';
+        // return redirect()->route('carrito_compra')->with(compact('alerta'));
     }
 
     public function pedidos_index($id){
@@ -574,16 +654,34 @@ class LandingPageController extends Controller
 
 
     public function profile(){
+
+        // Verificar si el usuario tiene un cliente asignado
+        $user = User::find(Auth::user()->id);
+        $user->localidad_id = $user->localidad_id ?? 1;
+
+        if(!$user->cliente_id){
+            $cliente = Cliente::create(['razon_social' => $user->name]);
+            $user->cliente_id = $cliente->id;
+        }
+        $user->save();
+
         $registro = DB::table('users as u')
                             ->join('clientes as c', 'c.id', 'u.cliente_id')
                             ->select('c.*', 'u.localidad_id', 'u.name', 'u.email', 'avatar', 'tipo_login')
-                            ->where('c.deleted_at', NULL)->where('u.id', Auth::user()->id)
-                            ->first();
+                            ->where('c.deleted_at', NULL)->where('u.id', $user->id)->first();
         $localidad = $registro->localidad_id ? Localidade::find($registro->localidad_id) : NULL;
 
         $localidades = Localidade::where('deleted_at', NULL)->get();
 
-        return view('auth.profile', compact('registro', 'localidad', 'localidades'));
+        switch (setting('admin.ecommerce')) {
+            case 'restaurante_v1.':
+                return view('ecommerce.'.setting('admin.ecommerce').'auth.profile', compact('registro', 'localidad', 'localidades'));
+                break;
+            
+            default:
+                return view('auth.profile', compact('registro', 'localidad', 'localidades'));
+                break;
+        }
     }
 
     public function profile_update(Request $data){
@@ -610,6 +708,65 @@ class LandingPageController extends Controller
 
         $alerta = 'cliente_editado';
         return redirect()->route('profile')->with(compact('alerta'));
+    }
+
+
+    // ====================================================
+
+    public function get_producto($id){
+        $producto = DB::table('productos as p')
+                            ->join('monedas as m', 'm.id', 'p.moneda_id')
+                            ->join('producto_unidades as pu', 'pu.producto_id', 'p.id')
+                            ->select(DB::raw('p.id, p.nombre, pu.precio, pu.precio as precio_antiguo, p.imagen, p.se_almacena, p.stock, p.descripcion_small as descripcion, m.abreviacion as moneda,
+                                            (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos'))
+                            ->where('p.id', $id)
+                            ->where('pu.deleted_at', NULL)
+                            ->first();
+
+        if($producto){
+            // Obtener si el producto está en oferta
+            $oferta = (new Ofertas)->obtener_oferta($producto->id);
+            $precio_venta = $producto->precio;
+            if($oferta){
+                if($oferta->tipo_descuento=='porcentaje'){
+                    $precio_venta -= ($precio_venta*($oferta->monto/100));
+                }else{
+                    $precio_venta -= $oferta->monto;
+                }
+                $producto->precio = $precio_venta;
+            }
+
+            return response()->json($producto);
+        }else{
+            return null;
+        }
+    }
+
+    public function get_masVendidos(){
+        $mas_vendidos = DB::table('productos as p')
+                                ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                                ->join('ventas_detalles as vd', 'vd.producto_id', 'p.id')
+                                ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
+                                ->join('monedas as mn', 'mn.id', 'p.moneda_id')
+                                ->select(DB::raw('p.id, p.nombre, s.nombre as subcategoria, precio_venta, nuevo, imagen, count(vd.id) as cantidad, (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos,
+                                                    mn.abreviacion as moneda, p.slug, p.deleted_at as monto_oferta, p.deleted_at as tipo_descuento, p.deleted_at as fin_descuento'))
+                                ->groupBy('p.id', 'p.nombre', 'subcategoria', 'precio_venta', 'nuevo', 'imagen', 'puntos', 'mn.abreviacion', 'slug', 'p.deleted_at')
+                                ->orderBy('cantidad', 'DESC')
+                                ->where('e.deleted_at', NULL)
+                                ->limit(6)->get();
+        $cont = 0;
+        foreach ($mas_vendidos as $item) {
+            // Obtener si el producto está en oferta
+            $oferta = (new Ofertas)->obtener_oferta($item->id);
+            if($oferta){
+                $mas_vendidos[$cont]->monto_oferta = $oferta->monto;
+                $mas_vendidos[$cont]->tipo_descuento = $oferta->tipo_descuento;
+                $mas_vendidos[$cont]->fin = $oferta->fin;
+            }
+            $cont++;
+        }
+
+        return $mas_vendidos;
     }
 }
 

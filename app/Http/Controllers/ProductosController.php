@@ -23,6 +23,7 @@ use App\Colore;
 use App\Modelo;
 use App\Producto;
 use App\ProductoUnidade;
+use App\ProductoImagene;
 
 class ProductosController extends Controller
 {
@@ -565,6 +566,18 @@ class ProductosController extends Controller
                                     'created_at' => Carbon::now(),
                                     'updated_at' => Carbon::now()
                                 ]);
+                
+            }
+            $producto = Producto::find($data->id);
+            if(!$producto->imagen){
+                $producto->imagen = $imagen;
+                $producto->save();
+
+                $p_i = ProductoImagene::where('producto_id', $data->id)->first();
+
+                $producto_imagen = ProductoImagene::find($p_i->id);
+                $producto_imagen->tipo = 'primaria';
+                $producto_imagen->save();
             }
         }
 
@@ -918,9 +931,12 @@ class ProductosController extends Controller
 
     public function get_producto($id){
         $producto = DB::table('productos as p')
+                            ->join('monedas as m', 'm.id', 'p.moneda_id')
                             ->join('producto_unidades as pu', 'pu.producto_id', 'p.id')
-                            ->select('p.id', 'p.nombre', 'precio', 'se_almacena', 'stock')
+                            ->select(DB::raw('p.id, p.nombre, pu.precio, pu.precio as precio_antiguo, p.imagen, p.se_almacena, p.stock, p.descripcion_small as descripcion, m.abreviacion as moneda,
+                                            (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos'))
                             ->where('p.id', $id)
+                            ->where('pu.deleted_at', NULL)
                             ->first();
 
         if($producto){

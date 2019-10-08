@@ -69,13 +69,15 @@ class RegisterController extends Controller
             'movil' => $data['celular'],
         ]);
 
+        $localidad = $data['localidad_id'] ?? 1;
+
         return User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'tipo_login' => 'register',
             'cliente_id' => $cliente->id,
-            'localidad_id' => $data['localidad_id']
+            'localidad_id' => $localidad
         ]);
     }
 }

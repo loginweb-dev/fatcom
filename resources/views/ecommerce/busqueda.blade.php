@@ -1,15 +1,12 @@
-@php
-    $cont = 0;
-@endphp
 @forelse ($productos as $item)
     @php
-        $precio_venta = $precios[$cont]['precio'];
+        $precio_venta = $item->precio_venta;
         $precio_actual = $precio_venta;
-        if($ofertas[$cont]['oferta']){
-            if($ofertas[$cont]['oferta']->tipo_descuento=='porcentaje'){
-                $precio_actual -= ($precio_actual*($ofertas[$cont]['oferta']->monto/100));
+        if($item->monto_oferta){
+            if($item->tipo_descuento=='porcentaje'){
+                $precio_actual -= ($precio_actual*($item->monto_oferta/100));
             }else{
-                $precio_actual -= $ofertas[$cont]['oferta']->monto;
+                $precio_actual -= $item->monto_oferta;
             }
         }
     @endphp
@@ -21,14 +18,14 @@
                 @endphp
                 {{-- imagen --}}
                 <aside class="col-lg-3">
-                    <div class="img-wrap"><img src="{{url('storage').'/'.$img}}"></div>
+                    <div class="img-wrap"><img src="{{ url('storage/'.$img) }}"></div>
                 </aside>
                 {{-- detalles --}}
                 <article class="col-lg-5">
                     <h4 class="title"> {{$item->nombre}} </h4>
                     <div class="rating-wrap">
                         <ul class="rating-stars">
-                            <li style="width:{{$puntuaciones[$cont]['puntos']*20}}%" class="stars-active">
+                            <li style="width:{{$item->puntos*20}}%" class="stars-active">
                                 <i class="fa fa-star"></i> <i class="fa fa-star"></i>
                                 <i class="fa fa-star"></i> <i class="fa fa-star"></i>
                                 <i class="fa fa-star"></i>
@@ -39,7 +36,7 @@
                                 <i class="fa fa-star"></i>
                             </li>
                         </ul>
-                        <div class="label-rating"> {{number_format($puntuaciones[$cont]['puntos'], 1, ',', '')}}</div>
+                        <div class="label-rating"> {{number_format($item->puntos, 1, ',', '')}}</div>
                         <div class="label-rating" title="Visto {{$item->vistas}} veces"> <span class="fa fa-eye"></span> {{$item->vistas}} </div>
                     </div>
                     <p> {{$item->descripcion_small}} </p>
@@ -60,7 +57,7 @@
                 <aside class="col-lg-4 border-left">
                     <div class="action-wrap">
                         <div class="price-wrap h4">
-                            @if(!$ofertas[$cont]['oferta'])
+                            @if(!$item->monto_oferta)
                             <span class="price"> {{$item->moneda}} {{number_format($precio_venta, 2, ',', '.')}} </span>
                             @else
                             <span class="price"> {{$item->moneda}} {{number_format($precio_actual, 2, ',', '.')}} </span>
@@ -71,7 +68,7 @@
                         <br>
                         <p>
                             <button style="margin:5px" type="button" id="btn-add_carrito" class="btn btn-warning" onclick="agregar({{$item->id}})"> <i class="fa fa-shopping-cart"></i> Agregar</button>
-                            <a style="margin:5px" href="{{route('detalle_producto_ecommerce', ['producto'=>$item->slug])}}" class="btn btn-primary link-page"> <i class="fa fa-list"></i> Detalles  </a>
+                            <a style="margin:5px" href="{{ route('detalle_producto_ecommerce', ['producto'=>$item->slug]) }}" class="btn btn-primary link-page"> <i class="fa fa-list"></i> Detalles  </a>
                         </p>
                         {{-- <a href="#"><i class="fa fa-heart"></i> Add to wishlist</a> --}}
                     </div>
@@ -79,9 +76,6 @@
             </div>
         </div>
     </article>
-    @php
-        $cont++;
-    @endphp
 @empty
     <div class="col-md-12 text-center bg-white padding-y-lg">
         <h1 class="display-4">OOPS!</h1>

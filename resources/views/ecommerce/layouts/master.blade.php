@@ -202,6 +202,7 @@
         }
 
         function buscar(page){
+            // document.form.submit()
             $(`#form-search input[name="page"]`).val(page);
             $('#contenido').html(`  <div class="text-center" style="margin-top:120px">
                                         <img src="{{voyager_asset('images/load.gif')}}" width="100px" alt="load.gif">

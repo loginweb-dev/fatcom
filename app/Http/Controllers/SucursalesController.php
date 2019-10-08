@@ -77,7 +77,7 @@ class SucursalesController extends Controller
             DB::table('depositos')
                     ->insert([
                         'nombre' => 'Deposito - '.$data->nombre,
-                        'ubicacion' => $data->direccion,
+                        'direccion' => $data->direccion,
                         'sucursal_id' => $id,
                         'inventario' => 1,
                         'created_at' => Carbon::now(),

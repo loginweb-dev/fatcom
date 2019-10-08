@@ -483,7 +483,7 @@ class VentasController extends Controller
     // Manejo de pedidos
 
     public function pedidos_store(Request $data){
-        
+
         if((new LandingPage)->cantidad_pedidos() > 0){
             $alerta = 'pedido_pendiente';
             return redirect()->route('carrito_compra')->with(compact('alerta'));
@@ -510,12 +510,12 @@ class VentasController extends Controller
             $alerta = 'carrito_vacio';
             return redirect()->route('carrito_compra')->with(compact('alerta'));
         }
-        $cantidades = array();
-        $precios = array();
-        for ($i=0; $i < count($data->cantidad); $i++) {
-            array_push($cantidades, $data->cantidad[$i]);
-            array_push($precios, $data->precio[$i]);
-        }
+        // $cantidades = array();
+        // $precios = array();
+        // for ($i=0; $i < count($data->cantidad); $i++) {
+        //     array_push($cantidades, $data->cantidad[$i]);
+        //     array_push($precios, $data->precio[$i]);
+        // }
 
         $venta_id = $this->crear_venta($data);
 
@@ -526,8 +526,8 @@ class VentasController extends Controller
                         ->insert([
                             'venta_id' => $venta_id,
                             'producto_id' => $item->id,
-                            'precio' => $precios[$cont],
-                            'cantidad' => $cantidades[$cont],
+                            'precio' => $item->precio_venta,
+                            'cantidad' => $item->cantidad,
                             'created_at' => Carbon::now(),
                             'updated_at' => Carbon::now()
                         ]);
@@ -1063,7 +1063,9 @@ class VentasController extends Controller
                             ->select('*')
                             ->where('deleted_at', NULL)
                             ->first();
-        return view('ecommerce/agradecimiento');
+        $mas_vendidos = (new LandingPage)->get_masVendidos();
+
+        return view('ecommerce.'.setting('admin.ecommerce').'agradecimiento', compact('mas_vendidos'));
     }
 
     // Ipresion de factura y recibo
@@ -1105,11 +1107,12 @@ class VentasController extends Controller
         $total_literal = NumerosEnLetras::convertir($monto_total,'Bolivianos',true);
 
         if(!$detalle_venta[0]->nro_factura){
-            return view('facturas.recibo_venta', compact('detalle_venta', 'producto_adicional', 'total_literal'));
-            // return view('facturas.recibo_venta2', compact('detalle_venta', 'producto_adicional', 'total_literal'));
+            // return view('facturas.recibo_venta', compact('detalle_venta', 'producto_adicional', 'total_literal'));
+            return view('facturas.recibo_venta_aux', compact('detalle_venta', 'producto_adicional', 'total_literal'));
         }else{
             $original = true;
-            return view('facturas.factura_venta', compact('detalle_venta', 'producto_adicional', 'total_literal', 'original'));
+            // return view('facturas.factura_venta', compact('detalle_venta', 'producto_adicional', 'total_literal', 'original'));
+            return view('facturas.factura_venta_aux', compact('detalle_venta', 'producto_adicional', 'total_literal', 'original'));
         }
     }
 

@@ -30,7 +30,7 @@
                     <td>{{$item->subcategoria}}</td>
                     <td>{{$item->precio_venta}}</td>
                     <td>{{$item->stock}}</td>
-                    <td><a href="{{url('storage').'/'.$imagen}}" data-fancybox="galeria1" data-caption="{{$item->nombre}}"><img src="{{url('storage').'/'.$img}}" width="50px" alt=""></a></td>
+                    <td><a href="{{ url('storage').'/'.$imagen }}" data-fancybox="galeria1" data-caption="{{ $item->nombre }}"><img src="{{url('storage').'/'.$img}}" width="50px" alt=""></a></td>
                     <td class="no-sort no-click text-right" id="bread-actions">
                         <a href="{{route('productos_copy', ['id' => $item->id])}}" title="Copiar" class="btn btn-sm btn-success">
                             <i class="voyager-wand"></i> <span class="hidden-xs hidden-sm">Copiar</span>

@@ -79,7 +79,7 @@
                                 </tr>
                                 <tr>
                                     <td>Autorización</td>
-                                    <td> <b>{{$detalle_venta[0]->nro_autorizacion}}</b> </td>
+                                    <td> <b>{{ $detalle_venta[0]->nro_autorizacion }}</b> </td>
                                 </tr>
                             </table>
                             <small><b>@if($original) ORIGINAL @else COPIA @endif</b><br>{{setting('empresa.actividad_economica')}}</small>
@@ -151,7 +151,7 @@
                         <td><b>Código de control : </b>{{$detalle_venta[0]->codigo_control}}</td>
                     </tr>
                 </table>
-                <center style="margin: 0px 110px">{{setting('empresa.leyenda_factura')}}</center>
+                <center style="margin: 0px 110px">{{ setting('empresa.leyenda_factura') }}</center>
                 <div style="text-align:right; margin-top:-30px">
                         {{-- nit empresa | nro_factura | Autorización | fecha / | monto | monto | codigo de control | nit | 0.00 | 0.00 | 0.00 | 0.00 --}}
                         @php

@@ -50,7 +50,7 @@
                                 $img = ($producto->imagen!='') ? str_replace('.', '_medium.', $producto->imagen) : 'productos/default.png';
                                 $imagen = ($producto->imagen!='') ? $producto->imagen : 'productos/default.png';
                             @endphp
-                            <a id="img-slider" href="{{url('storage').'/'.$imagen}}" data-fancybox="slider1">
+                            <a id="img-slider" href="{{ url('storage/'.$imagen) }}" data-fancybox="slider1">
                                 <img id="img-medium" class="img-thumbnail img-sm" src="{{url('storage').'/'.$img}}">
                             </a>
                         </div>
@@ -71,6 +71,7 @@
                         <h3 class="title mb-3">{{$producto->nombre}}</h3>
                         <div class="mb-3">
                             @php
+                                // Calcular precio de oferta si existe
                                 $precio_venta = $producto->precio_venta;
                                 $precio_actual = $precio_venta;
                                 if($oferta){
@@ -319,7 +320,7 @@
                         <figcaption class="text-wrap">
                             <p class="title b">{{$item['nombre']}}</p>
                             <button class="btn btn-warning btn-sm" type="button" title="Agregar al carrito de compra" onclick="agregar({{$item['id']}})"> <i class="fa fa-shopping-cart"></i> </button>
-                            <a href="{{route('detalle_producto_ecommerce', ['id'=>$item['slug']])}}" title="Detalles" class="btn btn-primary btn-sm link-page"> <i class="fa fa-list"></i> </a>
+                            <a href="{{ route('detalle_producto_ecommerce', ['id'=>$item['slug']]) }}" title="Detalles" class="btn btn-primary btn-sm link-page"> <i class="fa fa-list"></i> </a>
                         </figcaption>
                     </figure>
                 @endforeach
