@@ -39,34 +39,34 @@
     {{-- END PWA --}}
 
     <!-- jQuery -->
-    <script src="{{url('ecommerce/js/jquery-2.0.0.min.js')}}" type="text/javascript"></script>
+    <script src="{{url('ecommerce_public/js/jquery-2.0.0.min.js')}}" type="text/javascript"></script>
 
     <!-- Bootstrap4 files-->
-    <script src="{{url('ecommerce/js/bootstrap.bundle.min.js')}}" type="text/javascript"></script>
-    <link href="{{url('ecommerce/css/bootstrap.css')}}" rel="stylesheet" type="text/css"/>
+    <script src="{{url('ecommerce_public/js/bootstrap.bundle.min.js')}}" type="text/javascript"></script>
+    <link href="{{url('ecommerce_public/css/bootstrap.css')}}" rel="stylesheet" type="text/css"/>
 
     <!-- Font awesome 5 -->
-    <link href="{{url('ecommerce/fonts/fontawesome/css/fontawesome-all.min.css')}}" type="text/css" rel="stylesheet">
+    <link href="{{url('ecommerce_public/fonts/fontawesome/css/fontawesome-all.min.css')}}" type="text/css" rel="stylesheet">
 
     <!-- custom style -->
-    <link href="{{url('ecommerce/css/ui.css')}}" rel="stylesheet" type="text/css"/>
-    <link href="{{url('ecommerce/css/responsive.css')}}" rel="stylesheet" media="only screen and (max-width: 1200px)" />
+    <link href="{{url('ecommerce_public/css/ui.css')}}" rel="stylesheet" type="text/css"/>
+    <link href="{{url('ecommerce_public/css/responsive.css')}}" rel="stylesheet" media="only screen and (max-width: 1200px)" />
 
     <!-- custom javascript -->
-    <script src="{{url('ecommerce/js/script.js')}}" type="text/javascript"></script>
+    <script src="{{url('ecommerce_public/js/script.js')}}" type="text/javascript"></script>
 
     {{-- toastr --}}
-    <link rel="stylesheet" href="{{url('ecommerce/css/toastr.min.css')}}">
-    <script src="{{url('ecommerce/js/toastr.min.js')}}" type="text/javascript"></script>
+    <link rel="stylesheet" href="{{url('ecommerce_public/css/toastr.min.css')}}">
+    <script src="{{url('ecommerce_public/js/toastr.min.js')}}" type="text/javascript"></script>
 
     <!-- plugin: fancybox  -->
-    <script src="{{url('ecommerce/plugins/fancybox/fancybox.min.js')}}" type="text/javascript"></script>
-    <link href="{{url('ecommerce/plugins/fancybox/fancybox.min.css')}}" type="text/css" rel="stylesheet">
+    <script src="{{url('ecommerce_public/plugins/fancybox/fancybox.min.js')}}" type="text/javascript"></script>
+    <link href="{{url('ecommerce_public/plugins/fancybox/fancybox.min.css')}}" type="text/css" rel="stylesheet">
 
     <!-- plugin: owl carousel  -->
-    <link href="{{url('ecommerce/plugins/owlcarousel/assets/owl.carousel.min.css')}}" rel="stylesheet">
-    <link href="{{url('ecommerce/plugins/owlcarousel/assets/owl.theme.default.css')}}" rel="stylesheet">
-    <script src="{{url('ecommerce/plugins/owlcarousel/owl.carousel.min.js')}}"></script>
+    <link href="{{url('ecommerce_public/plugins/owlcarousel/assets/owl.carousel.min.css')}}" rel="stylesheet">
+    <link href="{{url('ecommerce_public/plugins/owlcarousel/assets/owl.theme.default.css')}}" rel="stylesheet">
+    <script src="{{url('ecommerce_public/plugins/owlcarousel/owl.carousel.min.js')}}"></script>
 
     <style>
         .bg-img {

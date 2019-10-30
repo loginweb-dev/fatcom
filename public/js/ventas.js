@@ -61,7 +61,7 @@ function total(){
     if($('#check-domicilio').is(':checked') || $('#check-llevar').is(':checked')){
         $('#input-entregado').prop('min', 0);
     }else{
-        $('#input-entregado').prop('min', total-descuento)
+        $('#input-entregado').prop('min', (total-descuento).toFixed(2))
     }
 }
 
@@ -72,7 +72,7 @@ function calcular_cambio(){
     let entregado = parseFloat($('#input-entregado').val());
     let cambio = entregado-total+descuento;
 
-    $('#input-cambio').val(parseFloat(cambio));
+    $('#input-cambio').val(parseFloat(cambio).toFixed(2));
     if(cambio<0){
         $('#input-cambio').css('color', 'red');
     }else{

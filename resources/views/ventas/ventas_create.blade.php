@@ -98,11 +98,11 @@
                             <div class="row">
                                 <div class="form-group col-md-6">
                                     <label>Monto entregado</label>
-                                    <input type="number" id="input-entregado" value="0" min="0" step="0.5" onchange="calcular_cambio()" onkeyup="calcular_cambio()" style="font-size:18px" name="monto_recibido" class="form-control cero_default" required>
+                                    <input type="number" id="input-entregado" value="0" min="0" step="0.01" onchange="calcular_cambio()" onkeyup="calcular_cambio()" style="font-size:18px" name="monto_recibido" class="form-control cero_default" required>
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label>Cambio</label>
-                                    <input type="number" id="input-cambio" value="0" readonly style="font-size:18px" name="cambio" class="form-control" required>
+                                    <input type="number" id="input-cambio" value="0" step="0.01" readonly style="font-size:18px" name="cambio" class="form-control" required>
                                 </div>
                             </div>
                             <div class="form-group col-md-6 ">
@@ -544,7 +544,7 @@
                                                 <td><input type="text" class="form-control" name="observacion[]"></td>
                                                 <td>
                                                     <div class="input-group">
-                                                        <input type="number" ${editar_precio} id="input-precio_${id}_${adicional_id}" min="1" step="0.1" value="${precio}" name="precio[]" class="form-control" onchange="subtotal('${id}_${adicional_id}');calcular_cambio()" onkeyup="subtotal('${id}_${adicional_id}');calcular_cambio()" required />
+                                                        <input type="number" ${editar_precio} id="input-precio_${id}_${adicional_id}" min="1" step="0.01" value="${precio}" name="precio[]" class="form-control" onchange="subtotal('${id}_${adicional_id}');calcular_cambio()" onkeyup="subtotal('${id}_${adicional_id}');calcular_cambio()" required />
                                                         <span class="input-group-addon">Bs.</span>
                                                     </div>
                                                 </td>

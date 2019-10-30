@@ -21,6 +21,7 @@ use App\Subcategoria;
 use App\Sucursale;
 use App\Localidade;
 use App\Cliente;
+use App\IeCaja;
 
 class LandingPageController extends Controller
 {
@@ -486,10 +487,15 @@ class LandingPageController extends Controller
 
         $mas_vendidos = $this->get_masVendidos();
 
-        $pedido_pendiente = Venta::where('estado', 'V')->where('deleted_at', NULL)->first();
+        $pedido_pendiente = 0;
+        if(Auth::user()){
+            $pedido_pendiente = $this->cantidad_pedidos();
+        }
+
+        $caja_id = IeCaja::where('sucursal_id', 3)->where('abierta', 1)->first();
 
         // dd($disponibles);
-        return view('ecommerce.'.setting('admin.ecommerce').'carrito', compact('carrito', 'precios', 'ofertas', 'user_coords', 'pasarela_pago', 'cliente_id', 'sucursal', 'disponibles', 'mas_vendidos', 'pedido_pendiente'));
+        return view('ecommerce.'.setting('admin.ecommerce').'carrito', compact('carrito', 'precios', 'ofertas', 'user_coords', 'pasarela_pago', 'cliente_id', 'sucursal', 'disponibles', 'mas_vendidos', 'pedido_pendiente', 'caja_id'));
     }
 
     public function get_precio($id, $cantidad){

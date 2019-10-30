@@ -1,11 +1,40 @@
 <div id="lista" class="row" style="overflow-y: auto;@if(setting('delivery.activo')) height:370px @else height:300px @endif">
-    <div class="input-group col-md-6 pull-right">
+    {{-- <div class="input-group col-md-6 pull-right">
         <input type="text" id="search_value" class="form-control" placeholder="Nombre la de sub categoría">
         <span class="input-group-btn">
             <button class="btn btn-default" id="btn-search" style="margin-top:0px;padding:8px 10px" type="button">
                 <i class="voyager-search"></i>
             </button>
         </span>
+    </div> --}}
+    <div class="row">
+        <div class="col-md-12">
+            <select name="select_producto" class="form-control" id="select-producto_id" onchange="seleccionar_producto()">
+                <option selected disabled value="">Seleccione una opción</option>
+                @foreach ($productos as $item)
+                    @php
+                        $imagen = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
+                    @endphp
+                    <option value="{{ $item->id }}"
+                            data-imagen="{{ url('storage').'/'.$imagen }}"
+                            data-categoria="{{ $item->subcategoria }}"
+                            data-marca="{{ $item->marca }}"
+                            data-talla="{{ $item->talla }}"
+                            data-color="{{ $item->color }}"
+                            data-precio="{{ $item->moneda }} {{ $item->precio_venta }}"
+                            data-detalle="{{ $item->descripcion_small }}">
+                        @if(setting('admin.modo_sistema') != 'restaurante')
+                            @if($item->codigo_interno)
+                            #{{ $item->codigo_interno }}
+                            @else
+                            {{ $item->codigo }} - 
+                            @endif 
+                        @endif
+                        {{ $item->nombre }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
     </div>
     <div class="clearfix"></div>
     <div class="panel-group" id="accordion">
@@ -33,8 +62,11 @@
         z-index: 10000;
     }
 </style>
+<script src="{{ asset('js/rich_select.js') }}"></script>
 <script>
     $(document).ready(function(){
+        rich_select('select-producto_id');
+
         $("#btn-search").click(function() {
             search_categoria();
         });

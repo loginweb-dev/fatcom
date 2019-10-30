@@ -161,10 +161,10 @@
                         {!! QrCode::size(100)->generate("$qr"); !!}
                 </div>
         <script>
-            // window.print();
-            // setTimeout(function(){
-            //     window.close();
-            // }, 10000);
+            window.print();
+            setTimeout(function(){
+                window.close();
+            }, 10000);
         </script>
     </body>
 </html>

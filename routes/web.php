@@ -86,15 +86,16 @@ Route::post('admin/depositos/producto/store', 'DepositosController@store_product
 
 // ================================Productos===========================
 Route::get('admin/productos', 'ProductosController@index')->name('productos_index');
-Route::get('admin/productos/lista/{categoria}/{subcategoria}/{marca}/{talla}/{genero}/{color}', 'ProductosController@productos_list');
+Route::get('admin/productos/lista/{categoria}/{subcategoria}/{marca}/{talla}/{genero}/{color}/{search}', 'ProductosController@productos_list');
 Route::get('admin/productos/buscar/{value}', 'ProductosController@search');
 Route::get('admin/productos/ver/{id}', 'ProductosController@view')->name('productos_view');
 Route::get('admin/productos/ver/informacion/{id}', 'ProductosController@view_simple');
 Route::get('admin/productos/crear', 'ProductosController@create')->name('productos_create');
-Route::get('admin/productos/copiar/{id}', 'ProductosController@copy')->name('productos_copy');
+Route::post('admin/productos/copiar', 'ProductosController@copy')->name('productos_copy');
 Route::post('admin/productos/guardar', 'ProductosController@store')->name('productos_store');
 Route::get('admin/productos/editar/{id}', 'ProductosController@edit')->name('productos_edit');
 Route::post('admin/productos/actualizar', 'ProductosController@update')->name('productos_update');
+Route::post('admin/productos/actualizar/stock', 'ProductosController@update_stock')->name('productos_update_stock');
 Route::post('admin/productos/eliminar/', 'ProductosController@delete')->name('productos_delete');
 Route::post('admin/productos/puntuar/', 'ProductosController@puntuar')->name('productos_puntuar');
 
@@ -104,6 +105,8 @@ Route::post('admin/productos/eliminar_imagen', 'ProductosController@delete_image
 
 // Obtener datos varios
 Route::get('admin/productos/obtener/precios_venta/{id}', 'ProductosController@obtener_precios_venta');
+Route::get('admin/productos/obtener/codigo_interno/{id}', 'ProductosController@ultimo_codigo_interno');
+
 
 // Filtros
 Route::get('admin/productos/list/subcategorias/{categoria_id}', 'ProductosController@subcategorias_list');
@@ -113,6 +116,8 @@ Route::get('admin/productos/list/generos/{subcategoria_id}/{marca_id}/{talla_id}
 Route::get('admin/productos/list/colores/{subcategoria_id}/{marca_id}/{talla_id}/{genero_id}', 'ProductosController@colores_list');
 
 Route::get('admin/ofertas/filtros/filtro_simple/{tipo}/{categoria}/{subcategoria}/{marca}/{talla}/{genero}/{color}', 'ProductosController@filtro_simple');
+
+
 
 
 // Llamadas a vistas para cargar el modal de nuevo registro
@@ -187,6 +192,9 @@ Route::post('admin/ventas/asignar_repartidor', 'VentasController@asignar_reparti
 Route::get('admin/ventas/get_ubicaciones_cliente/{id}', 'VentasController@get_ubicaciones_cliente');
 Route::get('admin/ventas/detalles/{id}', 'VentasController@ventas_details');
 
+// Obtener productos disponibles en la sucursal
+Route::get('admin/ventas/productos/{categoria}/{subcategoria}/{marca}/{talla}/{genero}/{color}', 'VentasController@filtro_productos_disponibles');
+
 // Ventas a crédito
 Route::get('admin/ventas/credito', 'VentasController@ventas_credito_index')->name('ventas_credito_index');
 Route::get('admin/ventas/credito/buscar/{value}', 'VentasController@ventas_credito_search');
@@ -205,6 +213,17 @@ Route::get('admin/ventas/lista_nuevos_pedidos/{last}', 'VentasController@get_nue
 Route::get('admin/ventas/crear/productos_search', 'VentasController@productos_search');
 Route::get('admin/ventas/crear/ventas_categorias/{id}', 'VentasController@ventas_categorias');
 Route::get('admin/ventas/crear/ventas_productos_categorias/{id}', 'VentasController@ventas_productos_categorias');
+
+
+// libros
+Route::get('admin/ventas/libro', 'VentasController@ventas_libro')->name('ventas_libro');
+Route::post('admin/ventas/libro/generar', 'VentasController@ventas_libro_generar')->name('ventas_libro_generar');
+Route::get('admin/ventas/libro/generar/excel/{mes}/{anio}', 'VentasController@ventas_libro_generar_excel');
+Route::get('admin/ventas/libro/generar/pdf/{mes}/{anio}', 'VentasController@ventas_libro_generar_pdf');
+
+// formularios
+Route::get('admin/ventas/formulario/200/pdf/{mes}/{anio}', 'VentasController@ventas_formulario_200_pdf');
+Route::get('admin/ventas/formulario/400/pdf/{mes}/{anio}', 'VentasController@ventas_formulario_400_pdf');
 
 // ============================Dosificacion====================================
 Route::get('admin/dosificaciones', 'DosificacionesController@index')->name('dosificaciones_index');
@@ -264,6 +283,13 @@ Route::post('admin/empleados/delete', 'EmpleadosController@delete')->name('emple
 // Graficos
 Route::get('admin/reportes/graficos', 'ReportesController@graficos_index')->name('graficos_index');
 Route::post('admin/reportes/graficos/generar', 'ReportesController@graficos_generar')->name('graficos_generar');
+
+Route::get('admin/reportes/ventas', 'ReportesController@ventas_reporte')->name('ventas_reporte');
+Route::post('admin/reportes/ventas/generar', 'ReportesController@ventas_reporte_generar')->name('ventas_reporte_generar');
+Route::post('admin/reportes/ventas/pdf', 'ReportesController@ventas_reporte_pdf')->name('ventas_reporte_pdf');
+
+Route::get('admin/reportes/ganancia_producto', 'ReportesController@ganancia_producto_reporte')->name('ganancia_producto_reporte');
+Route::post('admin/reportes/ganancia_producto/generar', 'ReportesController@ganancia_producto_reporte_generar')->name('ganancia_producto_reporte_generar');
 
 
 // Clear cache

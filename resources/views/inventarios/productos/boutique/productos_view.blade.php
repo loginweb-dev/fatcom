@@ -7,7 +7,7 @@
             <i class="voyager-home"></i> Viendo Producto
         </h1>
         @if(auth()->user()->hasPermission('edit_productos'))
-        <a href="{{route('productos_edit', ['id'=>$id])}}" class="btn btn-primary btn-small">
+        <a href="{{route('productos_edit', ['id' => $id, 'deposito_id' => $producto->deposito_id])}}" class="btn btn-primary btn-small">
             <i class="voyager-edit"></i> <span>Editar</span>
         </a>
         @endif
@@ -29,7 +29,7 @@
                                                 <h3 class="panel-title">Código</h3>
                                             </div>
                                             <div class="panel-body" style="padding-top:0;">
-                                                <p>{{$producto->codigo}}</p>
+                                                <p>{{ $producto->codigo }}</p>
                                             </div>
                                         </div>
                                         <div class="col-md-6" style="margin:0px">
@@ -213,10 +213,10 @@
     @stop
 
     @section('css')
-        <link href="{{url('ecommerce/plugins/fancybox/fancybox.min.css')}}" type="text/css" rel="stylesheet">
+        <link href="{{url('ecommerce_public/plugins/fancybox/fancybox.min.css')}}" type="text/css" rel="stylesheet">
         <!-- custom style -->
-        <link href="{{url('ecommerce/css/ui.css')}}" rel="stylesheet" type="text/css"/>
-        <link href="{{url('ecommerce/css/responsive.css')}}" rel="stylesheet" media="only screen and (max-width: 1200px)" />
+        <link href="{{url('ecommerce_public/css/ui.css')}}" rel="stylesheet" type="text/css"/>
+        <link href="{{url('ecommerce_public/css/responsive.css')}}" rel="stylesheet" media="only screen and (max-width: 1200px)" />
     @stop
 
     @section('javascript')

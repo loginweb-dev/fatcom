@@ -63,21 +63,28 @@
 </div>
 <div class="input-group">
     <select name="select_producto" class="form-control select2" id="select-producto_id" onchange="agregar_producto()">
-        {{-- <option value="">--Seleccionar producto--</option>
-        @foreach ($productos as $item)
-            <option value="{{$item->id}}" > @if($item->codigo) {{$item->codigo}}.- @endif {{$item->nombre}} @if($item->codigo_interno) #{{$item->codigo_interno}}@endif</option>
-        @endforeach --}}
         <option selected disabled value="">Seleccione una opción</option>
         @foreach ($productos as $item)
-        @php
-            $imagen = $item->imagen ?? 'productos/default.png';
-        @endphp
+            @php
+                $imagen = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
+            @endphp
             <option value="{{ $item->id }}"
                     data-imagen="{{ url('storage').'/'.$imagen }}"
                     data-categoria="{{ $item->subcategoria }}"
-                    {{-- data-marca="{{ $item->marca }}" --}}
-                    data-detalle="{{ $item->descripcion_small }}"
-            >{{$item->nombre}} @if($item->codigo_interno) #{{$item->codigo_interno}}@endif</option>
+                    data-marca="{{ $item->marca }}"
+                    data-talla="{{ $item->talla }}"
+                    data-color="{{ $item->color }}"
+                    data-precio="{{ $item->moneda }} {{ $item->precio_venta }}"
+                    data-detalle="{{ $item->descripcion_small }}">
+                @if(setting('admin.modo_sistema') != 'restaurante')
+                    @if($item->codigo_interno)
+                    #{{ $item->codigo_interno }}
+                    @else
+                    {{ $item->codigo }} - 
+                    @endif 
+                @endif
+                {{ $item->nombre }}
+            </option>
         @endforeach
     </select>
     <span class="input-group-btn">
@@ -161,26 +168,26 @@
     // variable de numero de filas
     var cont = 1;
     function agregarTr(id, nombre, precio_venta){
-        $('#tr-total').before(`<tr id="tr-${cont}" class="tr-detalle">
-                                <td class="@if(setting('empresa.tipo_actividad')=='servicios') hidden @endif"><input style="width:80px" type="number" data-indice="${cont}" class="form-control" onchange="calcular_subtotal(${cont})" onkeyup="calcular_subtotal(${cont})" id="cantidad-${cont}" min="1" step="1" value="1" name="cantidad[]"></td>
-                                <td>
-                                    <input type="hidden" class="input-producto_id" data-cont="${cont}" name="producto[]" value="${id}">
-                                    <button type="button" class="btn btn-link" title="Ver información" onclick="producto_info(${id})">${nombre}</button>
-                                </td>
-                                <td>
-                                    <input style="width:100px" type="number" min="1" data-indice="${cont}" class="form-control" onchange="calcular_subtotal(${cont})" onkeyup="calcular_subtotal(${cont})" id="precio-${cont}" value="0" name="precio[]" required>
-                                </td>
-                                <td>
-                                    <input style="width:100px" type="number" class="form-control" id="precio_venta-${cont}" onchange="calcular_ganancia(${cont})" onkeyup="calcular_ganancia(${cont})" name="precio_venta[]" value="${precio_venta}" required>
-                                </td>
-                                <td>
-                                    <b id="label-ganancia-${cont}" style="font-weight:bold;font-size:18px">0.00</b>
-                                </td>
-                                <td><b class="label-subtotal" id="label-subtotal-${cont}" style="font-weight:bold;font-size:20px">0.00</b></td>
-                                <td>
-                                    <button type="button" onclick="borrarDetalleCompra(${cont})" class="btn btn-danger"><span class="voyager-trash"></span></button>
-                                </td>
-                            </tr>`);
+        $('#tr-total').before(` <tr id="tr-${cont}" class="tr-detalle">
+                                    <td class="@if(setting('empresa.tipo_actividad')=='servicios') hidden @endif"><input style="width:80px" type="number" data-indice="${cont}" class="form-control" onchange="calcular_subtotal(${cont})" onkeyup="calcular_subtotal(${cont})" id="cantidad-${cont}" min="1" step="1" value="1" name="cantidad[]"></td>
+                                    <td>
+                                        <input type="hidden" class="input-producto_id" data-cont="${cont}" name="producto[]" value="${id}">
+                                        <button type="button" class="btn btn-link" title="Ver información" onclick="producto_info(${id})">${nombre}</button>
+                                    </td>
+                                    <td>
+                                        <input style="width:100px" type="number" min="1" step="0.1" data-indice="${cont}" class="form-control" onchange="calcular_subtotal(${cont})" onkeyup="calcular_subtotal(${cont})" id="precio-${cont}" value="0" name="precio[]" required>
+                                    </td>
+                                    <td>
+                                        <input style="width:100px" type="number" min="1" step="0.1" class="form-control" id="precio_venta-${cont}" onchange="calcular_ganancia(${cont})" onkeyup="calcular_ganancia(${cont})" name="precio_venta[]" value="${precio_venta}" required>
+                                    </td>
+                                    <td>
+                                        <b id="label-ganancia-${cont}" style="font-weight:bold;font-size:18px">0.00</b>
+                                    </td>
+                                    <td><b class="label-subtotal" id="label-subtotal-${cont}" style="font-weight:bold;font-size:20px">0.00</b></td>
+                                    <td>
+                                        <button type="button" onclick="borrarDetalleCompra(${cont})" class="btn btn-danger"><span class="voyager-trash"></span></button>
+                                    </td>
+                                </tr>`);
         calcular_subtotal(cont)
         cont++;
     }

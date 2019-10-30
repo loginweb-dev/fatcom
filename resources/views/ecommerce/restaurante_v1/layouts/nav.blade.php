@@ -134,7 +134,7 @@
                     </a>
 
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                        @if(Auth::user()->role_id == 1)
+                        @if(Auth::user()->role_id != 2)
                         <a class="dropdown-item link-page" target="_blank" href="{{ url('admin') }}">Administración</a>
                         @endif
                         <a class="dropdown-item link-page" href="{{route('profile')}}">Perfil</a>

@@ -66,7 +66,8 @@
                             <b>{{setting('empresa.direccion')}}</b><br>
                             <b>{{setting('empresa.ciudad')}}</b><br>
                         </td>
-                        <td width="70%" align="center"><span style="margin-bottom:0px;font-weight:bold;font-size:25px">PROFORMA</span></td>
+                        <td width="40%" align="center"><span style="margin-bottom:0px;font-weight:bold;font-size:25px">PROFORMA</span></td>
+                        <td width="30%" align="right"><span style="font-weight:bold;color:red;font-size:15px;">N&deg; {{ $detalle_proforma[0]->codigo }}</span></td>
                     </tr>
                 </table>
                 {{-- datos de la venta --}}
@@ -74,7 +75,7 @@
                 <table width="90%" align="center">
                     <tr>
                         <td><b>Razón social</b></td>
-                        <td>: {{$detalle_proforma[0]->cliente}}</td>
+                        <td>: {{ $detalle_proforma[0]->cliente }}</td>
                         <td align="right"><b>NIT/CI</b></td>
                         <td>: {{$detalle_proforma[0]->nit}}</td>
                     </tr>

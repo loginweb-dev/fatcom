@@ -53,21 +53,21 @@
         <div class="col-md-4 col-lg-4 col-xl-3 mb-4">
 
           <h6 class="text-uppercase font-weight-bold">
-            <strong>Products</strong>
+            <strong>Te ofrecemos</strong>
           </h6>
           <hr class="principal-color mb-4 mt-0 d-inline-block mx-auto" style="width: 60px;">
           <p>
-            <a href="#!">MDBootstrap</a>
+            <a href="#!">Pizzas</a>
           </p>
           <p>
-            <a href="#!">MDWordPress</a>
+            <a href="#!">Gaseosas</a>
           </p>
           <p>
-            <a href="#!">BrandFlow</a>
+            <a href="#!">Refrescos naturales</a>
           </p>
-          <p>
+          {{-- <p>
             <a href="#!">Bootstrap Angular</a>
-          </p>
+          </p> --}}
 
         </div>
         <!-- Second column -->

@@ -70,23 +70,28 @@
                                 </div>
                                 <div class="input-group">
                                     <select name="select_producto" class="form-control" id="select-producto_id" onchange="seleccionar_producto()">
-                                        {{-- <option value="">Todos los productos</option>
-                                        @foreach ($productos as $item)
-                                            @if (!$item->se_almacena || ($item->se_almacena && $item->stock > 0))
-                                                <option value="{{$item->id}}" > @if($item->codigo) {{$item->codigo}}.- @endif {{$item->nombre}} @if($item->codigo_interno) #{{$item->codigo_interno}}@endif</option>
-                                            @endif
-                                        @endforeach --}}
                                         <option selected disabled value="">Seleccione una opción</option>
                                         @foreach ($productos as $item)
-                                        @php
-                                            $imagen = $item->imagen ?? 'productos/default.png';
-                                        @endphp
+                                            @php
+                                                $imagen = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
+                                            @endphp
                                             <option value="{{ $item->id }}"
                                                     data-imagen="{{ url('storage').'/'.$imagen }}"
                                                     data-categoria="{{ $item->subcategoria }}"
-                                                    {{-- data-marca="{{ $item->marca }}" --}}
-                                                    data-detalle="{{ $item->descripcion_small }}"
-                                            >{{$item->nombre}} @if($item->codigo_interno) #{{$item->codigo_interno}}@endif</option>
+                                                    data-marca="{{ $item->marca }}"
+                                                    data-talla="{{ $item->talla }}"
+                                                    data-color="{{ $item->color }}"
+                                                    data-precio="{{ $item->moneda }} {{ $item->precio_venta }}"
+                                                    data-detalle="{{ $item->descripcion_small }}">
+                                                @if(setting('admin.modo_sistema') != 'restaurante')
+                                                    @if($item->codigo_interno)
+                                                    #{{ $item->codigo_interno }}
+                                                    @else
+                                                    {{ $item->codigo }} - 
+                                                    @endif 
+                                                @endif
+                                                {{ $item->nombre }}
+                                            </option>
                                         @endforeach
                                     </select>
                                     <span class="input-group-btn">
@@ -136,7 +141,7 @@
                 obtener_lista(tipo, '{{url("admin/productos/list")}}', destino);
             }
             
-            filtro('{{url("admin/ofertas/filtros/filtro_simple/all")}}');
+            filtro('{{url("admin/ventas/productos")}}', '{{ setting('admin.modo_sistema') }}');
         });
 
     });

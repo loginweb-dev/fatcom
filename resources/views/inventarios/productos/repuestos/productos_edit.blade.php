@@ -1,6 +1,10 @@
 @extends('voyager::master')
 @section('page_title', 'Editar Producto')
 
+@php
+    $stock_edit = false;
+@endphp
+
 @if(auth()->user()->hasPermission('edit_productos'))
     @section('page_header')
         <h1 class="page-title">
@@ -84,8 +88,15 @@
                                             </div>
                                             <div class="row">
                                                 <div class="form-group col-md-6">
-                                                    <label for="">Stock</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad de productos en stock. Este campo es obligatorio."></span> @endif
-                                                    <input type="number" name="stock" class="form-control" readonly value="{{$producto->stock}}" min="0" step="1" required>
+                                                    <label for="">Stock total</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad de productos en stock. Este campo es obligatorio."></span> @endif
+                                                    <div class="input-group">
+                                                        <input type="number" name="stock" readonly class="form-control" value="{{$producto->stock}}" min="0" step="1" required>
+                                                        <span class="input-group-btn">
+                                                            <button class="btn btn-danger" @if(!$stock_edit) disabled title="Edición no disponible" @else title="Editar stock" @endif data-toggle="modal" data-target="#modal-edit_stock" style="margin-top:0px;padding:9px" type="button">
+                                                                <i class="voyager-edit"></i>
+                                                            </button>
+                                                        </span>
+                                                    </div>
                                                     @error('stock')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
@@ -286,18 +297,63 @@
         </div>
         @include('partials.modal_load')
         @include('inventarios.productos.partials.modales')
+
+        @if($stock_edit)
+            <form action="{{ route('productos_update_stock') }}" method="POST" >
+                <div class="modal modal-danger fade" tabindex="-1" id="modal-edit_stock" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                            aria-hidden="true">&times;</span></button>
+                                <h4 class="modal-title">
+                                    <i class="voyager-edit"></i> Estás seguro que quieres editar el stock del producto?
+                                </h4>
+                            </div>
+            
+                            <div class="modal-body">
+                                <div class="alert alert-warning">
+                                    <strong>Advertencia:</strong>
+                                    <p>Al editar el stock del producto de manera manual compromete la información de compras y ventas debido a que no coincidirán con sus registros en stock.</p>
+                                </div>
+                                @csrf
+                                <input type="hidden" name="id" value="{{$producto->id}}">
+                                <div class="form-group">
+                                    <label for="">Deposito</label>
+                                    <select name="deposito_id" class="form-control" id="" required>
+                                        @foreach ($productos_depositos as $item)
+                                        <option value="{{ $item->id }}">{{ $item->nombre }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Stok actual</label>
+                                    <input type="number" step="1" min="0" name="stock" class="form-control" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-danger pull-right">Editar</button>
+                                <button type="button" class="btn btn-default pull-right" data-dismiss="modal">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        @endif
     @stop
 
     @section('css')
-        <link href="{{url('ecommerce/plugins/fancybox/fancybox.min.css')}}" type="text/css" rel="stylesheet">
+        <link href="{{url('ecommerce_public/plugins/fancybox/fancybox.min.css')}}" type="text/css" rel="stylesheet">
         <!-- custom style -->
-        <link href="{{url('ecommerce/css/ui.css')}}" rel="stylesheet" type="text/css"/>
-        <link href="{{url('ecommerce/css/responsive.css')}}" rel="stylesheet" media="only screen and (max-width: 1200px)" />
+        <link href="{{url('ecommerce_public/css/ui.css')}}" rel="stylesheet" type="text/css"/>
+        <link href="{{url('ecommerce_public/css/responsive.css')}}" rel="stylesheet" media="only screen and (max-width: 1200px)" />
     @stop
 
     @section('javascript')
     <script src="{{url('image-preview/image-preview.js')}}"></script>
-    <script src="{{url('ecommerce/plugins/fancybox/fancybox.min.js')}}" type="text/javascript"></script>
+    <script src="{{url('ecommerce_public/plugins/fancybox/fancybox.min.js')}}" type="text/javascript"></script>
     <script src="{{url('js/loginweb.js')}}"></script>
     <script src="{{url('js/inventarios/productos.js')}}"></script>
         <script>

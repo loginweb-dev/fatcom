@@ -23,21 +23,6 @@
                     <div class="col-md-12">
                         <div class="panel panel-bordered">
                             <div class="panel-body">
-                                {{-- <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="col-md-8"></div>
-                                        <form id="form-search" class="form-search">
-                                            <div class="input-group col-md-4">
-                                                <input type="text" id="search_value" class="form-control" name="s" value="{{$value}}" placeholder="código, nombre o categoría">
-                                                <span class="input-group-btn">
-                                                    <button class="btn btn-default" style="margin-top:0px;padding:5px 10px" type="submit">
-                                                        <i class="voyager-search"></i>
-                                                    </button>
-                                                </span>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div> --}}
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div id="accordion">
@@ -69,6 +54,7 @@
                                                                 </select>
                                                             </div>
 
+                                                            {{-- Solo si el negocio es una boutique se muestran estos demas filtros --}}
                                                             <div style="@if(setting('admin.modo_sistema') != 'boutique') display:none @endif">
                                                                 <div class="form-group col-md-4">
                                                                     <label class="text-primary" for=""><b>Talla</b></label><br>
@@ -99,6 +85,25 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="col-md-8"></div>
+                                        <div class="col-md-4">
+                                            <form id="form-search" class="form-search">
+                                                <div class="input-group">
+                                                    <input type="text" id="search_value" class="form-control" name="s" value="{{$value}}" placeholder="código o nombre">
+                                                    <span class="input-group-btn">
+                                                        <button class="btn btn-default" style="margin-top:0px;padding:8px" type="submit">
+                                                            <i class="voyager-search"></i>
+                                                        </button>
+                                                    </span>
+                                                </div>
+                                            </form>
+                                            <small class="text-muted">Si quiere volver a ver todos los productos realizar busqueda vacía.</small>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
                                 </div>
                                 <div style="min-height:200px">
                                     <div id="lista-productos"></div>
@@ -142,13 +147,13 @@
         </form>
     @stop
     @section('css')
-        <link href="{{url('ecommerce/plugins/fancybox/fancybox.min.css')}}" type="text/css" rel="stylesheet">
+        <link href="{{url('ecommerce_public/plugins/fancybox/fancybox.min.css')}}" type="text/css" rel="stylesheet">
         <style>
 
         </style>
     @stop
     @section('javascript')
-        <script src="{{url('ecommerce/plugins/fancybox/fancybox.min.js')}}" type="text/javascript"></script>
+        <script src="{{url('ecommerce_public/plugins/fancybox/fancybox.min.js')}}" type="text/javascript"></script>
         <script src="{{url('js/loginweb.js')}}"></script>
         <script src="{{url('js/inventarios/productos.js')}}"></script>
         <script>
@@ -179,6 +184,11 @@
                     
                     filtro('{{url("admin/productos/lista")}}', 1);
                 });
+
+                $('#form-search').on('submit', function(e){
+                    e.preventDefault();
+                    filtro('{{url("admin/productos/lista")}}', 1);
+                });
             });
 
             function filtro(url, page){
@@ -190,9 +200,10 @@
                 let talla = $('#select-talla_id').val() ? $('#select-talla_id').val() : 'all';
                 let genero = $('#select-genero_id').val() ? $('#select-genero_id').val() : 'all';
                 let color = $('#select-color_id').val() ? $('#select-color_id').val() : 'all';
+                let search = $('#search_value').val() ? $('#search_value').val() : 'all';
 
                 $.ajax({
-                    url: url+'/'+categoria+'/'+subcategoria+'/'+marca+'/'+talla+'/'+genero+'/'+color+'?page='+page,
+                    url: url+'/'+categoria+'/'+subcategoria+'/'+marca+'/'+talla+'/'+genero+'/'+color+'/'+search+'?page='+page,
                     type: 'get',
                     success: function(response){
                         $('#lista-productos').html(response);

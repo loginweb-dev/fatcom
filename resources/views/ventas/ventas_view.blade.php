@@ -78,7 +78,11 @@
                                             <thead>
                                                 <tr>
                                                     <th>N&deg;</th>
+                                                    <th></th>
                                                     <th>Producto</th>
+                                                    <th>Marca</th>
+                                                    <th>Talla</th>
+                                                    <th>Color</th>
                                                     <th>Precio</th>
                                                     <th>Cantidad</th>
                                                     <th>Subtotal</th>
@@ -89,23 +93,31 @@
                                                     $cont = 1;
                                                 @endphp
                                                 @foreach ($detalle as $item)
+                                                @php
+                                                    $img = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
+                                                    $imagen = ($item->imagen!='') ? $item->imagen : 'productos/default.png';
+                                                @endphp
                                                     <tr>
                                                         <td>{{$cont}}</td>
-                                                        <td>{{$item->producto}}</td>
-                                                        <td>{{$item->precio}}</td>
-                                                        <td>{{$item->cantidad}}</td>
-                                                        <td>{{number_format($item->precio*$item->cantidad, 2, ',', '')}}</td>
+                                                        <td><a href="{{ url('storage').'/'.$imagen }}" data-fancybox="galeria1" data-caption="{{ $item->producto }}"><img src="{{url('storage').'/'.$img}}" width="50px" alt=""></a></td>
+                                                        <td>{{ $item->producto }}</td>
+                                                        <td>{{ $item->marca }}</td>
+                                                        <td>{{ $item->talla }}</td>
+                                                        <td>{{ $item->color }}</td>
+                                                        <td>{{ $item->precio }}</td>
+                                                        <td>{{ $item->cantidad }}</td>
+                                                        <td>{{ number_format($item->precio*$item->cantidad, 2, ',', '') }}</td>
                                                     </tr>
                                                     @php
                                                         $cont++;
                                                     @endphp
                                                 @endforeach
                                                 <tr>
-                                                    <td colspan="4">Descuento</td>
+                                                    <td colspan="8">Descuento</td>
                                                     <td><h5>{{number_format($venta->descuento, 2, ',', '.')}}</h5></td>
                                                 </tr>
                                                 <tr>
-                                                    <td colspan="4"><h4>TOTAL</h4></td>
+                                                    <td colspan="8"><h4>TOTAL</h4></td>
                                                     <td><h4>{{number_format($venta->importe_base, 2, ',', '.')}} Bs.</h4></td>
                                                 </tr>
                                             </tbody>
@@ -145,6 +157,7 @@
     @stop
 
     @section('css')
+        <link href="{{url('ecommerce_public/plugins/fancybox/fancybox.min.css')}}" type="text/css" rel="stylesheet">
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
         <style>
             #map {
@@ -154,6 +167,7 @@
     @stop
 
     @section('javascript')
+        <script src="{{url('ecommerce_public/plugins/fancybox/fancybox.min.js')}}" type="text/javascript"></script>
         <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
         <script src="{{url('js/ubicacion_cliente.js')}}" type="text/javascript"></script>
         <script>

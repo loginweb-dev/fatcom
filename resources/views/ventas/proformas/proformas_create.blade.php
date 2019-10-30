@@ -203,7 +203,7 @@
 
                 // Obtener lista de clientes
                 $.get('{{route("clientes_list")}}', function(data){
-                    select2_reload('cliente_id', data, false, 1)
+                    select2_reload_simple('cliente_id', data, false, 1)
                 });
 
                 $('#select-producto_id').select2();

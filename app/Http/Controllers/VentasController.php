@@ -180,7 +180,10 @@ class VentasController extends Controller
                             ->first();
         $detalle = DB::table('ventas_detalles as d')
                             ->join('productos as p', 'p.id', 'd.producto_id')
-                            ->select('d.*', 'p.nombre as producto')
+                            ->join('marcas as m', 'm.id', 'p.marca_id')
+                            ->join('tallas as t', 't.id', 'p.talla_id')
+                            ->join('colores as c', 'c.id', 'p.color_id')
+                            ->select('d.*', 'p.nombre as producto', 'm.nombre as marca', 't.nombre as talla', 'c.nombre as color', 'p.imagen')
                             ->where('d.deleted_at', NULL)
                             ->where('d.venta_id', $id)
                             ->get();
@@ -252,31 +255,41 @@ class VentasController extends Controller
                             ->where('id', '>', 1)
                             ->get();
 
-        $productos = $this->ventas_productos($sucursal_actual, '');
+        $productos = $this->get_productos_disponibles($sucursal_actual, 'all', 'all', 'all', 'all', 'all', 'all');
 
         // dd($productos);
         
         return view('ventas.ventas_productos_search', compact('categorias', 'productos'));
     }
 
-    public function ventas_categorias($id){
+    public function ventas_categorias($categoria_id){
+        $sucursal_actual = UsersSucursale::where('user_id', Auth::user()->id)->first()->sucursal_id;
         $subcategorias = DB::table('subcategorias as s')
                             ->join('productos as p', 'p.subcategoria_id', 's.id')
                             ->select('s.id', 's.nombre')
                             ->where('s.deleted_at', NULL)
-                            ->where('s.categoria_id', $id)
+                            ->where('s.categoria_id', $categoria_id)
                             ->distinct()
                             ->orderBy('s.nombre', 'ASC')
                             ->get();
-        return view('ventas.ventas_categorias', compact('subcategorias'));
+        $productos = $this->get_productos_disponibles($sucursal_actual, $categoria_id, 'all', 'all', 'all', 'all', 'all');
+        return view('ventas.ventas_categorias', compact('subcategorias', 'productos'));
     }
 
-    public function ventas_productos_categorias($id){
+    public function ventas_productos_categorias($subcategoria_id){
         $sucursal_actual = UsersSucursale::where('user_id', Auth::user()->id)->first()->sucursal_id;
         // dd($id);
-        $productos = $this->ventas_productos($sucursal_actual, $id);
+        $productos = $this->get_productos_disponibles($sucursal_actual, 'all', $subcategoria_id, 'all', 'all', 'all', 'all');
         return view('ventas.ventas_productos_categoria', compact('productos'));
     }
+
+    // Obtener productos al realizar filtro
+    public function filtro_productos_disponibles($categoria_id, $subcategoria_id, $marca, $talla, $genero, $color){
+        $sucursal_actual = UsersSucursale::where('user_id', Auth::user()->id)->first()->sucursal_id;
+        $productos = $this->get_productos_disponibles($sucursal_actual, $categoria_id, $subcategoria_id, $marca, $talla, $genero, $color);
+        return response()->json($productos);
+    }
+
 
     public function store(Request $data){
         // dd($data);
@@ -957,15 +970,7 @@ class VentasController extends Controller
         if($tipo == 'rollo'){
             // return $this->imprimir_rollo($id);
         }else{
-            $detalle_proforma = DB::table('proformas as pr')
-                                    ->join('proformas_detalles as d', 'd.proforma_id', 'pr.id')
-                                    ->join('productos as p', 'p.id', 'd.producto_id')
-                                    ->join('marcas as m', 'm.id', 'p.marca_id')
-                                    ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
-                                    ->join('clientes as c', 'c.id', 'pr.cliente_id')
-                                    ->select('pr.*', 'pr.created_at as fecha', 'c.razon_social as cliente', 'c.nit', 'p.nombre as producto', 'p.precio_venta as precio', 'd.cantidad', 's.nombre as subcategoria')
-                                    ->where('pr.id', $id)
-                                    ->get();
+            $detalle_proforma = $this->get_proforma_detalles($id);
             $monto_total = 0;
             foreach($detalle_proforma as $item){
                 $monto_total += $item->precio * $item->cantidad;
@@ -978,17 +983,150 @@ class VentasController extends Controller
     }
 
     public function proformas_detalle($id){
-        $detalle = DB::table('proformas as pr')
-                                    ->join('proformas_detalles as d', 'd.proforma_id', 'pr.id')
-                                    ->join('productos as p', 'p.id', 'd.producto_id')
-                                    ->join('marcas as m', 'm.id', 'p.marca_id')
-                                    ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
-                                    ->join('clientes as c', 'c.id', 'pr.cliente_id')
-                                    ->select('pr.*', 'pr.created_at as fecha', 'c.razon_social as cliente', 'c.nit', 'p.nombre as producto', 'p.precio_venta as precio', 'd.producto_id', 'd.cantidad', 's.nombre as subcategoria')
-                                    ->where('pr.id', $id)
-                                    ->get();
+        $detalle = $this->get_proforma_detalles($id);
         return response()->json($detalle);
     }
+
+
+
+    // =======================================================
+
+    // Obtener detalles de la proforma a partir de su ID
+    public function get_proforma_detalles($id){
+        return DB::table('proformas as pr')
+                    ->join('proformas_detalles as d', 'd.proforma_id', 'pr.id')
+                    ->join('productos as p', 'p.id', 'd.producto_id')
+                    ->join('marcas as m', 'm.id', 'p.marca_id')
+                    ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                    ->join('clientes as c', 'c.id', 'pr.cliente_id')
+                    ->select(   'pr.*',
+                                'pr.created_at as fecha',
+                                'c.razon_social as cliente',
+                                'c.nit',
+                                'p.nombre as producto',
+                                'p.precio_venta as precio',
+                                'd.producto_id',
+                                'd.cantidad',
+                                's.nombre as subcategoria'
+                            )
+                    ->where('pr.id', $id)
+                    ->get();
+    }
+
+    // *********Generar informe para impuestos nacionales*********
+
+    // libros
+    function ventas_libro(){
+        return view('ventas.impuestos.ventas_libro');
+    }
+
+    function ventas_libro_generar(Request $datos){
+        $ventas = DB::table('ventas as v')
+                            ->join('clientes as c', 'c.id', 'v.cliente_id')
+                            ->select('v.*', 'c.razon_social as cliente', 'c.nit')
+                            ->where('v.codigo_control', '<>', NULL)
+                            ->whereMonth('fecha', $datos->mes)
+                            ->whereYear('fecha', $datos->anio)
+                            ->get();
+        $mes = $datos->mes;
+        $anio = $datos->anio;
+        return view('ventas.impuestos.ventas_libro_generar', compact('ventas', 'mes', 'anio'));
+    }
+
+    public function ventas_libro_generar_excel($mes, $anio){
+        session(['venta_mes' => $mes, 'venta_anio' => $anio]);
+        return Excel::download(new LibroVentaExport, 'Libro_venta-'.$mes.'-'.$anio.'.xlsx');
+    }
+
+    public function ventas_libro_generar_pdf($mes, $anio){
+        $ventas = DB::table('ventas')
+                        ->join('clientes', 'clientes.id', 'ventas.cliente_id')
+                        ->select('ventas.*', 'clientes.razon_social as cliente', 'clientes.nit')
+                        ->where('ventas.codigo_control', '<>', NULL)
+                        ->whereMonth('fecha', $mes)
+                        ->whereYear('fecha', $anio)
+                        ->get();
+
+        $vista = view('ventas.impuestos.ventas_libro_generar_pdf', compact('ventas', 'anio', 'mes'));
+        $pdf = \App::make('dompdf.wrapper');
+        $pdf->loadHTML($vista)->setPaper('legal', 'landscape');
+        $pdf->loadHTML($vista);
+        return $pdf->stream();
+    }
+
+    // formularios
+    public function ventas_formulario_200_pdf($mes, $anio){
+        $ventas = DB::table('ventas')
+                        ->select(   DB::raw('SUM(importe) as importe_venta'),
+                                    DB::raw('SUM(importe_ice) as importe_ice'),
+                                    DB::raw('SUM(importe_exento) as importe_exento'),
+                                    DB::raw('SUM(tasa_cero) as tasa_cero'),
+                                    DB::raw('SUM(subtotal) as sub_total'),
+                                    DB::raw('SUM(descuento) as descuento'),
+                                    DB::raw('SUM(importe_base) as importe_base'),
+                                    DB::raw('SUM(debito_fiscal) as debito_fiscal')
+                                )
+                        ->where('codigo_control', '<>', NULL)
+                        ->whereMonth('fecha', $mes)
+                        ->whereYear('fecha', $anio)
+                        ->first();
+        $compras = DB::table('compras')
+                        ->select(   DB::raw('SUM(importe_compra) as importe_compra'),
+                                    DB::raw('SUM(monto_exento) as monto_exento'),
+                                    DB::raw('SUM(sub_total) as sub_total'),
+                                    DB::raw('SUM(descuento) as descuento'),
+                                    DB::raw('SUM(importe_base) as importe_base'),
+                                    DB::raw('SUM(credito_fiscal) as credito_fiscal')
+                                )
+                        ->where('nro_factura', '<>', NULL)
+                        ->whereMonth('fecha', $mes)
+                        ->whereYear('fecha', $anio)
+                        ->first();
+
+        return view('ventas.impuestos.ventas_formulario_200_pdf', compact('ventas', 'compras', 'anio', 'mes'));
+        $vista = view('ventas.impuestos.ventas_formulario_200_pdf', compact('ventas', 'compras', 'anio', 'mes'));
+        $pdf = \App::make('dompdf.wrapper');
+        $pdf->loadHTML($vista)->setPaper('legal', 'portrait');
+        $pdf->loadHTML($vista);
+        return $pdf->stream();
+    }
+
+    public function ventas_formulario_400_pdf($mes, $anio){
+        $ventas = DB::table('ventas')
+                        ->select(   DB::raw('SUM(importe) as importe_venta'),
+                                    DB::raw('SUM(importe_ice) as importe_ice'),
+                                    DB::raw('SUM(importe_exento) as importe_exento'),
+                                    DB::raw('SUM(tasa_cero) as tasa_cero'),
+                                    DB::raw('SUM(subtotal) as sub_total'),
+                                    DB::raw('SUM(descuento) as descuento'),
+                                    DB::raw('SUM(importe_base) as importe_base'),
+                                    DB::raw('SUM(debito_fiscal) as debito_fiscal')
+                                )
+                        ->where('codigo_control', '<>', NULL)
+                        ->whereMonth('fecha', $mes)
+                        ->whereYear('fecha', $anio)
+                        ->first();
+        $compras = DB::table('compras')
+                        ->select(   DB::raw('SUM(importe_compra) as importe_compra'),
+                                    DB::raw('SUM(monto_exento) as monto_exento'),
+                                    DB::raw('SUM(sub_total) as sub_total'),
+                                    DB::raw('SUM(descuento) as descuento'),
+                                    DB::raw('SUM(importe_base) as importe_base'),
+                                    DB::raw('SUM(credito_fiscal) as credito_fiscal')
+                                )
+                        ->where('nro_factura', '<>', NULL)
+                        ->whereMonth('fecha', $mes)
+                        ->whereYear('fecha', $anio)
+                        ->first();
+
+        return view('ventas.impuestos.ventas_formulario_400_pdf', compact('ventas', 'compras', 'anio', 'mes'));
+        $vista = view('ventas.impuestos.ventas_formulario_400_pdf', compact('ventas', 'compras', 'anio', 'mes'));
+        $pdf = \App::make('dompdf.wrapper');
+        // $pdf->loadHTML($vista)->setPaper('a4', 'landscape');
+        $pdf->loadHTML($vista);
+        return $pdf->stream();
+    }
+
 
     // Función creada para utilizarla tanto para crear una venta normal o realizar un pedido por parte de un cliente
     public function crear_venta($data){
@@ -1231,37 +1369,79 @@ class VentasController extends Controller
     }
 
     // Obtener todos los productos de disponibles para la venta
-    public function ventas_productos($sucursal_id, $subcategoria_id){
-        $filtro_subcategoria = !empty($subcategoria_id) ? "s.id = $subcategoria_id" : 1;
-        // dd($filtro_subcategoria);
+    public function get_productos_disponibles($sucursal_id, $categoria_id, $subcategoria_id, $marca, $talla, $genero, $color){
+        
+        $filtro_categoria = ($categoria_id != 'all') ? "s.categoria_id = $categoria_id" : 1;
+        $filtro_subcategoria = ($subcategoria_id != 'all') ? "s.id = $subcategoria_id" : 1;
+        $filtro_marca = ($marca != 'all') ? "m.id = $marca " : 1;
+        $filtro_talla = ($talla != 'all') ? "t.id = $talla " : 1;
+        $filtro_genero = ($genero != 'all') ? "g.id = $genero " : 1;
+        $filtro_color = ($color != 'all') ? "c.id = $color " : 1;
+        
         $productos = collect();
 
         // Obetener lista de productos a la venta en la sucursal actual
         $productos_deposito = DB::table('productos as p')
                             ->join('productos_depositos as pd', 'pd.producto_id', 'p.id')
                             ->join('depositos as d', 'd.id', 'pd.deposito_id')
+                            ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                            ->join('categorias as ca', 'ca.id', 's.categoria_id')
                             ->join('marcas as m', 'm.id', 'p.marca_id')
                             ->join('tallas as t', 't.id', 'p.talla_id')
+                            ->join('colores as c', 'c.id', 'p.color_id')
                             ->join('generos as g', 'g.id', 'p.genero_id')
-                            ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
-                            ->select('p.*', 'm.nombre as marca', 't.nombre as talla', 'g.nombre as genero', 's.nombre as subcategoria')
+                            ->join('monedas as mo', 'mo.id', 'p.moneda_id')
+                            ->select(   'p.id',
+                                        'p.codigo_interno',
+                                        'p.codigo',
+                                        'p.nombre',
+                                        'p.imagen',
+                                        'p.precio_venta',
+                                        'p.stock',
+                                        'p.descripcion_small',
+                                        'p.se_almacena',
+                                        'm.nombre as marca',
+                                        't.nombre as talla',
+                                        'g.nombre as genero',
+                                        's.nombre as subcategoria',
+                                        'c.nombre as color',
+                                        'mo.abreviacion as moneda'
+                                    )
                             ->where('p.deleted_at', NULL)
                             ->where('p.se_almacena', 1)
                             ->where('p.stock', '>', 0)
                             ->where('d.sucursal_id', $sucursal_id)
                             ->whereRaw($filtro_subcategoria)
+                            ->whereRaw($filtro_categoria)
                             ->get();
         foreach ($productos_deposito as $item) {
             $productos->push($item);
         }
-
         // Obetener lista de productos a la venta en todas las sucursales (Productos que no se almacenan)
         $productos_deposito = DB::table('productos as p')
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                            ->join('categorias as ca', 'ca.id', 's.categoria_id')
                             ->join('marcas as m', 'm.id', 'p.marca_id')
                             ->join('tallas as t', 't.id', 'p.talla_id')
+                            ->join('colores as c', 'c.id', 'p.color_id')
                             ->join('generos as g', 'g.id', 'p.genero_id')
-                            ->select('p.*', 'm.nombre as marca', 't.nombre as talla', 'g.nombre as genero', 's.nombre as subcategoria')
+                            ->join('monedas as mo', 'mo.id', 'p.moneda_id')
+                            ->select(   'p.id',
+                                        'p.codigo_interno',
+                                        'p.codigo',
+                                        'p.nombre',
+                                        'p.imagen',
+                                        'p.precio_venta',
+                                        'p.stock',
+                                        'p.descripcion_small',
+                                        'p.se_almacena',
+                                        'm.nombre as marca',
+                                        't.nombre as talla',
+                                        'g.nombre as genero',
+                                        's.nombre as subcategoria',
+                                        'c.nombre as color',
+                                        'mo.abreviacion as moneda'
+                                    )
                             ->where('p.deleted_at', NULL)
                             ->where('p.se_almacena', NULL)
                             ->whereRaw($filtro_subcategoria)

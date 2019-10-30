@@ -43,7 +43,7 @@
                                             <div class="row">
                                                 <div class="form-group col-md-6">
                                                     <label for="">Código</label> @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Código de identificación del producto. Este campo no es obligatorio."></span> @endif
-                                                    <input type="text" name="codigo_interno" class="form-control" placeholder="Código interno">
+                                                    <input type="text" name="codigo_interno" id="input-codigo_interno" class="form-control" placeholder="Código interno">
                                                 </div>
                                                 <div class="form-group col-md-6">
                                                     <label for="">Stock</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad de productos en stock. Este campo es obligatorio."></span> @endif
@@ -186,7 +186,7 @@
                                         <tbody id="tr-precioCompra">
                                             <tr>
                                                 <td><input type="number" min="1" step="0.1" class="form-control" name="monto[]" ></td>
-                                                <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_compra[]" ></td>
+                                                <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_compra[]" value="1"></td>
                                                 <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
                                             </tr>
                                         </tbody>
@@ -287,6 +287,18 @@
                         $('#select-subcategoria_id').html('');
                         inicializar_select2('subcategoria_id');
                     }
+                });
+
+                // Obtener ultimo codigo interno del producto de la categoría seleccionada
+                $('#select-subcategoria_id').change(function(){
+                    let id = $(this).val();
+                    $.get("{{ url('admin/productos/obtener/codigo_interno') }}/"+id, function(data){
+                        if(data.codigo_interno != undefined){
+                            $('#input-codigo_interno').val(parseInt(data.codigo_interno)+1)
+                        }else{
+                            $('#input-codigo_interno').val(1)
+                        }
+                    });
                 });
 
                 // agregar precios

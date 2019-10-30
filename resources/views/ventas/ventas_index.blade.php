@@ -282,7 +282,8 @@
 
                             $('#lista-ventas').prepend(`
                                 <tr>
-                                    <td>#${item.id}</td>
+                                    <td>${item.id}</td>
+                                    <td>#${item.nro_venta}</td>
                                     <td><ins class="text-danger" style="font-weight:bold">Pedido</ins></td>
                                     <td>${fecha} <br> <small>Hace unos segundos</small></td>
                                     <td>${item.cliente}</td>

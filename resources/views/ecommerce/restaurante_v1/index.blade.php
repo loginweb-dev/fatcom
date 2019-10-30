@@ -44,6 +44,7 @@
 
         <div class="row pt-4">
             <div class="col-lg-12">
+              @if ($oferta_princial)              
                 <!-- Section: Advertising -->
                 <section>
                     <!-- Grid row -->
@@ -73,6 +74,7 @@
                     <!-- Grid row -->
                 </section>
                 <!-- Section: Advertising -->
+              @endif
             </div>
         </div>
 

@@ -93,11 +93,29 @@
                                         <div class="col-md-12">
                                             <label for="">Producto</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Producto que se agregará al E-Commerce. Este campo es obligatorio."></span> @endif
                                             <div class="input-group">
-                                                <select class="form-control select2" id="select-producto_id">
-                                                        @foreach($productos as $item)
-                                                        <option value="{{$item->id}}"> {{$item->subcategoria}} - {{$item->nombre}}</option>
-                                                        @endforeach
-                                                    </select>
+                                                <select class="form-control" id="select-producto_id">
+                                                    <option selected disabled value="">Seleccione una opción</option>
+                                                    @foreach ($productos as $item)
+                                                        @php
+                                                            $imagen = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
+                                                        @endphp
+                                                        <option value="{{ $item->id }}"
+                                                                data-imagen="{{ url('storage').'/'.$imagen }}"
+                                                                data-categoria="{{ $item->subcategoria }}"
+                                                                data-marca="{{ $item->marca }}"
+                                                                data-precio="{{ $item->moneda }} {{ $item->precio_venta }}"
+                                                                data-detalle="{{ $item->descripcion_small }}">
+                                                            @if(setting('admin.modo_sistema') != 'restaurante')
+                                                                @if($item->codigo_interno)
+                                                                #{{ $item->codigo_interno }}
+                                                                @else
+                                                                {{ $item->codigo }} - 
+                                                                @endif 
+                                                            @endif
+                                                            {{ $item->nombre }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
                                                 <span class="input-group-btn">
                                                     <button style="margin-top:0px;padding:8px" id="btn-agregar" type="button" class="btn btn-success">Añadir <span class="voyager-plus"></span></button>
                                                 </span>
@@ -124,17 +142,15 @@
                                                             <th width="50px">Quitar</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody id="lista_productos">
-
-                                                    </tbody>
+                                                    <tbody id="lista_productos"></tbody>
                                                 </table>
                                             </div>
                                         </div>
                                     </div>
-                                    <hr>
-                                    <h4>Costos de envío @if(setting('admin.tips')) <span style="font-size:15px" class="voyager-question text-default" data-toggle="tooltip" data-placement="right" title="Costos de envío del producto a las diferentes localidades, si el producto no se envía a esa localidad dejar el campo vacío y si el envío es gratis ingresar 0. Este campo no es obligatorio."></span> @endif</h4>
-                                    <div class="row">
+                                    <div class="row" @if(setting('admin.modo_sistema') == 'restaurante') style="display:none" @endif>
                                         <div class="col-md-12">
+                                            <hr>
+                                            <h4>Costos de envío @if(setting('admin.tips')) <span style="font-size:15px" class="voyager-question text-default" data-toggle="tooltip" data-placement="right" title="Costos de envío del producto a las diferentes localidades, si el producto no se envía a esa localidad dejar el campo vacío y si el envío es gratis ingresar 0. Este campo no es obligatorio."></span> @endif</h4>
                                             <div class="table-responsive">
                                                 <table class="table table-bordered">
                                                     <thead>
@@ -154,7 +170,7 @@
                                                             <td>{{$item->localidad}}</td>
                                                             <td>
                                                                 <div class="input-group">
-                                                                    <input type="number" name="precio[]" class="form-control">
+                                                                    <input type="number" name="precio[]" class="form-control" value="0">
                                                                     <span class="input-group-addon" style="margin-top:0px;padding:7px">Bs.</span>
                                                                 </div>
                                                             </td>
@@ -194,11 +210,13 @@
         <script src="{{url('input-multiple/app.js')}}"></script>
         <script src="{{url('js/loginweb.js')}}"></script>
         <script src="{{url('js/inventarios/productos.js')}}"></script>
+        <script src="{{ asset('js/rich_select.js') }}"></script>
         <script>
         $(document).ready(function(){
             $('[data-toggle="popover"]').popover({ html : true });
             $('[data-toggle="tooltip"]').tooltip();
             $('#input-tags').tagsinput({});
+            rich_select('select-producto_id');
 
             @error('producto_id')
             toastr.error('Debe agregar al menos 1 producto a la lista.', 'Error');
@@ -225,14 +243,14 @@
                     obtener_lista(tipo, '{{url("admin/productos/list")}}', destino);
                 }
                 
-                filtro('{{url("admin/ofertas/filtros/filtro_simple/ecommerce_productos")}}');
+                filtro('{{url("admin/ofertas/filtros/filtro_simple/ecommerce_productos")}}', '{{ setting('admin.modo_sistema') }}');
             });
 
             // agregar productos
             let indice = 1;
             $('#btn-agregar').click(function(){
                 let id = $('#select-producto_id').val();
-                let nombre = $('#select-producto_id option:selected').text();
+                let nombre = $('#select-producto_id option:selected').text()+' - '+$('#select-producto_id option:selected').attr('data-categoria');
                 let envio = $('#input-envio').val();
                 let envio_rapido = $('#input-envio_rapido').val();
                 let tags = $('#input-tags').val();
@@ -275,7 +293,6 @@
         });
 
         function borrarTr(id){
-            console.log(id)
             $('#tr-'+id).remove();
         }
     </script>

@@ -256,7 +256,7 @@
         <script>
             window.print();
             setTimeout(function(){
-                // window.close();
+                window.close();
             }, 10000);
         </script>
     </body>

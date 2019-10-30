@@ -157,7 +157,7 @@
                                         <tbody id="tr-precioCompra">
                                             <tr>
                                                 <td><input type="number" min="1" step="0.1" class="form-control" name="monto[]" ></td>
-                                                <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_compra[]" ></td>
+                                                <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_compra[]" value="1" ></td>
                                                 <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
                                             </tr>
                                         </tbody>

@@ -21,9 +21,13 @@ function formatResult (option) {
         return option.text;
     }
     let imagen = $(option.element).attr('data-imagen');
-    let categoria = $(option.element).attr('data-categoria');
-    // let marca = $(option.element).attr('data-marca');
-    let detalle = $(option.element).attr('data-detalle');
+    let categoria = $(option.element).attr('data-categoria') ? `<tr><td>Categoría : <i>${$(option.element).attr('data-categoria')}</i></td></tr>` : '';
+    let marca = $(option.element).attr('data-marca') !== 'default' ? `<tr><td>Marca : <i>${$(option.element).attr('data-marca')}</i></td></tr>` : '';
+    let color = $(option.element).attr('data-color') !== 'default' ? `<tr><td>Color : <i>${$(option.element).attr('data-color')}</i></td></tr>` : '';
+    let talla = $(option.element).attr('data-talla') !== 'default' ? `<tr><td>Talla : <i>${$(option.element).attr('data-talla')}</i></td></tr>` : '';
+    let precio = `<tr><td>Precio : <i>${$(option.element).attr('data-precio')}</i></td></tr>`;
+
+    let detalle = $(option.element).attr('data-detalle') != '' ? `<tr><td><p>${$(option.element).attr('data-detalle')}</p></td></tr>` : '';
 
     if(!imagen){
         return option.text;
@@ -31,11 +35,10 @@ function formatResult (option) {
         return $option = $(`<span>
                             <table>
                                 <tr>
-                                    <td rowspan="5" style="width:120px"><img src="${imagen}" width="100px" /></td>
+                                    <td rowspan="7" style="width:150px"><img src="${imagen}" width="140px" /></td>
                                     <td><b style="font-size:20px">${option.text}</b></td>
                                 </tr>
-                                <tr><td>Categoría : <i>${categoria ? categoria : 'No definida'}</i></td></tr>
-                                <tr><td><p>${detalle ? detalle : 'Ninguna descripción'}</p></td></tr>
+                                ${categoria}${marca}${precio}${color}${talla}${detalle}
                             </table>
                         </span>`);
     }

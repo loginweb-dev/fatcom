@@ -23,6 +23,7 @@
         @csrf
         <input type="hidden" name="venta_tipo_id" value="3">
         <input type="hidden" name="cliente_id" value="{{$cliente_id}}">
+        <input type="hidden" name="caja_id" value="{{ $caja_id ? $caja_id->id : NULL }}">
         <!-- Main Container -->
         <div class="container" style="margin-top:100px">
             <!-- Section cart -->
@@ -105,7 +106,7 @@
                                     </tr>
                                     <tr>
                                         <td colspan="4" class="text-right">
-                                            <button type="button" @if($total > 0 && !$pedido_pendiente) data-toggle="modal" data-target="#modal_entrega"  id="btn-entrega" @else disabled @endif class="btn btn-primary btn-rounded">Completar compra
+                                            <button type="button" @if($total > 0 && !$pedido_pendiente && $caja_id) data-toggle="modal" data-target="#modal_entrega"  id="btn-entrega" @else disabled @endif class="btn btn-primary btn-rounded">Completar compra
                                                 <i class="fas fa-angle-right right"></i>
                                             </button>
                                         </td>
@@ -114,12 +115,21 @@
                                 </tbody>
                                 <!-- Table body -->
                             </table>
+                            @if(!$caja_id)
+                            <div class="alert alert-info" role="alert">
+                                <h4 class="alert-heading">Aviso importante!</h4>
+                                <p>Nuestro horario de atención es a partir de las 6:30 pm, te pedimos un poco de paciencia por favor!</p>
+                                <hr>
+                                <p class="mb-0">Si tienes alguna consulta por favor comunícate con nosotros por medio de cualquier canal de comunicación descritos en la parte inferios de la página.<b></b>.</p>
+                            </div>
+                            @elseif($pedido_pendiente)
                             <div class="alert alert-warning" role="alert">
-                                    <h4 class="alert-heading">Aviso importante!</h4>
-                                    <p>Debido a que tienes un pedido pendiente y por politicas de nuestra empresa no puede solicitar otro pedido hasta que el actual sea entregado.</p>
-                                    <hr>
-                                    <p class="mb-0">Si tienes alguna consulta o modificación de tu pedido actual por favor comunícate con nosotros por medio de cualquier canal de comunicación descritos en la parte inferios de la página.<b></b>.</p>
-                                  </div>
+                                <h4 class="alert-heading">Aviso importante!</h4>
+                                <p>Debido a que tienes un pedido pendiente y por politicas de nuestra empresa no puede solicitar otro pedido hasta que el actual sea entregado.</p>
+                                <hr>
+                                <p class="mb-0">Si tienes alguna consulta o modificación de tu pedido actual por favor comunícate con nosotros por medio de cualquier canal de comunicación descritos en la parte inferios de la página.<b></b>.</p>
+                            </div>
+                            @endif
                         </div>
                         <!-- Shopping Cart table -->
                     </div>

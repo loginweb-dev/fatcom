@@ -130,7 +130,7 @@
     </aside>
 
 @endsection
-<script src="{{url('ecommerce/js/jquery-2.0.0.min.js')}}" type="text/javascript"></script>
+<script src="{{url('ecommerce_public/js/jquery-2.0.0.min.js')}}" type="text/javascript"></script>
 <script>
     $(document).ready(function(){
         $('[data-toggle="popover"]').popover({ html : true });

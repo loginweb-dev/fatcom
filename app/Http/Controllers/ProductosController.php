@@ -24,6 +24,8 @@ use App\Modelo;
 use App\Producto;
 use App\ProductoUnidade;
 use App\ProductoImagene;
+use App\ProductosDeposito;
+use App\Deposito;
 
 class ProductosController extends Controller
 {
@@ -48,57 +50,41 @@ class ProductosController extends Controller
         return view('inventarios/productos/productos_index', compact('value', 'categorias'));
     }
 
-    public function productos_list($categoria, $subcategoria, $marca, $talla, $genero, $color){
+    public function productos_list($categoria, $subcategoria, $marca, $talla, $genero, $color, $search){
         $filtro_categoria = ($categoria != 'all') ? " s.categoria_id = $categoria " : ' 1 ';
         $filtro_subcategoria = ($subcategoria != 'all') ? " and  p.subcategoria_id = $subcategoria " : ' and 1';
         $filtro_marca = ($marca != 'all') ? " and p.marca_id = $marca " : ' and 1';
         $filtro_talla = ($talla != 'all') ? " and p.talla_id = $talla " : ' and 1';
         $filtro_genero = ($genero != 'all') ? " and p.genero_id = $genero " : ' and 1';
         $filtro_color = ($color != 'all') ? " and p.color_id = $color " : ' and 1';
+        $filtro_search = ($search != 'all') ? "(p.codigo like '%$search%' or p.nombre like '%$search%')" : ' 1 ';
 
         $registros = DB::table('productos as p')
                                 ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
                                 ->join('categorias as c', 'c.id', 's.categoria_id')
                                 ->join('marcas as m', 'm.id', 'p.marca_id')
-                                ->select('p.*', 's.nombre as subcategoria')
+                                ->join('tallas as t', 't.id', 'p.talla_id')
+                                ->join('colores as co', 'co.id', 'p.color_id')
+                                ->join('generos as g', 'g.id', 'p.genero_id')
+                                ->join('monedas as mn', 'mn.id', 'p.moneda_id')
+                                ->select(   'p.*',
+                                            'c.nombre as categoria',
+                                            's.nombre as subcategoria',
+                                            'm.nombre as marca',
+                                            't.nombre as talla',
+                                            'co.nombre as color',
+                                            'g.nombre as genero',
+                                            'mn.abreviacion as moneda'
+                                        )
                                 ->whereRaw($filtro_categoria.$filtro_subcategoria.$filtro_marca.$filtro_talla.$filtro_genero.$filtro_color)
+                                ->whereRaw($filtro_search)
                                 ->where('p.deleted_at', NULL)
                                 ->orderBy('p.id', 'DESC')
                                 ->paginate(10);
-        return view('inventarios/productos/productos_list', compact('registros'));
-    }
 
-    public function search($value)
-    {
-        $value = ($value != 'all') ? $value : '';
-        $registros = DB::table('productos as p')
-                            ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
-                            ->select('p.*', 's.nombre as subcategoria')
-                            ->whereRaw("p.deleted_at is null and
-                                            (p.codigo like '%".$value."%' or
-                                            p.nombre like '%".$value."%' or
-                                            s.nombre like '%".$value."%')
-                                        ")
-                            ->orderBy('p.id', 'DESC')
-                            ->paginate(10);
-        $precios = [];
-        $cantidades = [];
-        if(count($registros)>0){
+        $depositos = Deposito::all()->where('deleted_at', null);
 
-            // Obtener precios del producto
-            foreach ($registros as $item) {
-                $producto_unidades = $this->obtener_precios_venta($item->id);
-
-                if(count($producto_unidades)>0){
-                    $precio = ['precio' => $producto_unidades[0]->precio, 'unidad' => $producto_unidades[0]->unidad];
-                }else{
-                    $precio = ['precio' => 0, 'unidad' => 'No definida'];
-                }
-                array_push($precios, $precio);
-            }
-        }
-
-        return view('inventarios/productos/productos_index', compact('registros', 'value', 'precios', 'cantidades'));
+        return view('inventarios/productos/productos_list', compact('registros', 'depositos'));
     }
 
     public function view_simple($id){
@@ -284,7 +270,8 @@ class ProductosController extends Controller
         }
     }
 
-    public function copy($id){
+    public function copy(Request $request){
+        $id = $request->id;
         $p = DB::table('productos')->where('id', $id)->first();
         $producto = Producto::create([
                         'nombre' => $p->nombre,
@@ -326,6 +313,15 @@ class ProductosController extends Controller
                     ]);
         // Obtener los detalles de los precios por unidades del producto que se ha duplicado
         $p_u = DB::table('producto_unidades')->where('producto_id', $id)->where('deleted_at', NULL)->get();
+
+        // Agregar el nuevo producto al almacen
+        ProductosDeposito::create([
+            'deposito_id' => $request->deposito_id,
+            'producto_id' => $producto->id,
+            'stock' => 0,
+            'stock_inicial' => 0,
+            'stock_compra' => 0
+        ]);
         
         // Recorrer los precios ingresados y crear nuevos registros con el ID del nuevo producto
         foreach ($p_u as $item) {
@@ -425,25 +421,63 @@ class ProductosController extends Controller
                                 ->where('pi.producto_id', $id)
                                 ->where('pi.deleted_at', NULL)
                                 ->get();
+        $productos_depositos = DB::table('productos_depositos as pd')
+                                ->join('depositos as d', 'd.id', 'pd.deposito_id')
+                                ->select('d.*')
+                                ->where('pd.producto_id', $id)
+                                ->get();                       
 
         switch (setting('admin.modo_sistema')) {
             case 'repuestos':
-            return view('inventarios/productos/repuestos/productos_edit', compact('producto', 'imagen', 'precio_venta', 'precio_compra', 'categorias', 'subcategorias', 'marcas', 'unidades'));
+            return view('inventarios/productos/repuestos/productos_edit', compact('producto', 'imagen', 'precio_venta', 'precio_compra', 'categorias', 'subcategorias', 'marcas', 'unidades', 'productos_depositos'));
                 break;
             case 'electronica_computacion':
-                return view('inventarios/productos/electronica_computacion/productos_edit', compact('producto', 'imagen', 'precio_venta', 'precio_compra', 'categorias', 'subcategorias', 'marcas', 'monedas'));
+                return view('inventarios/productos/electronica_computacion/productos_edit', compact('producto', 'imagen', 'precio_venta', 'precio_compra', 'categorias', 'subcategorias', 'marcas', 'monedas', 'productos_depositos'));
                 break;
             case 'restaurante':
-                return view('inventarios/productos/restaurante/productos_edit', compact('producto', 'imagen', 'categorias', 'subcategorias', 'precio_venta', 'insumos', 'insumos_productos'));
+                return view('inventarios/productos/restaurante/productos_edit', compact('producto', 'imagen', 'categorias', 'subcategorias', 'precio_venta', 'insumos', 'insumos_productos', 'productos_depositos'));
                 break;
             case 'boutique':
-                return view('inventarios/productos/boutique/productos_edit', compact('producto', 'imagen', 'precio_venta', 'precio_compra', 'categorias', 'subcategorias', 'marcas', 'tallas', 'colores', 'generos', 'usos', 'unidades'));
+                return view('inventarios/productos/boutique/productos_edit', compact('producto', 'imagen', 'precio_venta', 'precio_compra', 'categorias', 'subcategorias', 'marcas', 'tallas', 'colores', 'generos', 'usos', 'unidades', 'productos_depositos'));
                 break;
             default:
                 # code...
                 break;
         }
 
+    }
+
+    public function update_stock(Request $data){
+        // dd($data);
+        $stock_actual = DB::table('productos_depositos')
+                            ->select('stock')
+                            ->where('deposito_id', $data->deposito_id)
+                            ->where('producto_id', $data->id)
+                            ->first()->stock;
+
+        DB::beginTransaction();
+
+        try {
+
+            // Actualizar el stock total del producto
+            if($stock_actual > $data->stock){
+                DB::table('productos')->where('id', $data->id)->decrement('stock', $stock_actual - $data->stock);
+            }else{
+                DB::table('productos')->where('id', $data->id)->increment('stock', $data->stock - $stock_actual);
+            }
+
+            // Actualizar stock del producto en el deposito seleccionado
+            DB::table('productos_depositos')
+                ->where('deposito_id', $data->deposito_id)
+                ->where('producto_id', $data->id)
+                ->update(['stock' => $data->stock]);
+
+            DB::commit();
+            return redirect()->route('productos_index')->with(['message' => 'Stock  de producto editado exitosamenete.', 'alert-type' => 'success']);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->route('productos_index')->with(['message' => 'Ocurrio un problema al editar el stock producto.', 'alert-type' => 'error']);
+        }
     }
 
     public function update(Request $data){
@@ -493,129 +527,144 @@ class ProductosController extends Controller
         //     $precio_minimo = $data->precio_minimo[0];
         // }
 
-        $query = DB::table('productos')
-                    ->where('id', $data->id)
-                    ->update([
-                        'codigo_interno' => $data->codigo_interno,
-                        'nombre' => $data->nombre,
-                        'descripcion_small' => $data->descripcion_small,
-                        'descripcion_long' => $data->descripcion_long,
-                        'estante' => $data->estante,
-                        'bloque' => $data->bloque,
-                        'garantia' => $data->garantia,
-                        'precio_venta' => $precio_venta,
-                        'precio_minimo' => $precio_minimo,
-                        'stock_minimo' => $data->stock_minimo,
-                        'subcategoria_id' => $data->subcategoria_id,
-                        'marca_id' => $data->marca_id,
-                        'talla_id' => $data->talla_id,
-                        'color_id' => $data->color_id,
-                        'genero_id' => $data->genero_id,
-                        'unidad_id' => $data->unidad_id,
-                        'uso_id' => $data->uso_id,
-                        'moneda_id' => $data->moneda_id,
-                        'modelo' => $data->modelo,
-                        'nuevo' => $nuevo,
-                        'se_almacena' => $se_almacena,
-                        // 'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now()
-                    ]);
-        if(isset($data->precio_venta)){
-            DB::table('producto_unidades')
-                    ->where('producto_id', $data->id)->update(['deleted_at' => Carbon::now()]);
-            for ($i=0; $i < count($data->precio_venta); $i++) {
-                $query = DB::table('producto_unidades')
-                                ->insert([
-                                    'unidad_id' => $data->unidad_id,
-                                    'producto_id' => $data->id,
-                                    'precio' => $data->precio_venta[$i],
-                                    'precio_minimo' => $data->precio_minimo[$i],
-                                    'cantidad_minima' => $data->cantidad_minima_venta[$i],
-                                    'cantidad_pieza' => 1,
-                                    'created_at' => Carbon::now(),
-                                    'updated_at' => Carbon::now()
-                                ]);
-            }
-        }
+        // DB::beginTransaction();
 
-        // Guardar precios de compra (si existen)
-        if(isset($data->monto)){
-            DB::table('precios_compras')
-                    ->where('producto_id', $data->id)->update(['deleted_at' => Carbon::now()]);
-            for ($i=0; $i < count($data->monto); $i++) {
-                $query = DB::table('precios_compras')
-                                ->insert([
-                                    'producto_id' => $data->id,
-                                    'monto' => $data->monto[$i],
-                                    'cantidad_minima' => $data->cantidad_minima_compra[$i],
-                                    'created_at' => Carbon::now(),
-                                    'updated_at' => Carbon::now()
-                                ]);
-            }
-        }
-
-        // guardar imagen si se agregó
-        if($data->file('imagen')!=NULL){
-            for ($i=0; $i < count($data->file('imagen')); $i++) {
-                $imagen = $this->agregar_imagenes($data->file('imagen')[$i]);
-                DB::table('producto_imagenes')
-                        ->insert([
-                                    'producto_id' => $data->id,
-                                    'imagen' => $imagen,
-                                    'tipo' => 'secundaria',
-                                    'created_at' => Carbon::now(),
-                                    'updated_at' => Carbon::now()
-                                ]);
-                
-            }
-            $producto = Producto::find($data->id);
-            if(!$producto->imagen){
-                $producto->imagen = $imagen;
-                $producto->save();
-
-                $p_i = ProductoImagene::where('producto_id', $data->id)->first();
-
-                $producto_imagen = ProductoImagene::find($p_i->id);
-                $producto_imagen->tipo = 'primaria';
-                $producto_imagen->save();
-            }
-        }
-
-        // Editar catalogo
-        if ($data->hasFile('catalogo')) {
-            $file = $data->file('catalogo');
-            $filename = str_random(20).'.'.$file->getClientOriginalExtension();
-            $path = 'catalogos/'.date('F').date('Y').'/'.$filename;
-            \Storage::disk('local')->put('public/'.$path,  \File::get($file));
+        // try {
 
             $query = DB::table('productos')
-                            ->where('id', $data->id)
-                            ->update([
-                                'catalogo' => $path
-                            ]);
-        }
-
-        // Guardar insumos (si existen)
-        if(isset($data->insumo_id)){
-            DB::table('productos_insumos')
-                    ->where('producto_id', $data->id)->update(['deleted_at' => Carbon::now()]);
-            for ($i=0; $i < count($data->insumo_id); $i++) {
-                DB::table('productos_insumos')
-                        ->insert([
-                            'producto_id' => $data->id,
-                            'insumo_id' => $data->insumo_id[$i],
-                            'cantidad' => $data->cantidad_insumo[$i],
-                            'created_at' => Carbon::now(),
+                        ->where('id', $data->id)
+                        ->update([
+                            'codigo_interno' => $data->codigo_interno,
+                            'nombre' => $data->nombre,
+                            'descripcion_small' => $data->descripcion_small,
+                            'descripcion_long' => $data->descripcion_long,
+                            'estante' => $data->estante,
+                            'bloque' => $data->bloque,
+                            'garantia' => $data->garantia,
+                            'precio_venta' => $precio_venta,
+                            'precio_minimo' => $precio_minimo,
+                            // 'stock' => $data->stock,
+                            'stock_minimo' => $data->stock_minimo,
+                            'subcategoria_id' => $data->subcategoria_id,
+                            'marca_id' => $data->marca_id,
+                            'talla_id' => $data->talla_id,
+                            'color_id' => $data->color_id,
+                            'genero_id' => $data->genero_id,
+                            'unidad_id' => $data->unidad_id,
+                            'uso_id' => $data->uso_id,
+                            'moneda_id' => $data->moneda_id,
+                            'modelo' => $data->modelo,
+                            'nuevo' => $nuevo,
+                            'se_almacena' => $se_almacena,
+                            // 'created_at' => Carbon::now(),
                             'updated_at' => Carbon::now()
                         ]);
-            }
-        }
 
-        if($query){
-            return redirect()->route('productos_index')->with(['message' => 'Producto editado exitosamenete.', 'alert-type' => 'success']);
-        }else{
-            return redirect()->route('productos_index')->with(['message' => 'Ocurrio un problema al editar el producto.', 'alert-type' => 'error']);
-        }
+            // Guardar precios de venta (si existen)    
+            if(isset($data->precio_venta)){
+                DB::table('producto_unidades')
+                        ->where('producto_id', $data->id)->update(['deleted_at' => Carbon::now()]);
+                for ($i=0; $i < count($data->precio_venta); $i++) {
+                    $query = DB::table('producto_unidades')
+                                    ->insert([
+                                        'unidad_id' => $data->unidad_id,
+                                        'producto_id' => $data->id,
+                                        'precio' => $data->precio_venta[$i],
+                                        'precio_minimo' => $data->precio_minimo[$i],
+                                        'cantidad_minima' => $data->cantidad_minima_venta[$i],
+                                        'cantidad_pieza' => 1,
+                                        'created_at' => Carbon::now(),
+                                        'updated_at' => Carbon::now()
+                                    ]);
+                }
+            }
+
+            // Guardar precios de compra (si existen)
+            if(isset($data->monto)){
+                DB::table('precios_compras')
+                        ->where('producto_id', $data->id)->update(['deleted_at' => Carbon::now()]);
+                for ($i=0; $i < count($data->monto); $i++) {
+                    $query = DB::table('precios_compras')
+                                    ->insert([
+                                        'producto_id' => $data->id,
+                                        'monto' => $data->monto[$i],
+                                        'cantidad_minima' => $data->cantidad_minima_compra[$i],
+                                        'created_at' => Carbon::now(),
+                                        'updated_at' => Carbon::now()
+                                    ]);
+                }
+            }
+
+            // guardar imagen si se agregó
+            if($data->file('imagen')!=NULL){
+                for ($i=0; $i < count($data->file('imagen')); $i++) {
+                    $imagen = $this->agregar_imagenes($data->file('imagen')[$i]);
+                    DB::table('producto_imagenes')
+                            ->insert([
+                                        'producto_id' => $data->id,
+                                        'imagen' => $imagen,
+                                        'tipo' => 'secundaria',
+                                        'created_at' => Carbon::now(),
+                                        'updated_at' => Carbon::now()
+                                    ]);
+                    
+                }
+                $producto = Producto::find($data->id);
+                if(!$producto->imagen){
+                    $producto->imagen = $imagen;
+                    $producto->save();
+
+                    $p_i = ProductoImagene::where('producto_id', $data->id)->first();
+
+                    $producto_imagen = ProductoImagene::find($p_i->id);
+                    $producto_imagen->tipo = 'primaria';
+                    $producto_imagen->save();
+                }
+            }
+
+            // Editar catalogo
+            if ($data->hasFile('catalogo')) {
+                $file = $data->file('catalogo');
+                $filename = str_random(20).'.'.$file->getClientOriginalExtension();
+                $path = 'catalogos/'.date('F').date('Y').'/'.$filename;
+                \Storage::disk('local')->put('public/'.$path,  \File::get($file));
+
+                $query = DB::table('productos')
+                                ->where('id', $data->id)
+                                ->update([
+                                    'catalogo' => $path
+                                ]);
+            }
+
+            // Guardar insumos (si existen)
+            if(isset($data->insumo_id)){
+                DB::table('productos_insumos')
+                        ->where('producto_id', $data->id)->update(['deleted_at' => Carbon::now()]);
+                for ($i=0; $i < count($data->insumo_id); $i++) {
+                    DB::table('productos_insumos')
+                            ->insert([
+                                'producto_id' => $data->id,
+                                'insumo_id' => $data->insumo_id[$i],
+                                'cantidad' => $data->cantidad_insumo[$i],
+                                'created_at' => Carbon::now(),
+                                'updated_at' => Carbon::now()
+                            ]);
+                }
+            }
+
+            if($query){
+                return redirect()->route('productos_index')->with(['message' => 'Producto editado exitosamenete.', 'alert-type' => 'success']);
+            }else{
+                return redirect()->route('productos_index')->with(['message' => 'Ocurrio un problema al editar el producto.', 'alert-type' => 'error']);
+            }
+
+        //     DB::commit();
+
+        // } catch (\Exception $e) {
+        //     DB::rollback();
+        //     return redirect()->route('productos_index')->with(['message' => 'Ocurrio un problema al editar el producto.', 'alert-type' => 'error']);
+        // }
+
     }
 
     function ofertas_index(){
@@ -988,51 +1037,10 @@ class ProductosController extends Controller
                     ->avg('puntos');
     }
 
-    // public function get_productos_venta($sucursal_actual){
-    //     // Obetener productos que no se almacenan en depositos
-    //     $productos = collect();
-    //     $aux = DB::table('productos as p')
-    //                         ->select('p.*')
-    //                         ->where('p.deleted_at', NULL)
-    //                         ->where('p.se_almacena', NULL)
-    //                         ->get();
-    //     foreach ($aux as $item) {
-    //         $productos->push($item);
-    //     }
-
-    //     // Obetener productos que se almacenan en deposito
-    //     $aux = DB::table('productos as p')
-    //                         ->join('productos_depositos as pd', 'pd.producto_id', 'p.id')
-    //                         ->join('depositos as d', 'd.id', 'pd.deposito_id')
-    //                         ->select('p.*', 'd.sucursal_id')
-    //                         ->where('p.deleted_at', NULL)
-    //                         ->where('p.se_almacena', '<>', NULL)
-    //                         ->where('d.sucursal_id', $sucursal_actual)
-    //                         ->get();
-    //     foreach ($aux as $item) {
-    //         $productos->push($item);
-    //     }
-
-    //     for ($i=0; $i < count($productos); $i++) {
-    //         $precio_venta = $productos[$i]->precio_venta;
-    //         // Obtener si el producto está en oferta
-    //         $oferta = (new Ofertas)->obtener_oferta($productos[$i]->id);
-    //         if($oferta){
-    //             if($oferta->tipo_descuento=='porcentaje'){
-    //                 $precio_venta -= ($precio_venta*($oferta->monto/100));
-    //             }else{
-    //                 $precio_venta -= $oferta->monto;
-    //             }
-    //         }
-    //         $productos[$i]->precio_venta = $precio_venta;
-    //     }
-
-    //     return $productos;
-    // }
-
     // Filtros
     public function filtro_simple($filtro, $categoria, $subcategoria, $marca, $talla, $genero, $color){
 
+        // dd($filtro);
         $filtro_categoria = ($categoria != 'all') ? " s.categoria_id = $categoria " : ' 1 ';
         $filtro_subcategoria = ($subcategoria != 'all') ? " and  p.subcategoria_id = $subcategoria " : ' and 1';
         $filtro_marca = ($marca != 'all') ? " and p.marca_id = $marca " : ' and 1';
@@ -1042,21 +1050,25 @@ class ProductosController extends Controller
 
         if($filtro == 'all'){
             return DB::table('productos as p')
-                            ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
-                            ->join('categorias as c', 'c.id', 's.categoria_id')
                             ->join('marcas as m', 'm.id', 'p.marca_id')
-                            // ->select('p.id', 'p.nombre')
-                            ->select("p.*", "s.nombre as subcategoria")
+                            ->join('tallas as t', 't.id', 'p.talla_id')
+                            ->join('colores as c', 'c.id', 'p.color_id')
+                            ->join('generos as g', 'g.id', 'p.genero_id')
+                            ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                            ->join('monedas as mo', 'mo.id', 'p.moneda_id')
+                            ->select('p.id','p.codigo_interno', 'p.codigo', 'p.nombre', 'p.imagen', 'p.precio_venta','p.descripcion_small', 'm.nombre as marca', 't.nombre as talla', 'g.nombre as genero', 's.nombre as subcategoria', 'c.nombre as color', 'mo.abreviacion as moneda')
                             ->whereRaw($filtro_categoria.$filtro_subcategoria.$filtro_marca.$filtro_talla.$filtro_genero.$filtro_color)
                             ->where('p.deleted_at', NULL)
                             ->get();
         }else{
             return DB::table('productos as p')
-                            ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
-                            ->join('categorias as c', 'c.id', 's.categoria_id')
                             ->join('marcas as m', 'm.id', 'p.marca_id')
-                            // ->select('p.id', 'p.nombre')
-                            ->select("p.*", "s.nombre as subcategoria")
+                            ->join('tallas as t', 't.id', 'p.talla_id')
+                            ->join('colores as c', 'c.id', 'p.color_id')
+                            ->join('generos as g', 'g.id', 'p.genero_id')
+                            ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                            ->join('monedas as mo', 'mo.id', 'p.moneda_id')
+                            ->select('p.id', 'p.codigo_interno', 'p.codigo', 'p.nombre', 'p.imagen', 'p.precio_venta','p.descripcion_small', 'm.nombre as marca', 't.nombre as talla', 'g.nombre as genero', 's.nombre as subcategoria', 'c.nombre as color', 'mo.abreviacion as moneda')
                             ->whereRaw($filtro_categoria.$filtro_subcategoria.$filtro_marca.$filtro_talla.$filtro_genero.$filtro_color)
                             ->where('p.deleted_at', NULL)
                             ->whereNotIn('p.id', function($q) use($filtro){
@@ -1067,10 +1079,12 @@ class ProductosController extends Controller
     }
 
     public function subcategorias_list($categoria_id){
-        return DB::table('subcategorias')
-                        ->select('*')
-                        ->where('deleted_at', NULL)
-                        ->where('categoria_id', $categoria_id)
+        return DB::table('subcategorias as s')
+                        ->join('productos as p', 'p.subcategoria_id', 's.id')
+                        ->select('s.*')
+                        ->where('s.deleted_at', NULL)
+                        ->where('s.categoria_id', $categoria_id)
+                        ->distinct()
                         ->get();
     }
 
@@ -1134,5 +1148,14 @@ class ProductosController extends Controller
                 # code...
                 break;
         }
+    }
+
+    public function ultimo_codigo_interno($id){
+        $result = DB::table('productos as p')
+                    ->select('p.codigo_interno')
+                    ->where('p.subcategoria_id', $id)
+                    ->orderBy('p.codigo_interno', 'DESC')
+                    ->first();
+        return response()->json($result);
     }
 }

@@ -177,7 +177,7 @@ async function obtener_lista(tipo, url, destino){
     });
 }
 
-function filtro(url){
+function filtro(url, modo_sistema){
     let categoria = $('#select-categoria_id').val() ? $('#select-categoria_id').val() : 'all';
     let subcategoria = $('#select-subcategoria_id').val() ? $('#select-subcategoria_id').val() : 'all';
     let marca = $('#select-marca_id').val() ? $('#select-marca_id').val() : 'all';
@@ -195,17 +195,28 @@ function filtro(url){
         type: 'get',
         success: function(response){
             // console.log(response)
-            // select2_reload_simple('producto_id', response, 'Todos los productos');
             $('#select-producto_id').select2('destroy');
             let datos = `<option selected disabled value="">Seleccione una opción</option>`;
             if(response.length>0){
                 response.forEach(item => {
                     let imagen = item.imagen ? '../../storage/'+item.imagen : '../../storage/productos/default.png';
+                    let nombre = '';
+                    if(modo_sistema != 'restaurante'){
+                        nombre = item.codigo_interno ? '# '+item.codigo_interno+' - ' : item.codigo+' - ';
+                    }
+                    nombre += item.nombre
+
                     datos += `<option value="${item.id}"
                                     data-imagen="${imagen}"
                                     data-categoria="${item.subcategoria}"
+                                    data-marca="${item.marca}"
+                                    data-talla="${item.talla}"
+                                    data-color="${item.color}"
+                                    data-precio="${item.moneda} ${item.precio_venta}"
                                     data-detalle="${item.descripcion_small}"
-                                >${item.nombre}</option>`;
+                                >
+                                ${nombre}
+                                </option>`;
                 });
             }
             $('#select-producto_id').html(datos);

@@ -181,10 +181,27 @@
                                     <div class="row">
                                         <div class="col-md-4">
                                             <label for="">Producto</label>  @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Producto que se va agregar a la campaña. Este campo es obligatorio."></span> @endif
-                                            <select class="form-control select2" id="select-producto_id">
+                                            <select class="form-control" id="select-producto_id">
                                                 <option value="">Todos</option>
-                                                @foreach($productos as $item)
-                                                <option value="{{$item->id}}">{{$item->subcategoria}} - {{$item->nombre}}</option>
+                                                @foreach ($productos as $item)
+                                                    @php
+                                                        $imagen = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
+                                                    @endphp
+                                                    <option value="{{ $item->id }}"
+                                                            data-imagen="{{ url('storage').'/'.$imagen }}"
+                                                            data-categoria="{{ $item->subcategoria }}"
+                                                            data-marca="{{ $item->marca }}"
+                                                            data-precio="{{ $item->moneda }} {{ $item->precio_venta }}"
+                                                            data-detalle="{{ $item->descripcion_small }}">
+                                                        @if(setting('admin.modo_sistema') != 'restaurante')
+                                                            @if($item->codigo_interno)
+                                                            #{{ $item->codigo_interno }}
+                                                            @else
+                                                            {{ $item->codigo }} - 
+                                                            @endif 
+                                                        @endif
+                                                        {{ $item->nombre }}
+                                                    </option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -245,10 +262,12 @@
         <script src="{{url('image-preview/image-preview.js')}}"></script>
         <script src="{{url('js/loginweb.js')}}"></script>
         <script src="{{url('js/inventarios/productos.js')}}"></script>
+        <script src="{{ asset('js/rich_select.js') }}"></script>
         <script>
             $(document).ready(function(){
                 $('[data-toggle="popover"]').popover({ html : true });
                 $('[data-toggle="tooltip"]').tooltip();
+                rich_select('select-producto_id');
 
                 @error('producto_id')
                 toastr.error('Debe agregar al menos 1 producto a la lista.', 'Error');
@@ -275,7 +294,7 @@
                         obtener_lista(tipo, '{{url("admin/productos/list")}}', destino);
                     }
                     
-                    filtro('{{url("admin/ofertas/filtros/filtro_simple/ofertas_detalles")}}');
+                    filtro('{{url("admin/ofertas/filtros/filtro_simple/ofertas_detalles")}}', '{{ setting('admin.modo_sistema') }}');
                 });
 
                 // Cambiar duración de oferta
