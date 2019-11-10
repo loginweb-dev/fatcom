@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
+use App\Deposito;
+use App\ProductosDeposito;
+
 use App\Http\Controllers\ProductosController as Productos;
 
 class DepositosController extends Controller
@@ -71,51 +74,51 @@ class DepositosController extends Controller
     }
 
     public function view($id){
+        $deposito = Deposito::find($id);
         $registros = DB::table('productos as p')
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
                             ->join('productos_depositos as d', 'd.producto_id', 'p.id')
                             ->select('p.*', 's.nombre as subcategoria', 'd.stock as cantidad')
-                            // ->where('deleted_at', NULL)
+                            ->where('p.deleted_at', NULL)
                             ->where('d.deposito_id', $id)
-                            // ->where('d.stock', '>', 0)
+                            ->where('d.stock', '>', 0)
                             ->orderBy('p.id', 'DESC')
                             ->paginate(20);
-        $imagenes = [];
-        $precios = [];
-        if(count($registros)>0){
-            // Obtener imagenes del producto
-            foreach ($registros as $item) {
-                $producto_imagen = DB::table('producto_imagenes')
-                            ->select('imagen')
-                            ->where('producto_id', $item->id)
-                            ->where('tipo', 'principal')
-                            ->first();
-                if($producto_imagen){
-                    $imagen = $producto_imagen->imagen;
-                }else{
-                    $imagen = '';
-                }
-                array_push($imagenes, ['nombre' => $imagen]);
-            }
 
-            // Obtener precios del producto
-            foreach ($registros as $item) {
-                $producto_unidades = DB::table('producto_unidades as p')
-                                        ->join('unidades as u', 'u.id', 'p.unidad_id')
-                                        ->select('p.*', 'u.nombre as unidad')
-                                        ->where('producto_id', $item->id)
-                                        ->first();
-                if($producto_unidades){
-                    $precio = ['precio' => $producto_unidades->precio, 'unidad' => $producto_unidades->unidad];
-                }else{
-                    $precio = ['precio' => 0, 'unidad' => 'No definida'];
-                }
-                array_push($precios, $precio);
-            }
-        }
-
+        $productos = DB::table('productos as p')
+                            ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                            ->join('categorias as ca', 'ca.id', 's.categoria_id')
+                            ->join('marcas as m', 'm.id', 'p.marca_id')
+                            ->join('tallas as t', 't.id', 'p.talla_id')
+                            ->join('colores as c', 'c.id', 'p.color_id')
+                            ->join('generos as g', 'g.id', 'p.genero_id')
+                            ->join('monedas as mo', 'mo.id', 'p.moneda_id')
+                            ->select(   'p.id',
+                                        'p.codigo_interno',
+                                        'p.codigo',
+                                        'p.nombre',
+                                        'p.imagen',
+                                        'p.precio_venta',
+                                        'p.precio_minimo',
+                                        'p.stock',
+                                        'p.descripcion_small',
+                                        'p.se_almacena',
+                                        'm.nombre as marca',
+                                        't.nombre as talla',
+                                        'g.nombre as genero',
+                                        's.nombre as subcategoria',
+                                        'ca.nombre as categoria',
+                                        'c.nombre as color',
+                                        'mo.abreviacion as moneda'
+                                    )
+                            ->whereNotIn('p.id', function($q)use($id){
+                                $q->select('producto_id')->from('productos_depositos as pd')
+                                ->where('deposito_id', $id)->where('deleted_at', null);
+                            })
+                            // ->where('p.se_almacena', NULL)
+                            ->where('p.deleted_at', NULL)->get();
         $value = '';
-        return view('inventarios/depositos/depositos_view', compact('id', 'registros', 'value', 'imagenes', 'precios'));
+        return view('inventarios/depositos/depositos_view', compact('id', 'deposito', 'registros', 'value', 'productos'));
     }
 
     public function view_search($id, $value){
@@ -124,48 +127,49 @@ class DepositosController extends Controller
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
                             ->join('productos_depositos as d', 'd.producto_id', 'p.id')
                             ->select('p.*', 's.nombre as subcategoria', 'd.stock as cantidad')
-                            // ->where('deleted_at', NULL)
+                            ->where('p.deleted_at', NULL)
                             ->whereRaw("d.deposito_id = $id and d.stock > 0 and
                                             (   p.codigo like '%".$value."%' or
                                                 p.nombre like '%".$value."%' or
                                                 s.nombre like '%".$value."%')
                                         ")
                             ->paginate(10);
-        $imagenes = [];
-        $precios = [];
-        if(count($registros)>0){
-            // Obtener imagenes del producto
-            foreach ($registros as $item) {
-                $producto_imagen = DB::table('producto_imagenes')
-                            ->select('imagen')
-                            ->where('producto_id', $item->id)
-                            ->where('tipo', 'principal')
-                            ->first();
-                if($producto_imagen){
-                    $imagen = $producto_imagen->imagen;
-                }else{
-                    $imagen = '';
-                }
-                array_push($imagenes, ['nombre' => $imagen]);
-            }
 
-            // Obtener precios del producto
-            foreach ($registros as $item) {
-                $producto_unidades = DB::table('producto_unidades as p')
-                                        ->join('unidades as u', 'u.id', 'p.unidad_id')
-                                        ->select('p.*', 'u.nombre as unidad')
-                                        ->where('producto_id', $item->id)
-                                        ->first();
-                if($producto_unidades){
-                    $precio = ['precio' => $producto_unidades->precio, 'unidad' => $producto_unidades->unidad];
-                }else{
-                    $precio = ['precio' => 0, 'unidad' => 'No definida'];
-                }
-                array_push($precios, $precio);
-            }
-        }
+        $productos = DB::table('productos as p')
+                            ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                            ->join('categorias as ca', 'ca.id', 's.categoria_id')
+                            ->join('marcas as m', 'm.id', 'p.marca_id')
+                            ->join('tallas as t', 't.id', 'p.talla_id')
+                            ->join('colores as c', 'c.id', 'p.color_id')
+                            ->join('generos as g', 'g.id', 'p.genero_id')
+                            ->join('monedas as mo', 'mo.id', 'p.moneda_id')
+                            ->select(   'p.id',
+                                        'p.codigo_interno',
+                                        'p.codigo',
+                                        'p.nombre',
+                                        'p.imagen',
+                                        'p.precio_venta',
+                                        'p.precio_minimo',
+                                        'p.stock',
+                                        'p.descripcion_small',
+                                        'p.se_almacena',
+                                        'm.nombre as marca',
+                                        't.nombre as talla',
+                                        'g.nombre as genero',
+                                        's.nombre as subcategoria',
+                                        'ca.nombre as categoria',
+                                        'c.nombre as color',
+                                        'mo.abreviacion as moneda'
+                                    )
+                            ->whereNotIn('p.id', function($q)use($id){
+                                $q->select('producto_id')->from('productos_depositos as pd')
+                                ->where('deposito_id', $id)->where('deleted_at', null);
+                            })
+                            // ->where('p.se_almacena', NULL)
+                            ->where('p.deleted_at', NULL)->get();
+        $depositos = Deposito::all()->where('deleted_at', null);
 
-        return view('inventarios/depositos/depositos_view', compact('id', 'registros', 'value', 'imagenes', 'precios'));
+        return view('inventarios/depositos/depositos_view', compact('id', 'registros', 'value', 'productos', 'depositos'));
     }
 
     public function create(){
@@ -283,11 +287,17 @@ class DepositosController extends Controller
                             ->get();
 
         switch (setting('admin.modo_sistema')) {
+            case 'repuestos':
+                return view('inventarios/depositos/repuestos/depositos_create_producto', compact('codigo_grupo', 'deposito_id', 'categorias', 'subcategorias', 'marcas', 'unidades'));
+                break;
             case 'boutique':
-                return view('inventarios/depositos/boutique/depositos_create_producto', compact('codigo_grupo', 'deposito_id', 'categorias', 'subcategorias', 'insumos', 'marcas', 'tallas', 'colores', 'generos', 'usos', 'unidades'));
+                return view('inventarios/depositos/boutique/depositos_create_producto', compact('codigo_grupo', 'deposito_id', 'categorias', 'subcategorias', 'marcas', 'tallas', 'colores', 'generos', 'usos', 'unidades'));
                 break;
             case 'electronica_computacion':
-            return view('inventarios/depositos/electronica_computacion/depositos_create_producto', compact('codigo_grupo', 'deposito_id', 'subcategorias', 'marcas', 'monedas'));
+                return view('inventarios/depositos/electronica_computacion/depositos_create_producto', compact('codigo_grupo', 'deposito_id', 'subcategorias', 'marcas', 'monedas'));
+                break;
+            case 'restaurante':
+                return view('inventarios/depositos/restaurante/depositos_create_producto', compact('codigo_grupo', 'deposito_id', 'categorias', 'subcategorias', 'insumos'));
                 break;
             default:
                 # code...
@@ -296,81 +306,53 @@ class DepositosController extends Controller
     }
 
     public function store_producto(Request $data){
-        $producto = (new Productos)->crear_producto($data);
-        if($producto){
+        if(isset($data->producto_id)){
+            // Por seguridad anular todos los registros en la tabla productos_depositos del producto y deposito seleccionado
             DB::table('productos_depositos')
-                    ->insert([
-                        'producto_id' => $producto,
-                        'deposito_id' => $data->deposito_id,
-                        'stock' => $data->stock,
-                        'stock_inicial' => $data->stock,
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now()
-                    ]);
-            $response = 1;
+                    ->where('deposito_id', $data->deposito_id)->where('producto_id', $data->producto_id)
+                    ->update(['deleted_at' => Carbon::now()]);
+ 
+            ProductosDeposito::create([
+                'deposito_id' => $data->deposito_id,
+                'producto_id' => $data->producto_id,
+                'stock' => $data->stock,
+                'stock_inicial' => $data->stock,
+                'stock_compra' => 0
+            ]);
+
+            // Editar datos del producto
+            DB::table('productos')
+                    ->where('id', $data->producto_id)
+                    ->update(['se_almacena' => 1]);
+            // Incrementar stock total del producto
+            if($data->stock > 0){
+                DB::table('productos')->where('id', $data->producto_id)->increment('stock', $data->stock);
+            }
+
+            return redirect()->route('depositos_view', ['id' => $data->deposito_id])->with(['message' => 'Producto registrado guardado exitosamenete.', 'alert-type' => 'success']);
         }else{
-            $response = 0;
-        }
+            $producto = (new Productos)->crear_producto($data);
+            if($producto){
+                ProductosDeposito::create([
+                    'deposito_id' => $data->deposito_id,
+                    'producto_id' => $producto,
+                    'stock' => $data->stock,
+                    'stock_inicial' => $data->stock,
+                    'stock_compra' => 0
+                ]);
+                $response = 1;
+            }else{
+                $response = 0;
+            }
 
-        $subcategorias = DB::table('subcategorias')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
-                            ->get();
-        $marcas = DB::table('marcas')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
-                            ->get();
-        $tallas = DB::table('tallas')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
-                            ->get();
-        $colores = DB::table('colores')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
-                            ->get();
-        $generos = DB::table('generos')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
-                            ->get();
-        $usos = DB::table('usos')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
-                            ->get();
-        $unidades = DB::table('unidades')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
-                            ->get();
-        $monedas = DB::table('monedas')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
-                            ->get();
-
-        $reload = 0;
-        $nuevo_grupo = 0;
-        if(isset($data->clear)){
-            $reload = $data->clear;
-            $nuevo_grupo = (new Productos)->ultimo_producto()+1;
-        }
-        
-
-        switch (setting('admin.modo_sistema')) {
-            case 'boutique':
-                return response()->json(['success' => $response, 'nuevo_grupo' => $nuevo_grupo, 'reload' => $reload]);
-                break;
-            case 'electronica_computacion':
-                return response()->json(['success' => $response, 'nuevo_grupo' => $nuevo_grupo, 'subcategorias' => $subcategorias, 'marcas' =>$marcas, 'reload' => $reload]);
-                break;
-            default:
-                # code...
-                break;
+            $reload = 0;
+            $nuevo_grupo = 0;
+            if(isset($data->clear)){
+                $reload = $data->clear;
+                $nuevo_grupo = (new Productos)->ultimo_producto()+1;
+            }
+            
+            return response()->json(['success' => $response, 'nuevo_grupo' => $nuevo_grupo, 'reload' => $reload]);
         }
     }
 }

@@ -32,7 +32,7 @@ $(function(){
                 existe = true;
             }
         });
-        if(!existe){
+        if(!existe && insumo_id){
             if(insumo_id!=''){
                 let insumo = $('#select-insumo_id option:selected').text();
                 let unidad_insumo = $('#select-insumo_id option:selected').data('unidad');
@@ -49,7 +49,7 @@ $(function(){
                 toastr.info('Insumo agregado correctamente', 'Bien hecho!');
             }
         }else{
-            toastr.warning('El insumo ya se encuentra agregado', 'Advertencia');
+            toastr.warning('Insumo no seleccionado o ya se encuentra agregado', 'Advertencia');
         }
     });
 
@@ -122,6 +122,7 @@ function add_precio_venta(indice_venta){
                                         <input type="number" min="1" step="0.1" class="form-control" name="precio_venta[]" required>
                                         <input type="hidden" name="precio_minimo[]" value="0">
                                     </td>
+                                    <td><input type="number" min="1" step="1" class="form-control" name="precio_minimo[]" required></td>
                                     <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_venta[]" required></td>
                                     <td style="padding-top:15px"><span onclick="borrarTr(${indice_venta}, 'Venta')" class="voyager-x text-danger" title="Quitar"></span></td>
                                 </tr>`);
@@ -190,6 +191,16 @@ function filtro(url, modo_sistema){
         subcategoria = 'all';
     }
 
+    $('#div-carga').html(` <div id="load-bar-venta">
+                                <div class="progress" style="height: 5px;">
+                                    <div class="progress-bar" style="background-color:#096FA9" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>`);
+    setTimeout(()=>{
+        $('#load-bar-venta').css('display', 'block');
+        $('#load-bar-venta .progress-bar').css('width', '99%');
+    }, 50);
+
     $.ajax({
         url: url+'/'+categoria+'/'+subcategoria+'/'+marca+'/'+talla+'/'+genero+'/'+color,
         type: 'get',
@@ -202,23 +213,27 @@ function filtro(url, modo_sistema){
                     let imagen = item.imagen ? '../../storage/'+item.imagen : '../../storage/productos/default.png';
                     let nombre = '';
                     if(modo_sistema != 'restaurante'){
-                        nombre = item.codigo_interno ? '# '+item.codigo_interno+' - ' : item.codigo+' - ';
+                        nombre = item.codigo_interno ? '#'+item.codigo_interno.toString().padStart(2, "0")+' - ' : item.codigo+' - ';
                     }
                     nombre += item.nombre
 
                     datos += `<option value="${item.id}"
                                     data-imagen="${imagen}"
-                                    data-categoria="${item.subcategoria}"
+                                    data-categoria="${item.categoria}"
+                                    data-subcategoria="${item.subcategoria}"
                                     data-marca="${item.marca}"
                                     data-talla="${item.talla}"
                                     data-color="${item.color}"
+                                    data-genero="${item.genero}"
                                     data-precio="${item.moneda} ${item.precio_venta}"
-                                    data-detalle="${item.descripcion_small}"
+                                    data-precio_minimo="${item.moneda} ${item.precio_minimo}"
+                                    data-detalle="${item.descripcion_small ? item.descripcion_small : ''}"
                                 >
                                 ${nombre}
                                 </option>`;
                 });
             }
+            $('#div-carga').html(`<h5>${response.length} reultado(s)</h5>`)
             $('#select-producto_id').html(datos);
             rich_select('select-producto_id');
         }

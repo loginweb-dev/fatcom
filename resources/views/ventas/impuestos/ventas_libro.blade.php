@@ -64,6 +64,7 @@
         <script>
             $(document).ready(function(){
                 $('#form-search').on('submit', function(e){
+                    $('#detalle').html(`<div class="text-center"><br><img src="{{voyager_asset('images/load.gif')}}" width="50px" alt=""></div>`)
                     e.preventDefault();
                     let datos = $(this).serialize();
                     $.ajax({

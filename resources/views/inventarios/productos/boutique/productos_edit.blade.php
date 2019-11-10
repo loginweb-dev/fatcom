@@ -46,8 +46,8 @@
                                                     <input type="text" name="codigo_interno" class="form-control" value="{{$producto->codigo_interno}}" placeholder="Código interno">
                                                 </div>
                                                 <div class="form-group col-md-6">
-                                                    <label for="">Stock</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad de productos en stock. Este campo es obligatorio."></span> @endif
-                                                    <input type="number" name="stock" class="form-control" readonly value="{{$producto->stock}}" min="0" step="1" required>
+                                                    <label for="">Stock mínimo</label> @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad de productos en stock. Este campo es obligatorio."></span> @endif
+                                                    <input type="number" name="stock_minimo" class="form-control" value="{{$producto->stock_minimo}}" min="0" step="1">
                                                 </div>
                                             </div>
                                             <div class="row">
@@ -134,15 +134,6 @@
                                                     <input type="text" name="bloque" maxlength="20" class="form-control" value="{{$producto->bloque}}" placeholder="Bloque 1">
                                                 </div>
                                             </div>
-                                            <div class="row">
-                                                <div class="form-group col-md-12">
-                                                    <label for="" id="label-descripcion"></label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Descripción breve del producto, no debe exceder los 255 caracteres. Este campo es obligatorio."></span> @endif
-                                                    <textarea name="descripcion_small" class="form-control" id="text-descripcion" maxlength="255" rows="2" placeholder="Descripción corta del producto" required>{{$producto->descripcion_small}}</textarea>
-                                                    @error('descripcion_small')
-                                                    <strong class="text-danger">{{ $message }}</strong>
-                                                    @enderror
-                                                </div>
-                                            </div>
                                         </div>
                                         <div class="col-md-6">
                                             <article class="gallery-wrap">
@@ -183,14 +174,25 @@
                                                     @endforeach
                                                 </div>
                                             </article>
-                                            <div class="col-md-12" style="">
-                                                <div class="img-small-wrap" style="height:120px;overflow-y:auto;border:3px solid #096FA9;padding:5px">
-                                                    <div class="item-gallery" id="img-preview">
-                                                        <button type="button" class="btn" title="Agregar imagen(es)" onclick="add_img()">
-                                                            <h1 style="font-size:50px;margin:10px"><span class="voyager-plus"></span></h1>
-                                                        </button>
+                                            <div class="row">
+                                                <div class="col-md-12" style="">
+                                                    <div class="img-small-wrap" style="height:120px;overflow-y:auto;border:3px solid #096FA9;padding:5px">
+                                                        <div class="item-gallery" id="img-preview">
+                                                            <button type="button" class="btn" title="Agregar imagen(es)" onclick="add_img()">
+                                                                <h1 style="font-size:50px;margin:10px"><span class="voyager-plus"></span></h1>
+                                                            </button>
+                                                        </div>
+                                                        <input type="file" name="imagen[]" style="display:none" accept="image/png, image/jpeg" multiple id="gallery-photo-add">
                                                     </div>
-                                                    <input type="file" name="imagen[]" style="display:none" accept="image/png, image/jpeg" multiple id="gallery-photo-add">
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="form-group col-md-12">
+                                                    <label for="" id="label-descripcion"></label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Descripción breve del producto, no debe exceder los 255 caracteres. Este campo es obligatorio."></span> @endif
+                                                    <textarea name="descripcion_small" class="form-control" id="text-descripcion" maxlength="255" rows="2" placeholder="Descripción corta del producto" required>{{$producto->descripcion_small}}</textarea>
+                                                    @error('descripcion_small')
+                                                    <strong class="text-danger">{{ $message }}</strong>
+                                                    @enderror
                                                 </div>
                                             </div>
                                         </div>
@@ -377,19 +379,6 @@
                     e.preventDefault();
                     let datos = $(this).serialize();
                     delete_imagen("{{route('delete_imagen')}}", datos);
-                });
-
-                $('#select-categoria_id').change(function(){
-                    let id = $(this).val();
-                    if(!isNaN(id)){
-                        $.ajax({
-                            url: '{{url("admin/productos/list/subcategorias")}}/'+id,
-                            type: 'get',
-                            success: function(response){
-                                select2_reload_simple('subcategoria_id', response, false, '');
-                            }
-                        });
-                    }
                 });
 
                 // agregar precios

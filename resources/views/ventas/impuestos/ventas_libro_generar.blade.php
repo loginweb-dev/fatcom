@@ -8,7 +8,7 @@
                     <a href="{{url('admin/ventas/formulario/400/pdf/'.$mes.'/'.$anio)}}" target="_blank" class="btn btn-warning">Formulario 400</a>
                     <a href="{{url('admin/ventas/formulario/200/pdf/'.$mes.'/'.$anio)}}" target="_blank" class="btn btn-info">Formulario 200</a>
                     <a href="{{url('admin/ventas/libro/generar/pdf/'.$mes.'/'.$anio)}}" target="_blank" class="btn btn-danger">PDF</a>
-                    {{-- <a href="{{url('admin/ventas/libro/generar/excel/'.$mes.'/'.$anio)}}" class="btn btn-success">Excel</a> --}}
+                    <a href="{{url('admin/ventas/libro/generar/excel/'.$mes.'/'.$anio)}}" class="btn btn-success">Excel</a>
                 </div><br>
                 @endif
                 <div class="table-responsive">

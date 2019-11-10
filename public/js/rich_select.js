@@ -10,6 +10,7 @@ function rich_select(id){
                 return `Ingrese al menos ${data.minimum - data.input.length} caracteres`;
             }
         },
+        quietMillis: 250,
         minimumInputLength: 2,
         templateResult: formatResult,
         templateSelection: (opt) => opt.text
@@ -21,7 +22,7 @@ function formatResult (option) {
         return option.text;
     }
     let imagen = $(option.element).attr('data-imagen');
-    let categoria = $(option.element).attr('data-categoria') ? `<tr><td>Categoría : <i>${$(option.element).attr('data-categoria')}</i></td></tr>` : '';
+    let subcategoria = $(option.element).attr('data-subcategoria') ? `<tr><td>Subcategoría : <i>${$(option.element).attr('data-categoria')}</i></td></tr>` : '';
     let marca = $(option.element).attr('data-marca') !== 'default' ? `<tr><td>Marca : <i>${$(option.element).attr('data-marca')}</i></td></tr>` : '';
     let color = $(option.element).attr('data-color') !== 'default' ? `<tr><td>Color : <i>${$(option.element).attr('data-color')}</i></td></tr>` : '';
     let talla = $(option.element).attr('data-talla') !== 'default' ? `<tr><td>Talla : <i>${$(option.element).attr('data-talla')}</i></td></tr>` : '';
@@ -33,12 +34,12 @@ function formatResult (option) {
         return option.text;
     } else {                    
         return $option = $(`<span>
-                            <table>
+                            <table style="border-spacing: 5px;border-collapse: separate">
                                 <tr>
-                                    <td rowspan="7" style="width:150px"><img src="${imagen}" width="140px" /></td>
+                                    <td rowspan="7"><img src="${imagen}" height="120px" /></td>
                                     <td><b style="font-size:20px">${option.text}</b></td>
                                 </tr>
-                                ${categoria}${marca}${precio}${color}${talla}${detalle}
+                                ${subcategoria}${marca}${precio}${color}${talla}${detalle}
                             </table>
                         </span>`);
     }

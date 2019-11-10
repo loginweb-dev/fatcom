@@ -1,9 +1,9 @@
 @extends('voyager::master')
 @section('page_title', 'Editar Producto')
 
-@php
+{{-- @php
     $stock_edit = false;
-@endphp
+@endphp --}}
 
 @if(auth()->user()->hasPermission('edit_productos'))
     @section('page_header')
@@ -87,7 +87,7 @@
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="form-group col-md-6">
+                                                {{-- <div class="form-group col-md-6">
                                                     <label for="">Stock total</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad de productos en stock. Este campo es obligatorio."></span> @endif
                                                     <div class="input-group">
                                                         <input type="number" name="stock" readonly class="form-control" value="{{$producto->stock}}" min="0" step="1" required>
@@ -100,7 +100,7 @@
                                                     @error('stock')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
-                                                </div>
+                                                </div> --}}
                                                 <div class="form-group col-md-6">
                                                     <label for="">Stock mínimo</label> @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad mínima de productos en stock para mostrar notificación de escasez. Este campo no es obligatorio."></span> @endif
                                                     <input type="number" name="stock_minimo" class="form-control" value="{{$producto->stock_minimo}}" min="0" step="1">
@@ -108,21 +108,22 @@
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
                                                 </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="form-group col-md-6">
+                                                <div class="form-group col-md-3">
                                                     <label for="">Estante</label> @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Nombre o número del estante en el que se almacena el producto. Este campo no es obligatorio."></span> @endif
                                                     <input type="text" name="estante" maxlength="20" class="form-control" value="{{$producto->estante}}" placeholder="Estante A">
                                                 </div>
-                                                <div class="form-group col-md-6">
+                                                <div class="form-group col-md-3">
                                                     <label for="">Bloque</label> @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Número o letra de bloque del estante en el que se almacena el producto. Este campo no es obligatorio."></span> @endif
                                                     <input type="text" name="bloque" maxlength="20" class="form-control" value="{{$producto->bloque}}" placeholder="Bloque 1">
                                                 </div>
                                             </div>
+                                            {{-- <div class="row">
+                                                
+                                            </div> --}}
                                             <div class="row">
                                                 <div class="form-group col-md-12">
                                                     <label for="" id="label-descripcion"></label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Descripción breve del producto, no debe exceder los 255 caracteres. Este campo es obligatorio."></span> @endif
-                                                    <textarea name="descripcion_small" class="form-control" id="text-descripcion" maxlength="255" rows="2" placeholder="Descripción corta del producto" required>{{$producto->descripcion_small}}</textarea>
+                                                    <textarea name="descripcion_small" class="form-control" id="text-descripcion" maxlength="255" rows="5" placeholder="Descripción corta del producto" required>{{$producto->descripcion_small}}</textarea>
                                                     @error('descripcion_small')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
@@ -251,13 +252,14 @@
                                                 @if ($i==0)
                                                 <tr>
                                                     <td><input type="number" min="1" step="0.1" class="form-control" value="{{$precio_venta[$i]->precio}}" name="precio_venta[]" required></td>
-                                                    <td><input type="number" min="1" step="0.1" class="form-control" value="{{$precio_venta[$i]->precio_minimo}}" name="precio_minimo[]"></td>
+                                                    <td><input type="number" step="0.1" class="form-control" value="{{$precio_venta[$i]->precio_minimo}}" name="precio_minimo[]"></td>
                                                     <td><input type="number" min="1" step="1" class="form-control" value="{{$precio_venta[$i]->cantidad_minima}}" name="cantidad_minima_venta[]" required></td>
                                                     <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
                                                 </tr>
                                                 @else
                                                     <tr id="tr-precioVenta{{$indiceVenta}}">
                                                         <td><input type="number" min="1" step="0.1" class="form-control" value="{{$precio_venta[$i]->precio}}" name="precio_venta[]" required></td>
+                                                        <td><input type="number" step="0.1" class="form-control" value="{{$precio_venta[$i]->precio_minimo}}" name="precio_minimo[]"></td>
                                                         <td><input type="number" min="1" step="1" class="form-control" value="{{$precio_venta[$i]->cantidad_minima}}" name="cantidad_minima_venta[]" required></td>
                                                         <td style="padding-top:15px"><span onclick="borrarTr({{$indiceVenta}}, 'Venta')" class="voyager-x text-danger"></span></td>
                                                     </tr>
@@ -298,7 +300,7 @@
         @include('partials.modal_load')
         @include('inventarios.productos.partials.modales')
 
-        @if($stock_edit)
+        {{-- @if($stock_edit)
             <form action="{{ route('productos_update_stock') }}" method="POST" >
                 <div class="modal modal-danger fade" tabindex="-1" id="modal-edit_stock" role="dialog">
                     <div class="modal-dialog">
@@ -341,7 +343,7 @@
                     </div>
                 </div>
             </form>
-        @endif
+        @endif --}}
     @stop
 
     @section('css')
@@ -401,19 +403,6 @@
                     e.preventDefault();
                     let datos = $(this).serialize();
                     delete_imagen("{{route('delete_imagen')}}", datos);
-                });
-
-                $('#select-categoria_id').change(function(){
-                    let id = $(this).val();
-                    if(!isNaN(id)){
-                        $.ajax({
-                            url: '{{url("admin/productos/list/subcategorias")}}/'+id,
-                            type: 'get',
-                            success: function(response){
-                                select2_reload_simple('subcategoria_id', response, false, '');
-                            }
-                        });
-                    }
                 });
 
                 // agregar precios

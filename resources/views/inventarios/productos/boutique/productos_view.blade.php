@@ -7,7 +7,7 @@
             <i class="voyager-home"></i> Viendo Producto
         </h1>
         @if(auth()->user()->hasPermission('edit_productos'))
-        <a href="{{route('productos_edit', ['id' => $id, 'deposito_id' => $producto->deposito_id])}}" class="btn btn-primary btn-small">
+        <a href="{{route('productos_edit', ['id' => $id])}}" class="btn btn-primary btn-small">
             <i class="voyager-edit"></i> <span>Editar</span>
         </a>
         @endif
@@ -136,6 +136,39 @@
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <article class="gallery-wrap">
+                                        <div class="img-big-wrap" style="text-align:center">
+                                            @php
+                                                $img = ($producto->imagen!='') ? str_replace('.', '_medium.', $producto->imagen) : 'productos/default.png';
+                                                $img_big = ($producto->imagen!='') ? $producto->imagen : 'productos/default.png';
+                                            @endphp
+                                            <a id="img-slider" href="{{url('storage').'/'.$img_big}}" data-fancybox="slider1">
+                                                <img id="img-medium" class="img-thumbnail img-sm" src="{{url('storage').'/'.$img}}">
+                                            </a>
+                                        </div>
+                                        <div class="img-small-wrap">
+                                            @foreach ($imagenes as $item)
+                                                @php
+                                                    $img = str_replace('.', '_small.', $item->imagen);
+                                                    $imagen_big = $item->imagen;
+                                                @endphp
+                                                <div class="item-gallery"><img src="{{url('storage').'/'.$img}}" class="img-thumbnail img-sm img-gallery" data-img="{{url('storage').'/'.$imagen_big}}"></div>
+                                            @endforeach
+                                        </div>
+                                    </article>
+                                    <hr style="margin:0;">
+                                    <div class="row">
+                                        <div class="col-md-12" style="margin:0px">
+                                            <div class="panel-heading" style="border-bottom:0;">
+                                                <h3 class="panel-title">Descripción</h3>
+                                            </div>
+                                            <div class="panel-body" style="padding-top:0;">
+                                                <p>{{$producto->descripcion_small}}</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <hr style="margin:0;">
                                     <div class="row">
                                         <div class="col-md-6" style="margin:0px">
@@ -161,45 +194,12 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <hr style="margin:0;">
-                                    <div class="row">
-                                        <div class="col-md-12" style="margin:0px">
-                                            <div class="panel-heading" style="border-bottom:0;">
-                                                <h3 class="panel-title">Descripción</h3>
-                                            </div>
-                                            <div class="panel-body" style="padding-top:0;">
-                                                <p>{{$producto->descripcion_small}}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <article class="gallery-wrap">
-                                        <div class="img-big-wrap" style="text-align:center">
-                                            @php
-                                                $img = ($producto->imagen!='') ? str_replace('.', '_medium.', $producto->imagen) : 'productos/default.png';
-                                                $img_big = ($producto->imagen!='') ? $producto->imagen : 'productos/default.png';
-                                            @endphp
-                                            <a id="img-slider" href="{{url('storage').'/'.$img_big}}" data-fancybox="slider1">
-                                                <img id="img-medium" class="img-thumbnail img-sm" src="{{url('storage').'/'.$img}}">
-                                            </a>
-                                        </div>
-                                        <div class="img-small-wrap">
-                                            @foreach ($imagenes as $item)
-                                                @php
-                                                    $img = str_replace('.', '_small.', $item->imagen);
-                                                    $imagen_big = $item->imagen;
-                                                @endphp
-                                                <div class="item-gallery"><img src="{{url('storage').'/'.$img}}" class="img-thumbnail img-sm img-gallery" data-img="{{url('storage').'/'.$imagen_big}}"></div>
-                                            @endforeach
-                                        </div>
-                                    </article>
                                 </div>
                                 <div class="col-md-12">
+                                    <hr style="margin:0;">
                                     <div class="panel-heading" style="border-bottom:0;">
                                         <h3 class="panel-title">Descripción para E-Commerce</h3>
                                     </div>
-                                    <hr style="margin:0;">
                                     <div class="panel-body" style="margin:30px 50px">
                                         {!! $producto->descripcion_long !!}
                                     </div>

@@ -87,8 +87,8 @@
                                     </div>
                                     <div class="row">
                                     <div class="col-md-12">
-                                        <div class="col-md-8"></div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-7"></div>
+                                        <div class="col-md-5">
                                             <form id="form-search" class="form-search">
                                                 <div class="input-group">
                                                     <input type="text" id="search_value" class="form-control" name="s" value="{{$value}}" placeholder="código o nombre">
@@ -99,7 +99,7 @@
                                                     </span>
                                                 </div>
                                             </form>
-                                            <small class="text-muted">Si quiere volver a ver todos los productos realizar busqueda vacía.</small>
+                                            <small class="text-muted">Para volver a ver todos los productos realizar busqueda vacía.</small>
                                         </div>
                                         
                                     </div>

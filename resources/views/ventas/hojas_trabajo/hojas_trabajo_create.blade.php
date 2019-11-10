@@ -1,17 +1,17 @@
 @extends('voyager::master')
-@section('page_title', 'Nueva proforma o pedidos')
+@section('page_title', 'Nueva hoja de trabajo')
 
 @if(auth()->user()->hasPermission('add_compras'))
     @section('page_header')
         <div class="container-fluid">
             <h1 class="page-title">
-                <i class="voyager-certificate"></i> Nueva proforma/pedidos
+                <i class="voyager-news"></i> Nueva hoja de trabajo
             </h1>
         </div>
     @stop
 
     @section('content')
-    <form id="form" action="{{route('proformas_store')}}" method="post">
+    <form id="form" action="{{route('hojas_trabajos_store')}}" method="post">
         @csrf
         <div class="page-content browse container-fluid">
             @include('voyager::alerts')
@@ -83,6 +83,7 @@
                                                 </div>
                                             </div>
                                             <div  class="col-md-12" style="margin:0px">
+                                                <label>Productos</label>
                                                 <div class="input-group">
                                                     <select name="select_producto" class="form-control" id="select-producto_id" onchange="seleccionar_producto()">
                                                         <option selected disabled value="">Seleccione una opción</option>
@@ -136,19 +137,25 @@
                         <div class="panel-body">
                             <div class="row" style="overflow-y: auto;height:280px">
                                 <div class="form-group">
-                                    <label>Nombre completo</label>
-                                    <div class="input-group">
-                                        <select name="cliente_id" class="form-control select2" id="select-cliente_id">
-                                        </select>
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-primary" style="margin-top:0px;padding:8px" type="button" title="Ver filtros" data-toggle="modal" data-target="#modal-nuevo_cliente" aria-expanded="true" aria-controls="collapseOne">Nuevo <span class="voyager-plus" aria-hidden="true"></span></button>
-                                        </span>
-                                    </div>
+                                    <label for="">Sucursal actual</label>
+                                    <select name="sucursal_id" id="select-sucursal_id" class="form-control">
+                                        @foreach ($sucursales as $item)
+                                        <option value="{{$item->id}}">{{$item->nombre}}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <div class="form-group">
-                                    <label>NIT/CI</label>
-                                    <input type="number" name="nit" id="input-nit" class="form-control">
+                                    <label>Empleado</label>
+                                    <select name="empleado_id" class="form-control select2" required>
+                                        <option selected disabled value="">Elige una opción</option>
+                                        @foreach ($delivery as $item)
+                                        <option value="{{$item->id}}">{{$item->nombre}}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
+                                {{-- <div class="form-group text-right">
+                                    <button type="submit" class="btn btn-primary">Guardar</button>
+                                </div> --}}
                             </div>
                         </div>
                     </div>
@@ -204,8 +211,6 @@
             </div>
         </div>
     </form>
-
-    @include('ventas.partials.modal_cliente_create')
     @stop
 
     @section('css')
@@ -225,13 +230,17 @@
                 $('[data-toggle="popover"]').popover();
                 $('[data-toggle="tooltip"]').tooltip();
 
-                // Obtener lista de clientes
-                $.get('{{route("clientes_list")}}', function(data){
-                    select2_reload_simple('cliente_id', data, false, 1)
-                });
+                $('#select-sucursal_id').val({{$sucursal_actual}});
+                $('#select-sucursal_id').select2();
 
                 // $('#select-producto_id').select2();
                 rich_select('select-producto_id');
+
+                // Cambiar sucursal actual
+            $('#select-sucursal_id').change(function(){
+                let id = $(this).val();
+                window.location = '{{ url("admin/sucursales/cambiar/hojas_trabajos_create") }}/'+id;
+            });
 
                 // Cuando se abre el acordeon se inizializan los select2 que tiene dentro
                 $('#accordion').on('show.bs.collapse', function () {
@@ -255,26 +264,6 @@
                     }
                     
                     filtro('{{url("admin/ofertas/filtros/filtro_simple/all")}}');
-                });
-
-                // formulario de nuevo cliente
-                $('#form-nuevo_cliente').on('submit', function(e){
-                    e.preventDefault();
-                    let datos = $('#form-nuevo_cliente').serialize();
-                    $.ajax({
-                        url: "{{url('admin/clientes/ventas/create')}}",
-                        type: 'post',
-                        data: datos,
-                        success: function(data){
-                            let id = data.id;
-                            $.get('{{route("clientes_list")}}', function(data){
-                                select2_reload('cliente_id', data, false, id);
-                                $('#modal-nuevo_cliente').modal('hide');
-                                toastr.success('Cliente registrado correctamente.', 'Exito');
-                            });
-                        },
-                        error: () => console.log(error)
-                    });
                 });
                 
             });

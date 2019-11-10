@@ -69,23 +69,13 @@
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="form-group col-md-6">
+                                                <div class="form-group col-md-12">
                                                     <label for="">Precio de venta</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Precio de venta del producto. Este campo es obligatorio."></span> @endif
                                                     <div class="input-group">
                                                         <input type="number" name="precio_venta[]" class="form-control" value="{{ old('precio_venta') }}" min="1" step="0.1" required>
                                                         <span class="input-group-addon">Bs.</span>
                                                     </div>
                                                     @error('precio_venta')
-                                                    <strong class="text-danger">{{ $message }}</strong>
-                                                    @enderror
-                                                </div>
-                                                <div class="form-group col-md-6">
-                                                    <label for="">Cantidad</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad de productos en stock. Este campo es obligatorio."></span> @endif
-                                                    <input type="number" name="stock" class="form-control" @if($depositos && $depositos->inventario) value="{{ old('stock') ? old('stock') : 0 }}"  @else value="0" readonly @endif min="0" step="1" required>
-                                                    <div  style="position:absolute;right:15px;top:27px">
-                                                        <input type="checkbox" name="se_almacena" data-toggle="toggle" data-on="<small>Se almacena</small> <span class='voyager-check'></span>" data-off="<small>Se almacena</small> <span class='voyager-x'></span>">
-                                                    </div>
-                                                    @error('stock')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
                                                 </div>
@@ -124,7 +114,7 @@
                                                             @endforeach
                                                         </select>
                                                         <span class="input-group-btn">
-                                                            <button class="btn btn-primary" id="btn-add" style="margin-top:0px" type="button"><span class="voyager-plus" aria-hidden="true"></span> Agregar</button>
+                                                            <button class="btn btn-primary" id="btn-add" style="margin-top:0px;padding:8px" type="button"><span class="voyager-plus" aria-hidden="true"></span> Agregar</button>
                                                         </span>
                                                     </div>
                                                     <div style="max-height:200px;overflow-y:auto">
@@ -195,22 +185,18 @@
                 inicializar_select2('categoria_id');
                 inicializar_select2('subcategoria_id');
 
-                // Listar las subcategorias segun la categoria seleccionada
-                $('#select-categoria_id').change(function(){
-                    let id = $(this).val();
-                    if(!isNaN(id)){
-                        $.ajax({
-                            url: '{{url("admin/productos/list/subcategorias")}}/'+id,
-                            type: 'get',
-                            success: function(response){
-                                select2_reload('subcategoria_id', response, false, '');
-                            }
-                        });
-                    }else{
-                        $('#select-subcategoria_id').html('');
-                        inicializar_select2('subcategoria_id');
-                    }
+                // *******************codigo adicional*******************
+                $('#form').on('submit', function(e){
+                    e.preventDefault();
+                    $('#modal_load').modal('show');
+                    $("html,body").animate({scrollTop: $('#alerta-store').offset().top}, 1000);
+
+                    let formData = new FormData(document.getElementById("form"));
+                    formData.append("dato", "valor");
+                    store_product(formData, '{{ route("productos_store") }}');
                 });
+                // *******************/script adicional*******************
+
             });
 
             function borrarTr(num){

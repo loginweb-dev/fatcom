@@ -26,7 +26,7 @@
                                 <input type="hidden" name="genero_id" value="1">
                                 <input type="hidden" name="uso_id" value="1">
                                 {{-- </datos por defecto> --}}
-                                <input type="hidden" name="deposito_id" value="{{($depositos) ? $depositos->id : ''}}">
+                                {{-- <input type="hidden" name="deposito_id" value="{{($depositos) ? $depositos->id : ''}}"> --}}
                                 <input type="hidden" name="codigo_grupo" value="{{$codigo_grupo}}">
                                 <div class="panel-body strong-panel">
                                     <div class="row">
@@ -91,18 +91,6 @@
                                                     <input type="text" name="modelo" class="form-control" placeholder="Modelo del producto" required>
                                                 </div>
                                             </div>
-                                            <div class="row">
-                                                <div class="form-group col-md-12">
-                                                    <label for="">Cantidad</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad de productos en stock. Este campo es obligatorio."></span> @endif
-                                                    <input type="number" name="stock" class="form-control" @if($depositos && $depositos->inventario) value="{{ old('stock') ? old('stock') : 0 }}"  @else value="0" readonly @endif min="0" step="1" required>
-                                                    <div  style="position:absolute;right:15px;top:27px">
-                                                        <input type="checkbox" name="se_almacena" data-toggle="toggle" data-on="<small>Se almacena</small> <span class='voyager-check'></span>" data-off="<small>Se almacena</small> <span class='voyager-x'></span>">
-                                                    </div>
-                                                    @error('stock')
-                                                    <strong class="text-danger">{{ $message }}</strong>
-                                                    @enderror
-                                                </div>
-                                            </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="row">
@@ -118,7 +106,7 @@
                                             <div class="row">
                                                 <div class="form-group col-md-12">
                                                     <label for="" id="label-descripcion">Descripción (0/255)</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Descripción breve del producto, no debe exceder los 255 caracteres. Este campo es obligatorio."></span> @endif
-                                                    <textarea name="descripcion_small" class="form-control" id="text-descripcion" maxlength="255" rows="2" placeholder="Descripción corta del producto" required></textarea>
+                                                    <textarea name="descripcion_small" class="form-control" id="text-descripcion" maxlength="255" rows="3" placeholder="Descripción corta del producto" required></textarea>
                                                     @error('descripcion_small')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
@@ -191,7 +179,7 @@
                                                     <input type="number" min="1" step="0.1" class="form-control" name="precio_venta[]" required>
                                                     <input type="hidden" name="precio_minimo[]" value="0">
                                                 </td>
-                                                <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_venta[]" required></td>
+                                                <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_venta[]"  value="1" required></td>
                                                 <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
                                             </tr>
                                         </tbody>
@@ -245,21 +233,17 @@
                 inicializar_select2('subcategoria_id');
                 inicializar_select2('marca_id');
 
-                $('#select-categoria_id').change(function(){
-                    let id = $(this).val();
-                    if(!isNaN(id)){
-                        $.ajax({
-                            url: '{{url("admin/productos/list/subcategorias")}}/'+id,
-                            type: 'get',
-                            success: function(response){
-                                select2_reload('subcategoria_id', response, false, '');
-                            }
-                        });
-                    }else{
-                        $('#select-subcategoria_id').html('');
-                        inicializar_select2('subcategoria_id');
-                    }
+                // *******************codigo adicional*******************
+                $('#form').on('submit', function(e){
+                    e.preventDefault();
+                    $('#modal_load').modal('show');
+                    $("html,body").animate({scrollTop: $('#alerta-store').offset().top}, 1000);
+
+                    let formData = new FormData(document.getElementById("form"));
+                    formData.append("dato", "valor");
+                    store_product(formData, '{{ route("productos_store") }}');
                 });
+                // *******************/script adicional*******************
 
                 // agregar precios
                 let indice_compra = 1;

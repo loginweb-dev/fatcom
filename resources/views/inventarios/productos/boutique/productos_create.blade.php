@@ -6,9 +6,6 @@
         <h1 class="page-title">
             <i class="voyager-harddrive"></i> Añadir producto
         </h1>
-        {{-- <a href="{{route('sucursales_index')}}" class="btn btn-success btn-small">
-            <i class="voyager-double-left"></i> <span>Atras</span>
-        </a> --}}
     @stop
 
     @section('content')
@@ -20,12 +17,19 @@
                             <div class="panel panel-bordered">
                                 @csrf
                                 {{-- </datos por defecto> --}}
-                                <input type="hidden" name="se_almacena" value="1">
+                                {{-- <input type="hidden" name="se_almacena" value="1"> --}}
                                 <input type="hidden" name="moneda_id" value="2">
                                 {{-- </datos por defecto> --}}
-                                <input type="hidden" name="deposito_id" value="{{($depositos) ? $depositos->id : ''}}">
+                                {{-- <input type="hidden" name="deposito_id" value="{{($depositos) ? $depositos->id : ''}}"> --}}
                                 <input type="hidden" name="codigo_grupo" value="{{$codigo_grupo}}">
                                 <div class="panel-body strong-panel">
+                                    {{-- alerta al guardar un producto --}}
+                                    <div id="alerta-store" class="alert" style="display:none">
+                                        <ul>
+                                            <li id="mensaje-store"></li>
+                                        </ul>
+                                    </div>
+                                    {{-- /alerta al guardar un producto --}}
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="row">
@@ -46,9 +50,9 @@
                                                     <input type="text" name="codigo_interno" id="input-codigo_interno" class="form-control" placeholder="Código interno">
                                                 </div>
                                                 <div class="form-group col-md-6">
-                                                    <label for="">Stock</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad de productos en stock. Este campo es obligatorio."></span> @endif
-                                                    <input type="number" name="stock" class="form-control" @if($depositos && $depositos->inventario) value="{{ old('stock') ? old('stock') : 0 }}"  @else value="0" readonly @endif min="0" step="1" required>
-                                                    @error('stock')
+                                                    <label for="">Stock mínimo</label> @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad de productos no en stock. Este campo es obligatorio."></span> @endif
+                                                    <input type="number" name="stock_minimo" class="form-control" @if($depositos && $depositos->inventario) value="{{ old('stock_minimo') ? old('stock_minimo') : 0 }}"  @else value="0" readonly @endif min="0" step="1">
+                                                    @error('stock_minimo')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
                                                 </div>
@@ -142,7 +146,7 @@
                                             <div class="row">
                                                 <div class="form-group col-md-12">
                                                     <label for="" id="label-descripcion">Descripción (0/255)</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Descripción breve del producto, no debe exceder los 255 caracteres. Este campo es obligatorio."></span> @endif
-                                                    <textarea name="descripcion_small" class="form-control" id="text-descripcion" maxlength="255" rows="5" placeholder="Descripción corta del producto" required></textarea>
+                                                    <textarea name="descripcion_small" class="form-control" id="text-descripcion" maxlength="255" rows="3" placeholder="Descripción corta del producto" required></textarea>
                                                     @error('descripcion_small')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
@@ -238,8 +242,10 @@
                                     </div>
                                 </div>
                                 <div class="panel-footer">
-                                    <input type="checkbox" checked id="permanecer" name="permanecer">
-                                    <label for="permanecer">Guardar y permanecer aqui.</label>
+                                    {{-- <input type="checkbox" checked id="permanecer" name="permanecer">
+                                    <label for="permanecer">Guardar y permanecer aqui.</label> --}}
+                                    <input type="checkbox" id="check-clear" name="clear">
+                                    <label for="check-clear">Limpiar el formulario</label>
                                     <br><br>
                                     <button type="submit" class="btn btn-primary">Guardar</button>
                                 </div>
@@ -273,32 +279,28 @@
                 inicializar_select2('genero_id');
                 inicializar_select2('unidad_id');
 
-                $('#select-categoria_id').change(function(){
-                    let id = $(this).val();
-                    if(!isNaN(id)){
-                        $.ajax({
-                            url: '{{url("admin/productos/list/subcategorias")}}/'+id,
-                            type: 'get',
-                            success: function(response){
-                                select2_reload('subcategoria_id', response, false, '');
-                            }
-                        });
-                    }else{
-                        $('#select-subcategoria_id').html('');
-                        inicializar_select2('subcategoria_id');
-                    }
+                // *******************codigo adicional*******************
+                $('#form').on('submit', function(e){
+                    e.preventDefault();
+                    $('#modal_load').modal('show');
+                    $("html,body").animate({scrollTop: $('#alerta-store').offset().top}, 1000);
+
+                    let formData = new FormData(document.getElementById("form"));
+                    formData.append("dato", "valor");
+                    store_product(formData, '{{ route("productos_store") }}');
                 });
+                // *******************/script adicional*******************
 
                 // Obtener ultimo codigo interno del producto de la categoría seleccionada
                 $('#select-subcategoria_id').change(function(){
-                    let id = $(this).val();
-                    $.get("{{ url('admin/productos/obtener/codigo_interno') }}/"+id, function(data){
-                        if(data.codigo_interno != undefined){
-                            $('#input-codigo_interno').val(parseInt(data.codigo_interno)+1)
-                        }else{
-                            $('#input-codigo_interno').val(1)
-                        }
-                    });
+                    // let id = $(this).val();
+                    // $.get("{{ url('admin/productos/obtener/codigo_interno') }}/"+id, function(data){
+                    //     if(data.codigo_interno != undefined){
+                    //         $('#input-codigo_interno').val(parseInt(data.codigo_interno)+1)
+                    //     }else{
+                    //         $('#input-codigo_interno').val(1)
+                    //     }
+                    // });
                 });
 
                 // agregar precios

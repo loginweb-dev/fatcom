@@ -4,11 +4,16 @@
 @if(auth()->user()->hasPermission('read_depositos'))
     @section('page_header')
         <h1 class="page-title">
-            <i class="voyager-archive"></i> Viendo Depositos
+            <i class="voyager-archive"></i> {{ $deposito->nombre }}
         </h1>
         @if(auth()->user()->hasPermission('add_producto_depositos'))
         <a href="{{route('depositos_create_producto', ['id' => $id])}}" class="btn btn-success btn-add-new">
             <i class="voyager-plus"></i> <span>Añadir nuevo producto</span>
+        </a>
+        @endif
+        @if(auth()->user()->hasPermission('add_producto_depositos'))
+        <a href="#" data-toggle="modal" data-target="#modal_add_producto" class="btn btn-info btn-add-new" id="btn-add-exist">
+            <i class="voyager-plus"></i> <span>Añadir producto existente</span>
         </a>
         @endif
         <a href="{{route('depositos_index')}}" class="btn btn-warning" style="margin-top:3px">
@@ -57,24 +62,24 @@
                                             @endphp
                                             @forelse ($registros as $item)
                                                 @php
-                                                    $img = ($imagenes[$cont]['nombre']!='') ? str_replace('.', '_small.', $imagenes[$cont]['nombre']) : 'productos/default.png';
-                                                    $imagen = ($imagenes[$cont]['nombre']!='') ? $imagenes[$cont]['nombre'] : 'productos/default.png';
+                                                    $img = ($item->imagen != '') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
+                                                    $imagen = $item->imagen ?? 'productos/default.png';
 
                                                 @endphp
                                                 <tr>
-                                                    <td>{{$item->codigo}}</td>
-                                                    <td>{{$item->nombre}}</td>
-                                                    <td>{{$item->subcategoria}}</td>
-                                                    <td>{{$precios[$cont]['precio']}}</td>
-                                                    <td>{{$item->cantidad}}</td>
-                                                    <td><a href="{{url('storage').'/'.$imagen}}" data-fancybox="galeria1" data-caption="{{$item->nombre}}"><img src="{{url('storage').'/'.$img}}" width="50px" alt=""></a></td>
+                                                    <td>{{ $item->codigo }}</td>
+                                                    <td>{{ $item->nombre }}</td>
+                                                    <td>{{ $item->subcategoria }}</td>
+                                                    <td>{{ $item->precio_venta }}</td>
+                                                    <td>{{ $item->cantidad }}</td>
+                                                    <td><a href="{{ url('storage').'/'.$imagen }}" data-fancybox="galeria1" data-caption="{{ $item->nombre }}"><img src="{{ url('storage').'/'.$img }}" width="50px" alt=""></a></td>
                                                     <td class="no-sort no-click text-right" id="bread-actions">
-                                                        {{-- @if(auth()->user()->hasPermission('edit_productos'))
-                                                        <a href="{{route('productos_edit', ['id'=>$item->id])}}" title="Editar" class="btn btn-sm btn-primary edit">
+                                                        @if(auth()->user()->hasPermission('edit_productos'))
+                                                        <a href="#" title="Editar" class="btn btn-sm btn-primary edit">
                                                             <i class="voyager-edit"></i> <span class="hidden-xs hidden-sm">Editar</span>
                                                         </a>
                                                         @endif
-                                                        @if(auth()->user()->hasPermission('delete_productos'))
+                                                        {{-- @if(auth()->user()->hasPermission('delete_productos'))
                                                         <a href="#" title="Borrar" class="btn btn-sm btn-danger btn-delete" data-id="{{$item->id}}" data-toggle="modal" data-target="#modal_delete">
                                                             <i class="voyager-trash"></i> <span class="hidden-xs hidden-sm">Borrar</span>
                                                         </a>
@@ -112,27 +117,59 @@
         </div>
 
         {{-- modal delete --}}
-        <form action="{{route('productos_delete')}}" method="POST">
-            <div class="modal modal-danger fade" tabindex="-1" id="modal_delete" role="dialog">
+        <form action="{{route('depositos_store_producto')}}" method="POST">
+            <div class="modal modal-success fade" tabindex="-1" id="modal_add_producto" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                                         aria-hidden="true">&times;</span></button>
                             <h4 class="modal-title">
-                                <i class="voyager-trash"></i> Estás seguro que quieres borrar el siguiente registro?
+                                <i class="voyager-list-add"></i> Agregar producto existente
                             </h4>
                         </div>
-
                         <div class="modal-body">
+                            {{ csrf_field() }}
+                            <input type="hidden" name="deposito_id" value="{{ $id }}">
+                            <div class="form-group">
+                                <label for="">Producto</label>
+                                <select name="producto_id" class="form-control" id="select-producto_id" required>
+                                    <option selected disabled value="">Seleccione una opción</option>
+                                    @foreach ($productos as $item)
+                                        @php
+                                            $imagen = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
+                                        @endphp
+                                        <option value="{{ $item->id }}"
+                                                data-imagen="{{ url('storage').'/'.$imagen }}"
+                                                data-categoria="{{ $item->categoria }}"
+                                                data-subcategoria="{{ $item->subcategoria }}"
+                                                data-marca="{{ $item->marca }}"
+                                                data-talla="{{ $item->talla }}"
+                                                data-color="{{ $item->color }}"
+                                                data-genero="{{ $item->genero }}"
+                                                data-precio="{{ $item->moneda }} {{ $item->precio_venta }}"
+                                                data-precio_minimo="{{ $item->moneda }} {{ $item->precio_minimo }}"
+                                                data-detalle="{{ $item->descripcion_small }}">
+                                            @if(setting('admin.modo_sistema') != 'restaurante')
+                                                @if($item->codigo_interno)
+                                                #{{ str_pad($item->codigo_interno, 2, "0", STR_PAD_LEFT) }}
+                                                @else
+                                                {{ $item->codigo }} - 
+                                                @endif 
+                                            @endif
+                                            {{ $item->nombre }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="">Stock</label>
+                                <input type="number" name="stock" class="form-control" min="1" step="1" id="" required>
+                            </div>
                         </div>
                         <div class="modal-footer">
-                            {{ csrf_field() }}
-                            <input type="hidden" name="id" value="">
-                            <input type="submit" class="btn btn-danger pull-right delete-confirm"value="Sí, bórralo!">
-                            <button type="button" class="btn btn-default pull-right" data-dismiss="modal">
-                                Cancelar
-                            </button>
+                            <input type="submit" class="btn btn-success pull-right"value="Guardar">
+                            <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Cancelar</button>
                         </div>
                     </div>
                 </div>
@@ -140,19 +177,24 @@
         </form>
     @stop
     @section('css')
-        <link href="{{url('landing_page/plugins/fancybox/fancybox.min.css')}}" type="text/css" rel="stylesheet">
+        <link href="{{url('ecommerce_public/plugins/fancybox/fancybox.min.css')}}" type="text/css" rel="stylesheet">
         <style>
 
         </style>
     @stop
     @section('javascript')
-        <script src="{{url('landing_page/plugins/fancybox/fancybox.min.js')}}" type="text/javascript"></script>
+        <script src="{{ asset('js/rich_select.js') }}"></script>
+        <script src="{{url('ecommerce_public/plugins/fancybox/fancybox.min.js')}}" type="text/javascript"></script>
         <script>
             $(document).ready(function() {
 
                 // set valor de delete
                 $('.btn-delete').click(function(){
                     $('#modal_delete input[name="id"]').val($(this).data('id'));
+                });
+
+                $('#btn-add-exist').click(function(){
+                    setTimeout(()=> rich_select('select-producto_id'), 300);
                 });
 
                 // enviar formulario de busqueda

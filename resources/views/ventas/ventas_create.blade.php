@@ -241,6 +241,7 @@
 @section('javascript')
     <script src="{{url('js/ventas.js')}}"></script>
     <script src="{{url('js/loginweb.js')}}"></script>
+    <script src="{{ asset('js/rich_select.js') }}"></script>
     <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
     <script src="{{url('js/ubicacion_cliente.js')}}" type="text/javascript"></script>
     <script>
@@ -265,7 +266,7 @@
             // Cambiar sucursal actual
             $('#select-sucursal_id').change(function(){
                 let id = $(this).val();
-                window.location = '{{ url("admin/sucursales/cambiar") }}/'+id;
+                window.location = '{{ url("admin/sucursales/cambiar/ventas_create") }}/'+id;
             });
 
             // Botones de desplazamiento
@@ -342,7 +343,8 @@
                                 $('#check-domicilio').bootstrapToggle('off');
                                 $('#check-llevar').bootstrapToggle('off');
                                 $('#check-factura').bootstrapToggle('off');
-                                inicializar_select2_simple('producto_id')
+                                // inicializar_select2_simple('producto_id');
+                                rich_select('select-producto_id');
 
                                 // Obtener lista de clientes
                                 $.get('{{route("clientes_list")}}', function(data){

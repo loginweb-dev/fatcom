@@ -117,19 +117,13 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                                 aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title">
-                        <i class="voyager-trash"></i> Estás seguro que quieres hacer una copia del siguiente registro?
+                        <i class="voyager-list-add"></i> Estás seguro que quieres hacer una copia del siguiente registro?
                     </h4>
                 </div>
 
                 <div class="modal-body">
                     @csrf
                     <input type="hidden" name="id">
-                    <label for="">Deposito</label>
-                    <select name="deposito_id" class="form-control" id="" required>
-                        @foreach ($depositos as $item)
-                        <option value="{{ $item->id }}">{{ $item->nombre }}</option>
-                        @endforeach
-                    </select>
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-success pull-right">Copiar</button>

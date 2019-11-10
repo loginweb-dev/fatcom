@@ -124,9 +124,9 @@ class SucursalesController extends Controller
     // ===================================================
     
     // Asignar sucursal actual del usuario
-    public function sucursal_actual($id){
+    public function sucursal_actual($route, $id){
         $sucursal = UsersSucursale::where('user_id', Auth::user()->id)
                                         ->update(['sucursal_id' => $id]);
-                                        return redirect()->route('ventas_create')->with(['message' => 'Se realizo el cambio de sucursal exitosamente.', 'alert-type' => 'success']);
+        return redirect()->route($route)->with(['message' => 'Se realizo el cambio de sucursal exitosamente.', 'alert-type' => 'success']);
     }
 }

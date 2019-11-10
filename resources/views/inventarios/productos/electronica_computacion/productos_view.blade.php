@@ -7,7 +7,7 @@
             <i class="voyager-home"></i> Viendo Producto
         </h1>
         @if(auth()->user()->hasPermission('edit_productos'))
-        <a href="{{route('productos_edit', ['id'=>$id, 'deposito_id' => $producto->deposito_id])}}" class="btn btn-primary btn-small">
+        <a href="{{route('productos_edit', ['id'=>$id])}}" class="btn btn-primary btn-small">
             <i class="voyager-edit"></i> <span>Editar</span>
         </a>
         @endif

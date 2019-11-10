@@ -27,7 +27,7 @@
                                 <input type="hidden" name="uso_id" value="1">
                                 {{-- </datos por defecto> --}}
 
-                                <input type="hidden" name="stock" value="0">
+                                <input type="hidden" name="se_almacena" value="1">
                                 <input type="hidden" name="deposito_id" value="{{$deposito_id}}">
                                 <input type="hidden" name="codigo_grupo" value="{{$codigo_grupo}}">
                                 <div class="panel-body strong-panel">
@@ -44,9 +44,6 @@
                                                 <div class="form-group col-md-12">
                                                     <label for="">Nombre</label>
                                                     <input type="text" name="nombre" class="form-control" placeholder="Nombre del producto" required>
-                                                    @error('nombre')
-                                                    <strong class="text-danger">{{ $message }}</strong>
-                                                    @enderror
                                                 </div>
                                             </div>
                                             <div class="row">
@@ -55,24 +52,18 @@
                                                     <input type="text" name="codigo_interno" class="form-control" placeholder="Código del producto" required>
                                                 </div>
                                                 <div class="form-group col-md-6">
-                                                    <label for="">Cantidad inicial</label>
-                                                    <input type="number" min="0" step="1" name="cantidad" class="form-control" required>
+                                                    <label for="">Stock</label>
+                                                    <input type="number" min="1" step="1" name="stock" class="form-control" required>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="form-group col-md-6">
                                                     <label for="">Precio de venta</label>
                                                     <input type="number" min="1" step="0.1" name="precio_venta" class="form-control" placeholder="Precio de venta" required>
-                                                    @error('precio_venta')
-                                                    <strong class="text-danger">{{ $message }}</strong>
-                                                    @enderror
                                                 </div>
                                                 <div class="form-group col-md-6">
                                                     <label for="">precio mínimo</label> <label class="text-primary" @if(setting('admin.tips')) data-toggle="tooltip" data-placement="top" title="Este campo no necesita ser llenado" @endif>(Opcional)</label>
                                                     <input type="number" min="0" step="0.1" name="precio_minimo" class="form-control" placeholder="Precio mínimo de venta">
-                                                    @error('precio_minimo')
-                                                    <strong class="text-danger">{{ $message }}</strong>
-                                                    @enderror
                                                 </div>
                                             </div>
                                             <div class="row">
@@ -209,36 +200,21 @@
                         contentType: false,
                         processData: false,
                         success: function(response){
-                            let data = JSON.parse(response);
-                            if(data.response==1){
-
-                                // vaciar formulario si se hizo check
-                                if ($('#check-clear').prop("checked")) {
-                                    $('#form').trigger("reset");
-                                    $('#form input[name="codigo_grupo"]').val(data.nuevo_grupo);
-                                    select2_reload('subcategoria_id', data.subcategorias, false, '');
-                                    select2_reload('marca_id', data.marcas, false, '');
-                                    $('.box').css('background-image', "url('{{url('storage/productos/default.png')}}')");
-                                }
-                                // =================================
-
-                                // mostrar y ocultar alertas
-                                $('#mensaje-store').html('Producto guardado exitosamente.');
-                                $('#alerta-store').css('display', 'block');
-                                $('#alerta-store').addClass('alert-success');
-                                setInterval(function(){
-                                    $('#alerta-store').fadeOut( "slow");
-                                }, 5000);
-                                // ===========================
+                            let res = JSON.parse(response);
+                            if(res.success===1){
+                                toastr.success('Producto guardado exitosamente.', 'Bien hecho');
                             }else{
-                                $('#mensaje-store').html('Ocurrio un error al guardar el producto');
-                                $('#alerta-store').css('display', 'block');
-                                $('#alerta-store').addClass('alert-danger');
-                                setInterval(function(){
-                                    $('#alerta-store').fadeOut( "slow");
-                                }, 5000);
+                                toastr.error('Ocurrio un error al guardar el producto', 'Error');
                             }
                             $('#modal_load').modal('hide');
+                            
+                            // Si se hace check en limpiar formulario
+                            if(res.reload){
+                                toastr.warning('El formulario se actualizara, espere...', 'Aviso');
+                                setTimeout(()=>{
+                                    location.reload();
+                                }, 2000);
+                            }
                         }
                     });
                 });

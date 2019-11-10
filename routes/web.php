@@ -68,7 +68,7 @@ Route::get('admin/sucursales/editar/{id}', 'SucursalesController@edit')->name('s
 Route::post('admin/sucursales/actualizar', 'SucursalesController@update')->name('sucursales_update');
 Route::post('admin/sucursales/eliminar/', 'SucursalesController@delete')->name('sucursales_delete');
 
-Route::get('admin/sucursales/cambiar/{id}', 'SucursalesController@sucursal_actual');
+Route::get('admin/sucursales/cambiar/{route}/{id}', 'SucursalesController@sucursal_actual');
 
 // ================================Depositos===========================
 Route::get('admin/depositos', 'DepositosController@index')->name('depositos_index');
@@ -107,6 +107,7 @@ Route::post('admin/productos/eliminar_imagen', 'ProductosController@delete_image
 Route::get('admin/productos/obtener/precios_venta/{id}', 'ProductosController@obtener_precios_venta');
 Route::get('admin/productos/obtener/codigo_interno/{id}', 'ProductosController@ultimo_codigo_interno');
 
+Route::get('admin/productos/list/subcategorias/categoria/{categoria_id}', 'ProductosController@subcategorias_categoria');
 
 // Filtros
 Route::get('admin/productos/list/subcategorias/{categoria_id}', 'ProductosController@subcategorias_list');
@@ -116,8 +117,6 @@ Route::get('admin/productos/list/generos/{subcategoria_id}/{marca_id}/{talla_id}
 Route::get('admin/productos/list/colores/{subcategoria_id}/{marca_id}/{talla_id}/{genero_id}', 'ProductosController@colores_list');
 
 Route::get('admin/ofertas/filtros/filtro_simple/{tipo}/{categoria}/{subcategoria}/{marca}/{talla}/{genero}/{color}', 'ProductosController@filtro_simple');
-
-
 
 
 // Llamadas a vistas para cargar el modal de nuevo registro
@@ -209,6 +208,16 @@ Route::post('admin/proformas/store', 'VentasController@proformas_store')->name('
 Route::get('admin/proformas/impresion/{tipo}/{id}', 'VentasController@proformas_print');
 Route::get('admin/proformas/detalle/{id}', 'VentasController@proformas_detalle');
 
+// Hojas de trabajo
+Route::get('admin/hojastrabajo', 'VentasController@hojas_trabajos_index')->name('hojas_trabajos_index');
+Route::get('admin/hojastrabajo/buscar/{value}', 'VentasController@hojas_trabajos_search');
+Route::get('admin/hojastrabajo/crear', 'VentasController@hojas_trabajos_create')->name('hojas_trabajos_create');
+Route::post('admin/hojastrabajo/store', 'VentasController@hojas_trabajos_store')->name('hojas_trabajos_store');
+Route::get('admin/hojastrabajo/impresion/{id}', 'VentasController@hojas_trabajos_print');
+Route::get('admin/hojastrabajo/detalle/{id}', 'VentasController@hojas_trabajos_details')->name('hojas_trabajos_details');
+Route::post('admin/hojastrabajo/cerrar', 'VentasController@hojas_trabajos_close')->name('hojas_trabajos_close');
+
+
 Route::get('admin/ventas/lista_nuevos_pedidos/{last}', 'VentasController@get_nuevos_pedidos');
 Route::get('admin/ventas/crear/productos_search', 'VentasController@productos_search');
 Route::get('admin/ventas/crear/ventas_categorias/{id}', 'VentasController@ventas_categorias');
@@ -290,6 +299,11 @@ Route::post('admin/reportes/ventas/pdf', 'ReportesController@ventas_reporte_pdf'
 
 Route::get('admin/reportes/ganancia_producto', 'ReportesController@ganancia_producto_reporte')->name('ganancia_producto_reporte');
 Route::post('admin/reportes/ganancia_producto/generar', 'ReportesController@ganancia_producto_reporte_generar')->name('ganancia_producto_reporte_generar');
+
+// Creación de parametros
+Route::get('admin/productos/parametros/store/{type}/{value}', 'ProductosController@crear_parametros');
+// Se debe crear una ruta exclusiva para crear sub categoría debido a que necesita la llave foranea de categoría
+Route::get('admin/productos/subcategoria/store/{categoria_id}/{value}', 'ProductosController@crear_subcategoria');
 
 
 // Clear cache

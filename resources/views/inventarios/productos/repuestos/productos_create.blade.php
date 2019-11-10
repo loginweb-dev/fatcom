@@ -25,7 +25,6 @@
                                 <input type="hidden" name="genero_id" value="1">
                                 <input type="hidden" name="uso_id" value="1">
                                 <input type="hidden" name="moneda_id" value="2">
-                                <input type="hidden" name="se_almacena" value="1">
                                 {{-- </datos por defecto> --}}
                                 <input type="hidden" name="deposito_id" value="{{($depositos) ? $depositos->id : ''}}">
                                 <input type="hidden" name="codigo_grupo" value="{{$codigo_grupo}}">
@@ -84,36 +83,27 @@
                                             </div>
                                             <div class="row">
                                                 <div class="form-group col-md-6">
-                                                    <label for="">Stock</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad de productos en stock. Este campo es obligatorio."></span> @endif
-                                                    <input type="number" name="stock" class="form-control" @if($depositos && $depositos->inventario) value="{{ old('stock') ? old('stock') : 0 }}"  @else value="0" readonly @endif min="0" step="1" required>
-                                                    @error('stock')
-                                                    <strong class="text-danger">{{ $message }}</strong>
-                                                    @enderror
-                                                </div>
-                                                <div class="form-group col-md-6">
                                                     <label for="">Stock mínimo</label> @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad mínima de productos en stock para mostrar notificación de escasez. Este campo no es obligatorio."></span> @endif
-                                                    <input type="number" name="stock_minimo" class="form-control" value="{{ old('stock_minimo') ? old('stock_minimo') : 0 }}" min="0" step="1" >
-                                                    @error('stock')
-                                                    <strong class="text-danger">{{ $message }}</strong>
-                                                    @enderror
+                                                    <input type="number" name="stock_minimo" class="form-control" min="0" step="1" >
                                                 </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="row">
-                                                <div class="form-group col-md-6">
+                                                <div class="form-group col-md-3">
                                                     <label for="">Estante</label> @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Nombre o número del estante en el que se almacena el producto. Este campo no es obligatorio."></span> @endif
                                                     <input type="text" name="estante" maxlength="20" class="form-control" placeholder="Estante A">
                                                 </div>
-                                                <div class="form-group col-md-6">
+                                                <div class="form-group col-md-3">
                                                     <label for="">Bloque</label> @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Número o letra de bloque del estante en el que se almacena el producto. Este campo no es obligatorio."></span> @endif
                                                     <input type="text" name="bloque" maxlength="20" class="form-control" placeholder="Bloque 1">
                                                 </div>
                                             </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            {{-- <div class="row">
+                                                
+                                            </div> --}}
                                             <div class="row">
                                                 <div class="form-group col-md-12">
                                                     <label for="" id="label-descripcion">Descripción (0/255)</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Descripción breve del producto, no debe exceder los 255 caracteres. Este campo es obligatorio."></span> @endif
-                                                    <textarea name="descripcion_small" class="form-control" id="text-descripcion" maxlength="255" rows="2" placeholder="Descripción corta del producto" required></textarea>
+                                                    <textarea name="descripcion_small" class="form-control" id="text-descripcion" maxlength="255" rows="5" placeholder="Descripción corta del producto" required></textarea>
                                                     @error('descripcion_small')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
@@ -240,21 +230,17 @@
                 inicializar_select2('marca_id');
                 inicializar_select2('unidad_id');
 
-                $('#select-categoria_id').change(function(){
-                    let id = $(this).val();
-                    if(!isNaN(id)){
-                        $.ajax({
-                            url: '{{url("admin/productos/list/subcategorias")}}/'+id,
-                            type: 'get',
-                            success: function(response){
-                                select2_reload('subcategoria_id', response, false, '');
-                            }
-                        });
-                    }else{
-                        $('#select-subcategoria_id').html('');
-                        inicializar_select2('subcategoria_id');
-                    }
+                // *******************codigo adicional*******************
+                $('#form').on('submit', function(e){
+                    e.preventDefault();
+                    $('#modal_load').modal('show');
+                    $("html,body").animate({scrollTop: $('#alerta-store').offset().top}, 1000);
+
+                    let formData = new FormData(document.getElementById("form"));
+                    formData.append("dato", "valor");
+                    store_product(formData, '{{ route("productos_store") }}');
                 });
+                // *******************/script adicional*******************
 
                 // agregar precios
                 let indice_compra = 1;

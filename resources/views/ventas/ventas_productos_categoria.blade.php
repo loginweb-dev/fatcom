@@ -3,7 +3,7 @@
             @php
                 $imagen = (!empty($item->imagen)) ? url('storage').'/'.str_replace('.', '_small.', $item->imagen) : url('storage/productos/default.png');
             @endphp
-            <div class="card col-md-3 text-center" style="margin:5px 0px">
+            <div class="card col-md-3 col-sm-4 text-center" style="margin:5px 0px">
                 <img class="card-img-top img-producto" id="producto-{{$item->id}}" style="width:130px;height:100px;cursor:pointer" src="{{$imagen}}" alt="{{$item->nombre}}"
                 @if(!$item->se_almacena) onclick="combinar_producto({{$item->id}}, '{{$item->nombre}}')" @endif
                 ondblclick="agregar_producto({{$item->id}})">

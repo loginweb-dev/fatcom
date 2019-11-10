@@ -96,16 +96,14 @@
                                                     <label for="">Garantía</label> @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Garantía del producto. Este campo no es obligatorio."></span> @endif
                                                     <input type="text" name="garantia" value="{{$producto->garantia}}" class="form-control" placeholder="12 meses">
                                                 </div>
-                                                <div class="form-group col-md-6">
+                                                {{-- <div class="form-group col-md-6">
                                                     <label for="">Cantidad</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad de productos en stock. Este campo es obligatorio."></span> @endif
                                                     <input type="number" name="stock" readonly class="form-control" value="{{$producto->stock}}" min="0" step="1" required>
                                                     <div  style="position:absolute;right:15px;top:27px">
                                                         <input type="checkbox" id="input-se_almacena" name="se_almacena" data-toggle="toggle" data-on="<small>Se almacena</small> <span class='voyager-check'></span>" data-off="<small>Se almacena</small> <span class='voyager-x'></span>">
                                                     </div>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="form-group col-md-12">
+                                                </div> --}}
+                                                <div class="form-group col-md-6">
                                                     <label for="">Catálogo</label> @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Catálogo del producto. Este campo no es obligatorio."></span> @endif
                                                     <input type="file" name="catalogo" class="form-control">
                                                 </div>
@@ -347,19 +345,6 @@
                     e.preventDefault();
                     let datos = $(this).serialize();
                     delete_imagen("{{route('delete_imagen')}}", datos);
-                });
-
-                $('#select-categoria_id').change(function(){
-                    let id = $(this).val();
-                    if(!isNaN(id)){
-                        $.ajax({
-                            url: '{{url("admin/productos/list/subcategorias")}}/'+id,
-                            type: 'get',
-                            success: function(response){
-                                select2_reload_simple('subcategoria_id', response, false, '');
-                            }
-                        });
-                    }
                 });
 
                 // agregar precios
