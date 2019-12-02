@@ -9,26 +9,18 @@
 @stop
 
 @section('content')
-<form id="form" action="{{route('ventas_store')}}" method="post">
+<form id="form" action="{{ route('ventas_store') }}" method="post">
     <div class="page-content browse container-fluid">
         <br>
         @if(!$abierta)
         <div class="alert alert-warning">
             <strong>Atención:</strong>
             <p>No puede realizar ventas debido a que no se ha aperturado la caja.</p>
+            <p>Para realizar la apertura de la caja preciona <a href="{{ route('cajas_create') }}"><b style="color:blue">Aquí</b></a></p>
         </div>
         @endif
         @include('voyager::alerts')
         <div class="row">
-            <div class="col-md-4 pull-right">
-                <label for="">Sucursal actual</label>
-                <select name="sucursal_id" id="select-sucursal_id" class="form-control">
-                    @foreach ($sucursales as $item)
-                    <option value="{{$item->id}}">{{$item->nombre}}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="clearfix"></div>
             <div class="col-md-8">
                 <div class="panel panel-bordered">
                     <div class="panel-body" id="panel-productos" style="padding:0px">
@@ -61,8 +53,20 @@
                             <input type="hidden" name="venta_tipo_id" id="input-venta_tipo_id" value="1">
                             <input type="hidden" name="facturacion" value="{{setting('empresa.facturas')}}">
                             <div class="row">
+                                <div class="form-group col-md-12 @if(!$cambiar_sucursal) hidden @else hola @endif">
+                                    {{-- <label for="">Sucursal actual</label> --}}
+                                    <select name="sucursal_id" id="select-sucursal_id" class="form-control">
+                                        @foreach ($sucursales as $item)
+                                        <option value="{{$item->id}}">{{$item->nombre}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                                 <div class="form-group col-md-12">
-                                    <label>Nombre completo</label>
+                                    {{-- <label>NIT/CI</label> --}}
+                                    <input type="number" name="nit" id="input-nit" class="form-control" placeholder="NIT/CI">
+                                </div>
+                                <div class="form-group col-md-12">
+                                    {{-- <label>Nombre completo</label> --}}
                                     <div class="input-group">
                                         <select name="cliente_id" class="form-control select2" id="select-cliente_id">
                                         </select>
@@ -70,10 +74,6 @@
                                             <button class="btn btn-primary" style="margin-top:0px;padding:8px" type="button" title="Crear nuevo" data-toggle="modal" data-target="#modal-nuevo_cliente" aria-expanded="true" aria-controls="collapseOne">Nuevo <span class="voyager-plus" aria-hidden="true"></span></button>
                                         </span>
                                     </div>
-                                </div>
-                                <div class="form-group col-md-12">
-                                    <label>NIT/CI</label>
-                                    <input type="number" name="nit" id="input-nit" class="form-control">
                                 </div>
                             </div>
                             <div style="@if(!setting('delivery.activo')) display:none @endif">
@@ -105,13 +105,18 @@
                                     <input type="number" id="input-cambio" value="0" step="0.01" readonly style="font-size:18px" name="cambio" class="form-control" required>
                                 </div>
                             </div>
-                            <div class="form-group col-md-6 ">
-                                @if(setting('ventas.ventas_credito'))
-                                <input type="checkbox" id="check-credito" name="credito" data-toggle="toggle" data-on="Crédito" data-off="Contado">
-                                @endif
-                            </div>
-                            <div class="form-group col-md-6 text-right">
-                                <input type="checkbox" id="check-factura" name="factura" data-toggle="toggle" data-on="Con factura" data-off="Sin factura">
+                            <div class="row">
+                                <div class="form-group col-md-4 text-right">
+                                    <input type="checkbox" id="check-efectivo" name="efectivo" data-toggle="toggle" data-on="Tarjeta" data-off="Efectivo">
+                                </div>
+                                <div class="form-group col-md-4 ">
+                                    @if(setting('ventas.ventas_credito'))
+                                    <input type="checkbox" id="check-credito" name="credito" data-toggle="toggle" data-on="Crédito" data-off="Contado">
+                                    @endif
+                                </div>
+                                <div class="form-group col-md-4 text-right">
+                                    <input type="checkbox" id="check-factura" name="factura" data-toggle="toggle" data-on="Factura" data-off="Recibo">
+                                </div>
                             </div>
                             <input type="hidden" name="caja_id" value="{{$caja_id}}">
                         </div>
@@ -121,44 +126,47 @@
         </div>
         <div class="row">
             <div class="col-md-12">
-                <div class="panel panel-bordered" style="margin-top:-30px">
+                <div class="panel panel-bordered" style="margin-top:-20px">
                     <div class="panel-body">
                         <div class="col-md-12">
-                            <table class="table table-bordered" style="font-size:18px">
-                                <thead>
-                                    <th style="width:300px">Producto</th>
-                                    <th>observación</th>
-                                    <th style="width:150px">Precio</th>
-                                    <th style="width:100px">Cantidad</th>
-                                    <th colspan="2">Subtotal</th>
-                                </thead>
-                                <tbody>
-                                    <tr id="detalle_venta">
-                                        <td colspan="4" class="text-right"><h5>Descuento</h5></td>
-                                        <td id="label-descuento" colspan="2">
-                                            <div class="input-group">
-                                                <input type="number" name="descuento" class="form-control cero_default" style="width:80px" onchange="total();calcular_cambio()" onkeyup="total();calcular_cambio()" min="0" value="0" id="input-descuento">
-                                                <span class="input-group-addon">Bs.</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="4" class="text-right"><h5>Costo de envío</h5></td>
-                                        <td id="label-costo_envio" colspan="2">
-                                            <div class="input-group">
-                                                <input type="number" readonly name="cobro_adicional" class="form-control cero_default" style="width:80px" onchange="total();calcular_cambio()" onkeyup="total();calcular_cambio()" min="0" value="0" id="input-costo_envio">
-                                                <span class="input-group-addon">
-                                                    <input type="checkbox" disabled id="check-cobro_adicional_factura" name="cobro_adicional_factura" data-toggle="tooltip" data-placement="bottom" title="Incluir costo de envío en factura">
-                                                </span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="4" class="text-right"><h4>TOTAL</h4></td>
-                                        <td id="label-total" colspan="2"><h4>0.00 Bs.</h4></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <div class="table-responsive">
+                                <table class="table table-bordered" style="font-size:18px">
+                                    <thead>
+                                        <th style="width:300px">Producto</th>
+                                        <th>observación</th>
+                                        <th style="width:150px">Precio</th>
+                                        <th style="width:100px">Cantidad</th>
+                                        <th colspan="2">Subtotal</th>
+                                    </thead>
+                                    <tbody>
+                                        <tr id="detalle_venta">
+                                            <td colspan="4" class="text-right"><h5>Descuento</h5></td>
+                                            <td id="label-descuento" colspan="2">
+                                                <div class="input-group">
+                                                    <input type="number" name="descuento" class="form-control cero_default" style="width:80px" onchange="total();calcular_cambio()" onkeyup="total();calcular_cambio()" min="0" value="0" id="input-descuento">
+                                                    <span class="input-group-addon">Bs.</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="4" class="text-right"><h5>Costo de envío</h5></td>
+                                            <td id="label-costo_envio" colspan="2">
+                                                <div class="input-group">
+                                                    <input type="number" readonly name="cobro_adicional" class="form-control cero_default" style="width:80px" onchange="total();calcular_cambio()" onkeyup="total();calcular_cambio()" min="0" value="0" id="input-costo_envio">
+                                                    <span class="input-group-addon">
+                                                        <input type="checkbox" disabled id="check-cobro_adicional_factura" name="cobro_adicional_factura" data-toggle="tooltip" data-placement="bottom" title="Incluir costo de envío en factura">
+                                                    </span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="4" class="text-right"><h4>TOTAL</h4></td>
+                                            <td id="label-total" colspan="2"><h4>0.00 Bs.</h4></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
                             <textarea name="observaciones" id="" class="form-control" rows="3" placeholder="Observaciones de la venta..."></textarea>
                             <input type="hidden" name="importe" value="0" id="input-total">
                         </div>
@@ -319,7 +327,7 @@
                 e.preventDefault();
                 let datos = $(this).serialize();
                 $.ajax({
-                    url: "{{route('ventas_store')}}",
+                    url: "{{ route('ventas_store') }}",
                     type: 'post',
                     data: datos,
                     success: function(data){
@@ -357,7 +365,11 @@
                         $('#modal_load').modal('hide');
                         $('#btn-vender').removeAttr('disabled');
                     },
-                    error: () => console.log(error)
+                    error: (error) => {
+                        toastr.error('Ocurrio un error al ingresar la venta.', 'Error');
+                        $('#modal_load').modal('hide');
+                        $('#btn-vender').removeAttr('disabled');
+                    }
                 });
             });
 

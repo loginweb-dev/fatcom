@@ -66,7 +66,8 @@
                             <b>{{setting('empresa.direccion')}}</b><br>
                             <b>{{setting('empresa.ciudad')}}</b><br>
                         </td>
-                        <td width="70%" align="center"><span style="margin-bottom:0px;font-weight:bold;font-size:25px">RECIBO</span></td>
+                        <td width="40%" align="center"><span style="margin-bottom:0px;font-weight:bold;font-size:25px">RECIBO</span></td>
+                        <td width="30%" align="right"><span style="font-weight:bold;color:red;font-size:15px;">N&deg; {{ str_pad($detalle_venta[0]->id, 5, "0", STR_PAD_LEFT) }}</span></td>
                     </tr>
                 </table>
                 {{-- datos de la venta --}}

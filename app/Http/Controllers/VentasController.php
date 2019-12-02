@@ -26,7 +26,6 @@ use App\VentasSeguimiento;
 use App\HojasTrabajo;
 use App\HojasTrabajosDetalle;
 
-
 use App\Http\Controllers\ProductosController as Productos;
 use App\Http\Controllers\OfertasController as Ofertas;
 use App\Http\Controllers\LandingPageController as LandingPage;
@@ -57,123 +56,128 @@ class VentasController extends Controller
                             ->where('id', 26)
                             ->first()->value;
 
-        $consulta = '1';
-        switch (Auth::user()->role_id) {
-            case '5':
-                $consulta = " v.venta_tipo_id = '3'";
-                break;
-            case '6':
-                $consulta = " v.venta_estado_id = '2'";
-                break;
-            default:
-                break;
-        }
-
-        $registros = DB::table('ventas as v')
-                            ->join('clientes as c', 'c.id', 'v.cliente_id')
-                            ->join('ventas_estados as ve', 've.id', 'v.venta_estado_id')
-                            ->join('ventas_tipos as vt', 'vt.id', 'v.venta_tipo_id')
-                            ->select('v.*', 'c.razon_social as cliente', 'vt.nombre as tipo_nombre', 'vt.etiqueta as tipo_etiqueta', 've.id as estado_id', 've.nombre as estado_nombre', 've.etiqueta as estado_etiqueta')
-                            ->whereRaw($consulta)
-                            ->orderBy('v.id', 'DESC')
-                            ->paginate(20);
-        // dd($registros);
         $delivery = DB::table('empleados as e')
                             ->join('users as u', 'u.id', 'e.user_id')
                             ->select('e.*', 'u.name as nombre')
                             // Repartidores es rol 7
                             ->where('u.role_id', 7)
+                            ->where('e.deleted_at', NULL)
                             ->get();
-        $ultima_venta = DB::table('ventas as v')
-                            ->join('clientes as c', 'c.id', 'v.cliente_id')
-                            ->select('v.id')
-                            ->orderBy('v.id', 'DESC')
-                            ->first();
-        $ultima_venta = $ultima_venta ? $ultima_venta->id : 0;
 
-        // Obtener siguiente estado de la venta
-        $siguiente_estado = [];
-        foreach ($registros as $item) {
-            $aux = DB::table('ventas_detalle_tipo_estados as d')
-                                ->join('ventas_estados as e', 'e.id', 'd.venta_estado_id')
-                                ->select('e.id', 'e.nombre', 'e.etiqueta', 'e.icono')
-                                ->where('d.venta_tipo_id', $item->venta_tipo_id)
-                                ->where('e.id', '>', $item->venta_estado_id)->first();
-            array_push($siguiente_estado, $aux);
+        // Obtener ultima sucursal del usuario
+        $sucursal_actual = $this->get_user_sucursal();
+
+        $sucursales = Sucursale::where('deleted_at', NULL)->select('id', 'nombre')->get();
+
+        // Verificar si el usuario tiene permiso de cambiar de sucursal
+        $cambiar_sucursal = false;
+        if(Auth::user()->role_id == 1 || Auth::user()->role_id == 3){
+            $cambiar_sucursal = true;
         }
+
         $value = '';
-        return view('ventas.ventas_index', compact('registros', 'value', 'delivery', 'ultima_venta', 'siguiente_estado', 'tamanio'));
+        return view('ventas.ventas_index', compact('value', 'delivery', 'tamanio', 'sucursal_actual', 'sucursales', 'cambiar_sucursal'));
     }
 
-    public function search($value){
-        // Obetener el tamaño de la factura o recibo
-        $tamanio = DB::table('settings')
-                            ->select('value')
-                            ->where('id', 26)
-                            ->first()->value;
+    public function ventas_list($sucursal_id, $search){
+        $filtro_tipo_venta = Auth::user()->role_id == 5 ? "v.venta_tipo_id = 3" : 1;
+        $filtro_sucursal = $sucursal_id != 'all' ? "v.sucursal_id = $sucursal_id" : 1;
 
-        $value = ($value != 'all') ? $value : '';
-
-        $consulta = '1';
-        switch (Auth::user()->role_id) {
-            case '5':
-                $consulta = " v.venta_tipo_id = '3'";
-                break;
-            case '6':
-                $consulta = " v.venta_estado_id = '2'";
-                break;
-            default:
-                break;
-        }
+        $filtro_search = $search != 'all' ? "(  c.razon_social like '%".$search."%' or
+                                                vt.nombre like '%".$search."%' or
+                                                ve.nombre like '%".$search."%')" : 1;
 
         $registros = DB::table('ventas as v')
                             ->join('clientes as c', 'c.id', 'v.cliente_id')
                             ->join('ventas_estados as ve', 've.id', 'v.venta_estado_id')
                             ->join('ventas_tipos as vt', 'vt.id', 'v.venta_tipo_id')
-                            ->select('v.*', 'c.razon_social as cliente', 'vt.nombre as tipo_nombre', 'vt.etiqueta as tipo_etiqueta', 've.id as estado_id', 've.nombre as estado_nombre', 've.etiqueta as estado_etiqueta')
-                            ->whereRaw($consulta." and
-                                            (c.razon_social like '%".$value."%' or
-                                             vt.nombre like '%".$value."%' or
-                                             ve.nombre like '%".$value."%')
-                                        ")
+                            ->select('v.*', 'c.razon_social as cliente', 'vt.nombre as tipo_nombre', 'vt.etiqueta as tipo_etiqueta', 've.id as estado_id', 've.nombre as estado_nombre', 've.etiqueta as estado_etiqueta', 'v.deleted_at as siguiente_estado')
+                            ->whereRaw($filtro_tipo_venta)
+                            ->whereRaw($filtro_sucursal)
+                            ->whereRaw($filtro_search)
                             ->orderBy('v.id', 'DESC')
                             ->paginate(20);
-        $delivery = DB::table('empleados as e')
-                            ->join('users as u', 'u.id', 'e.user_id')
-                            ->select('e.*', 'u.name as nombre')
-                            // ->orderBy('r.nombre', 'ASC')
-                            ->get();
-        $ultima_venta = DB::table('ventas as v')
-                            ->join('clientes as c', 'c.id', 'v.cliente_id')
-                            ->select('v.id')
-                            ->orderBy('v.id', 'DESC')
-                            ->first();
-        $ultima_venta = $ultima_venta ? $ultima_venta->id : 0;
-
         // Obtener siguiente estado de la venta
-        $siguiente_estado = [];
+        $cont = 0;
         foreach ($registros as $item) {
-
             $aux = DB::table('ventas_detalle_tipo_estados as d')
                                 ->join('ventas_estados as e', 'e.id', 'd.venta_estado_id')
                                 ->select('e.id', 'e.nombre', 'e.etiqueta', 'e.icono')
                                 ->where('d.venta_tipo_id', $item->venta_tipo_id)
                                 ->where('e.id', '>', $item->venta_estado_id)->first();
-            array_push($siguiente_estado, $aux);
+            $registros[$cont]->siguiente_estado = $aux;
+            $cont++;
         }
-
-        return view('ventas.ventas_index', compact('registros', 'value', 'delivery', 'ultima_venta', 'siguiente_estado', 'tamanio'));
+        return view('ventas.partials.ventas_lista', compact('registros'));
     }
 
-    public function get_nuevos_pedidos($ultimo){
-        return DB::table('ventas as v')
-                            ->join('clientes as c', 'c.id', 'v.cliente_id')
-                            ->join('ventas_estados as ve', 've.id', 'v.venta_estado_id')
-                            ->select('v.*', 'c.razon_social as cliente', 've.id as estado_id', 've.nombre as estado_nombre', 've.etiqueta as estado_etiqueta')
-                            ->where('v.id', '>', $ultimo)
-                            ->where('v.venta_estado_id', 1)
-                            ->orderBy('v.id', 'DESC')
-                            ->get();
+    public function cocinaindex(){
+        return view('ventas.ventas_index_cocina');     
+     }
+ 
+     public function apicocina(){
+        $sucursal_users = DB::table('users_sucursales')->select('sucursal_id')->where('user_id', Auth::user()->id)->where('deleted_at', NULL)->first();
+        $sucursal_id = $sucursal_users ? $sucursal_users->sucursal_id : 0;
+        $ventas = Venta::with(['items.productoadicional','items.producto.subcategoria'])
+                                     ->join('ventas_seguimientos as vs','ventas.id','=','vs.venta_id')
+                                     ->join('ventas_tipos as tv','ventas.venta_tipo_id','=','tv.id')
+                                     ->join('ventas_estados as ve','vs.venta_estado_id','=','ve.id')
+                                     ->selectRaw("ventas.id,ventas.nro_venta,ventas.importe,
+                                                 ventas.fecha,ventas.estado,vs.created_at, DATE_FORMAT(vs.created_at, '%H:%i') as hora,
+                                                 ADDDATE(vs.created_at, INTERVAL ve.duracion minute) as hora_entrega,
+                                                 tv.nombre as tipo_venta,ve.nombre as estado_venta,ve.duracion")
+                                     ->where('ventas.venta_estado_id',2)
+                                     ->where('ventas.sucursal_id', $sucursal_id)
+                                     ->orderBy('ventas.created_at', 'ASC')
+                                     ->get();
+      return response()->json($ventas);
+     }
+ 
+     public function entregar($id){
+         $venta = Venta::findOrFail($id);
+         $venta->venta_estado_id = 3;
+         $venta->update();
+       return response()
+                                 ->json([
+                                     'saved' => 'Se entrego con exito',
+                                     'venta' => $venta
+                                 ]);
+    }
+
+    public function tickets_index(){
+        return view('ventas.tickets_index');
+    }
+
+    public function tickets_list(){
+        $ventas = DB::table('ventas as v')
+                        ->join('clientes as c', 'c.id', 'v.cliente_id')
+                        ->join('ie_cajas as ca', 'ca.id', 'v.caja_id')
+                        ->join('users_sucursales as us', 'us.sucursal_id', 'v.sucursal_id')
+                        ->select('v.id', 'v.nro_venta', 'v.created_at', 'v.venta_estado_id', 'c.razon_social as cliente', 'v.deleted_at as productos')
+                        ->where('v.venta_tipo_id', '=', 2)
+                        ->where('ca.abierta', 1)
+                        ->where('us.user_id', Auth::user()->id)
+                        ->whereRaw('(v.venta_estado_id = 2 or v.venta_estado_id= 3)')
+                        ->get();
+        $cont = 0;
+        foreach ($ventas as $item) {
+            $aux = DB::table('productos as p')
+                        ->join('ventas_detalles as vd', 'vd.producto_id', 'p.id')
+                        ->select('p.nombre', 'vd.cantidad')
+                        ->where('vd.venta_id', $item->id)->get();
+            $ventas[$cont]->productos = $aux;
+            $cont++;
+        }
+        return view('ventas.partials.tickets_list', compact('ventas'));
+    }
+
+    // Obtener publicaciones de Facebook
+    public function get_posts(){
+        $post = DB::table('publicaciones')
+                            ->inRandomOrder()
+                            ->where('deleted_at', NULL)
+                            ->first();
+        return response()->json($post);
     }
 
     public function view($id){
@@ -209,15 +213,14 @@ class VentasController extends Controller
                             ->where('id', 26)
                             ->first()->value;
         // Obtener ultima sucursal del usuario
-        $sucursal_user = DB::table('users_sucursales')->select('sucursal_id')->where('user_id', Auth::user()->id)->first();
-        if($sucursal_user){
-            $sucursal_actual = $sucursal_user->sucursal_id;
-        }else{
-            $sucursal_actual = Sucursale::all()->first()->id;
-            UsersSucursale::create([
-                'user_id' => Auth::user()->id,
-                'sucursal_id' => $sucursal_actual,
-            ]);
+        $sucursal_actual = $this->get_user_sucursal();
+
+        $sucursales = Sucursale::where('deleted_at', NULL)->select('id', 'nombre')->get();
+
+        // Verificar si el usuario tiene permiso de cambiar de sucursal
+        $cambiar_sucursal = false;
+        if(Auth::user()->role_id == 1 || Auth::user()->role_id == 3){
+            $cambiar_sucursal = true;
         }
 
         $categorias = DB::table('categorias as c')
@@ -230,7 +233,6 @@ class VentasController extends Controller
                             ->distinct()
                             ->get();
 
-        // $sucursal_user = DB::table('users_sucursales')->select('sucursal_id')->where('user_id', Auth::user()->id)->first();
         $aux = DB::table('ie_cajas as c')
                             ->select('c.*')
                             ->where('c.abierta', 1)
@@ -243,13 +245,11 @@ class VentasController extends Controller
             $caja_id = $aux->id;
         }
 
-        $sucursales = Sucursale::where('deleted_at', NULL)->select('id', 'nombre')->get();
-
         $facturacion = (new Dosificacion)->get_dosificacion();
 
         // En caso de recibir un variable de tipo Request la asignamos a proforma_id
         $proforma_id = $data->query('proforma');
-        return view('ventas.ventas_create', compact('categorias', 'abierta', 'caja_id', 'facturacion', 'tamanio', 'sucursales', 'sucursal_actual', 'proforma_id'));
+        return view('ventas.ventas_create', compact('categorias', 'abierta', 'caja_id', 'facturacion', 'tamanio', 'sucursales', 'sucursal_actual', 'proforma_id', 'cambiar_sucursal'));
     }
 
     public function productos_search(){
@@ -387,38 +387,33 @@ class VentasController extends Controller
                 }
             }
 
-            // crear el asiento de ingreso
-            DB::table('ie_asientos')
-            ->insert([
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-                'caja_id' => $data->caja_id,
-                'fecha' => date('Y-m-d', strtotime(Carbon::now())),
-                'hora' => date('H:i:s', strtotime(Carbon::now())),
-                'concepto' => 'Venta realizada',
-                'tipo' => 'ingreso',
-                'monto' => $data->importe - $data->descuento,
-                'venta_id' => $venta_id,
-                'user_id' => Auth::user()->id
-            ]);
-            DB::table('ie_cajas')->where('id', $data->caja_id)->increment('monto_final', $data->importe - $data->descuento);
-            DB::table('ie_cajas')->where('id', $data->caja_id)->increment('total_ingresos', $data->importe - $data->descuento);
+            // crear el asiento de ingreso si el pago es en efectivo
+            $efectivo = isset($data->efectivo) ? false : true;
+            if($efectivo){
 
-            // Obetner dosificacion
-            $dosificacion = (new Dosificacion)->get_dosificacion();
-            // si hay dosificaciones generamos codigo de control e incrementamos el numero de factura actual
-            if($dosificacion && $data->factura){
-                $codigo_control = (new Facturacion)->generate($dosificacion->nro_autorizacion, $dosificacion->numero_actual, setting('empresa.nit'), date('Ymd', strtotime($data->fecha)), $data->importe, $dosificacion->llave_dosificacion);
-                DB::table('ventas')->where('id', $venta_id)
-                                        ->update([
-                                                    'nro_factura'       => $dosificacion->numero_actual,
-                                                    'codigo_control'    => $codigo_control,
-                                                    'nro_autorizacion'  => $dosificacion->nro_autorizacion,
-                                                    'fecha_limite'      => $dosificacion->fecha_limite,
-                                                    'autorizacion_id'   => $dosificacion->id,
-                                                    ]);
-                DB::table('dosificaciones')->where('id', $dosificacion->id)->increment('numero_actual', 1);
+                // Crear asiento de ingreso si no es un pedido a domicilio
+                if($data->venta_tipo_id != 4){
+                    $monto_venta = $data->importe - $data->descuento;
+                    $this->crear_asiento_venta($venta_id, $monto_venta, $data->caja_id, 'Venta realizada');
+                }
+
+                // Obetner dosificacion
+                $dosificacion = (new Dosificacion)->get_dosificacion();
+                // si hay dosificaciones generamos codigo de control e incrementamos el numero de factura actual
+                if($dosificacion && $data->factura){
+                    $codigo_control = (new Facturacion)->generate($dosificacion->nro_autorizacion, $dosificacion->numero_actual, setting('empresa.nit'), date('Ymd', strtotime($data->fecha)), $data->importe, $dosificacion->llave_dosificacion);
+                    DB::table('ventas')->where('id', $venta_id)
+                                            ->update([
+                                                        'nro_factura'       => $dosificacion->numero_actual,
+                                                        'codigo_control'    => $codigo_control,
+                                                        'nro_autorizacion'  => $dosificacion->nro_autorizacion,
+                                                        'fecha_limite'      => $dosificacion->fecha_limite,
+                                                        'autorizacion_id'   => $dosificacion->id,
+                                                        ]);
+                    DB::table('dosificaciones')->where('id', $dosificacion->id)->increment('numero_actual', 1);
+                }
             }
+            
 
             // Si es una venta a credito crear un registro de pago
             if(isset($data->credito) && $data->monto_recibido){
@@ -560,7 +555,9 @@ class VentasController extends Controller
 
         DB::beginTransaction();
         try {
+            // Actualizar estado de la venta
             Venta::where('id', $id)->update(['venta_estado_id' => $valor]);
+            // Crear registro de seguimiento de la venta
             VentasSeguimiento::create(['venta_id' => $id, 'venta_estado_id' => $valor]);
 
             if($valor == 5){
@@ -580,6 +577,7 @@ class VentasController extends Controller
         try {
             // Cambiar estado de la venta
             Venta::where('id', $data->id)->update(['venta_estado_id' => 4]);
+            // Crear registro de seguimiento de la venta
             VentasSeguimiento::create(['venta_id' => $data->id, 'venta_estado_id' => 4]);
             // Asignar repartidor
             $repartidores_pedidos = new RepartidoresPedido;
@@ -624,33 +622,44 @@ class VentasController extends Controller
                             ->whereRaw('(rp.estado = 1 or rp.estado = 2)')
                             ->orderBy('rp.id', 'DESC')
                             ->get();
-        return view('ventas.delivery_admin.delivery_view', compact('registros', 'id'));
+        $cajas = DB::table('ie_cajas as c')
+                            ->join('sucursales as s', 's.id', 'c.sucursal_id')
+                            ->select('c.*', 's.nombre as sucursal')
+                            ->where('c.abierta', 1)
+                            ->where('c.deleted_at', NULL)
+                            ->where('s.deleted_at', NULL)
+                            ->get();
+            return view('ventas.delivery_admin.delivery_view', compact('registros', 'id', 'cajas'));
     }
 
     // Pedidos cerrados por administrador
-    public function delivery_admin_close($id){
-        $pedidos = DB::table('empleados as e')
-                            ->join('repartidores_pedidos as rp', 'rp.repartidor_id', 'e.id')
-                            ->join('ventas as v', 'v.id', 'rp.pedido_id')
-                            ->join('clientes as c', 'c.id', 'v.cliente_id')
-                            ->select('v.id')
-                            ->where('e.id', $id)
-                            ->where('v.estado', 'V')
-                            ->where('rp.deleted_at', NULL)
-                            ->whereRaw('(rp.estado = 1 or rp.estado = 2)')
-                            ->orderBy('rp.id', 'DESC')
-                            ->get();
-        $cont_pedidos = count($pedidos);
-        $cont_updates = 0;
-        foreach ($pedidos as $item) {
-            $query = Venta::where('id', $item->id)->update(['venta_estado_id' => 5]);
-            $query = RepartidoresPedido::where('pedido_id', $item->id)->update(['estado' => 3]);
-            $cont_updates++;
-        }
-        
-        if($cont_updates == $cont_pedidos){
-            return redirect()->route('delivery_admin_index')->with(['message' => 'Pedidoscerrados exitosamente.', 'alert-type' => 'success']);
-        }else{
+    public function delivery_admin_close(Request $request){
+        DB::beginTransaction();
+        try {
+            $pedidos = DB::table('empleados as e')
+                                ->join('repartidores_pedidos as rp', 'rp.repartidor_id', 'e.id')
+                                ->join('ventas as v', 'v.id', 'rp.pedido_id')
+                                ->join('clientes as c', 'c.id', 'v.cliente_id')
+                                ->select('v.id', 'v.importe', 'v.efectivo', 'e.nombre as empleado')
+                                ->where('e.id', $request->id)
+                                ->where('v.estado', 'V')
+                                ->where('rp.deleted_at', NULL)
+                                ->whereRaw('(rp.estado = 1 or rp.estado = 2)')
+                                ->orderBy('rp.id', 'DESC')
+                                ->get();
+            foreach ($pedidos as $item) {
+                Venta::where('id', $item->id)->update(['venta_estado_id' => 5]);
+                RepartidoresPedido::where('pedido_id', $item->id)->update(['estado' => 3]);
+
+                // Crear asiento en caja
+                if($item->efectivo){
+                    $this->crear_asiento_venta($item->id, $item->importe, $request->caja_id, 'Pedido entregado por '.$item->empleado);
+                }
+            }
+            DB::commit();
+            return redirect()->route('delivery_admin_index')->with(['message' => 'Pedidos cerrados exitosamente.', 'alert-type' => 'success']);
+        } catch (\Exception $e) {
+            DB::rollback();
             return redirect()->route('delivery_admin_index')->with(['message' => 'Ocurrio un problema al cerrar los pedidos.', 'alert-type' => 'error']);
         }
     }
@@ -713,10 +722,19 @@ class VentasController extends Controller
 
     // Pedido entregado
     public function delivery_close($id){
-        $query = RepartidoresPedido::where('pedido_id', $id)->update(['estado' => 2]);
-        if($query){
+        DB::beginTransaction();
+        try {
+            // Cambiar estado del delivery
+            RepartidoresPedido::where('pedido_id', $id)->update(['estado' => 2]);
+            // Cambiar el estado de la venta
+            Venta::where('id', $id)->update(['venta_estado_id' => 5]);
+            // Crear registro de seguimiento del pedido
+            VentasSeguimiento::create([ 'venta_id' => $id, 'venta_estado_id' => 5,]);
+            
+            DB::commit();
             return redirect()->route('delivery_index')->with(['message' => 'Pedido entregado exitosamente.', 'alert-type' => 'success']);
-        }else{
+        } catch (\Exception $e) {
+            DB::rollback();
             return redirect()->route('delivery_index')->with(['message' => 'Ocurrio un problema al actualizar el estado del pedido.', 'alert-type' => 'error']);
         }
     }
@@ -842,6 +860,7 @@ class VentasController extends Controller
         return view('ventas.creditos.ventas_credito_index', compact('registros', 'value', 'cajas'));
     }
 
+    // Registrar pagos de las ventas a credito
     public function ventas_credito_store(Request $data){
         // dd($data);
         $query = VentasPago::create([
@@ -864,18 +883,7 @@ class VentasController extends Controller
             }
 
             // crear el asiento de ingreso
-            IeAsiento::create([
-                'caja_id' => $data->caja_id,
-                'fecha' => date('Y-m-d', strtotime(Carbon::now())),
-                'hora' => date('H:i:s', strtotime(Carbon::now())),
-                'concepto' => 'Pago de deuda',
-                'tipo' => 'ingreso',
-                'monto' => $data->monto,
-                'venta_id' => $data->id,
-                'user_id' => Auth::user()->id
-            ]);
-            DB::table('ie_cajas')->where('id', $data->caja_id)->increment('monto_final', $data->monto);
-            DB::table('ie_cajas')->where('id', $data->caja_id)->increment('total_ingresos', $data->monto);
+            $this->crear_asiento_venta($data->id, $data->monto, $data->caja_id, 'Pago de deuda');
 
             return redirect()->route('ventas_credito_index')->with(['message' => 'Pago de deuda registrado exitosamente.', 'alert-type' => 'success']);
         }else{
@@ -1096,16 +1104,7 @@ class VentasController extends Controller
                             ->get();
 
         // Obtener ultima sucursal del usuario
-        $sucursal_user = DB::table('users_sucursales')->select('sucursal_id')->where('user_id', Auth::user()->id)->first();
-        if($sucursal_user){
-            $sucursal_actual = $sucursal_user->sucursal_id;
-        }else{
-            $sucursal_actual = Sucursale::all()->first()->id;
-            UsersSucursale::create([
-                'user_id' => Auth::user()->id,
-                'sucursal_id' => $sucursal_actual,
-            ]);
-        }
+        $sucursal_actual = $this->get_user_sucursal();
 
         $sucursales = Sucursale::where('deleted_at', NULL)->select('id', 'nombre')->get();
 
@@ -1151,16 +1150,8 @@ class VentasController extends Controller
     }
 
     public function hojas_trabajos_details($id){
-        $sucursal_user = DB::table('users_sucursales')->select('sucursal_id')->where('user_id', Auth::user()->id)->first();
-        if($sucursal_user){
-            $sucursal_actual = $sucursal_user->sucursal_id;
-        }else{
-            $sucursal_actual = Sucursale::all()->first()->id;
-            UsersSucursale::create([
-                'user_id' => Auth::user()->id,
-                'sucursal_id' => $sucursal_actual,
-            ]);
-        }
+        // Obtener ultima sucursal del usuario
+        $sucursal_actual = $this->get_user_sucursal();
         
         $aux = DB::table('ie_cajas as c')
                             ->select('c.*')
@@ -1246,39 +1237,21 @@ class VentasController extends Controller
             }
 
             // crear el asiento de ingreso
-            DB::table('ie_asientos')
-            ->insert([
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-                'caja_id' => $request->caja_id,
-                'fecha' => date('Y-m-d', strtotime(Carbon::now())),
-                'hora' => date('H:i:s', strtotime(Carbon::now())),
-                'concepto' => 'Venta realizada de la hoja de trabajo '.$request->codigo,
-                'tipo' => 'ingreso',
-                'monto' => $request->importe,
-                'venta_id' => $venta->id,
-                'user_id' => Auth::user()->id
-            ]);
+            $this->crear_asiento_venta($venta->id, $request->importe, $request->caja_id, 'Venta realizada de la hoja de trabajo '.$request->codigo);
 
-            DB::table('ie_cajas')->where('id', $request->caja_id)->increment('monto_final', $request->importe);
-            DB::table('ie_cajas')->where('id', $request->caja_id)->increment('total_ingresos', $request->importe);
             // ==============================
 
             // Crear asiento de egreso si se realizó gastos
             if($request->monto_gasto > 0){
-                DB::table('ie_asientos')
-                    ->insert([
-                        'created_at' => Carbon::now(),
-                        'updated_at' => Carbon::now(),
-                        'caja_id' => $request->caja_id,
-                        'fecha' => date('Y-m-d', strtotime(Carbon::now())),
-                        'hora' => date('H:i:s', strtotime(Carbon::now())),
-                        'concepto' => 'Gasto de la hoja de trabajo '.$request->codigo.' : '.$request->detalle_gasto,
-                        'tipo' => 'egreso',
-                        'monto' => $request->monto_gasto,
-                        'user_id' => Auth::user()->id
-                    ]);
-
+                IeAsiento::create([
+                    'caja_id' => $request->caja_id,
+                    'fecha' => date('Y-m-d', strtotime(Carbon::now())),
+                    'hora' => date('H:i:s', strtotime(Carbon::now())),
+                    'concepto' => 'Gasto de la hoja de trabajo '.$request->codigo.' : '.$request->detalle_gasto,
+                    'tipo' => 'egreso',
+                    'monto' => $request->monto_gasto,
+                    'user_id' => Auth::user()->id
+                ]);
                 DB::table('ie_cajas')->where('id', $request->caja_id)->decrement('monto_final', $request->monto_gasto);
                 DB::table('ie_cajas')->where('id', $request->caja_id)->increment('total_egresos', $request->monto_gasto);
             }
@@ -1452,7 +1425,6 @@ class VentasController extends Controller
     public function crear_venta($data){
 
         // Filtrar datos que no existen cuando se hace un pedido
-        $sucursal_id = isset($data->sucursal_id) ? $data->sucursal_id : NULL;
         $nro_factura = isset($data->nro_factura) ? $data->nro_factura : NULL;
         $codigo_control = isset($data->codigo_control) ? $data->codigo_control : NULL;
         $nro_autorizacion = isset($data->nro_autorizacion) ? $data->nro_autorizacion : NULL;
@@ -1468,9 +1440,11 @@ class VentasController extends Controller
         $cobro_adicional = isset($data->cobro_adicional) ? $data->cobro_adicional : 0;
         $cobro_adicional_factura = isset($data->cobro_adicional_factura) ? 1 : 0;
         $caja_id = isset($data->caja_id) ? $data->caja_id : NULL;
+        $sucursal_id = ($caja_id) ? DB::table('ie_cajas')->select('sucursal_id')->where('id', $caja_id)->first()->sucursal_id : NULL;
         $autorizacion_id = isset($data->autorizacion_id) ? $data->autorizacion_id : NULL;
         $monto_recibido = isset($data->monto_recibido) ? $data->monto_recibido : 0;
         $pagada = isset($data->credito) ? 0 : 1;
+        $efectivo = isset($data->efectivo) ? 0 : 1;
 
         $venta_estado_id = DB::table('ventas_detalle_tipo_estados as d')
                                 ->join('ventas_estados as e', 'e.id', 'd.venta_estado_id')
@@ -1504,6 +1478,7 @@ class VentasController extends Controller
         $venta->cobro_adicional_factura = $cobro_adicional_factura;        
         $venta->caja_id = $caja_id;
         $venta->pagada = $pagada;
+        $venta->efectivo = $efectivo;
         $venta->user_id = Auth::user()->id;
         $venta->venta_tipo_id = $data->venta_tipo_id;
         $venta->venta_estado_id = $venta_estado_id;
@@ -1513,7 +1488,17 @@ class VentasController extends Controller
         $venta->observaciones = $data->observaciones;
 
         $venta->save();
-        return Venta::all()->last()->id;
+
+        // Crear registro de seguimiento del pedido
+        DB::table('ventas_seguimientos')
+        ->insert([
+            'venta_id' => $venta->id,
+            'venta_estado_id' => $venta_estado_id,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now()
+        ]);
+
+        return $venta->id;
     }
 
     public function pedidos_success(){
@@ -1526,7 +1511,30 @@ class VentasController extends Controller
         return view('ecommerce.'.setting('admin.ecommerce').'agradecimiento', compact('mas_vendidos'));
     }
 
-    // Ipresion de factura y recibo
+    public function crear_asiento_venta($venta_id, $monto, $caja_id, $detalle){
+        DB::beginTransaction();
+        try {
+            IeAsiento::create([
+                'caja_id' => $caja_id,
+                'fecha' => date('Y-m-d', strtotime(Carbon::now())),
+                'hora' => date('H:i:s', strtotime(Carbon::now())),
+                'concepto' => $detalle,
+                'tipo' => 'ingreso',
+                'monto' => $monto,
+                'venta_id' => $venta_id,
+                'user_id' => Auth::user()->id
+            ]);
+            DB::table('ie_cajas')->where('id', $caja_id)->increment('monto_final', $monto);
+            DB::table('ie_cajas')->where('id', $caja_id)->increment('total_ingresos', $monto);
+            DB::commit();
+            return 0;
+        } catch (\Exception $e) {
+            DB::rollback();
+            return 1;
+        }
+    }
+
+    // =========Ipresion de factura y recibo=========
 
     public function ventas_print($tipo, $id){
         if($tipo == 'rollo'){
@@ -1784,6 +1792,21 @@ class VentasController extends Controller
         }
 
         return $productos;
+    }
+
+    // Obtener la sucursal asignada al empleado (Si no tiene ninguna se le asigna para evitar erro 500)
+    public function get_user_sucursal(){
+        $sucursal_user = DB::table('users_sucursales')->select('sucursal_id')->where('user_id', Auth::user()->id)->where('deleted_at', NULL)->first();
+        if($sucursal_user){
+            $sucursal_actual = $sucursal_user->sucursal_id;
+        }else{
+            $sucursal_actual = Sucursale::all()->first()->id;
+            UsersSucursale::create([
+                'user_id' => Auth::user()->id,
+                'sucursal_id' => $sucursal_actual,
+            ]);
+        }
+        return $sucursal_actual;
     }
 }
 

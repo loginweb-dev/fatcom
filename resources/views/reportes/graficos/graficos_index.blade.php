@@ -22,6 +22,7 @@
                                             <ul class="nav nav-tabs">
                                                 <li class="active"><a class="tab-tipo" data-toggle="tab" data-value="mensual" href="#mensual">Mensual</a></li>
                                                 <li><a class="tab-tipo" data-toggle="tab" data-value="anual" href="#anual">Anual</a></li>
+                                                <li><a class="tab-tipo" data-toggle="tab" data-value="seguimiento" href="#seguimiento">Seguimiento</a></li>
                                             </ul>    
                                             <div class="tab-content">
                                                 <div id="mensual" class="tab-pane fade in active">
@@ -64,6 +65,30 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <div id="seguimiento" class="tab-pane fade">
+                                                    <div class="form-group col-md-6">
+                                                        <div class="input-group">
+                                                            <select name="mes" class="form-control" class="form-control" id="">
+                                                                <option value="2">Preparación</option>
+                                                                <option value="4">Entrega</option>
+                                                            </select>
+                                                            <span class="input-group-btn">
+                                                                <select name="mes" class="form-control" class="form-control" style="width:200px" id="">
+                                                                    <option value="Todas">Todas</option>
+                                                                    @foreach ($sucursales as $item)
+                                                                        <option value="{{ $item->id }}">{{ $item->nombre }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </span>
+                                                            <span class="input-group-btn">
+                                                                <input type="date" style="width:200px" name="inicio" class="form-control" required>
+                                                                <button class="btn btn-primary" type="submit" style="margin:0px;padding:9px">
+                                                                    <span class="hidden-xs hidden-sm">Generar</span> <span class="voyager-bulb" aria-hidden="true"></span>
+                                                                </button>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <input type="hidden" name="tipo" id="input-tipo" value="mensual">
                                             </div>
                                         </form>
@@ -74,9 +99,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div id="list-data">
-                                    
-                                </div>
+                                <div id="list-data"></div>
                             </div>
                         </div>
                     </div>
@@ -122,8 +145,8 @@
 
                 // Enviar formulario
                 $('#form').on('submit', function(e){
-                    e.preventDefault();
-                    enviar_form();
+                    // e.preventDefault();
+                    // enviar_form();
                 });
 
                 // Cambiar tipo de gráfico

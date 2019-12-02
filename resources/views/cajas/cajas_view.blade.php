@@ -52,7 +52,7 @@
                                         </div>
                                         <hr style="margin:0;">
                                         <div class="row">
-                                            <div class="col-md-6" style="margin:0px">
+                                            <div class="col-md-4" style="margin:0px">
                                                 <div class="panel-heading" style="border-bottom:0;">
                                                     <h3 class="panel-title">Monto de apertura</h3>
                                                 </div>
@@ -60,9 +60,17 @@
                                                     <p>{{$caja->monto_inicial}} Bs.</p>
                                                 </div>
                                             </div>
-                                            <div class="col-md-6" style="margin:0px">
+                                            <div class="col-md-4" style="margin:0px">
                                                 <div class="panel-heading" style="border-bottom:0;">
-                                                    <h3 class="panel-title">Monto final</h3>
+                                                    <h3 class="panel-title">Pagos con tajeta</h3>
+                                                </div>
+                                                <div class="panel-body" style="padding-top:0;">
+                                                    <p>{{ number_format($tarjeta->total, 2, '.', '') }} Bs.</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4" style="margin:0px">
+                                                <div class="panel-heading" style="border-bottom:0;">
+                                                    <h3 class="panel-title">Monto de cierre</h3>
                                                 </div>
                                                 <div class="panel-body" style="padding-top:0;">
                                                     <p>{{$caja->monto_final}} Bs.</p>
@@ -150,7 +158,7 @@
                                                     <tr>
                                                         <td>{{$cont}}</td>
                                                         <td>{{$item->hora}}</td>
-                                                        <td>{{$item->concepto}} @if($item->deleted_at) <label class="label label-danger">Eliminado</label> @endif</td>
+                                                        <td>{{$item->concepto}} {{ $item->venta_id ? 'ID:'.$item->venta_id : '' }} @if($item->deleted_at) <label class="label label-danger">Eliminado</label> @endif</td>
                                                         <td @if($item->deleted_at) class="text-danger" @endif>{{$item->monto}} Bs.</td>
                                                     </tr>
                                                     @php
@@ -202,7 +210,7 @@
                                                     <tr>
                                                         <td>{{$cont}}</td>
                                                         <td>{{$item->hora}}</td>
-                                                        <td>{{$item->concepto}} @if($item->deleted_at) <label class="label label-danger">Eliminado</label> @endif</td>
+                                                        <td>{{$item->concepto}} {{ $item->compra_id ? 'ID:'.$item->compra_id : '' }} @if($item->deleted_at) <label class="label label-danger">Eliminado</label> @endif</td>
                                                         <td @if($item->deleted_at) class="text-danger" @endif>{{$item->monto}} Bs.</td>
                                                     </tr>
                                                     @php

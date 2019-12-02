@@ -43,6 +43,15 @@
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
                                                 </div>
+                                                <div class="col-md-12 form-group">
+                                                    <label for="">Sucursal</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Rol del acceso al sistema que tendrá el empleado. este campo es obligatorio."></span> @endif
+                                                    <select name="sucursal_id" id="select-sucursal_id" class="form-control" required>
+                                                        {{-- <option value="">Selecciona el rol</option> --}}
+                                                        @foreach ($sucursales as $item)
+                                                        <option value="{{$item->id}}">{{$item->nombre}}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-6 form-group">
@@ -103,6 +112,7 @@
             $(document).ready(function(){
                 $('[data-toggle="tooltip"]').tooltip();
                 $('#select-rol_id').select2();
+                $('#select-sucursal_id').select2();
             });
         </script>
     @endsection

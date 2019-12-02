@@ -9,7 +9,7 @@
                 <i class="voyager-list"></i> <span>Volver a la lista</span>
             </a>
             @if(auth()->user()->hasPermission('delivery_close'))
-            <a href="{{route('delivery_admin_close', ['id' => $id])}}" class="btn btn-info btn-small">
+            <a href="#" data-toggle="modal" data-target="#modal_close" class="btn btn-info btn-small">
                 <i class="voyager-check"></i> <span>Cerrar</span>
             </a>
             @endif
@@ -73,6 +73,44 @@
                 </div>
             </div>
         </div>
+        
+        {{-- modal delete --}}
+        <form action="{{ route('delivery_admin_close') }}" method="POST">
+            <div class="modal modal-primary fade" tabindex="-1" id="modal_close" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                        aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">
+                                <i class="voyager-check"></i> Estás seguro que quieres cerrar todos los pedidos?
+                            </h4>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label>Caja</label>
+                                <select name="caja_id" class="form-control" required>
+                                    <option selected disabled value="">Elige una caja</option>
+                                    @foreach($cajas as $item)
+                                    <option value="{{ $item->id }}">{{ $item->nombre }} - {{ $item->sucursal }}</option>
+                                    @endforeach
+                                </select>
+                                <p class="text-muted">Todos los registros de venta se registrarán en la caja seleccionada.</p>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            {{ csrf_field() }}
+                            <input type="hidden" name="id" value="{{ $id }}">
+                            <input type="submit" class="btn btn-primary pull-right delete-confirm"value="Sí, bórralo!">
+                            <button type="button" class="btn btn-default pull-right" data-dismiss="modal">
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
     @stop
     @section('css')
         <style>

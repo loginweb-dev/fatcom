@@ -6,16 +6,19 @@
         <h1 class="page-title">
             <i class="voyager-archive"></i> {{ $deposito->nombre }}
         </h1>
-        @if(auth()->user()->hasPermission('add_producto_depositos'))
-        <a href="{{route('depositos_create_producto', ['id' => $id])}}" class="btn btn-success btn-add-new">
-            <i class="voyager-plus"></i> <span>Añadir nuevo producto</span>
-        </a>
+        @if ($deposito->inventario)
+            @if(auth()->user()->hasPermission('add_producto_depositos'))
+            <a href="{{route('depositos_create_producto', ['id' => $id])}}" class="btn btn-success btn-add-new">
+                <i class="voyager-plus"></i> <span>Añadir nuevo producto</span>
+            </a>
+            @endif
+            @if(auth()->user()->hasPermission('add_producto_depositos'))
+            <a href="#" data-toggle="modal" data-target="#modal_add_producto" class="btn btn-info btn-add-new" id="btn-add-exist">
+                <i class="voyager-plus"></i> <span>Añadir producto existente</span>
+            </a>
+            @endif
         @endif
-        @if(auth()->user()->hasPermission('add_producto_depositos'))
-        <a href="#" data-toggle="modal" data-target="#modal_add_producto" class="btn btn-info btn-add-new" id="btn-add-exist">
-            <i class="voyager-plus"></i> <span>Añadir producto existente</span>
-        </a>
-        @endif
+        
         <a href="{{route('depositos_index')}}" class="btn btn-warning" style="margin-top:3px">
             <i class="voyager-list"></i> <span>Volver a la lista</span>
         </a>
@@ -24,6 +27,34 @@
         <div class="page-content">
             <div class="page-content browse container-fluid">
                 @include('voyager::alerts')
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="panel panel-bordered">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">Costo total del inventario</h4>
+                                <div class="panel-actions">
+                                    <a class="panel-action panel-collapsed voyager-angle-down" data-toggle="panel-collapse" aria-hidden="true"></a>
+                                </div>
+                            </div>
+                            <div class="panel-body collapse">
+                                <table class="table table-hover">
+                                    <tr>
+                                        <td><h5>Monto a precio de compra</h5></td>
+                                        <td><h4>{{ number_format($total_compra, 2, ',', '.') }} Bs.</h4></td>
+                                    </tr>
+                                    <tr>
+                                        <td><h5>Monto a precio de venta</h5></td>
+                                        <td><h4>{{ number_format($total_venta, 2, ',', '.') }} Bs.</h4></td>
+                                    </tr>
+                                    <tr>
+                                        <td><h4>Ganancia neta</h4></td>
+                                        <td><h3>{{ number_format($total_venta - $total_compra, 2, ',', '.') }} Bs.</h3></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-md-12">
                         <div class="panel panel-bordered">
@@ -53,7 +84,9 @@
                                                 <th>Precio</th>
                                                 <th>Stock</th>
                                                 <th>Imagen</th>
+                                                @if ($deposito->inventario)
                                                 <th class="actions text-right">Acciones</th>
+                                                @endif
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -73,18 +106,15 @@
                                                     <td>{{ $item->precio_venta }}</td>
                                                     <td>{{ $item->cantidad }}</td>
                                                     <td><a href="{{ url('storage').'/'.$imagen }}" data-fancybox="galeria1" data-caption="{{ $item->nombre }}"><img src="{{ url('storage').'/'.$img }}" width="50px" alt=""></a></td>
+                                                    @if ($deposito->inventario)
                                                     <td class="no-sort no-click text-right" id="bread-actions">
                                                         @if(auth()->user()->hasPermission('edit_productos'))
                                                         <a href="#" title="Editar" class="btn btn-sm btn-primary edit">
                                                             <i class="voyager-edit"></i> <span class="hidden-xs hidden-sm">Editar</span>
                                                         </a>
                                                         @endif
-                                                        {{-- @if(auth()->user()->hasPermission('delete_productos'))
-                                                        <a href="#" title="Borrar" class="btn btn-sm btn-danger btn-delete" data-id="{{$item->id}}" data-toggle="modal" data-target="#modal_delete">
-                                                            <i class="voyager-trash"></i> <span class="hidden-xs hidden-sm">Borrar</span>
-                                                        </a>
-                                                        @endif --}}
                                                     </td>
+                                                    @endif
                                                 </tr>
                                                 @php
                                                     $cont++;
@@ -117,6 +147,7 @@
         </div>
 
         {{-- modal delete --}}
+        @if ($deposito->inventario)
         <form action="{{route('depositos_store_producto')}}" method="POST">
             <div class="modal modal-success fade" tabindex="-1" id="modal_add_producto" role="dialog">
                 <div class="modal-dialog">
@@ -175,6 +206,7 @@
                 </div>
             </div>
         </form>
+        @endif
     @stop
     @section('css')
         <link href="{{url('ecommerce_public/plugins/fancybox/fancybox.min.css')}}" type="text/css" rel="stylesheet">
