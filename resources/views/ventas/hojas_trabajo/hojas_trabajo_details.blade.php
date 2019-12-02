@@ -21,7 +21,6 @@
                     <div class="alert alert-warning">
                         <strong>Atención:</strong>
                         <p>No puede realizar el cierre de la hoja de trabajo debido a que no se ha aperturado la caja.</p>
-                        <p>Para realizar la apertura de la caja preciona <a href="{{ route('cajas_create') }}"><b style="color:blue">Aquí</b></a></p>
                     </div>
                     @endif
                     <div class="col-md-12">

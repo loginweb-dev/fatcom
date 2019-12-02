@@ -107,7 +107,6 @@ Route::post('admin/productos/eliminar_imagen', 'ProductosController@delete_image
 Route::get('admin/productos/obtener/precios_venta/{id}', 'ProductosController@obtener_precios_venta');
 Route::get('admin/productos/obtener/codigo_interno/{id}', 'ProductosController@ultimo_codigo_interno');
 
-// Lista de sub categorías de una categoría
 Route::get('admin/productos/list/subcategorias/categoria/{categoria_id}', 'ProductosController@subcategorias_categoria');
 
 // Filtros
@@ -182,7 +181,7 @@ Route::get('admin/compras/crear/{tipo}', 'ComprasController@compras_cargar_tipo'
 
 // ============================Ventas====================================
 Route::get('admin/ventas', 'VentasController@index')->name('ventas_index');
-Route::get('admin/ventas/lista/{sucursal_id}/{search}', 'VentasController@ventas_list');
+Route::get('admin/ventas/buscar/{value}', 'VentasController@search')->name('ventas_search');
 Route::get('admin/ventas/ver/{id}', 'VentasController@view')->name('ventas_view');
 Route::get('admin/ventas/crear', 'VentasController@create')->name('ventas_create');
 Route::post('admin/ventas/store', 'VentasController@store')->name('ventas_store');
@@ -191,15 +190,6 @@ Route::get('admin/ventas/update/estado/{id}/{valor}', 'VentasController@estado_u
 Route::post('admin/ventas/asignar_repartidor', 'VentasController@asignar_repartidor')->name('asignar_repartidor');
 Route::get('admin/ventas/get_ubicaciones_cliente/{id}', 'VentasController@get_ubicaciones_cliente');
 Route::get('admin/ventas/detalles/{id}', 'VentasController@ventas_details');
-
-Route::get('admin/ventas/tickets','VentasController@tickets_index')->name('tickets_index');
-Route::get('admin/ventas/tickets/list','VentasController@tickets_list');
-Route::get('admin/ventas/cocina','VentasController@cocinaindex')->name('cocina.index');
-Route::get('admin/ventas/cocina/api','VentasController@apicocina');
-Route::post('admin/ventas/entregar/{id}','VentasController@entregar');
-
-// Obtener publicaciones
-Route::get('admin/ventas/tickets/posts','VentasController@get_posts');
 
 // Obtener productos disponibles en la sucursal
 Route::get('admin/ventas/productos/{categoria}/{subcategoria}/{marca}/{talla}/{genero}/{color}', 'VentasController@filtro_productos_disponibles');
@@ -227,6 +217,8 @@ Route::get('admin/hojastrabajo/impresion/{id}', 'VentasController@hojas_trabajos
 Route::get('admin/hojastrabajo/detalle/{id}', 'VentasController@hojas_trabajos_details')->name('hojas_trabajos_details');
 Route::post('admin/hojastrabajo/cerrar', 'VentasController@hojas_trabajos_close')->name('hojas_trabajos_close');
 
+
+Route::get('admin/ventas/lista_nuevos_pedidos/{last}', 'VentasController@get_nuevos_pedidos');
 Route::get('admin/ventas/crear/productos_search', 'VentasController@productos_search');
 Route::get('admin/ventas/crear/ventas_categorias/{id}', 'VentasController@ventas_categorias');
 Route::get('admin/ventas/crear/ventas_productos_categorias/{id}', 'VentasController@ventas_productos_categorias');
@@ -264,7 +256,7 @@ Route::get('pedidos/success', 'VentasController@pedidos_success')->name('pedidos
 // ============================Delivery====================================
 Route::get('admin/administracion/delivery', 'VentasController@delivery_admin_index')->name('delivery_admin_index');
 Route::get('admin/administracion/delivery/detalle/{id}', 'VentasController@delivery_admin_view')->name('delivery_admin_view');
-Route::post('admin/administracion/delivery/close', 'VentasController@delivery_admin_close')->name('delivery_admin_close');
+Route::get('admin/administracion/delivery/close/{id}', 'VentasController@delivery_admin_close')->name('delivery_admin_close');
 
 // Opciones del repartidor
 Route::get('admin/repartidor/delivery', 'VentasController@delivery_index')->name('delivery_index');

@@ -128,8 +128,15 @@ class ComprasController extends Controller
                     if($data->compra_productos){
                         // Si el producto ya está registrado en el almacen se incrementará, caso contrario se creara un nuevo registro
                         $pd = ProductosDeposito::where('deposito_id', $data->deposito_id)->where('producto_id', $data->producto[$i])->first();
-                        
-                        if($pd){
+                        if(!$pd){
+                            $pd = new ProductosDeposito;
+                            $pd->deposito_id = $data->deposito_id;
+                            $pd->producto_id = $data->producto[$i];
+                            $pd->stock = !isset($data->nro_factura) ? $data->cantidad[$i] : 0;
+                            $pd->stock_compra = isset($data->nro_factura) ? $data->cantidad[$i] : 0;
+                            $pd->stock_inicial = $data->cantidad[$i];
+                            $pd->save();
+                        }else{
                             $campo_stock = isset($data->nro_factura) ? 'stock_compra' : 'stock';
                             DB::table('productos_depositos')->where('id', $pd->id)->increment($campo_stock, $data->cantidad[$i]);
 
@@ -138,26 +145,15 @@ class ComprasController extends Controller
                             $producto->precio_venta = $data->precio_venta[$i];
                             $producto->ultimo_precio_compra = $data->precio[$i];
                             $producto->save();
-                        }else{
-                            $pd = new ProductosDeposito;
-                            $pd->deposito_id = $data->deposito_id;
-                            $pd->producto_id = $data->producto[$i];
-                            $pd->stock = !isset($data->nro_factura) ? $data->cantidad[$i] : 0;
-                            $pd->stock_compra = isset($data->nro_factura) ? $data->cantidad[$i] : 0;
-                            $pd->stock_inicial = $data->cantidad[$i];
-                            $pd->save();
+
+                            // Actualizar precio de venta en tabla de producto por unidades
+                            $id = ProductoUnidade::where('producto_id', $data->producto[$i])->where('deleted_at', NULL)->first()->id;
+                            $producto_unidad = ProductoUnidade::find($id);
+                            $producto_unidad->precio = $data->precio_venta[$i];
+                            $producto_unidad->save();
                         }
-                        
-                        // Actualizar precio de venta en tabla de producto por unidades
-                        $id = ProductoUnidade::where('producto_id', $data->producto[$i])->where('deleted_at', NULL)->first()->id;
-                        $producto_unidad = ProductoUnidade::find($id);
-                        $producto_unidad->precio = $data->precio_venta[$i];
-                        $producto_unidad->save();
-                        
-                        // Actualizar stock global del producto
                         $producto = Producto::find($data->producto[$i]);
                         $producto->stock += $data->cantidad[$i];
-                        $producto->se_almacena = 1;
                         $producto->save();
                     }
                 }
@@ -187,7 +183,7 @@ class ComprasController extends Controller
                         ->join('monedas as mo', 'mo.id', 'p.moneda_id')
                         ->select('p.id','p.codigo_interno', 'p.codigo', 'p.nombre', 'p.imagen', 'p.precio_venta','p.descripcion_small', 'm.nombre as marca', 't.nombre as talla', 'g.nombre as genero', 's.nombre as subcategoria', 'c.nombre as color', 'mo.abreviacion as moneda')
                         ->where('p.deleted_at', NULL)
-                        // ->where('p.se_almacena', '<>', NULL)
+                        ->where('p.se_almacena', '<>', NULL)
                         ->orderBy('c.id', 'DESC')
                         ->get();
         

@@ -307,7 +307,7 @@
                                                     <td><input type="hidden" value="${id}" name="producto_id[]"><button type="button" class="btn btn-link" title="Ver información" onclick="producto_info(${id})">${nombre}</button></td>
                                                     <td>
                                                         <div class="input-group">
-                                                            <input type="number" id="input-precio_${id}" min="1" step="0.1" value="${precio}" name="precio[]" class="form-control" onchange="subtotal('${id}');calcular_cambio()" onkeyup="subtotal('${id}');calcular_cambio()" required />
+                                                            <input type="number" readonly id="input-precio_${id}" min="1" step="0.1" value="${precio}" name="precio[]" class="form-control" onchange="subtotal('${id}');calcular_cambio()" onkeyup="subtotal('${id}');calcular_cambio()" required />
                                                             <span class="input-group-addon">Bs.</span>
                                                         </div>
                                                     </td>

@@ -7,8 +7,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
-use App\Sucursale;
-
 class ReportesController extends Controller
 {
     public function __construct()
@@ -105,8 +103,7 @@ class ReportesController extends Controller
 
     public function graficos_index()
     {
-        $sucursales = Sucursale::where('deleted_at', NULL)->get();
-        return view('reportes.graficos.graficos_index', compact('sucursales'));
+        return view('reportes.graficos.graficos_index');
     }
 
     public function graficos_generar(Request $data)

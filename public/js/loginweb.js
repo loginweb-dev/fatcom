@@ -1,5 +1,3 @@
-const URL_BASE = `${window.location.href.split('admin')[0]}/admin`;
-
 function inicializar_select2(id){
     $(`#select-${id}`).select2({
         tags: true,
@@ -20,7 +18,7 @@ function inicializar_select2(id){
         },
     }).change(function(){
         if($(`#select-${id}`).val().trim() === $(`#select-${id} option:selected`).text().trim()){
-            $.get(`${URL_BASE}/productos/parametros/store/${id}/${$(`#select-${id}`).val().trim()}`, function(data){
+            $.get(`parametros/store/${id}/${$(`#select-${id}`).val().trim()}`, function(data){
                 if(!data.error){
                     var newOption = new Option(data.nombre, data.id, false, false);
                     $(`#select-${id}`).append(newOption);
@@ -37,7 +35,7 @@ $('#select-categoria_id').change(function(){
     let id = $(this).val();
     if(!isNaN(id)){
         $.ajax({
-            url: `${URL_BASE}/productos/list/subcategorias/categoria/${id}`,
+            url: `list/subcategorias/categoria/${id}`,
             type: 'get',
             success: function(response){
                 select2_reload('subcategoria_id', response, 'Seleccione una subcategría', '');
@@ -52,7 +50,7 @@ $('#select-categoria_id').change(function(){
 // Crear nueva sub categoría
 $('#select-subcategoria_id').change(function(){
     if($(`#select-subcategoria_id`).val().trim() === $(`#select-subcategoria_id option:selected`).text().trim()){
-        $.get(`${URL_BASE}/productos/subcategoria/store/${$('#select-categoria_id').val()}/${$(`#select-subcategoria_id`).val().trim()}`, function(data){
+        $.get(`subcategoria/store/${$('#select-categoria_id').val()}/${$(`#select-subcategoria_id`).val().trim()}`, function(data){
             var newOption = new Option(data.nombre, data.id, false, false);
             $(`#select-subcategoria_id`).append(newOption);
             $(`#select-subcategoria_id`).val(data.id);

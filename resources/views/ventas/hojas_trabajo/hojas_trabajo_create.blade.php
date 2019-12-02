@@ -300,7 +300,7 @@
                                                             <span class="input-group-addon">Bs.</span>
                                                         </div>
                                                     </td>
-                                                    <td><input type="number" min="1" step="0.5" class="form-control" id="input-cantidad_${id}" value="1" name="cantidad[]" onchange="subtotal('${id}');calcular_cambio()" onkeyup="subtotal('${id}');calcular_cambio()" required></td>
+                                                    <td><input type="number" min="1" step="1" class="form-control" id="input-cantidad_${id}" value="1" name="cantidad[]" onchange="subtotal('${id}');calcular_cambio()" onkeyup="subtotal('${id}');calcular_cambio()" required></td>
                                                     <td class="label-subtotal" id="subtotal-${id}"><h4>${precio} Bs.</h4></td>
                                                     <td width="40px"><label onclick="borrarProducto('${id}')" class="text-danger" style="cursor:pointer;font-size:20px"><span class="voyager-trash"></span></label></td>
                                                 <tr>`);

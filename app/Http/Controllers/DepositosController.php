@@ -22,28 +22,32 @@ class DepositosController extends Controller
     public function index()
     {
         $registros = DB::table('depositos')
-                            ->select('id', 'nombre', 'direccion', 'inventario', 'sucursal_id', 'deleted_at as sucursal')
+                            ->select('*')
                             ->where('deleted_at', NULL)
                             ->paginate(10);
-        $cont = 0;
+        $sucursales = array();
         foreach ($registros as $item) {
             $sucursal = DB::table('sucursales')
                             ->select('nombre')
                             ->where('deleted_at', NULL)
-                            ->where('id', $item->sucursal_id)->first();
-
-            $registros[$cont]->sucursal = $sucursal ? $sucursal->nombre : 'Ninguna';
-            $cont++;
+                            ->where('id', $item->sucursal_id)
+                            ->first();
+            if($sucursal){
+                $nombre_sucursal = $sucursal->nombre;
+            }else{
+                $nombre_sucursal = 'Ninguna';
+            }
+            array_push($sucursales, array('nombre' => $nombre_sucursal));
         }
         $value = '';
-        return view('inventarios/depositos/depositos_index', compact('registros', 'value'));
+        return view('inventarios/depositos/depositos_index', compact('registros', 'sucursales', 'value'));
     }
 
     public function search($value)
     {
         $value = ($value != 'all') ? $value : '';
         $registros = DB::table('depositos as d')
-                            ->select('id', 'nombre', 'direccion', 'inventario', 'sucursal_id', 'deleted_at as sucursal')
+                            ->select('*')
                             ->whereRaw("d.deleted_at is null and
                                         (
                                             d.nombre like '%".$value."%' or
@@ -51,18 +55,22 @@ class DepositosController extends Controller
                                         )")
                             ->paginate(10);
 
-        $cont = 0;
+        $sucursales = array();
         foreach ($registros as $item) {
             $sucursal = DB::table('sucursales')
                             ->select('nombre')
                             ->where('deleted_at', NULL)
-                            ->where('id', $item->sucursal_id)->first();
-
-            $registros[$cont]->sucursal = $sucursal ? $sucursal->nombre : 'Ninguna';
-            $cont++;
+                            ->where('id', $item->sucursal_id)
+                            ->first();
+            if($sucursal){
+                $nombre_sucursal = $sucursal->nombre;
+            }else{
+                $nombre_sucursal = 'Ninguna';
+            }
+            array_push($sucursales, array('nombre' => $nombre_sucursal));
         }
 
-        return view('inventarios/depositos/depositos_index', compact('registros', 'value'));
+        return view('inventarios/depositos/depositos_index', compact('registros', 'sucursales', 'value'));
     }
 
     public function view($id){
@@ -109,27 +117,12 @@ class DepositosController extends Controller
                             })
                             // ->where('p.se_almacena', NULL)
                             ->where('p.deleted_at', NULL)->get();
-        
-        $stock = DB::table('productos as p')
-                            ->join('productos_depositos as d', 'd.producto_id', 'p.id')
-                            ->select(DB::raw('d.id as id, p.precio_venta, p.precio_minimo, sum(d.stock_compra + d.stock) as cantidad'))
-                            ->groupBy('id', 'precio_venta', 'precio_minimo')
-                            ->where('p.deleted_at', NULL)
-                            ->get();
-        $total_compra = 0;
-        $total_venta = 0;
-        foreach ($stock as $item) {
-            $total_compra += $item->precio_minimo * $item->cantidad;
-            $total_venta += $item->precio_venta * $item->cantidad;
-        }
-
         $value = '';
-        return view('inventarios/depositos/depositos_view', compact('id', 'deposito', 'registros', 'value', 'productos', 'total_compra', 'total_venta'));
+        return view('inventarios/depositos/depositos_view', compact('id', 'deposito', 'registros', 'value', 'productos'));
     }
 
     public function view_search($id, $value){
         $value = ($value != 'all') ? $value : '';
-        $deposito = Deposito::find($id);
         $registros = DB::table('productos as p')
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
                             ->join('productos_depositos as d', 'd.producto_id', 'p.id')
@@ -174,21 +167,9 @@ class DepositosController extends Controller
                             })
                             // ->where('p.se_almacena', NULL)
                             ->where('p.deleted_at', NULL)->get();
+        $depositos = Deposito::all()->where('deleted_at', null);
 
-        $stock = DB::table('productos as p')
-                            ->join('productos_depositos as d', 'd.producto_id', 'p.id')
-                            ->select(DB::raw('d.id as id, p.precio_venta, p.precio_minimo, sum(d.stock_compra + d.stock) as cantidad'))
-                            ->groupBy('id', 'precio_venta', 'precio_minimo')
-                            ->where('p.deleted_at', NULL)
-                            ->get();
-        $total_compra = 0;
-        $total_venta = 0;
-        foreach ($stock as $item) {
-            $total_compra += $item->precio_minimo * $item->cantidad;
-            $total_venta += $item->precio_venta * $item->cantidad;
-        }
-
-        return view('inventarios/depositos/depositos_view', compact('id', 'registros', 'value', 'productos', 'deposito', 'total_compra', 'total_venta'));
+        return view('inventarios/depositos/depositos_view', compact('id', 'registros', 'value', 'productos', 'depositos'));
     }
 
     public function create(){

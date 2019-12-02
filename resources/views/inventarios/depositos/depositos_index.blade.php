@@ -53,9 +53,9 @@
                                             @endphp
                                             @forelse ($registros as $item)
                                                 <tr>
-                                                    <td>{{ $item->nombre }}</td>
-                                                    <td>{{ $item->direccion }}</td>
-                                                    <td>{{ $item->sucursal }}</td>
+                                                    <td>{{$item->nombre}}</td>
+                                                    <td>{{$item->direccion}}</td>
+                                                    <td>{{$sucursales[$cont]['nombre']}}</td>
                                                     <td>@php echo $estado_inventario[$item->inventario]; @endphp</td>
                                                     <td class="no-sort no-click text-right" id="bread-actions">
                                                         @if(auth()->user()->hasPermission('read_depositos'))
@@ -69,7 +69,7 @@
                                                         </a>
                                                         @endif
                                                         @if(auth()->user()->hasPermission('delete_depositos'))
-                                                        <a href="#" title="Borrar" class="btn btn-sm btn-danger btn-delete" data-id="{{ $item->id }}" data-toggle="modal" data-target="#modal_delete">
+                                                        <a href="#" title="Borrar" class="btn btn-sm btn-danger btn-delete" data-id="{{$item->id}}" data-toggle="modal" data-target="#modal_delete">
                                                             <i class="voyager-trash"></i> <span class="hidden-xs hidden-sm">Borrar</span>
                                                         </a>
                                                         @endif

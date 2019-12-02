@@ -122,7 +122,7 @@ function add_precio_venta(indice_venta){
                                         <input type="number" min="1" step="0.1" class="form-control" name="precio_venta[]" required>
                                         <input type="hidden" name="precio_minimo[]" value="0">
                                     </td>
-                                    <td><input type="number" min="1" step="1" class="form-control" name="precio_minimo[]"></td>
+                                    <td><input type="number" min="1" step="1" class="form-control" name="precio_minimo[]" required></td>
                                     <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_venta[]" required></td>
                                     <td style="padding-top:15px"><span onclick="borrarTr(${indice_venta}, 'Venta')" class="voyager-x text-danger" title="Quitar"></span></td>
                                 </tr>`);
