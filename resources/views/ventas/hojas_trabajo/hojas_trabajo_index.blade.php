@@ -1,7 +1,7 @@
 @extends('voyager::master')
 @section('page_title', 'Hojas de trabajo')
 
-@if(auth()->user()->hasPermission('browse_proformas'))
+@if(auth()->user()->hasPermission('add_compras'))
     @section('page_header')
         <h1 class="page-title">
             <i class="voyager-news"></i>Hojas de trabajo

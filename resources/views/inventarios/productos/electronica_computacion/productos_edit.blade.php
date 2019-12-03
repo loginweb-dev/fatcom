@@ -196,14 +196,14 @@
                                             @for ($i = 0; $i < count($precio_compra); $i++)
                                                 @if ($i==0)
                                                 <tr>
-                                                    <td><input type="number" min="1" step="0.1" class="form-control" value="{{$precio_compra[$i]->monto}}" name="monto[]"></td>
-                                                    <td><input type="number" min="1" step="1" class="form-control" value="{{$precio_compra[$i]->cantidad_minima}}" name="cantidad_minima_compra[]"></td>
+                                                    <td><input type="number" min="0.01" step="0.01" class="form-control" value="{{$precio_compra[$i]->monto}}" name="monto[]"></td>
+                                                    <td><input type="number" min="0" step="1" class="form-control" value="{{$precio_compra[$i]->cantidad_minima}}" name="cantidad_minima_compra[]"></td>
                                                     <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
                                                 </tr>
                                                 @else
                                                     <tr id="tr-precioCompra{{$indiceCompra}}">
-                                                        <td><input type="number" min="1" step="0.1" class="form-control" value="{{$precio_compra[$i]->monto}}" name="monto[]" required></td>
-                                                        <td><input type="number" min="1" step="1" class="form-control" value="{{$precio_compra[$i]->cantidad_minima}}" name="cantidad_minima_compra[]" required></td>
+                                                        <td><input type="number" min="0.01" step="0.01" class="form-control" value="{{$precio_compra[$i]->monto}}" name="monto[]" required></td>
+                                                        <td><input type="number" min="0" step="1" class="form-control" value="{{$precio_compra[$i]->cantidad_minima}}" name="cantidad_minima_compra[]" required></td>
                                                         <td style="padding-top:15px"><span onclick="borrarTr({{$indiceCompra}}, 'Compra')" class="voyager-x text-danger"></span></td>
                                                     </tr>
                                                 @endif
@@ -238,17 +238,16 @@
                                             @for ($i = 0; $i < count($precio_venta); $i++)
                                                 @if ($i==0)
                                                 <tr>
-                                                    <td>
-                                                        <input type="number" min="1" step="0.1" class="form-control" value="{{$precio_venta[$i]->precio}}" name="precio_venta[]" required>
-                                                        <input type="hidden" name="precio_minimo[]" value="0">
-                                                    </td>
+                                                    <td><input type="number" min="0.01" step="0.01" class="form-control" value="{{$precio_venta[$i]->precio}}" name="precio_venta[]" required></td>
+                                                    <td><input type="number" min="0" step="0.01" class="form-control" name="precio_minimo[]"></td>
                                                     <td><input type="number" min="1" step="1" class="form-control" value="{{$precio_venta[$i]->cantidad_minima}}" name="cantidad_minima_venta[]" required></td>
                                                     <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
                                                 </tr>
                                                 @else
                                                     <tr id="tr-precioVenta{{$indiceVenta}}">
-                                                        <td><input type="number" min="1" step="0.1" class="form-control" value="{{$precio_venta[$i]->precio}}" name="precio_venta[]" required></td>
-                                                        <td><input type="number" min="1" step="1" class="form-control" value="{{$precio_venta[$i]->cantidad_minima}}" name="cantidad_minima_venta[]" required></td>
+                                                        <td><input type="number" min="0.01" step="0.01" class="form-control" value="{{$precio_venta[$i]->precio}}" name="precio_venta[]" required></td>
+                                                        <td><input type="number" min="0" step="0.01" class="form-control" value="{{$precio_venta[$i]->precio_minimo}}" name="precio_minimo[]"></td>
+                                                        <td><input type="number" min="0" step="1" class="form-control" value="{{$precio_venta[$i]->cantidad_minima}}" name="cantidad_minima_venta[]" required></td>
                                                         <td style="padding-top:15px"><span onclick="borrarTr({{$indiceVenta}}, 'Venta')" class="voyager-x text-danger"></span></td>
                                                     </tr>
                                                 @endif

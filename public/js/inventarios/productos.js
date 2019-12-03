@@ -109,7 +109,7 @@ function delete_imagen(url, datos){
 // Agregar precio de compra
 function add_precio_compra(indice_compra){
     $('#tr-precioCompra').append(`<tr id="tr-precioCompra${indice_compra}">
-                                    <td><input type="number" min="1" step="0.1" class="form-control" name="monto[]" required></td>
+                                    <td><input type="number" min="0.01" step="0.01" class="form-control" name="monto[]" required></td>
                                     <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_compra[]" required></td>
                                     <td style="padding-top:15px"><span onclick="borrarTr(${indice_compra}, 'Compra')" class="voyager-x text-danger" title="Quitar"></span></td>
                                 </tr>`);
@@ -118,11 +118,8 @@ function add_precio_compra(indice_compra){
 // Agregar precio de venta
 function add_precio_venta(indice_venta){
     $('#tr-precioVenta').append(`<tr id="tr-precioVenta${indice_venta}">
-                                    <td>
-                                        <input type="number" min="1" step="0.1" class="form-control" name="precio_venta[]" required>
-                                        <input type="hidden" name="precio_minimo[]" value="0">
-                                    </td>
-                                    <td><input type="number" min="1" step="1" class="form-control" name="precio_minimo[]" required></td>
+                                    <td><input type="number" min="1" step="0.1" class="form-control" name="precio_venta[]" required></td>
+                                    <td><input type="number" min="0" step="0.1" class="form-control" name="precio_minimo[]"></td>
                                     <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_venta[]" required></td>
                                     <td style="padding-top:15px"><span onclick="borrarTr(${indice_venta}, 'Venta')" class="voyager-x text-danger" title="Quitar"></span></td>
                                 </tr>`);

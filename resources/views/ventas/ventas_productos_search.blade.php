@@ -156,7 +156,7 @@
     function seleccionar_producto(){
         let id = $('#select-producto_id').val();
         
-        $.get("{{url('admin/productos/get_producto')}}/"+id, function(data){
+        $.get("{{ url('admin/productos/get_producto') }}/"+id, function(data){
             let stock = data.se_almacena ? data.stock : 1000;
             agregar_detalle_venta(data.id, data.nombre, data.precio, stock, '', '');
             $('#select-producto_id').select2('destroy');

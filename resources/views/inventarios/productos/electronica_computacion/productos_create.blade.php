@@ -29,6 +29,13 @@
                                 {{-- <input type="hidden" name="deposito_id" value="{{($depositos) ? $depositos->id : ''}}"> --}}
                                 <input type="hidden" name="codigo_grupo" value="{{$codigo_grupo}}">
                                 <div class="panel-body strong-panel">
+                                    {{-- alerta al guardar un producto --}}
+                                    <div id="alerta-store" class="alert" style="display:none">
+                                        <ul>
+                                            <li id="mensaje-store"></li>
+                                        </ul>
+                                    </div>
+                                    {{-- /alerta al guardar un producto --}}
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="row">
@@ -149,7 +156,7 @@
                                         </thead>
                                         <tbody id="tr-precioCompra">
                                             <tr>
-                                                <td><input type="number" min="1" step="0.1" class="form-control" name="monto[]" ></td>
+                                                <td><input type="number" min="0.01" step="0.01" class="form-control" name="monto[]" ></td>
                                                 <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_compra[]" ></td>
                                                 <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
                                             </tr>
@@ -175,10 +182,8 @@
                                         </thead>
                                         <tbody id="tr-precioVenta">
                                             <tr>
-                                                <td>
-                                                    <input type="number" min="1" step="0.1" class="form-control" name="precio_venta[]" required>
-                                                    <input type="hidden" name="precio_minimo[]" value="0">
-                                                </td>
+                                                <td><input type="number" min="0.01" step="0.01" class="form-control" name="precio_venta[]" required></td>
+                                                <td><input type="number" min="0" step="0.01" class="form-control" name="precio_minimo[]"></td>
                                                 <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_venta[]"  value="1" required></td>
                                                 <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
                                             </tr>

@@ -106,7 +106,10 @@ class CajasController extends Controller
                         ->where('tipo', 'egreso')
                         ->where('caja_id', $id)
                         ->get();
-        return view('cajas.cajas_view', compact('caja' , 'ingresos', 'egresos', 'id'));
+        $tarjeta = DB::table('ventas as v')->select(DB::raw("SUM(v.importe_base) as total"))
+                        ->where('v.caja_id', $id)->where('v.efectivo', 0)
+                        ->where('v.estado', 'V')->where('v.deleted_at', NULL)->first();
+        return view('cajas.cajas_view', compact('caja' , 'ingresos', 'egresos', 'tarjeta', 'id'));
     }
 
     function cajas_create(){

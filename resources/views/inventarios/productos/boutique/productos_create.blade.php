@@ -189,7 +189,7 @@
                                         </thead>
                                         <tbody id="tr-precioCompra">
                                             <tr>
-                                                <td><input type="number" min="1" step="0.1" class="form-control" name="monto[]" ></td>
+                                                <td><input type="number" min="0.01" step="0.01" class="form-control" name="monto[]" ></td>
                                                 <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_compra[]" value="1"></td>
                                                 <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
                                             </tr>
@@ -216,8 +216,8 @@
                                         </thead>
                                         <tbody id="tr-precioVenta">
                                             <tr>
-                                                <td><input type="number" min="1" step="0.1" class="form-control" name="precio_venta[]" required><input type="hidden" name="precio_minimo[]" value="0"></td>
-                                                <td><input type="number" min="0" step="0.1" class="form-control" name="precio_minimo[]"></td>
+                                                <td><input type="number" min="0.01" step="0.01" class="form-control" name="precio_venta[]" required><input type="hidden" name="precio_minimo[]" value="0"></td>
+                                                <td><input type="number" min="0" step="0.01" class="form-control" name="precio_minimo[]"></td>
                                                 <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_venta[]" value="1" required></td>
                                                 <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
                                             </tr>

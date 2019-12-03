@@ -42,6 +42,7 @@
                                                 <th>Nombre completo</th>
                                                 <th>Movil</th>
                                                 <th>Dirección</th>
+                                                <th>Sucursal</th>
                                                 <th>Nickname</th>
                                                 <th>Usuario</th>
                                                 <th>Avatar</th>
@@ -64,6 +65,7 @@
                                                     <td>{{$item->nombre}}</td>
                                                     <td>{{$item->movil}}</td>
                                                     <td>{{$item->direccion}}</td>
+                                                    <td>{{$item->sucursal}}</td>
                                                     <td>{{$users[$cont]['usuario']}}</td>
                                                     <td>{{$users[$cont]['email']}}</td>
                                                     <td><img src="{{$imagen}}" alt="" style="width:50px"></td>

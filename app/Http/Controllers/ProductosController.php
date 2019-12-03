@@ -10,6 +10,7 @@ use App\Http\Controllers\LoginwebController as LW;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManagerStatic as Image;
 
+use App\Http\Controllers\VentasController as Ventas;
 use App\Http\Controllers\OfertasController as Ofertas;
 
 use App\Categoria;
@@ -20,6 +21,7 @@ use App\Unidade;
 use App\Marca;
 use App\Talla;
 use App\Colore;
+use App\Moneda;
 use App\Modelo;
 use App\Producto;
 use App\ProductoUnidade;
@@ -170,49 +172,17 @@ class ProductosController extends Controller
                             ->get();
         $subcategorias = [];
         if(count($categorias)>0){
-            $subcategorias = DB::table('subcategorias')
-                                    ->select('*')
-                                    ->where('deleted_at', NULL)
-                                    // ->where('id', '>', 1)
-                                    ->where('categoria_id', $categorias[0]->id)
-                                    ->get();
+            $subcategorias = Subcategoria::where('deleted_at', NULL)->where('id', '>', 1)->where('categoria_id', $categorias[0]->id)->get();
         }
 
-        $marcas = DB::table('marcas')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            // ->where('id', '>', 1)
-                            ->get();
-        $tallas = DB::table('tallas')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            // ->where('id', '>', 1)
-                            ->get();
-        $colores = DB::table('colores')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            // ->where('id', '>', 1)
-                            ->get();
-        $generos = DB::table('generos')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            // ->where('id', '>', 1)
-                            ->get();
-        $usos = DB::table('usos')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            // ->where('id', '>', 1)
-                            ->get();
-        $unidades = DB::table('unidades')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            // ->where('id', '>', 1)
-                            ->get();
-        $monedas = DB::table('monedas')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
-                            ->get();
+        $marcas = Marca::where('deleted_at', NULL)->where('id', '>', 1)->get();
+        $tallas = Talla::where('deleted_at', NULL)->where('id', '>', 1)->get();
+        $colores = Colore::where('deleted_at', NULL)->where('id', '>', 1)->get();
+        $generos = Genero::where('deleted_at', NULL)->where('id', '>', 1)->get();
+        $usos = Uso::where('deleted_at', NULL)->where('id', '>', 1)->get();
+        $unidades = Unidade::where('deleted_at', NULL)->where('id', '>', 1)->get();
+        $monedas = Moneda::where('deleted_at', NULL)->where('id', '>', 1)->get();
+
         $insumos = DB::table('insumos as i')
                             ->join('unidades as u', 'u.id', 'i.unidad_id')
                             ->select('i.*', 'u.abreviacion as unidad')
@@ -345,48 +315,22 @@ class ProductosController extends Controller
         $categorias = DB::table('categorias')
                             ->select('*')
                             ->where('deleted_at', NULL)
-                            // ->where('id', '>', 1)
+                            ->where('id', '>', 1)
                             ->get();
         $subcategorias = DB::table('subcategorias')
                             ->select('*')
                             ->where('deleted_at', NULL)
-                            // ->where('id', '>', 1)
-                            ->get();
-        $marcas = DB::table('marcas')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            // ->where('id', '>', 1)
-                            ->get();
-        $tallas = DB::table('tallas')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            // ->where('id', '>', 1)
-                            ->get();
-        $colores = DB::table('colores')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            // ->where('id', '>', 1)
-                            ->get();
-        $generos = DB::table('generos')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            // ->where('id', '>', 1)
-                            ->get();
-        $usos = DB::table('usos')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            // ->where('id', '>', 1)
-                            ->get();
-        $unidades = DB::table('unidades')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            // ->where('id', '>', 1)
-                            ->get();
-        $monedas = DB::table('monedas')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
                             ->where('id', '>', 1)
                             ->get();
+
+        $marcas = Marca::where('deleted_at', NULL)->where('id', '>', 1)->get();
+        $tallas = Talla::where('deleted_at', NULL)->where('id', '>', 1)->get();
+        $colores = Colore::where('deleted_at', NULL)->where('id', '>', 1)->get();
+        $generos = Genero::where('deleted_at', NULL)->where('id', '>', 1)->get();
+        $usos = Uso::where('deleted_at', NULL)->where('id', '>', 1)->get();
+        $unidades = Unidade::where('deleted_at', NULL)->where('id', '>', 1)->get();
+        $monedas = Moneda::where('deleted_at', NULL)->where('id', '>', 1)->get();                            
+
         $insumos = DB::table('insumos as i')
                             ->join('unidades as u', 'u.id', 'i.unidad_id')
                             ->select('i.*', 'u.abreviacion as unidad')
@@ -914,14 +858,31 @@ class ProductosController extends Controller
     }
 
     public function get_producto($id){
+        $sucursal_id = (new Ventas)->get_user_sucursal();
+        // Verificar que el producto se almacena en stock
         $producto = DB::table('productos as p')
                             ->join('monedas as m', 'm.id', 'p.moneda_id')
                             ->join('producto_unidades as pu', 'pu.producto_id', 'p.id')
-                            ->select(DB::raw('p.id, p.nombre, pu.precio, pu.precio as precio_antiguo, p.imagen, p.se_almacena, p.stock, p.descripcion_small as descripcion, m.abreviacion as moneda,
+                            ->join('productos_depositos as pd', 'pd.producto_id', 'p.id')
+                            ->join('depositos as d', 'd.id', 'pd.deposito_id')
+                            ->select(DB::raw('p.id, p.nombre, pu.precio, pu.precio as precio_antiguo, p.imagen, p.se_almacena, (pd.stock + pd.stock_compra) as stock, p.descripcion_small as descripcion, m.abreviacion as moneda,
                                             (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos'))
                             ->where('p.id', $id)
+                            ->where('p.se_almacena', 1)
+                            ->where('d.sucursal_id', $sucursal_id)
+                            ->where('p.stock', '>', 0)
                             ->where('pu.deleted_at', NULL)
                             ->first();
+
+        // Si no se almacena mostrar la infomación
+        $producto = $producto ?? DB::table('productos as p')
+                                        ->join('monedas as m', 'm.id', 'p.moneda_id')
+                                        ->join('producto_unidades as pu', 'pu.producto_id', 'p.id')
+                                        ->select(DB::raw('p.id, p.nombre, pu.precio, pu.precio as precio_antiguo, p.imagen, p.se_almacena, p.stock, p.descripcion_small as descripcion, m.abreviacion as moneda,
+                                                        (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos'))
+                                        ->where('p.id', $id)
+                                        ->where('pu.deleted_at', NULL)
+                                        ->first();
 
         if($producto){
             // Obtener si el producto está en oferta
