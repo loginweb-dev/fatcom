@@ -21,6 +21,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::post('/login','ApiController@login');
 Route::post('/registro','ApiController@register');
 Route::post('/update/profile','ApiController@update_profile');
+Route::post('/confirm/profile','ApiController@confirm_profile');
 Route::post('/login/social','ApiController@login_social');
 
 // Categorías diponibles

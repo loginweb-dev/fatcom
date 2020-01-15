@@ -136,7 +136,12 @@ return [
             'voyager::generic.home' => [
                 'route'        => '/',
                 'icon_class'   => 'voyager-home',
-                'target_blank' => false,
+                'target_blank' => true,
+            ],
+            'Atención al Cliente' => [
+                'route'        => 'https://api.whatsapp.com/send?phone=59175199157&text=Tengo un problema con FATCOM',
+                'icon_class'   => 'voyager-bubble',
+                'target_blank' => true,
             ],
             'voyager::generic.logout' => [
                 'route'      => 'voyager.logout',

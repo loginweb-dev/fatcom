@@ -136,18 +136,18 @@
                         <div class="panel-body">
                             <div class="row" style="overflow-y: auto;height:280px">
                                 <div class="form-group">
+                                    <label>NIT/CI</label>
+                                    <input type="number" name="nit" id="input-nit" class="form-control" onkeypress="return getClienteNIT(event)" placeholder="NIT/CI">
+                                </div>
+                                <div class="form-group">
                                     <label>Nombre completo</label>
                                     <div class="input-group">
                                         <select name="cliente_id" class="form-control select2" id="select-cliente_id">
                                         </select>
                                         <span class="input-group-btn">
-                                            <button class="btn btn-primary" style="margin-top:0px;padding:8px" type="button" title="Ver filtros" data-toggle="modal" data-target="#modal-nuevo_cliente" aria-expanded="true" aria-controls="collapseOne">Nuevo <span class="voyager-plus" aria-hidden="true"></span></button>
+                                            <button class="btn btn-primary" style="margin-top:0px;padding:8px" type="button" title="Ver filtros" data-toggle="modal" data-target="#modal-nuevo_cliente" aria-expanded="true" aria-controls="collapseOne"><span class="voyager-person" aria-hidden="true"></span></button>
                                         </span>
                                     </div>
-                                </div>
-                                <div class="form-group">
-                                    <label>NIT/CI</label>
-                                    <input type="number" name="nit" id="input-nit" class="form-control">
                                 </div>
                             </div>
                         </div>

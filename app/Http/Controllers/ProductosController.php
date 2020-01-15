@@ -59,7 +59,7 @@ class ProductosController extends Controller
         $filtro_talla = ($talla != 'all') ? " and p.talla_id = $talla " : ' and 1';
         $filtro_genero = ($genero != 'all') ? " and p.genero_id = $genero " : ' and 1';
         $filtro_color = ($color != 'all') ? " and p.color_id = $color " : ' and 1';
-        $filtro_search = ($search != 'all') ? "(p.codigo like '%$search%' or p.nombre like '%$search%')" : ' 1 ';
+        $filtro_search = ($search != 'all') ? "(p.codigo like '%$search%' or p.nombre like '%$search%' or p.codigo_barras = '$search')" : ' 1 ';
 
         $registros = DB::table('productos as p')
                                 ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
@@ -325,7 +325,7 @@ class ProductosController extends Controller
 
         $marcas = Marca::where('deleted_at', NULL)->where('id', '>', 1)->get();
         $tallas = Talla::where('deleted_at', NULL)->where('id', '>', 1)->get();
-        $colores = Colore::where('deleted_at', NULL)->where('id', '>', 1)->get();
+        $colores = Colore::where('deleted_at', NULL)->get();
         $generos = Genero::where('deleted_at', NULL)->where('id', '>', 1)->get();
         $usos = Uso::where('deleted_at', NULL)->where('id', '>', 1)->get();
         $unidades = Unidade::where('deleted_at', NULL)->where('id', '>', 1)->get();
@@ -532,33 +532,6 @@ class ProductosController extends Controller
                 }
             }
 
-            // guardar imagen si se agregó
-            if($data->file('imagen')!=NULL){
-                for ($i=0; $i < count($data->file('imagen')); $i++) {
-                    $imagen = $this->agregar_imagenes($data->file('imagen')[$i]);
-                    DB::table('producto_imagenes')
-                            ->insert([
-                                        'producto_id' => $data->id,
-                                        'imagen' => $imagen,
-                                        'tipo' => 'secundaria',
-                                        'created_at' => Carbon::now(),
-                                        'updated_at' => Carbon::now()
-                                    ]);
-                    
-                }
-                $producto = Producto::find($data->id);
-                if(!$producto->imagen){
-                    $producto->imagen = $imagen;
-                    $producto->save();
-
-                    $p_i = ProductoImagene::where('producto_id', $data->id)->first();
-
-                    $producto_imagen = ProductoImagene::find($p_i->id);
-                    $producto_imagen->tipo = 'primaria';
-                    $producto_imagen->save();
-                }
-            }
-
             // Editar catalogo
             if ($data->hasFile('catalogo')) {
                 $file = $data->file('catalogo');
@@ -589,6 +562,37 @@ class ProductosController extends Controller
                 }
             }
 
+            try {
+                // guardar imagen si se agregó
+                if($data->file('imagen')!=NULL){
+                    for ($i=0; $i < count($data->file('imagen')); $i++) {
+                        $imagen = $this->agregar_imagenes($data->file('imagen')[$i]);
+                        DB::table('producto_imagenes')
+                                ->insert([
+                                            'producto_id' => $data->id,
+                                            'imagen' => $imagen,
+                                            'tipo' => 'secundaria',
+                                            'created_at' => Carbon::now(),
+                                            'updated_at' => Carbon::now()
+                                        ]);
+                        
+                    }
+                    $producto = Producto::find($data->id);
+                    if(!$producto->imagen){
+                        $producto->imagen = $imagen;
+                        $producto->save();
+
+                        $p_i = ProductoImagene::where('producto_id', $data->id)->first();
+
+                        $producto_imagen = ProductoImagene::find($p_i->id);
+                        $producto_imagen->tipo = 'primaria';
+                        $producto_imagen->save();
+                    }
+                }
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
+
             if($query){
                 return redirect()->route('productos_index')->with(['message' => 'Producto editado exitosamenete.', 'alert-type' => 'success']);
             }else{
@@ -608,8 +612,31 @@ class ProductosController extends Controller
 
     }
 
-    public function delete(Request $data){
+    public function imprimir_codigo_barras(Request $request){
+        $productos = DB::table('productos')->select('codigo', 'codigo_barras')->whereIn('id', $request->input_print)->get();
+        $cantidad = $request->cantidad ?? 1;
+        return view('inventarios.productos.partials.print_bar_code', compact('productos', 'cantidad'));
+    }
 
+    public function delete(Request $data){
+        $producto_depositos = DB::table('productos_depositos')
+                                    ->select('id')
+                                    ->where('producto_id', $data->id)->where('deleted_at', NULL)
+                                    ->first();
+        if($producto_depositos){
+            return redirect()->route('productos_index')->with(['message' => 'No se puede eliminar el producto debido a que se encuentra en almacen.', 'alert-type' => 'error']);
+        }
+
+        try {
+            DB::table('productos')
+                    ->where('id', $data->id)
+                    ->update(['deleted_at' => Carbon::now()]);
+            DB::commit();
+            return redirect()->route('productos_index')->with(['message' => 'Producto eliminado correctamente.', 'alert-type' => 'success']);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->route('productos_index')->with(['message' => 'Ocurrió un problema al eliminar el producto.', 'alert-type' => 'error']);
+        }
     }
 
     public function cambiar_imagen($producto_id, $imagen_id){
@@ -662,6 +689,7 @@ class ProductosController extends Controller
     // *************funciones adicionales*************
 
     public function crear_parametros($tipo, $valor){
+        $valor = str_replace('---', '/', $valor);
         switch ($tipo) {
             case 'categoria_id':
                 return Categoria::create(['nombre'=>$valor]);
@@ -731,26 +759,6 @@ class ProductosController extends Controller
         $producto_id = $producto->id;
         // $producto_id = $this->ultimo_producto();
 
-        // agregar imagenes
-        $imagen_portada = '';
-        if($data->file('imagen')!=NULL){
-            $tipo_imagen = 'principal';
-            for ($i=0; $i < count($data->file('imagen')); $i++) {
-                $imagen = $this->agregar_imagenes($data->file('imagen')[$i]);
-                DB::table('producto_imagenes')
-                        ->insert([
-                                    'producto_id' => $producto_id,
-                                    'imagen' => $imagen,
-                                    'tipo' => $tipo_imagen,
-                                    'created_at' => Carbon::now(),
-                                    'updated_at' => Carbon::now()
-                                ]);
-                if($tipo_imagen=='principal'){
-                    $imagen_portada = $imagen;
-                }
-                $tipo_imagen = 'secundaria';
-            }
-        }
         $catalogo = '';
         if ($data->hasFile('catalogo')) {
             $file = $data->file('catalogo');
@@ -805,6 +813,31 @@ class ProductosController extends Controller
             }
         }
 
+        $imagen_portada = '';
+        try {
+            // agregar imagenes
+            if($data->file('imagen')!=NULL){
+                $tipo_imagen = 'principal';
+                for ($i=0; $i < count($data->file('imagen')); $i++) {
+                    $imagen = $this->agregar_imagenes($data->file('imagen')[$i]);
+                    DB::table('producto_imagenes')
+                            ->insert([
+                                        'producto_id' => $producto_id,
+                                        'imagen' => $imagen,
+                                        'tipo' => $tipo_imagen,
+                                        'created_at' => Carbon::now(),
+                                        'updated_at' => Carbon::now()
+                                    ]);
+                    if($tipo_imagen=='principal'){
+                        $imagen_portada = $imagen;
+                    }
+                    $tipo_imagen = 'secundaria';
+                }
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+
         // Editar codigos del producto
         DB::table('productos')
                 ->where('id', $producto_id)
@@ -815,15 +848,15 @@ class ProductosController extends Controller
                             'imagen' => $imagen_portada
                         ]);
 
-    if($producto){
-        return $producto_id;
-    }else{
-        return 0;
-    }
+        if($producto){
+            return $producto_id;
+        }else{
+            return 0;
+        }
     }
 
     public function agregar_imagenes($file){
-        Storage::makeDirectory('public/productos/'.date('F').date('Y'));
+        Storage::makeDirectory('/public/productos/'.date('F').date('Y'));
         $base_name = str_random(20);
 
         // imagen normal
@@ -833,7 +866,7 @@ class ProductosController extends Controller
             $constraint->aspectRatio();
         });
         $path =  'productos/'.date('F').date('Y').'/'.$filename;
-        $image_resize->save('storage/'.$path);
+        $image_resize->save(public_path('../storage/app/public/'.$path));
         $imagen = $path;
 
         // imagen mediana
@@ -843,7 +876,7 @@ class ProductosController extends Controller
             $constraint->aspectRatio();
         });
         $path_medium = 'productos/'.date('F').date('Y').'/'.$filename_medium;
-        $image_resize->save('storage/'.$path_medium);
+        $image_resize->save(public_path('../storage/app/public/'.$path_medium));
 
         // imagen pequeña
         $filename_small = $base_name.'_small.'.$file->getClientOriginalExtension();
@@ -852,7 +885,7 @@ class ProductosController extends Controller
             $constraint->aspectRatio();
         });
         $path_small = 'productos/'.date('F').date('Y').'/'.$filename_small;
-        $image_resize->save('storage/'.$path_small);
+        $image_resize->save(public_path('../storage/app/public/'.$path_small));
 
         return $imagen;
     }

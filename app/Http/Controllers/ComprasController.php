@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use App\Producto;
 use App\Proveedore;
 use App\Compra;
+use App\ComprasDetalle;
 use App\IeCaja;
 use App\IeAsiento;
 use App\ProductosDeposito;
@@ -46,7 +47,6 @@ class ComprasController extends Controller
     }
 
     public function store(Request $data){
-        // dd($data);
         // Si se envió un NIT crear nuevo proveedor
         if(!empty($data->nit)){
             $proveedor = (new Proveedores)->get_proveedor($data->nit);
@@ -64,9 +64,10 @@ class ComprasController extends Controller
         $compra->nit = $data->nit;
         $compra->razon_social = $data->razon_social;
         $compra->importe_compra = $data->importe_compra;
-        $compra->sub_total = $data->sub_total;
+        $compra->monto_exento = $data->monto_exento;
+        $compra->sub_total = $data->importe_compra - $data->monto_exento;
         $compra->importe_base = $data->importe_base;
-        $compra->compra_producto = $data->compra_producto;
+        $compra->credito_fiscal = $data->credito_fiscal;
 
         // Si existe facturación se agregan datos de facturación necesarios
         if(isset($data->nro_factura)){
@@ -176,6 +177,30 @@ class ComprasController extends Controller
         }
     }
 
+    public function read($id){
+        $compra = Compra::findOrFail($id);
+        $compra_detalle = DB::table('compras_detalles as d')
+                                ->select('d.*', 'd.updated_at as imagen')
+                                ->where('compra_id', $id)->get();
+        $cont = 0;
+        foreach ($compra_detalle as $item) {
+            if(is_numeric($item->producto_id)){
+                $aux = DB::table('productos as p')
+                            ->join('subcategorias as s', 's.id', 'subcategoria_id')
+                            ->select('p.nombre', 's.nombre as subcategoria', 'p.imagen')
+                            ->where('p.id', $item->producto_id)
+                            ->first();
+                $compra_detalle[$cont]->producto_id = $aux->nombre.' - '.$aux->subcategoria;
+                $compra_detalle[$cont]->imagen = !empty($aux->imagen) ? $aux->imagen : 'productos/default.png';
+            }else{
+                $compra_detalle[$cont]->imagen = !empty($aux->imagen) ? $aux->imagen : 'productos/default.png';
+            }
+            $cont++;
+        }
+        return view('compras.compras_view', compact('compra', 'compra_detalle'));
+    }
+
+    // ============================================
     public function compras_cargar_tipo($tipo){
 
         $productos = DB::table('productos as p')

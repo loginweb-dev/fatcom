@@ -4,16 +4,11 @@
 @if(auth()->user()->hasPermission('read_ventas'))
     @section('page_header')
         <h1 class="page-title">
-            <i class="voyager-basket"></i> Viendo Venta # {{str_pad($venta->id, 4, "0", STR_PAD_LEFT)}}
+            <i class="voyager-basket"></i> Viendo Venta #{{str_pad($venta->id, 4, "0", STR_PAD_LEFT)}}
         </h1>
-        {{-- @if(auth()->user()->hasPermission('edit_sucursales'))
-        <a href="{{route('sucursales_edit', ['id'=>$id])}}" class="btn btn-primary btn-small">
-            <i class="voyager-edit"></i> <span>Editar</span>
-        </a>
-        @endif --}}
-        <a href="{{route('ventas_index')}}" class="btn btn-warning btn-small">
+        <button onclick="window.close()" class="btn btn-warning btn-small">
             <i class="voyager-list"></i> <span>Volver a la lista</span>
-        </a>
+        </button>
         @if($venta->venta_tipo_id == '3' || $venta->venta_tipo_id == '4')
         <button class="btn btn-success btn-small btn-mapa" data-toggle="modal" data-target="#modal_mapa"><i class="voyager-location"></i> <span>Ubicación</span></button>
         @endif

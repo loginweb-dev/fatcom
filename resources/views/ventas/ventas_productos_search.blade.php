@@ -2,7 +2,13 @@
     <div class="col-md-12">
         <div class="row">
             <div class="col-md-12">
-                <div id="div-select_producto"  >
+                <div id="div-select_producto">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label class="radio-inline"><input type="radio" class="input-radio" name="radio1" value="search" checked>Buscador</label>
+                            <label class="radio-inline"><input type="radio" class="input-radio" name="radio1" value="bar_code">Código de barras</label>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col-md-12" style="margin:0px">
                             <div id="accordion">
@@ -64,7 +70,7 @@
                             </div>
                         </div>
                         <div  class="col-md-12" style="margin:0px">
-                            <div class="input-group">
+                            <div class="input-group" id="div-search">
                                 <select name="select_producto" class="form-control" id="select-producto_id" onchange="seleccionar_producto()">
                                     <option selected disabled value="">Seleccione una opción</option>
                                     @foreach ($productos as $item)
@@ -83,11 +89,7 @@
                                                 data-precio_minimo="{{ $item->moneda }} {{ $item->precio_minimo }}"
                                                 data-detalle="{{ $item->descripcion_small }}">
                                             @if(setting('admin.modo_sistema') != 'restaurante')
-                                                @if($item->codigo_interno)
-                                                #{{ str_pad($item->codigo_interno, 2, "0", STR_PAD_LEFT) }}
-                                                @else
                                                 {{ $item->codigo }} - 
-                                                @endif 
                                             @endif
                                             {{ $item->nombre }}
                                         </option>
@@ -97,6 +99,16 @@
                                     <button class="btn btn-primary" style="margin-top:0px;padding:8px" type="button" title="Ver filtros" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">Filtros <span class="voyager-params" aria-hidden="true"></span></button>
                                 </span>
                             </div>
+                            <div class="row hidden" id="div-bar_code">
+                                <div class="col-md-12">
+                                    <div class="input-group">
+                                        <input type="text" id="input-bar_code" class="form-control" onkeypress="return getBarCode(event)" autocomplete="off" />
+                                        <span class="input-group-addon">
+                                            <span class="voyager-ticket"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div class="col-md-12" style="margin:0px">
                             <div id="div-carga"></div>
@@ -104,9 +116,6 @@
                     </div>
                 </div>
                 <div id="div-loader"></div>
-                <div id="div-barras_producto" style="display:none">
-                    <input type="text" class="form-control" autocomplete="off" id="input-barras_producto" name="barras_producto">
-                </div>
             </div>
         </div>
     </div>
@@ -152,6 +161,39 @@
         });
 
     });
+
+    // Cambiar opción de busqueda
+    $('.input-radio').change(function(){
+        let tipo = $('#div-select_producto input[name="radio1"]:checked').val();
+        if(tipo==='search'){
+            $('#div-bar_code').addClass('hidden');
+            $('#div-search').removeClass('hidden');
+        }else{
+            $('#div-bar_code').removeClass('hidden');
+            $('#div-search').addClass('hidden');
+            setTimeout(() => {
+                $('#input-bar_code').focus();
+            }, 300);
+        }
+    });
+
+    function getBarCode(e){
+        tecla = (document.all) ? e.keyCode :e.which;
+        let codigo = $('#input-bar_code').val();
+        if(tecla==13){
+            if(codigo){
+                $.get("{{ url('admin/ventas/get_producto/bar_code') }}/"+codigo.slice(0, -1), function(data){
+                    if(data.producto){
+                        agregar_producto(data.producto.id);
+                    }else{
+                        toastr.error('Código de producto no encontrado', 'Error');
+                    }
+                });
+            }
+            $('#input-bar_code').val('');
+            return false;
+        }
+    };
 
     function seleccionar_producto(){
         let id = $('#select-producto_id').val();

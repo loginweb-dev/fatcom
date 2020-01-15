@@ -26,8 +26,8 @@ function calcular(){
 
 // calcular subtotal
 function calcular_subtotal(num){
-    let precio = parseFloat($(`#precio-${num}`).val());
-    let cantidad = parseFloat($(`#cantidad-${num}`).val());
+    let precio = parseFloat($(`#precio-${num}`).val()) ? parseFloat($(`#precio-${num}`).val()) : 0;
+    let cantidad = parseFloat($(`#cantidad-${num}`).val()) ? parseFloat($(`#cantidad-${num}`).val()) : 0;
 
     $(`#label-subtotal-${num}`).text((precio*cantidad).toFixed(2));
     total();

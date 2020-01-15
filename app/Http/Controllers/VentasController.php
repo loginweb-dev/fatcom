@@ -154,10 +154,13 @@ class VentasController extends Controller
                         ->join('ie_cajas as ca', 'ca.id', 'v.caja_id')
                         ->join('users_sucursales as us', 'us.sucursal_id', 'v.sucursal_id')
                         ->select('v.id', 'v.nro_venta', 'v.created_at', 'v.venta_estado_id', 'c.razon_social as cliente', 'v.deleted_at as productos')
-                        ->where('v.venta_tipo_id', '=', 2)
+                        ->whereRaw('(v.venta_tipo_id = 1 or v.venta_tipo_id = 2)')
                         ->where('ca.abierta', 1)
                         ->where('us.user_id', Auth::user()->id)
-                        ->whereRaw('(v.venta_estado_id = 2 or v.venta_estado_id= 3)')
+                        ->where('v.estado', 'V')
+                        ->whereRaw('(v.venta_estado_id = 5 or v.venta_estado_id= 3)')
+                        ->orderBy('v.venta_estado_id', 'ASC')
+                        ->orderBy('v.id', 'DESC')
                         ->get();
         $cont = 0;
         foreach ($ventas as $item) {
@@ -268,6 +271,11 @@ class VentasController extends Controller
         return view('ventas.ventas_productos_search', compact('categorias', 'productos'));
     }
 
+    public function productos_search_barcode($codigo){
+        $producto = Producto::where('codigo_barras', $codigo)->first();
+        return response()->json(['producto' => $producto]);
+    }
+
     public function ventas_categorias($categoria_id){
         $sucursal_actual = UsersSucursale::where('user_id', Auth::user()->id)->first()->sucursal_id;
         $subcategorias = DB::table('subcategorias as s')
@@ -277,6 +285,7 @@ class VentasController extends Controller
                             ->where('s.categoria_id', $categoria_id)
                             ->distinct()
                             ->orderBy('s.nombre', 'ASC')
+                            ->limit(8)
                             ->get();
         $productos = $this->get_productos_disponibles($sucursal_actual, $categoria_id, 'all', 'all', 'all', 'all', 'all');
         return view('ventas.ventas_categorias', compact('subcategorias', 'productos'));
@@ -452,24 +461,50 @@ class VentasController extends Controller
         return view('ventas.partials.ventas_detalles', compact('detalle_venta', 'total_literal'));
     }
 
+    public function convertir_factura(Request $request){
+        // Obetner dosificacion
+        $dosificacion = (new Dosificacion)->get_dosificacion();
+        // si hay dosificaciones generamos codigo de control e incrementamos el numero de factura actual
+        if($dosificacion){
+            $venta = Venta::find($request->id);
+            $codigo_control = (new Facturacion)->generate($dosificacion->nro_autorizacion, $dosificacion->numero_actual, setting('empresa.nit'), date('Ymd'), $venta->importe_base, $dosificacion->llave_dosificacion);
+            DB::table('ventas')->where('id', $request->id)
+                                    ->update([
+                                                'nro_factura'       => $dosificacion->numero_actual,
+                                                'codigo_control'    => $codigo_control,
+                                                'nro_autorizacion'  => $dosificacion->nro_autorizacion,
+                                                'fecha_limite'      => $dosificacion->fecha_limite,
+                                                'autorizacion_id'   => $dosificacion->id,
+                                                'fecha'             => date('Y-m-d')
+                                                ]);
+            DB::table('dosificaciones')->where('id', $dosificacion->id)->increment('numero_actual', 1);
+            return 1;
+        }
+        return 0;
+    }
+
     public function delete(Request $data){
         // Eliminacion provisional para productos que no pertenencen a un almacen
         $query = Venta::where('id', $data->id)->update(['deleted_at' => Carbon::now(), 'estado' => $data->tipo]);
         if($query){
-            // Eliminar asiento de la caja
-            DB::table('ie_asientos')->where('venta_id', $data->id)->update(['deleted_at' => Carbon::now()]);
-            // Incrementar el total de egresos en caja y decrementar el total existente
-            DB::table('ie_cajas')->where('id', $data->caja_id)->decrement('total_ingresos', $data->importe);
-            DB::table('ie_cajas')->where('id', $data->caja_id)->decrement('monto_final', $data->importe);
 
             // Si el producto se almacena en stock agregar la cantidad del detalle de la venta
             $vd = DB::table('ventas_detalles as d')
                             ->join('ventas as v', 'v.id', 'd.venta_id')
                             ->join('productos as p', 'p.id', 'd.producto_id')
-                            ->select('d.*', 'v.sucursal_id', 'p.se_almacena', 'v.nro_factura')
+                            ->select('d.*', 'v.sucursal_id', 'p.se_almacena', 'v.nro_factura', 'v.venta_tipo_id')
                             ->where('d.venta_id', $data->id)
                             ->get();
-            // dd($dp);
+                            
+            // Quitar registros de caja de las ventas que no sean a domicilio ni pedidos
+            if($vd[0]->venta_tipo_id < 3 ){
+                // Eliminar asiento de la caja
+                DB::table('ie_asientos')->where('venta_id', $data->id)->update(['deleted_at' => Carbon::now()]);
+                // Incrementar el total de egresos en caja y decrementar el total existente
+                DB::table('ie_cajas')->where('id', $data->caja_id)->decrement('total_ingresos', $data->importe);
+                DB::table('ie_cajas')->where('id', $data->caja_id)->decrement('monto_final', $data->importe);
+            }
+
             foreach ($vd as $item) {
                 if($item->se_almacena){
 
@@ -487,10 +522,11 @@ class VentasController extends Controller
                     DB::table('productos')->where('id', $item->producto_id)->increment('stock', $item->cantidad);
                 }
             }
-
-            return redirect()->route('ventas_index')->with(['message' => 'Venta eliminada exitosamenete.', 'alert-type' => 'success']);              
+            return 1;
+            // return redirect()->route('ventas_index')->with(['message' => 'Venta eliminada exitosamenete.', 'alert-type' => 'success']);              
         }else{
-            return redirect()->route('ventas_index')->with(['message' => 'Ocurrio un problema al eliminar la venta.', 'alert-type' => 'error']);
+            return 0;
+            // return redirect()->route('ventas_index')->with(['message' => 'Ocurrio un problema al eliminar la venta.', 'alert-type' => 'error']);
         }
     }
 
@@ -565,10 +601,12 @@ class VentasController extends Controller
                 RepartidoresPedido::where('pedido_id', $id)->update(['estado' => 2]);
             }
             DB::commit();
-            return redirect()->route('ventas_index')->with(['message' => 'El cambio de estado fué actualizado exitosamente.', 'alert-type' => 'success']);
+            return response()->json(['success' => 1]);
+            // return redirect()->route('ventas_index')->with(['message' => 'El cambio de estado fué actualizado exitosamente.', 'alert-type' => 'success']);
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect()->route('ventas_index')->with(['message' => 'Ocurrio un problema al actualizar el estado.', 'alert-type' => 'error']);
+            return response()->json(['error' => 'Ocurrio un problema al actualizar el estado.']);
+            // return redirect()->route('ventas_index')->with(['message' => 'Ocurrio un problema al actualizar el estado.', 'alert-type' => 'error']);
         }
     }
 
@@ -588,10 +626,12 @@ class VentasController extends Controller
             $query = $repartidores_pedidos->save();
 
             DB::commit();
-            return redirect()->route('ventas_index')->with(['message' => 'Pedido asignado exitosamente.', 'alert-type' => 'success']);
+            return response()->json(['success' => 1]);
+            // return redirect()->route('ventas_index')->with(['message' => 'Pedido asignado exitosamente.', 'alert-type' => 'success']);
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect()->route('ventas_index')->with(['message' => 'Ocurrio un problema al asignar el pedido.', 'alert-type' => 'error']);
+            return response()->json(['error' => 'Ocurrio un problema al asignar el pedido.']);
+            // return redirect()->route('ventas_index')->with(['message' => 'Ocurrio un problema al asignar el pedido.', 'alert-type' => 'error']);
         }
 
     }
@@ -1575,12 +1615,18 @@ class VentasController extends Controller
         $total_literal = NumerosEnLetras::convertir($monto_total,'Bolivianos',true);
 
         if(!$detalle_venta[0]->nro_factura){
-            // return view('facturas.recibo_venta', compact('detalle_venta', 'producto_adicional', 'total_literal'));
-            return view('facturas.recibo_venta_aux', compact('detalle_venta', 'producto_adicional', 'total_literal'));
+            if(setting('impresion.impresion_rapida')){
+                return view('facturas.recibo_venta_aux', compact('detalle_venta', 'producto_adicional', 'total_literal'));
+            }else{
+                return view('facturas.recibo_venta', compact('detalle_venta', 'producto_adicional', 'total_literal'));
+            }
         }else{
             $original = true;
-            // return view('facturas.factura_venta', compact('detalle_venta', 'producto_adicional', 'total_literal', 'original'));
-            return view('facturas.factura_venta_aux', compact('detalle_venta', 'producto_adicional', 'total_literal', 'original'));
+            if(setting('impresion.impresion_rapida')){
+                return view('facturas.factura_venta_aux', compact('detalle_venta', 'producto_adicional', 'total_literal', 'original'));
+            }else{
+                return view('facturas.factura_venta', compact('detalle_venta', 'producto_adicional', 'total_literal', 'original'));
+            }            
         }
     }
 
@@ -1811,5 +1857,3 @@ class VentasController extends Controller
         return $sucursal_actual;
     }
 }
-
-

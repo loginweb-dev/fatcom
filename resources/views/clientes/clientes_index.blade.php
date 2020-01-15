@@ -39,6 +39,7 @@
                                     <table id="dataTable" class="table table-bordered table-hover">
                                         <thead>
                                             <tr>
+                                                <th>ID</th>
                                                 <th>Nombre o razón social</th>
                                                 <th>NIT o CI</th>
                                                 <th>Movil</th>
@@ -61,12 +62,13 @@
                                                     }
                                                 @endphp
                                                 <tr>
-                                                    <td>{{$item->razon_social}}</td>
-                                                    <td>{{$item->nit}}</td>
-                                                    <td>{{$item->movil}}</td>
-                                                    <td>{{$users[$cont]['usuario']}}</td>
-                                                    <td>{{$users[$cont]['email']}}</td>
-                                                    <td><img src="{{$imagen}}" alt="" style="width:50px"></td>
+                                                    <td>{{ $item->id }}</td>
+                                                    <td>{{ $item->razon_social }}</td>
+                                                    <td>{{ $item->nit }}</td>
+                                                    <td>{{ $item->movil }}</td>
+                                                    <td>{{ $users[$cont]['usuario'] }}</td>
+                                                    <td>{{ $users[$cont]['email'] }}</td>
+                                                    <td><img src="{{ $imagen }}" alt="" style="width:50px"></td>
                                                     <td class="no-sort no-click text-right" id="bread-actions">
                                                         {{-- @if(auth()->user()->hasPermission('read_clientes'))
                                                         <a href="{{route('sucursales_view', ['id' => $item->id])}}" title="Ver" class="btn btn-sm btn-warning view">

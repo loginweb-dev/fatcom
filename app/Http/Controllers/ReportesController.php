@@ -19,17 +19,11 @@ class ReportesController extends Controller
     }
 
     public function ventas_reporte_generar(Request $datos){
-        $ventas = DB::table('ventas as v')
-                        ->join('ventas_detalles as d', 'd.venta_id', 'v.id')
-                        ->join('productos as p', 'p.id', 'd.producto_id')
-                        ->select('v.fecha', 'p.nombre', 'd.precio', 'd.cantidad')
-                        // ->orderBy('ventas.id', 'DESC')
-                        ->whereBetween('v.fecha', [$datos->inicio, $datos->fin])
-                        // ->where('v.fecha', $datos->fecha)
-                        ->where('v.estado', 'V')
-                        ->get();
-        $fecha = $datos->fecha;
-        return view('reportes.tablas.ventas_reporte_generar', compact('ventas', 'fecha'));
+        $ventas = $this->get_ventas($datos->filtro ,$datos->inicio, $datos->fin, $datos->tipo);
+        // dd($ventas);
+        return $datos->filtro == 1 ?
+                view('reportes.tablas.ventas_reporte_por_venta', compact('ventas')) :
+                view('reportes.tablas.ventas_reporte_por_producto', compact('ventas'));
     }
 
     public function ventas_reporte_pdf(Request $datos){
@@ -49,6 +43,52 @@ class ReportesController extends Controller
         $pdf->loadHTML($vista)->setPaper('letter', 'landscape');
         $pdf->loadHTML($vista);
         return $pdf->stream();
+    }
+
+    public function get_ventas($filtro, $inicio, $fin, $tipo){
+        switch ($tipo) {
+            case 1:
+                $filtro_tipo = "v.nro_factura is null";
+                break;
+            case 2:
+                $filtro_tipo = "v.nro_factura is not null";
+                break;
+            default:
+                $filtro_tipo = 1;
+                break;
+        }
+        if($filtro==1){
+            $ventas = DB::table('ventas as v')
+                            ->join('clientes as c', 'c.id', 'v.cliente_id')
+                            ->select('v.id', 'v.fecha', 'v.importe', 'v.cobro_adicional', 'v.descuento', 'v.importe_base', 'c.razon_social as cliente', 'v.deleted_at as detalle')
+                            ->whereBetween('v.fecha', [$inicio, $fin])
+                            ->where('v.estado', 'V')->where('v.deleted_at', NULL)
+                            ->orderBy('v.id', 'DESC')
+                            ->whereRaw($filtro_tipo)
+                            ->get();
+            $cont = 0;
+            foreach ($ventas as $item) {
+                $detalle = DB::table('productos as p')
+                                ->join('ventas_detalles as vd', 'vd.producto_id', 'p.id')
+                                ->select('p.nombre', 'vd.cantidad', 'vd.precio')
+                                ->where('vd.venta_id', $item->id)->get();
+                $ventas[$cont]->detalle = $detalle;
+                $cont++;
+            }
+            return $ventas;
+        }else{
+            return $ventas = DB::table('ventas as v')
+                                    ->join('ventas_detalles as d', 'd.venta_id', 'v.id')
+                                    ->join('productos as p', 'p.id', 'd.producto_id')
+                                    ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                                    ->select('p.nombre', 'd.precio', 'p.imagen', DB::raw('SUM(d.cantidad) as cantidad'), 's.nombre as subcategoria')
+                                    ->whereBetween('v.fecha', [$inicio, $fin])
+                                    ->where('v.estado', 'V')->where('v.deleted_at', NULL)
+                                    ->whereRaw($filtro_tipo)
+                                    ->groupBy('p.id')->orderBy('d.producto_id', 'DESC')
+                                    ->get();
+            // dd($ventas);
+        }
     }
 
     public function ganancia_producto_reporte(){
@@ -118,7 +158,6 @@ class ReportesController extends Controller
                                     ->groupBy('dia', 'fecha')
                                     ->get();
                 return response()->json($registros);
-                // return view('reportes.graficos.graficos_mensual', compact('registros'));
                 case 'anual':
                 $registros  = DB::table('ventas as v')
                                     ->select(DB::raw('SUM(v.importe_base ) as monto, MONTH(v.fecha) as mes'))
@@ -133,5 +172,19 @@ class ReportesController extends Controller
                 break;
         }
         
+    }
+
+    public function productos_escasez(){
+        $productos = DB::table('productos as p')
+                            ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                            ->select(
+                                        'p.codigo', 'p.nombre', 'p.stock', 'p.stock_minimo', 's.nombre as subcategoria',
+                                        DB::raw("(SELECT c.created_at FROM compras_detalles as d, compras as c where c.id = d.compra_id and d.producto_id = p.id order by c.id DESC limit 1) as ultima_compra")
+                                    )
+                            ->where('p.se_almacena', 1)->where('p.deleted_at', NULL)
+                            ->whereColumn('p.stock', '<', 'p.stock_minimo')
+                            ->where('p.stock_minimo', '>', 0)
+                            ->get();
+        return view('reportes.tablas.producto_escasez_reporte', compact('productos'));
     }
 }

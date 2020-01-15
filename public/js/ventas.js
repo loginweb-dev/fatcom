@@ -1,7 +1,7 @@
 // Obtener nit de cliente
 $('#select-cliente_id').change(function(){
     let razon_social = $(this).val();
-    $.get(`../clientes/datos/${razon_social}`, function(data){
+    $.get(`../clientes/datos/id/${razon_social}`, function(data){
         $('#input-nit').val(data.nit);
     });
 
@@ -13,18 +13,26 @@ $('#select-cliente_id').change(function(){
     }
 });
 
-// Obtener razón social de cliente
-$('#input-nit').keyup(function(e){
-    let nit = $(this).val();
-    $("#select-cliente_id option").each(function(e){
-        if($(this).data('nit') == nit){
-            $('#select-cliente_id').select2('destroy')
-            $('#select-cliente_id').val($(this).attr('value'));
-            inicializar_select2('cliente_id');
-            toastr.info('Cliente encontrado', 'Información');
-        }
-     });
-});
+function getClienteNIT(e) {
+    tecla = (document.all) ? e.keyCode :e.which;
+    if(tecla==13){
+        var nit = $('#input-nit').val();
+        $.get(`../clientes/datos/nit/${nit}`, function(data){
+            if(data){
+                $('#select-cliente_id').select2('destroy')
+                $('#select-cliente_id').val(data.id);
+                inicializar_select2('cliente_id');
+                toastr.info('Cliente encontrado', 'Información');
+            }else{
+                $('#input-modal_nit').val(nit);
+                $('#input-modal_razon_social').val('');
+                $('#modal-nuevo_cliente').modal('show');
+                setTimeout(()=>$('#input-modal_razon_social').focus(), 700);
+            }
+        });
+        return false;
+    }
+}
 
 // eliminar fila
 function borrarTr(num){

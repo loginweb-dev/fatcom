@@ -108,9 +108,12 @@
                                                     <td><a href="{{ url('storage').'/'.$imagen }}" data-fancybox="galeria1" data-caption="{{ $item->nombre }}"><img src="{{ url('storage').'/'.$img }}" width="50px" alt=""></a></td>
                                                     @if ($deposito->inventario)
                                                     <td class="no-sort no-click text-right" id="bread-actions">
-                                                        @if(auth()->user()->hasPermission('edit_productos'))
-                                                        <a href="#" title="Editar" class="btn btn-sm btn-primary edit">
+                                                        @if(auth()->user()->hasPermission('edit_producto_depositos'))
+                                                        <a data-toggle="modal" data-target="#modal_edit_producto" data-id="{{ $item->id }}" data-cantidad="{{ $item->cantidad }}" title="Editar" class="btn btn-sm btn-primary btn-edit">
                                                             <i class="voyager-edit"></i> <span class="hidden-xs hidden-sm">Editar</span>
+                                                        </a>
+                                                        <a data-toggle="modal" data-target="#modal_delete_producto" data-id="{{ $item->id }}" data-cantidad="{{ $item->cantidad }}" title="Eliminar" class="btn btn-sm btn-danger btn-delete">
+                                                            <i class="voyager-trash"></i> <span class="hidden-xs hidden-sm">Borrar</span>
                                                         </a>
                                                         @endif
                                                     </td>
@@ -146,7 +149,7 @@
             </div>
         </div>
 
-        {{-- modal delete --}}
+        {{-- modal agregar --}}
         @if ($deposito->inventario)
         <form action="{{route('depositos_store_producto')}}" method="POST">
             <div class="modal modal-success fade" tabindex="-1" id="modal_add_producto" role="dialog">
@@ -207,11 +210,78 @@
             </div>
         </form>
         @endif
+
+        {{-- Modal de edicion --}}
+        <form action="{{route('depositos_update_producto')}}" method="POST">
+            <div class="modal modal-info fade" tabindex="-1" id="modal_edit_producto" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                        aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">
+                                <i class="voyager-list-add"></i> Editar producto en almacen
+                            </h4>
+                        </div>
+                        <div class="modal-body">
+                            {{ csrf_field() }}
+                            <input type="hidden" name="deposito_id" value="{{ $id }}">
+                            <input type="hidden" name="producto_id">
+                            <div class="alert alert-warning">
+                                <strong>Atención:</strong>
+                                <p>Tenga en cuenta que al editar el stock del producto en este almacen de forma manual, no coincidirá con el sus datos de compra y ventas del mismo.</p>
+                            </div>
+                            <div class="form-group">
+                                <label for="">Stock actual</label>
+                                <input type="number" name="stock" class="form-control" min="1" step="0.1" id="" required>
+                                <input type="hidden" name="stock_actual">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <input type="submit" class="btn btn-primary pull-right"value="Guardar">
+                            <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        {{-- Modal de eliminación --}}
+        <form action="{{route('depositos_delete_producto')}}" method="POST">
+            <div class="modal modal-danger fade" tabindex="-1" id="modal_delete_producto" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                        aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">
+                                <i class="voyager-list-add"></i> Eliminar producto de almacen
+                            </h4>
+                        </div>
+                        <div class="modal-body">
+                            {{ csrf_field() }}
+                            <input type="hidden" name="deposito_id" value="{{ $id }}">
+                            <input type="hidden" name="producto_id">
+                            <div class="alert alert-danger">
+                                <strong>Atención:</strong>
+                                <p>Tenga en cuenta que al eliminar el stock del producto de este almacen de forma manual, no coincidirá con el sus datos de compra y ventas del mismo.</p>
+                            </div>
+                            <input type="hidden" name="stock_actual">
+                        </div>
+                        <div class="modal-footer">
+                            <input type="submit" class="btn btn-danger pull-right"value="Eliminar">
+                            <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
     @stop
     @section('css')
         <link href="{{url('ecommerce_public/plugins/fancybox/fancybox.min.css')}}" type="text/css" rel="stylesheet">
         <style>
-
+            
         </style>
     @stop
     @section('javascript')
@@ -220,9 +290,17 @@
         <script>
             $(document).ready(function() {
 
+                // set valor de update
+                $('.btn-edit').click(function(){
+                    $('#modal_edit_producto input[name="producto_id"]').val($(this).data('id'));
+                    $('#modal_edit_producto input[name="stock"]').val($(this).data('cantidad'));
+                    $('#modal_edit_producto input[name="stock_actual"]').val($(this).data('cantidad'));
+                });
+
                 // set valor de delete
                 $('.btn-delete').click(function(){
-                    $('#modal_delete input[name="id"]').val($(this).data('id'));
+                    $('#modal_delete_producto input[name="producto_id"]').val($(this).data('id'));
+                    $('#modal_delete_producto input[name="stock_actual"]').val($(this).data('cantidad'));
                 });
 
                 $('#btn-add-exist').click(function(){

@@ -13,6 +13,9 @@
                 <th class="actions text-right">Acciones</th>
             </tr>
         </thead>
+        @php
+            $nuevo_pedido = false;
+        @endphp
         <tbody id="lista-ventas">
             @forelse ($registros as $item)
                 <tr>
@@ -27,13 +30,18 @@
                             <br> <i class="voyager-credit-card text-info" style="font-size:22px"></i>
                         @endif
                     </td>
-                    {{-- Calcular si el cluente debe --}}
+                    {{-- Calcular si el cliente debe --}}
                     @php
                         $debe = false;
                         $deuda = '';
                         if($item->importe_base > $item->monto_recibido){
                             $debe = true;
                             $deuda = number_format($item->importe_base - $item->monto_recibido, 2, ',', '');
+                        }
+
+                        // Verificar si existe nuevo pedido
+                        if($item->venta_tipo_id == 3 && $item->venta_estado_id ==1 and !$item->deleted_at){
+                            $nuevo_pedido = true;
                         }
                     @endphp
                     {{-- Mostrar etiqueta del estado de la venta --}}
@@ -63,7 +71,12 @@
                     </td>
                     <td class="no-sort no-click text-right" id="bread-actions">
                         @if(auth()->user()->hasPermission('read_ventas'))
-                        <a href="{{route('ventas_view', ['id' => $item->id])}}" title="Ver" class="btn btn-sm btn-warning view">
+                            @if(setting('empresa.facturas') && $item->estado == 'V' && !$item->nro_factura)
+                            <a data-toggle="modal" data-target="#modal_change" data-id="{{ $item->id }}" title="Convertir a factura" class="btn btn-sm btn-dark btn-change">
+                                <i class="voyager-certificate"></i> <span class="hidden-xs hidden-sm"></span>
+                            </a>
+                            @endif
+                        <a href="{{ route('ventas_view', ['id' => $item->id]) }}" target="_new" title="Ver" class="btn btn-sm btn-warning view">
                             <i class="voyager-eye"></i> <span class="hidden-xs hidden-sm">Ver</span>
                         </a>
 
@@ -74,7 +87,7 @@
                             @endif
                         @endif
                         @if(auth()->user()->hasPermission('delete_ventas') && $item->estado == 'V')
-                        <a href="#" title="Borrar" class="btn btn-sm btn-danger btn-delete" data-id="{{$item->id}}" data-importe="{{$item->importe_base}}" data-caja_id="{{$item->caja_id}}" data-toggle="modal" data-target="#modal_delete">
+                        <a href="#" title="Borrar" class="btn btn-sm btn-danger btn-delete" data-id="{{ $item->id }}" data-importe="{{$item->importe_base}}" data-caja_id="{{$item->caja_id}}" data-toggle="modal" data-target="#modal_delete">
                             <i class="voyager-trash"></i> <span class="hidden-xs hidden-sm">Borrar</span>
                         </a>
                         @endif
@@ -104,6 +117,18 @@
 <script>
     $(document).ready(function(){
 
+        // Si existe nuevo pedido sonar el audio y mostrar alerta
+        @if($nuevo_pedido)
+        document.getElementById('alert').play();
+        toastr.remove();
+        toastr.info('Nuevo pedido', 'Alerta');
+        @endif
+        
+        // set id de venta que se convertirá a factura
+        $('.btn-change').click(function(){
+            $('#modal_change input[name="id"]').val($(this).data('id'));
+        });
+
         // set valor de delete
         $('.btn-delete').click(function(){
             $('#modal_delete input[name="id"]').val($(this).data('id'));
@@ -116,6 +141,23 @@
             $('#modal_delivery input[name="id"]').val($(this).data('id'));
         });
 
+        // Cambiar estado al pedido
+        $('.btn-cambiar_estado').click(function(e){
+            let url = $(this).prop('href');
+            // Si el ultimo caracter del atributo href es # quiere decir que esta visualizando una ventana modal (para elegir repartidor)
+            if(url[url.length-1] !== '#'){
+                e.preventDefault();
+                $.get(url, function(data){
+                    if(data.success){
+                        toastr.success('El cambio de estado fué actualizado exitosamente.', 'Bien hecho!');
+                        get_data(sucursal_actual, search, page_actual);
+                    }else{
+                        toastr.error(data.error, 'Error!');
+                    }
+                });
+            }
+        });
+
         $('.page-link').click(function(e){
             e.preventDefault();
             let link = $(this).attr('href');
@@ -123,7 +165,8 @@
                 page = link.split('=')[1];
                 // Set variable de pagina actual
                 page_actual = page;
-                get_data(sucursal_actual, search, page)
+                $('#data').html(`<div class="text-center" style="height:200px"><br><img src="${loader}" width="100px"></div>`);
+                get_data(sucursal_actual, search, page);
             }
         });
     });

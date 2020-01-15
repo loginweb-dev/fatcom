@@ -15,6 +15,8 @@ use Carbon\Carbon;
 use App\Http\Controllers\OfertasController as Ofertas;
 use App\Http\Controllers\LandingPageController as LandingPage;
 use App\Http\Controllers\VentasController as Ventas;
+use App\Http\Controllers\DosificacionesController as Dosificacion;
+use App\Http\Controllers\FacturasController as Facturacion;
 
 use App\User;
 use App\Cliente;
@@ -106,6 +108,27 @@ class ApiController extends Controller
         }
     }
     
+    public function confirm_profile(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $cliente = Cliente::find($request->cliente_id);
+            $cliente->movil = $request->phone;
+            $cliente->razon_social = $request->razon;
+            $cliente->nit = $request->nit;
+            $cliente->save();
+            
+            $user = $this->getUser($request->id);
+
+            DB::commit();
+            return response()->json(['success' => 'Datos actualizados correctamente!', 'user' => $user]);
+            
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['error' => 'Ocurrio un error al confirmar los datos!']);
+        }
+    }
+    
     public function login_social(Request $request)
     {
         DB::beginTransaction();
@@ -156,6 +179,9 @@ class ApiController extends Controller
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
                             ->join('categorias as c', 'c.id', 's.categoria_id')
                             ->select('c.id', 'c.nombre', 'c.descripcion', 'c.imagen')
+                            ->whereIn('p.id', function($q){
+                                $q->select('producto_id')->from('ecommerce_productos')->where('deleted_at', null);
+                            })
                             ->groupBy('c.id', 'c.nombre', 'c.descripcion', 'c.imagen')
                             ->get();
 
@@ -176,8 +202,6 @@ class ApiController extends Controller
             break;
         }
         
-        $productos = 
-        
         // Nota: consulta copiadad desde LandingPageController - 165
         $productos = ($filtro === 'categoryId') ?
                         DB::table('productos as p')
@@ -192,7 +216,7 @@ class ApiController extends Controller
                             ->where('e.deleted_at', NULL)
                             ->whereRaw($query_filter)
                             ->groupBy('codigo_grupo')
-                            ->paginate(10) :
+                            ->paginate(50) :
                         DB::table('productos as p')
                             ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
@@ -204,7 +228,7 @@ class ApiController extends Controller
                             ->where('s.deleted_at', NULL)
                             ->where('e.deleted_at', NULL)
                             ->whereRaw($query_filter)
-                            ->paginate(10);
+                            ->paginate(50);
         $cont = 0;
         foreach ($productos as $item) {
             // Obtener si el producto está en oferta
@@ -278,8 +302,8 @@ class ApiController extends Controller
                         ->select('id')
                         ->where('cliente_id', $cliente_id)->where('estado', 'V')
                         ->where('deleted_at', NULL)->where('venta_estado_id', '<', 5)
-                        ->where('venta_tipo_id', 3)->first();
-        if($pendiente){
+                        ->where('venta_tipo_id', 3)->count();
+        if($pendiente>1){
             return response()->json(['pendiente' => 1]);
         }else{
             return response()->json(['pendiente' => 0]);
@@ -305,8 +329,8 @@ class ApiController extends Controller
                         ->select('id')
                         ->where('cliente_id', $cliente_id)->where('estado', 'V')
                         ->where('deleted_at', NULL)->where('venta_estado_id', '<', 5)
-                        ->where('venta_tipo_id', 3)->first();
-        if($pendiente){
+                        ->where('venta_tipo_id', 3)->count();
+        if($pendiente>1){
             return response()->json(['error' => 'pendiente']);
         }
 
@@ -328,7 +352,8 @@ class ApiController extends Controller
             'fecha' => date('Y-m-d'),
             'venta_tipo_id' => 3,
             'venta_estado_id' => 1,
-            'efectivo' => $efectivo
+            'efectivo' => $efectivo,
+            'sucursal_id' => 3
         ]);
         
 
@@ -355,6 +380,26 @@ class ApiController extends Controller
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now()
                 ]);
+                
+            // Facturación
+            if($request->factura){
+                $dosificacion = (new Dosificacion)->get_dosificacion();
+                // si hay dosificaciones generamos codigo de control e incrementamos el numero de factura actual
+                if($dosificacion){
+                    $venta = Venta::find($venta->id);
+                    $codigo_control = (new Facturacion)->generate($dosificacion->nro_autorizacion, $dosificacion->numero_actual, setting('empresa.nit'), date('Ymd'), $venta->importe_base, $dosificacion->llave_dosificacion);
+                    DB::table('ventas')->where('id', $venta->id)
+                                            ->update([
+                                                        'nro_factura'       => $dosificacion->numero_actual,
+                                                        'codigo_control'    => $codigo_control,
+                                                        'nro_autorizacion'  => $dosificacion->nro_autorizacion,
+                                                        'fecha_limite'      => $dosificacion->fecha_limite,
+                                                        'autorizacion_id'   => $dosificacion->id,
+                                                        'fecha'             => date('Y-m-d')
+                                                        ]);
+                    DB::table('dosificaciones')->where('id', $dosificacion->id)->increment('numero_actual', 1);
+                }
+            }
                         
             return response()->json(["error" => null, "venta_id" => $venta->id]);
         }else{

@@ -210,7 +210,7 @@ function filtro(url, modo_sistema){
                     let imagen = item.imagen ? '../../storage/'+item.imagen : '../../storage/productos/default.png';
                     let nombre = '';
                     if(modo_sistema != 'restaurante'){
-                        nombre = item.codigo_interno ? '#'+item.codigo_interno.toString().padStart(2, "0")+' - ' : item.codigo+' - ';
+                        nombre = item.codigo+' - ';
                     }
                     nombre += item.nombre
 

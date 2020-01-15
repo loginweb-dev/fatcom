@@ -56,8 +56,33 @@
             </div>
         </div>
 
+        {{-- modal cambiar tipo de venta --}}
+        <form id="form-change" action="{{route('convertir_factura')}}" method="POST">
+            <div class="modal modal-primary fade" tabindex="-1" id="modal_change" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                        aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">
+                                <i class="voyager-certificate"></i> Estás seguro que deseas convertir este recibo en factura?
+                            </h4>
+                        </div>
+                        <div class="modal-footer">
+                            {{ csrf_field() }}
+                            <input type="hidden" name="id" value="">
+                            <input type="submit" class="btn btn-dark pull-right delete-confirm"value="Sí, convertir!">
+                            <button type="button" class="btn btn-default pull-right" data-dismiss="modal">
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
         {{-- modal delete --}}
-        <form action="{{route('venta_delete')}}" method="POST">
+        <form id="form-delete" action="{{route('venta_delete')}}" method="POST">
             <div class="modal modal-danger fade" tabindex="-1" id="modal_delete" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -68,7 +93,6 @@
                                 <i class="voyager-trash"></i> Estás seguro que quieres anular la venta?
                             </h4>
                         </div>
-                        <form action="" method="POST">
                         <div class="modal-body">
                             <p>Si anula una venta ya no podra cambiar el estado de la misma.</p>
                             <select name="tipo" style="display:none" class="form-control" id="">
@@ -89,14 +113,13 @@
                                 Cancelar
                             </button>
                         </div>
-                        </form>
                     </div>
                 </div>
             </div>
         </form>
 
         {{-- modal repartidor --}}
-        <form action="{{ route('asignar_repartidor') }}" method="POST">
+        <form id="form-delivery" action="{{ route('asignar_repartidor') }}" method="POST">
             <div class="modal modal-info fade" tabindex="-1" id="modal_delivery" role="dialog">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -144,18 +167,26 @@
             var page_actual = 1;
             var sucursal_actual = "{{ $sucursal_actual ?? 'all' }}";
             var search = $('#search_value').val();
+
+            var loader = "{{ url('storage').'/'.str_replace('\\', '/', setting('admin.img_loader')) }}";
+            var loader_request = `  <div style="@if(setting('delivery.activo')) height:370px @else height:300px @endif" class="text-center">
+                                        <br><br><br>
+                                        <img src="${loader}" width="100px">
+                                    </div>`;
+
             $(document).ready(function() {
                 $('#select-sucursal_id').val({{ $sucursal_actual }});
                 $('#select-sucursal_id').select2();
 
                 // Imagen de carga para la lista de ventas
-                $('#data').html(`<div class="text-center" style="height:200px"><br><img src="{{ voyager_asset('images/load.gif') }}" width="80px"></div>`);
+                $('#data').html(`<div class="text-center" style="height:200px"><br><img src="${loader}" width="100px"></div>`);
                 get_data(sucursal_actual, search, page_actual);
 
                 // Cambiar de susursal
                 $('#select-sucursal_id').change(function(){
                     sucursal_actual = $(this).val() ? $(this).val() : 'all';
                     page_actual = 1
+                    $('#data').html(`<div class="text-center" style="height:200px"><br><img src="${loader}" width="100px"></div>`);
                     get_data(sucursal_actual, search, page_actual);
                 });
                 
@@ -166,7 +197,36 @@
                     e.preventDefault();
                     search = $('#search_value').val();
                     page_actual = 1
+                    $('#data').html(`<div class="text-center" style="height:200px"><br><img src="${loader}" width="100px"></div>`);
                     get_data(sucursal_actual, search, page_actual);
+                });
+
+                // Send form-change
+                $('#form-change').on('submit', function(e){
+                    e.preventDefault();
+                    $.post("{{ route('convertir_factura') }}", $('#form-change').serialize(), function(data){
+                        if(data){
+                            toastr.success('Factura generada correctamente.', 'Bien hecho');
+                            get_data(sucursal_actual, search, page_actual);
+                        }else{
+                            toastr.error('Ocurrió un error al generar la factura.', 'Error');
+                        }
+                    });
+                    $('#modal_change').modal('hide');
+                });
+
+                // Send form-delete
+                $('#form-delete').on('submit', function(e){
+                    e.preventDefault();
+                    $.post("{{ route('venta_delete') }}", $('#form-delete').serialize(), function(data){
+                        if(data){
+                            toastr.success('Venta anulada exitosamenete.', 'Bien hecho');
+                            get_data(sucursal_actual, search, page_actual);
+                        }else{
+                            toastr.error('Ocurrió un error al anular la venta.', 'Error');
+                        }
+                    });
+                    $('#modal_delete').modal('hide');
                 });
 
                 setInterval(function(){
@@ -175,6 +235,7 @@
 
             });
 
+            // Obtenes lista de ventas
             function get_data(sucursal_id, search, page){
                 let url = '{{ url("admin/ventas/lista") }}';
                 let sucursal = sucursal_id ? sucursal_id : 'all';
@@ -183,6 +244,20 @@
                     $('#data').html(data);
                 });
             }
+
+            // Asiganr repartidor al pedido
+            $('#form-delivery').on('submit', function(e){
+                e.preventDefault();
+                $.post("{{ route('asignar_repartidor') }}", $('#form-delivery').serialize(), function(data){
+                    if(data.success){
+                        toastr.success('Pedido asignado exitosamente.', 'Bien hecho!');
+                        get_data(sucursal_actual, search, page_actual);
+                    }else{
+                        toastr.error(data.error, 'Error!');
+                    }
+                    $('#modal_delivery').modal('hide');
+                });
+            });
 
             // Reimprimir factura/recibo
             function print(id){

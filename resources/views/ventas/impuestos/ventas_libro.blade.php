@@ -62,9 +62,14 @@
 
     @section('javascript')
         <script>
+            var loader = "{{ url('storage').'/'.str_replace('\\', '/', setting('admin.img_loader')) }}";
+            var loader_request = `  <div style="@if(setting('delivery.activo')) height:370px @else height:300px @endif" class="text-center">
+                                        <br><br><br>
+                                        <img src="${loader}" width="100px">
+                                    </div>`;
             $(document).ready(function(){
                 $('#form-search').on('submit', function(e){
-                    $('#detalle').html(`<div class="text-center"><br><img src="{{voyager_asset('images/load.gif')}}" width="50px" alt=""></div>`)
+                    $('#detalle').html(`<div class="text-center" style="height:200px"><br><img src="${loader}" width="100px"></div>`);
                     e.preventDefault();
                     let datos = $(this).serialize();
                     $.ajax({

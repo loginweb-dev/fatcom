@@ -20,7 +20,7 @@ function inicializar_select2(id){
         },
     }).change(function(){
         if($(`#select-${id}`).val().trim() === $(`#select-${id} option:selected`).text().trim()){
-            $.get(`${URL_BASE}/productos/parametros/store/${id}/${$(`#select-${id}`).val().trim()}`, function(data){
+            $.get(`${URL_BASE}/productos/parametros/store/${id}/${$(`#select-${id}`).val().trim().split("/").join("---")}`, function(data){
                 if(!data.error){
                     var newOption = new Option(data.nombre, data.id, false, false);
                     $(`#select-${id}`).append(newOption);

@@ -206,8 +206,8 @@
                                     </div>
                                 </div>
                                 <div class="panel-footer">
-                                    <input type="checkbox" checked id="permanecer" name="permanecer">
-                                    <label for="permanecer">Guardar y permanecer aqui.</label>
+                                    <input type="checkbox" checked id="permanecer" name="clear">
+                                    <label for="permanecer">Guardar y limpiar formulario.</label>
                                     <br><br>
                                     <button type="submit" class="btn btn-primary">Guardar</button>
                                 </div>

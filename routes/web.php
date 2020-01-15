@@ -11,9 +11,6 @@
 |
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
 # Socialite facebook
 Route::get('/login/facebook', 'Auth\LoginController@redirectToFacebookProvider');
 Route::get('/login/facebook/callback', 'Auth\LoginController@handleProviderFacebookCallback');
@@ -83,6 +80,8 @@ Route::post('admin/depositos/eliminar/', 'DepositosController@delete')->name('de
 
 Route::get('admin/depositos/producto/agregar/{id}', 'DepositosController@create_producto')->name('depositos_create_producto');
 Route::post('admin/depositos/producto/store', 'DepositosController@store_producto')->name('depositos_store_producto');
+Route::post('admin/depositos/producto/update', 'DepositosController@update_producto')->name('depositos_update_producto');
+Route::post('admin/depositos/producto/delete', 'DepositosController@delete_producto')->name('depositos_delete_producto');
 
 // ================================Productos===========================
 Route::get('admin/productos', 'ProductosController@index')->name('productos_index');
@@ -98,6 +97,7 @@ Route::post('admin/productos/actualizar', 'ProductosController@update')->name('p
 Route::post('admin/productos/actualizar/stock', 'ProductosController@update_stock')->name('productos_update_stock');
 Route::post('admin/productos/eliminar/', 'ProductosController@delete')->name('productos_delete');
 Route::post('admin/productos/puntuar/', 'ProductosController@puntuar')->name('productos_puntuar');
+Route::post('admin/productos/imprimir/codigo_barras', 'ProductosController@imprimir_codigo_barras')->name('imprimir_codigo_barras');
 
 Route::get('admin/productos/get_producto/{id}', 'ProductosController@get_producto');
 Route::get('admin/productos/cambiar_imagen_principal/{producto_id}/{imagen_id}', 'ProductosController@cambiar_imagen');
@@ -174,6 +174,7 @@ Route::post('/admin/asientos/delete', 'CajasController@asientos_delete')->name('
 Route::get('admin/compras', 'ComprasController@index')->name('compras_index');
 Route::get('admin/compras/crear', 'ComprasController@create')->name('compras_create');
 Route::post('admin/compras/store', 'ComprasController@store')->name('compras_store');
+Route::get('admin/compras/{id}/ver', 'ComprasController@read')->name('compras_read');
 
 Route::get('admin/proveedores/get_proveedor/{nit}', 'ProveedoresController@get_proveedor');
 
@@ -186,11 +187,13 @@ Route::get('admin/ventas/lista/{sucursal_id}/{search}', 'VentasController@ventas
 Route::get('admin/ventas/ver/{id}', 'VentasController@view')->name('ventas_view');
 Route::get('admin/ventas/crear', 'VentasController@create')->name('ventas_create');
 Route::post('admin/ventas/store', 'VentasController@store')->name('ventas_store');
+Route::post('admin/ventas/change/type', 'VentasController@convertir_factura')->name('convertir_factura');
 Route::post('admin/ventas/delete', 'VentasController@delete')->name('venta_delete');
 Route::get('admin/ventas/update/estado/{id}/{valor}', 'VentasController@estado_update')->name('estado_update');
 Route::post('admin/ventas/asignar_repartidor', 'VentasController@asignar_repartidor')->name('asignar_repartidor');
 Route::get('admin/ventas/get_ubicaciones_cliente/{id}', 'VentasController@get_ubicaciones_cliente');
 Route::get('admin/ventas/detalles/{id}', 'VentasController@ventas_details');
+Route::get('admin/ventas/get_producto/bar_code/{code}', 'VentasController@productos_search_barcode');
 
 Route::get('admin/ventas/tickets','VentasController@tickets_index')->name('tickets_index');
 Route::get('admin/ventas/tickets/list','VentasController@tickets_list');
@@ -284,7 +287,7 @@ Route::get('admin/clientes/editar/{id}', 'ClientesController@edit')->name('clien
 Route::post('admin/clientes/update', 'ClientesController@update')->name('clientes_update');
 
 Route::get('admin/clientes/lista', 'ClientesController@clientes_list')->name('clientes_list');
-Route::get('admin/clientes/datos/{id}', 'ClientesController@get_cliente')->name('get_cliente');
+Route::get('admin/clientes/datos/{type}/{id}', 'ClientesController@get_cliente')->name('get_cliente');
 Route::post('admin/clientes/ventas/create', 'ClientesController@createUserFromVentas');
 
 // ============================Empleados====================================
@@ -307,6 +310,7 @@ Route::post('admin/reportes/ventas/pdf', 'ReportesController@ventas_reporte_pdf'
 
 Route::get('admin/reportes/ganancia_producto', 'ReportesController@ganancia_producto_reporte')->name('ganancia_producto_reporte');
 Route::post('admin/reportes/ganancia_producto/generar', 'ReportesController@ganancia_producto_reporte_generar')->name('ganancia_producto_reporte_generar');
+Route::get('admin/reportes/productos/escasez', 'ReportesController@productos_escasez')->name('productos_escasez');
 
 // Creación de parametros
 Route::get('admin/productos/parametros/store/{type}/{value}', 'ProductosController@crear_parametros');

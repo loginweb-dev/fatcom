@@ -73,7 +73,8 @@ class DepositosController extends Controller
                             ->select('p.*', 's.nombre as subcategoria', 'd.stock as cantidad')
                             ->where('p.deleted_at', NULL)
                             ->where('d.deposito_id', $id)
-                            ->where('d.stock', '>', 0)
+                            // ->where('d.stock', '>', 0)
+                            ->where('d.deleted_at', NULL)
                             ->orderBy('p.id', 'DESC')
                             ->paginate(20);
 
@@ -135,6 +136,7 @@ class DepositosController extends Controller
                             ->join('productos_depositos as d', 'd.producto_id', 'p.id')
                             ->select('p.*', 's.nombre as subcategoria', 'd.stock as cantidad')
                             ->where('p.deleted_at', NULL)
+                            ->where('d.deleted_at', NULL)
                             ->whereRaw("d.deposito_id = $id and d.stock > 0 and
                                             (   p.codigo like '%".$value."%' or
                                                 p.nombre like '%".$value."%' or
@@ -348,7 +350,7 @@ class DepositosController extends Controller
                 DB::table('productos')->where('id', $data->producto_id)->increment('stock', $data->stock);
             }
 
-            return redirect()->route('depositos_view', ['id' => $data->deposito_id])->with(['message' => 'Producto registrado guardado exitosamenete.', 'alert-type' => 'success']);
+            return redirect()->route('depositos_view', ['id' => $data->deposito_id])->with(['message' => 'Producto registrado exitosamenete.', 'alert-type' => 'success']);
         }else{
             $producto = (new Productos)->crear_producto($data);
             if($producto){
@@ -373,5 +375,64 @@ class DepositosController extends Controller
             
             return response()->json(['success' => $response, 'nuevo_grupo' => $nuevo_grupo, 'reload' => $reload]);
         }
+    }
+
+    public function update_producto(Request $request){
+        // Obtener datos del producto en almacen
+        $producto_deposito = DB::table('productos_depositos')
+                                ->where('deposito_id', $request->deposito_id)->where('producto_id', $request->producto_id)->where('deleted_at', NULL)
+                                ->first();
+
+        // Si el stock ingresado es mayor al stock actual se hace un simple increment
+        if($request->stock > $request->stock_actual){
+            DB::table('productos')->where('id', $request->producto_id)->increment('stock', ($request->stock - $request->stock_actual));
+            $this->edit_producto_deposito($request->deposito_id, $request->producto_id, 'stock', $request->stock);
+        }else{
+            DB::table('productos')->where('id', $request->producto_id)->decrement('stock', ($request->stock_actual - $request->stock));
+            // Si el stock ingresado es menor al stock (no de compra) del almacen se actualiza
+            // Si no se pone el stock en cero y se le decrementa al stock de compra 
+            if($request->stock <= $producto_deposito->stock){
+                $this->edit_producto_deposito($request->deposito_id, $request->producto_id, 'stock', $request->stock);
+            }else{
+                $this->edit_producto_deposito($request->deposito_id, $request->producto_id, 'stock', 0);
+                $this->edit_producto_deposito($request->deposito_id, $request->producto_id, 'stock_compra', ($producto_deposito->stock - $request->stock));
+            }
+        }
+        return redirect()->route('depositos_view', ['id' => $request->deposito_id])->with(['message' => 'Stock de producto actualizado exitosamenete.', 'alert-type' => 'success']);
+    }
+
+    public function delete_producto(Request $request){
+        try {
+            // Eliminar productos del deposito
+            DB::table('productos_depositos')
+                    ->where('deposito_id', $request->deposito_id)->where('producto_id', $request->producto_id)
+                    ->update(['deleted_at' => Carbon::now()]);
+
+            // Editar stock global del producto
+            DB::table('productos')->where('id', $request->producto_id)->decrement('stock', $request->stock_actual);
+
+            // Obtener los depositos en los que existe el producto
+            $producto_depositos = DB::table('productos_depositos')
+                                        ->select('id')
+                                        ->where('deposito_id', $request->deposito_id)->where('producto_id', $request->producto_id)->where('deleted_at', NULL)
+                                        ->first();
+            // Si el producto no existe en ningún otro deposito se actualiza como NO ALMACENABLE
+            if(!$producto_depositos){
+                DB::table('productos')->where('id', $request->producto_id)->update(['se_almacena' => 0]);
+            }
+
+            DB::commit();
+            return redirect()->route('depositos_view', ['id' => $request->deposito_id])->with(['message' => 'Producto de almacen eliminado exitosamenete.', 'alert-type' => 'success']);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->route('depositos_view', ['id' => $request->deposito_id])->with(['message' => 'Ocurrió un error al eliminar el producto del almacen.', 'alert-type' => 'error']);
+        }
+    }
+
+    public function edit_producto_deposito($deposito_id, $producto_id, $campo, $stock){
+        // Por seguridad anular todos los registros en la tabla productos_depositos del producto y deposito seleccionado
+        DB::table('productos_depositos')
+                ->where('deposito_id', $deposito_id)->where('producto_id', $producto_id)
+                ->update([$campo => $stock, 'updated_at' => Carbon::now()]);
     }
 }

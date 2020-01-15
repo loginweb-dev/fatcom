@@ -20,7 +20,7 @@
                     <div class="col-md-12">
                         <div class="panel panel-bordered">
                             <div class="panel-body">
-                                <div class="row">
+                                {{-- <div class="row">
                                     <div class="col-md-12">
                                         <div class="col-md-8"></div>
                                         <form id="form-search" class="form-search">
@@ -34,13 +34,13 @@
                                             </div>
                                         </form>
                                     </div>
-                                </div>
+                                </div> --}}
                                 <div class="table-responsive">
                                     <table id="dataTable" class="table table-bordered table-hover">
                                         <thead>
                                             <tr>
-                                                <th>Fecha</th>
-                                                <th>NIT</th>
+                                                <th>Nro</th>
+                                                <th>Fecha de compra</th>
                                                 <th>Razón social</th>
                                                 <th>N&deg; de factura</th>
                                                 <th>Código de control</th>
@@ -51,22 +51,23 @@
                                         <tbody>
                                             @php
                                                 $cont = 0;
+                                                setlocale(LC_ALL, "es_ES");
                                             @endphp
                                             @forelse ($registros as $item)
                                                 <tr>
-                                                    <td>{{$item->fecha}}</td>
-                                                    <td>{{$item->nit}}</td>
-                                                    <td>{{$item->razon_social}}</td>
-                                                    <td>{{$item->nro_factura}}</td>
-                                                    <td>{{$item->codigo_control}}</td>
-                                                    <td>{{$item->importe_base}}</td>
+                                                    <td>{{ str_pad($item->id, 4, "0", STR_PAD_LEFT) }}</td>
+                                                    <td>{{ strftime("%d de %B de %Y", strtotime($item->fecha)) }} <br> <small>Registrado {{ \Carbon\Carbon::parse($item->created_at)->diffForHumans() }}</small></td>
+                                                    <td>{{ $item->razon_social }} <br> <small>{{ $item->nit }}</small></td>
+                                                    <td>{{ $item->nro_factura }}</td>
+                                                    <td>{{ $item->codigo_control }}</td>
+                                                    <td>{{ $item->importe_base }}</td>
                                                     <td class="no-sort no-click text-right" id="bread-actions">
-                                                        {{-- @if(auth()->user()->hasPermission('read_compras'))
-                                                        <a href="{{route('productos_view', ['id' => $item->id])}}" title="Ver" class="btn btn-sm btn-warning view">
+                                                        @if(auth()->user()->hasPermission('read_compras'))
+                                                        <a href="{{ route('compras_read', ['id' => $item->id]) }}" title="Ver" class="btn btn-sm btn-warning view">
                                                             <i class="voyager-eye"></i> <span class="hidden-xs hidden-sm">Ver</span>
                                                         </a>
                                                         @endif
-                                                        @if(auth()->user()->hasPermission('edit_compras'))
+                                                        {{-- @if(auth()->user()->hasPermission('edit_compras'))
                                                         <a href="{{route('productos_edit', ['id'=>$item->id])}}" title="Editar" class="btn btn-sm btn-primary edit">
                                                             <i class="voyager-edit"></i> <span class="hidden-xs hidden-sm">Editar</span>
                                                         </a>
@@ -154,7 +155,7 @@
                 $('#form-search').on('submit', function(e){
                     e.preventDefault();
                     let value = (escape($('#search_value').val())!='') ? escape($('#search_value').val()) : 'all';
-                    window.location = '{{url("admin/productos/buscar")}}/'+value;
+                    window.location = ''+value;
                 });
             });
         </script>

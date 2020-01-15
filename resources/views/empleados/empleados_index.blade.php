@@ -55,20 +55,16 @@
                                             @endphp
                                             @forelse ($registros as $item)
                                                 @php
-                                                    if($users[$cont]['tipo_login'] == 'facebook'){
-                                                        $imagen = $users[$cont]['avatar'];
-                                                    }else{
-                                                        $imagen = url('storage').'/'.$users[$cont]['avatar'];
-                                                    }
+                                                    $imagen = ($item->tipo_login == 'facebook') ? $item->avatar : url('storage').'/'.$item->avatar;
                                                 @endphp
                                                 <tr>
-                                                    <td>{{$item->nombre}}</td>
-                                                    <td>{{$item->movil}}</td>
-                                                    <td>{{$item->direccion}}</td>
-                                                    <td>{{$item->sucursal}}</td>
-                                                    <td>{{$users[$cont]['usuario']}}</td>
-                                                    <td>{{$users[$cont]['email']}}</td>
-                                                    <td><img src="{{$imagen}}" alt="" style="width:50px"></td>
+                                                    <td>{{ $item->nombre }} <br> <label class="label label-default">{{ $item->rol }}</label></td>
+                                                    <td>{{ $item->movil }}</td>
+                                                    <td>{{ $item->direccion }}</td>
+                                                    <td>{{ $item->sucursal }}</td>
+                                                    <td>{{ $item->usuario }}</td>
+                                                    <td>{{ $item->email }}</td>
+                                                    <td><img src="{{ $imagen }}" alt="" style="width:50px"></td>
                                                     <td class="no-sort no-click text-right" id="bread-actions">
                                                         {{-- @if(auth()->user()->hasPermission('read_empleados'))
                                                         <a href="{{route('sucursales_view', ['id' => $item->id])}}" title="Ver" class="btn btn-sm btn-warning view">
@@ -76,12 +72,12 @@
                                                         </a>
                                                         @endif --}}
                                                         @if(auth()->user()->hasPermission('edit_empleados'))
-                                                        <a href="{{route('empleados_edit', ['id'=>$item->id])}}" title="Editar" class="btn btn-sm btn-primary edit">
+                                                        <a href="{{ route('empleados_edit', ['id'=>$item->id]) }}" title="Editar" class="btn btn-sm btn-primary edit">
                                                             <i class="voyager-edit"></i> <span class="hidden-xs hidden-sm">Editar</span>
                                                         </a>
                                                         @endif
                                                         @if(auth()->user()->hasPermission('delete_empleados'))
-                                                        <a href="#" title="Borrar" class="btn btn-sm btn-danger btn-delete" data-id="{{$item->id}}" data-toggle="modal" data-target="#modal_delete">
+                                                        <a href="#" title="Borrar" class="btn btn-sm btn-danger btn-delete" data-id="{{ $item->id }}" data-toggle="modal" data-target="#modal_delete">
                                                             <i class="voyager-trash"></i> <span class="hidden-xs hidden-sm">Borrar</span>
                                                         </a>
                                                         @endif

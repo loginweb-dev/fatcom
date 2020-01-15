@@ -180,6 +180,9 @@
 
     @section('javascript')
         <script src="{{url('js/compras.js')}}"></script>
+        <script src="{{ url('js/loginweb.js') }}"></script>
+        <script src="{{ url('js/inventarios/productos.js') }}"></script>
+        <script src="{{ asset('js/rich_select.js') }}"></script>
         <script>
             // cargar vista de detalle de compra según tipo
             $(document).ready(function(){

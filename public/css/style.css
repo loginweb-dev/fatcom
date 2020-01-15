@@ -56,3 +56,10 @@
 .select2 {
     border: 1px solid #ccc !important;
 }
+
+/* Modelar para movil */
+@media (max-width: 700px) {
+    .container-fluid {
+        padding: 0px !important;
+    }
+}

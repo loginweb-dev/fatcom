@@ -110,9 +110,6 @@
         </tr>
     </tbody>
 </table>
-<script src="{{url('js/loginweb.js')}}"></script>
-<script src="{{url('js/inventarios/productos.js')}}"></script>
-<script src="{{ asset('js/rich_select.js') }}"></script>
 <script>
     $(document).ready(function(){
         // $('#select-producto_id').select2();
@@ -226,15 +223,17 @@
     function calcular_ganancia(num){
         let precio = parseFloat($(`#precio-${num}`).val());
         let precio_venta = parseFloat($(`#precio_venta-${num}`).val());
-        if(precio_venta>precio){
-            let aumento = precio_venta - precio;
-            let porcentaje = (precio > 0) ? parseInt((aumento*100)/precio)+' %' : '';
-            $(`#label-ganancia-${num}`).html((precio_venta-precio).toFixed(2)+'<br><small class="text-primary">'+porcentaje+'</small>');
-            toastr.remove();
-        }else{
-            toastr.remove();
-            toastr.error('El precio de venta debe ser mayor al precio de compra.')
-            $(`#label-ganancia-${num}`).text('0.00');
+        if(precio_venta){
+            if(precio_venta>precio){
+                let aumento = precio_venta - precio;
+                let porcentaje = (precio > 0) ? parseInt((aumento*100)/precio)+' %' : '';
+                $(`#label-ganancia-${num}`).html((precio_venta-precio).toFixed(2)+'<br><small class="text-primary">'+porcentaje+'</small>');
+                toastr.remove();
+            }else{
+                toastr.remove();
+                toastr.error('El precio de venta debe ser mayor al precio de compra.')
+                $(`#label-ganancia-${num}`).text('0.00');
+            }
         }
     }
 </script>

@@ -16,22 +16,29 @@
             <div class="col-md-12">
                 <div class="panel panel-bordered">
                     <div class="panel-body">
-                        <form id="form-search" method="post" action='{{route("ventas_reporte_generar")}}'>
+                        <form id="form-search" class="form-inline" method="post" action='{{route("ventas_reporte_generar")}}'>
                             @csrf
-                            {{-- <div class="col-md-4 form-group">
-                                <label>Inicio</label>
-                                <input type="date" class="form-control" name="inicio" value="{{date('Y-m-d')}}" required>
-                            </div> --}}
-                            <div class="col-md-5 form-group">
-                                <label>Fecha</label>
-                                <div class="input-group">
-                                    <input type="date" class="form-control" name="inicio" value="{{date('Y-m-d')}}" required>
-                                    <span class="input-group-btn">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="">Desde</label>
+                                        <input type="date" class="form-control" name="inicio" value="{{date('Y-m-d')}}" required>
+                                        <label for="">Hasta</label>
                                         <input type="date" class="form-control" name="fin" value="{{date('Y-m-d')}}" required>
-                                        <button class="btn btn-primary" style="margin-top:0px;padding:9px">
-                                             <span class="voyager-search"></span> 
-                                        </button>
-                                    </span>
+                                        <label for="">Agrupado</label>
+                                        <select name="filtro" class="form-control">
+                                            <option value="1">Por venta</option>
+                                            <option value="2">Por Producto</option>
+                                        </select>
+                                        <select name="tipo" class="form-control">
+                                            <option value="">Todas</option>
+                                            <option value="1">Recibos</option>
+                                            <option value="2">Facturas</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group" style="margin-top:-5px">
+                                        <button type="submit" class="btn btn-primary"><i class="voyager-settings"></i> Generar</button>
+                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -44,13 +51,18 @@
 @stop
 
 @section('css')
-
 @stop
 
 @section('javascript')
     <script>
+        var loader = "{{ url('storage').'/'.str_replace('\\', '/', setting('admin.img_loader')) }}";
+        var loader_request = `  <div style="@if(setting('delivery.activo')) height:370px @else height:300px @endif" class="text-center">
+                                    <br><br><br>
+                                    <img src="${loader}" width="100px">
+                                </div>`;
         $(document).ready(function(){
             $('#form-search').on('submit', function(e){
+                $('#detalle_reporte').html(`<div class="text-center" style="height:200px"><br><img src="${loader}" width="100px"></div>`);
                 e.preventDefault();
                 let datos = $(this).serialize();
                 $.ajax({

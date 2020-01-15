@@ -13,6 +13,9 @@
         <button class="btn btn-dark btn-add-new" title="Ver filtros" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
             <i class="voyager-params"></i> <span>Filtros</span>
         </button>
+        <button class="btn btn-danger btn-add-new" onclick="imprimir_codigo()" title="Imprimir código de barras">
+            <i class="voyager-polaroid"></i> <span>Imprimir código</span>
+        </button>
         @endif
     @stop
     @section('content')
@@ -108,7 +111,7 @@
                                 <div style="min-height:200px">
                                     <div id="lista-productos"></div>
                                     <div id="load-modal" style="display: none;justify-content: center;align-items: center;height:100%">
-                                        <img src="{{voyager_asset('images/load.gif')}}" width="80px" alt="">
+                                        <img src="{{ url('storage').'/'.str_replace('\\', '/', setting('admin.img_loader')) }}" width="80px" alt="">
                                     </div>
                                 </div>
                             </div>

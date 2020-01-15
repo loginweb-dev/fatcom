@@ -23,33 +23,24 @@ class EmpleadosController extends Controller
     public function index()
     {
         $registros = DB::table('empleados as e')
-                            ->select('e.*', 'e.deleted_at as sucursal')
+                            ->join('users as u', 'u.id', 'e.user_id')
+                            ->join('roles as r', 'r.id', 'u.role_id')
+                            ->select('e.*', 'e.deleted_at as sucursal', 'u.name as usuario', 'u.email', 'u.avatar', 'u.tipo_login', 'r.display_name as rol')
                             ->where('e.deleted_at', NULL)
                             ->orderBy('id', 'DESC')
                             ->paginate(10);
         $cont = 0;
         foreach ($registros as $item) {
+            // Agregar sucursal si está asignada
             $aux = $sucursal_user = DB::table('users_sucursales as us')
                                         ->join('sucursales as s', 's.id', 'us.sucursal_id')
                                         ->select('s.nombre')->where('us.user_id', $item->user_id)->where('us.deleted_at', NULL)->first();
             $registros[$cont]->sucursal = $aux ? $aux->nombre : 'No asiganada';
             $cont++;
         }
-        $users = [];
-        foreach ($registros as $item) {
-            $aux =  DB::table('users as u')
-                            ->select('u.*')
-                            ->where('u.id', $item->user_id)
-                            ->first();
-            if($aux){
-                $user = ['usuario'=>$aux->name,'email'=>$aux->email,'avatar'=>$aux->avatar,'tipo_login'=>$aux->tipo_login];
-            }else{
-                $user = ['usuario'=>'No definido','email'=>'No definido','avatar'=>'','tipo_login'=>''];
-            }
-            array_push($users, $user);
-        }
+
         $value = '';
-        return view('empleados.empleados_index', compact('registros', 'users', 'value'));
+        return view('empleados.empleados_index', compact('registros', 'value'));
     }
 
     public function search($value)
@@ -183,7 +174,13 @@ class EmpleadosController extends Controller
         $user->save();
         $user = User::all()->last()->id;
 
-        DB::table('users_sucursales')->where('user_id', $data->user_id)->update(['sucursal_id' => $data->sucursal_id]);
+        $update_sucursal = DB::table('users_sucursales')->where('user_id', $data->user_id)->update(['sucursal_id' => $data->sucursal_id]);
+        if(!$update_sucursal){
+            UsersSucursale::create([
+                'user_id' => $data->user_id,
+                'sucursal_id' => $data->sucursal_id,
+            ]);
+        }
 
         if($user && $empleados){
             return redirect()->route('empleados_index')->with(['message' => 'Empleado editado exitosamente.', 'alert-type' => 'success']);

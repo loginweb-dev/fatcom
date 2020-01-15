@@ -61,9 +61,28 @@
                                         @endforeach
                                     </select>
                                 </div>
+                            </div>
+                            <div style="@if(!setting('delivery.activo')) display:none @endif">
+                                <div class="row">
+                                    <div class="form-group col-md-4 col-xs-4 text-center">
+                                        <label>¿Para llevar?</label><br>
+                                        <input type="checkbox" id="check-llevar" name="llevar" data-toggle="toggle" data-on="Sí" data-off="No">
+                                        <input type="hidden" name="fecha" class="form-control" value="{{date('Y-m-d')}}" required>
+                                    </div>
+                                    {{-- Div auxiliar para mantener el estilo --}}
+                                    <div class="form-group col-md-4 col-xs-4 text-center">
+                                        <input type="hidden" min="1" step="1" name="nro_mesa" id="input-nro_mesa" class="form-control" value="" required>
+                                    </div>
+                                    <div class="form-group col-md-4 col-xs-4 text-center">
+                                        <label>A domicilio</label><br>
+                                        <input type="checkbox" id="check-domicilio" name="domicilio" data-toggle="toggle" data-onstyle="success" data-on="Sí" data-off="No">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="form-group col-md-12">
                                     {{-- <label>NIT/CI</label> --}}
-                                    <input type="number" name="nit" id="input-nit" class="form-control" placeholder="NIT/CI">
+                                    <input type="number" name="nit" id="input-nit" class="form-control" onkeypress="return getClienteNIT(event)" placeholder="NIT/CI">
                                 </div>
                                 <div class="form-group col-md-12">
                                     {{-- <label>Nombre completo</label> --}}
@@ -71,50 +90,32 @@
                                         <select name="cliente_id" class="form-control select2" id="select-cliente_id">
                                         </select>
                                         <span class="input-group-btn">
-                                            <button class="btn btn-primary" style="margin-top:0px;padding:8px" type="button" title="Crear nuevo" data-toggle="modal" data-target="#modal-nuevo_cliente" aria-expanded="true" aria-controls="collapseOne">Nuevo <span class="voyager-plus" aria-hidden="true"></span></button>
+                                            <button class="btn btn-primary" style="margin-top:0px;padding:8px" type="button" title="Crear nuevo" data-toggle="modal" data-target="#modal-nuevo_cliente" aria-expanded="true" aria-controls="collapseOne"><span class="voyager-person" aria-hidden="true"></span></button>
                                         </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div style="@if(!setting('delivery.activo')) display:none @endif">
-                                <hr style="margin-bottom:10px;margin-top:0px">
-                                <div class="row">
-                                    <div class="form-group col-md-6">
-                                        <label>¿Para llevar?</label><br>
-                                        <input type="checkbox" id="check-llevar" name="llevar" data-toggle="toggle" data-on="Sí" data-off="No">
-                                        <input type="hidden" name="fecha" class="form-control" value="{{date('Y-m-d')}}" required>
-                                    </div>
-                                    {{-- <div class="form-group col-md-4">
-                                        <label>N&deg; de Mesa</label> --}}
-                                        <input type="hidden" min="1" step="1" name="nro_mesa" id="input-nro_mesa" class="form-control" value="" required>
-                                    {{-- </div> --}}
-                                    <div class="form-group col-md-6">
-                                        <label>A domicilio</label><br>
-                                        <input type="checkbox" id="check-domicilio" name="domicilio" data-toggle="toggle" data-onstyle="success" data-on="Sí" data-off="No">
                                     </div>
                                 </div>
                             </div>
                             <hr style="margin-bottom:10px;margin-top:0px">
                             <div class="row">
-                                <div class="form-group col-md-6">
+                                <div class="form-group col-md-6 col-xs-6">
                                     <label>Monto entregado</label>
                                     <input type="number" id="input-entregado" value="0" min="0" step="0.01" onchange="calcular_cambio()" onkeyup="calcular_cambio()" style="font-size:18px" name="monto_recibido" class="form-control cero_default" required>
                                 </div>
-                                <div class="form-group col-md-6">
+                                <div class="form-group col-md-6 col-xs-6">
                                     <label>Cambio</label>
                                     <input type="number" id="input-cambio" value="0" step="0.01" readonly style="font-size:18px" name="cambio" class="form-control" required>
                                 </div>
                             </div>
                             <div class="row">
-                                <div class="form-group col-md-4 text-right">
+                                <div class="form-group col-md-4 col-xs-4 text-center">
                                     <input type="checkbox" id="check-efectivo" name="efectivo" data-toggle="toggle" data-on="Tarjeta" data-off="Efectivo">
                                 </div>
-                                <div class="form-group col-md-4 ">
+                                <div class="form-group col-md-4 col-xs-4 text-center">
                                     @if(setting('ventas.ventas_credito'))
                                     <input type="checkbox" id="check-credito" name="credito" data-toggle="toggle" data-on="Crédito" data-off="Contado">
                                     @endif
                                 </div>
-                                <div class="form-group col-md-4 text-right">
+                                <div class="form-group col-md-4 col-xs-4 text-center">
                                     <input type="checkbox" id="check-factura" name="factura" data-toggle="toggle" data-on="Factura" data-off="Recibo">
                                 </div>
                             </div>
@@ -130,7 +131,7 @@
                     <div class="panel-body">
                         <div class="col-md-12">
                             <div class="table-responsive">
-                                <table class="table table-bordered" style="font-size:18px">
+                                <table class="table table-bordered" style="font-size:15px">
                                     <thead>
                                         <th style="width:300px">Producto</th>
                                         <th>observación</th>
@@ -160,8 +161,8 @@
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td colspan="4" class="text-right"><h4>TOTAL</h4></td>
-                                            <td id="label-total" colspan="2"><h4>0.00 Bs.</h4></td>
+                                            <td colspan="4" class="text-right"><h5>TOTAL</h5></td>
+                                            <td id="label-total" colspan="2"><h3>0.00 Bs.</h3></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -217,7 +218,7 @@
                 </div>
                 <div class="modal-body" id="info_producto"></div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default pull-right" id="btn-cancel-map" data-dismiss="modal">cerrar</button>
+                    <button type="button" class="btn btn-default pull-right" data-dismiss="modal">cerrar</button>
                 </div>
             </div>
         </div>
@@ -249,13 +250,13 @@
 @section('javascript')
     <script src="{{url('js/ventas.js')}}"></script>
     <script src="{{url('js/loginweb.js')}}"></script>
-    <script src="{{ asset('js/rich_select.js') }}"></script>
     <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
     <script src="{{url('js/ubicacion_cliente.js')}}" type="text/javascript"></script>
     <script>
         let costo_envio = {{intval(setting('delivery.costo_envio'))}};
         let marcador = {};
         $(document).ready(function(){
+            productos_buscar();
             $('#select-sucursal_id').val({{$sucursal_actual}});
             $('#select-sucursal_id').select2();
 
@@ -267,9 +268,6 @@
             $.get('{{route("clientes_list")}}', function(data){
                 select2_reload('cliente_id', data, false, 1)
             });
-            
-            // lista_categorias({{$categoria_id}});
-            productos_buscar();
 
             // Cambiar sucursal actual
             $('#select-sucursal_id').change(function(){
@@ -303,6 +301,7 @@
             // formulario de nuevo cliente
             $('#form-nuevo_cliente').on('submit', function(e){
                 e.preventDefault();
+                $('#alert-cliente').html(`<h5 class="text-center">Guardando...</h5>`);
                 let datos = $('#form-nuevo_cliente').serialize();
                 $.ajax({
                     url: "{{url('admin/clientes/ventas/create')}}",
@@ -312,6 +311,7 @@
                         let id = data.id;
                         $.get('{{route("clientes_list")}}', function(data){
                             select2_reload('cliente_id', data, false, id);
+                            $('#alert-cliente').html(``);
                             $('#modal-nuevo_cliente').modal('hide');
                             toastr.success('Cliente registrado correctamente.', 'Exito');
                         });
@@ -550,7 +550,7 @@
                 toastr.warning('El producto ya se encuentra en la lista.', 'Atención');
             }else{
                 $('#detalle_venta').before(`<tr class="tr-detalle" id="tr-${id}_${adicional_id}" data-id="${id}_${adicional_id}">
-                                                <td><input type="hidden" value="${id}" name="producto_id[]"><input type="hidden" value="${adicional_id}" name="adicional_id[]"><button type="button" class="btn btn-link" title="Ver información" onclick="producto_info(${id})">${nombre+adicional_nombre}</button></td>
+                                                <td><input type="hidden" value="${id}" name="producto_id[]"><input type="hidden" value="${adicional_id}" name="adicional_id[]"><button type="button" class="btn btn-link" title="Ver información" onclick="producto_info(${id})">${(nombre.length > 50 ? nombre.substr(0,50)+'...' : nombre)+adicional_nombre}</button></td>
                                                 <td><input type="text" class="form-control" name="observacion[]"></td>
                                                 <td>
                                                     <div class="input-group">
@@ -570,12 +570,15 @@
             calcular_cambio();
         }
 
+        var loader = "{{ url('storage').'/'.str_replace('\\', '/', setting('admin.img_loader')) }}";
+        var loader_request = `  <div style="@if(setting('delivery.activo')) height:370px @else height:300px @endif" class="text-center">
+                                    <br><br><br>
+                                    <img src="${loader}" width="100px">
+                                </div>`;
+
         // mostrar Buscador de productos
         function productos_buscar(id){
-            $('#tab1').html(`  <div style="@if(setting('delivery.activo')) height:370px @else height:300px @endif" class="text-center">
-                                    <br><br><br>
-                                    <img src="{{ voyager_asset('images/load.gif') }}" width="100px">
-                                </div>`);
+            $('#tab1').html(loader_request);
             $.ajax({
                 url: `{{url('admin/ventas/crear/productos_search')}}`,
                 type: 'get',
@@ -590,7 +593,7 @@
         function lista_categorias(id){
             $('#tab1').html(`  <div style="@if(setting('delivery.activo')) height:370px @else height:300px @endif" class="text-center">
                                     <br><br><br>
-                                    <img src="{{ voyager_asset('images/load.gif') }}" width="100px">
+                                    <img src="${loader}" width="100px">
                                 </div>`);
             $.ajax({
                 url: `{{url('admin/ventas/crear/ventas_categorias/${id}')}}`,
