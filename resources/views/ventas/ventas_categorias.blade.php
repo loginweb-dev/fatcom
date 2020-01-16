@@ -69,20 +69,28 @@
     });
 
     function cargar_productos(id){
-        $('#body-collapse'+id).html(` <div id="load-bar-venta">
-                    <div class="progress" style="height: 5px;">
-                        <div class="progress-bar" style="background-color:#096FA9" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                </div>`);
-        setTimeout(()=>{
-            $('#load-bar-venta').css('display', 'block');
-            $('#load-bar-venta .progress-bar').css('width', '97%');
-        }, 50);
+        if(!sessionStorage.getItem(`productsCategory${id}`)){
+            if(accordion_active!==id){
+                $('#body-collapse'+id).html(` <div id="load-bar-venta">
+                            <div class="progress" style="height: 5px;">
+                                <div class="progress-bar" style="background-color:#096FA9" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>`);
+                setTimeout(()=>{
+                    $('#load-bar-venta').css('display', 'block');
+                    $('#load-bar-venta .progress-bar').css('width', '97%');
+                }, 50);
 
 
-        $.get('{{url("admin/ventas/crear/ventas_productos_categorias")}}/'+ id, function(data){
-            $('#body-collapse'+id).html(data);
-        });
+                $.get('{{url("admin/ventas/crear/ventas_productos_categorias")}}/'+ id, function(data){
+                    $('#body-collapse'+id).html(data);
+                    sessionStorage.setItem(`productsCategory${id}`, data);
+                });
+            }
+        }else{
+            $('#body-collapse'+id).html(sessionStorage.getItem(`productsCategory${id}`));
+        }
+        accordion_active = id;
     }
 
     // Buscar texto en categoria

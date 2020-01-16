@@ -231,7 +231,7 @@
 
                 setInterval(function(){
                     get_data(sucursal_actual, search, page_actual);
-                }, 5000);
+                }, 20000);
 
             });
 

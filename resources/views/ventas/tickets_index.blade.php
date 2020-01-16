@@ -83,7 +83,7 @@
             get_post();
             setInterval(() => {
                 get_data()
-            },5000);
+            },10000);
             
         });
 

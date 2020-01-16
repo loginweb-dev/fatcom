@@ -255,6 +255,8 @@
     <script>
         let costo_envio = {{intval(setting('delivery.costo_envio'))}};
         let marcador = {};
+        let tab_active = '';
+        let accordion_active = '';
         $(document).ready(function(){
             productos_buscar();
             $('#select-sucursal_id').val({{$sucursal_actual}});
@@ -578,31 +580,46 @@
 
         // mostrar Buscador de productos
         function productos_buscar(id){
-            $('#tab1').html(loader_request);
-            $.ajax({
-                url: `{{url('admin/ventas/crear/productos_search')}}`,
-                type: 'get',
-                success: function(data){
-                    $('#tab1').html(data);
-                },
-                error: function(){console.log('Error');}
-            });
+            if(tab_active!='search'){
+                if(!sessionStorage.getItem(`SearchTab`)){
+                    $('#tab1').html(loader_request);
+                    $.ajax({
+                        url: `{{url('admin/ventas/crear/productos_search')}}`,
+                        type: 'get',
+                        cache: true,
+                        success: function(data){
+                            $('#tab1').html(data);
+                            sessionStorage.setItem(`SearchTab`, data);
+                        },
+                        error: function(){console.log('Error');}
+                    });
+                }else{
+                    $('#tab1').html(sessionStorage.getItem(`SearchTab`));
+                }
+            }
+            tab_active = 'search';
         }
 
         // mostrar los productos de la categoria seleccionada
         function lista_categorias(id){
-            $('#tab1').html(`  <div style="@if(setting('delivery.activo')) height:370px @else height:300px @endif" class="text-center">
-                                    <br><br><br>
-                                    <img src="${loader}" width="100px">
-                                </div>`);
-            $.ajax({
-                url: `{{url('admin/ventas/crear/ventas_categorias/${id}')}}`,
-                type: 'get',
-                success: function(data){
-                    $('#tab1').html(data);
-                },
-                error: function(){console.log('Error');}
-            });
+            if(tab_active!=id){
+                if(!sessionStorage.getItem(`Category${id}`)){
+                    $('#tab1').html(loader_request);
+                    $.ajax({
+                        url: `{{url('admin/ventas/crear/ventas_categorias/${id}')}}`,
+                        type: 'get',
+                        cache: true,
+                        success: function(data){
+                            $('#tab1').html(data);
+                            sessionStorage.setItem(`Category${id}`, data);
+                        },
+                        error: function(){console.log('Error');}
+                    });
+                }else{
+                    $('#tab1').html(sessionStorage.getItem(`Category${id}`));
+                }
+            }
+            tab_active = id;
         }
 
         function ubicacion_anterior(id, lat, lon, descripcion){
