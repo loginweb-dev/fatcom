@@ -642,7 +642,7 @@ class VentasController extends Controller
                             ->join('repartidores_pedidos as rp', 'rp.repartidor_id', 'e.id')
                             ->join('ventas as v', 'v.id', 'rp.pedido_id')
                             ->select(DB::raw('e.id, e.nombre, e.movil, e.direccion, count(rp.id) as pedidos'))
-                            ->where('v.estado', 'V')
+                            ->where('v.estado', 'V')->where('v.deleted_at', NULL)
                             ->where('rp.deleted_at', NULL)
                             ->whereRaw('(rp.estado = 1 or rp.estado = 2)')
                             ->groupBy('e.id', 'e.nombre', 'e.movil', 'e.direccion')

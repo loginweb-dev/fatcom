@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Intervention\Image\ImageManagerStatic as Image;
 
 use App\Http\Controllers\OfertasController as Ofertas;
 use App\Http\Controllers\LandingPageController as LandingPage;
@@ -23,6 +24,9 @@ use App\Cliente;
 use App\Producto;
 use App\Venta;
 use App\ProductosLike;
+use App\RepartidoresPedido;
+use App\VentasSeguimiento;
+use App\Empleado;
 
 class ApiController extends Controller
 {
@@ -129,6 +133,59 @@ class ApiController extends Controller
         }
     }
     
+    public function update_profile_delivery(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $user = User::find($request->id);
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->save();
+            
+            $empleado = Empleado::find($request->empleado_id);
+            $empleado->movil = $request->phone;
+            $empleado->direccion = $request->address;
+            $empleado->save();
+            
+            $user = $this->getEmpleado($request->id);
+
+            DB::commit();
+            return response()->json(['success' => 'Datos actualizados correctamente!', 'user' => $user]);
+            
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['error' => 'Ocurrio un error al actualizar los datos!']);
+        }
+    }
+    
+    public function update_profile_delivery_avatar(Request $request, $id)
+    {
+        DB::beginTransaction();
+        try {
+            Storage::makeDirectory('/public/users/'.date('F').date('Y'));
+            $file = $request->file('avatar');
+            $base_name = str_random(20);
+            $filename = $base_name.'.'.$file->getClientOriginalExtension();
+            $image_resize = Image::make($file->getRealPath())->orientate();
+            $image_resize->resize(256, null, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+            $image_resize->resizeCanvas(256, 256);
+            $path =  'users/'.date('F').date('Y').'/'.$filename;
+            $image_resize->save(public_path('../storage/app/public/'.$path));
+            $user = User::find($id);
+            $user->avatar = $path;
+            $user->save();
+            
+            DB::commit();
+            return response()->json(['success' => 'Imagen actualizados correctamente.', 'avatar' => $path]);
+            
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['error' => 'Ocurrio un error al actualizar su imagen.']);
+        }
+    }
+    
     public function login_social(Request $request)
     {
         DB::beginTransaction();
@@ -172,6 +229,20 @@ class ApiController extends Controller
         }
     }
     
+    public function login_delivery(Request $request)
+    {
+        $credentials = ['email' => $request->email, 'password' => $request->password];
+        if (Auth::attempt($credentials)) {
+            if(Auth::user()->role_id == 7){
+                $user = $this->getEmpleado(Auth::user()->id);
+                return response()->json($user);   
+            }else{
+                return response()->json(['error' => 'No tiene permiso de acceso a esta aplicación!']);
+            }
+        }else{
+            return response()->json(['error' => 'Los datos ingresados son incorretos!']);
+        }
+    }
     
     // Devolver todas las categorías que tienen productos
     public function categories_list(){
@@ -444,6 +515,64 @@ class ApiController extends Controller
         return response()->json($seguimiento);
     }
     
+    // ===============API de Delivery=================
+    
+    public function pedidos_pendientes($id){
+        $empleado = DB::table('empleados as e')->select('e.id')->where('e.user_id', $id)->first();
+        if($empleado){
+            $pedidos = DB::table('repartidores_pedidos as rp')
+                            ->join('ventas as v', 'v.id', 'rp.pedido_id')
+                            ->join('clientes as c', 'c.id', 'v.cliente_id')
+                            ->join('users as u', 'u.cliente_id', 'c.id')
+                            ->select('v.id', 'c.id as cliente_id', 'u.name', 'c.movil', 'u.avatar', 'rp.estado', 'v.deleted_at as detalle', 'rp.created_at', 'v.deleted_at as location', 'v.cobro_adicional', 'v.subtotal', 'v.descuento', 'v.importe_base')
+                            ->where('rp.repartidor_id', $empleado->id)
+                            ->where('rp.estado', '<>', 3)
+                            ->where('v.deleted_at', NULL)
+                            ->get();
+            $cont = 0;
+            foreach($pedidos as $item){
+                $detalle = DB::table('ventas_detalles as vd')
+                                ->join('productos as p', 'p.id', 'vd.producto_id')
+                                ->select('p.id', DB::raw('FORMAT(vd.cantidad, 0) as cantidad'), 'p.nombre', 'p.imagen', 'vd.precio')
+                                ->where('vd.venta_id', $item->id)->get();
+                                
+                $location = DB::table('clientes_coordenadas as co')
+                                    ->select('co.lat', 'co.lon', 'co.descripcion')
+                                    ->where('cliente_id', $item->cliente_id)
+                                    ->where('ultima_ubicacion', 1)
+                                    ->first();
+                                
+                $pedidos[$cont]->detalle = $detalle;
+                $pedidos[$cont]->location = $location;
+                $pedidos[$cont]->created_at = Carbon::parse($item->created_at)->diffForHumans();
+                $cont++;
+            }
+            
+            return response()->json(['pedidos'=>$pedidos]);
+        }else{
+            return response()->json(['pedidos'=>[]]);
+        }
+        
+    }
+    
+    public function delivery_close($id){
+        DB::beginTransaction();
+        try {
+            // Cambiar estado del delivery
+            RepartidoresPedido::where('pedido_id', $id)->update(['estado' => 2]);
+            // Cambiar el estado de la venta
+            Venta::where('id', $id)->update(['venta_estado_id' => 5]);
+            // Crear registro de seguimiento del pedido
+            VentasSeguimiento::create([ 'venta_id' => $id, 'venta_estado_id' => 5,]);
+            
+            DB::commit();
+            return 1;
+        } catch (\Exception $e) {
+            DB::rollback();
+            return 0;
+        }
+    }
+    
     // ================================================
     
     // Obtener email de usuario mediante numero de celular
@@ -464,7 +593,17 @@ class ApiController extends Controller
         return DB::table('users as u')
                     ->join('clientes as c', 'c.id', 'u.cliente_id')
                     ->select('u.id', 'u.name', 'u.email', 'u.avatar', 'u.cliente_id', 'c.razon_social', 'c.nit', 'c.movil')
-                    ->where('u.id', $id)
-                    ->first();
+                    ->where('u.id', $id)->first();
+    }
+    
+    protected function getEmpleado($id){
+        if(!$id){
+            return null;
+        }else{
+            return DB::table('users as u')
+                            ->join('empleados as e', 'e.user_id', 'u.id')
+                            ->select('u.id', 'e.id as empleado_id', 'u.name', 'u.email', 'u.avatar', 'e.movil', 'e.direccion')
+                            ->where('u.id', $id)->first();
+        }
     }
 }

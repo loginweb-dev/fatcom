@@ -16,7 +16,7 @@
             <div class="col-md-12">
                 <div class="panel panel-bordered">
                     <div class="panel-body">
-                        <form id="form-search" class="form-inline" method="post" action='{{route("ventas_reporte_generar")}}'>
+                        <form id="form_report" name="form_report" class="form-inline" method="post" action='{{route("ventas_reporte_generar")}}'>
                             @csrf
                             <div class="row">
                                 <div class="col-md-12">
@@ -41,6 +41,7 @@
                                     </div>
                                 </div>
                             </div>
+                            <input type="hidden" id="report_type" name="type">
                         </form>
                     </div>
                 </div>
@@ -51,9 +52,11 @@
 @stop
 
 @section('css')
+<link href="{{url('ecommerce_public/plugins/fancybox/fancybox.min.css')}}" type="text/css" rel="stylesheet">
 @stop
 
 @section('javascript')
+    <script src="{{url('ecommerce_public/plugins/fancybox/fancybox.min.js')}}" type="text/javascript"></script>
     <script>
         var loader = "{{ url('storage').'/'.str_replace('\\', '/', setting('admin.img_loader')) }}";
         var loader_request = `  <div style="@if(setting('delivery.activo')) height:370px @else height:300px @endif" class="text-center">
@@ -61,7 +64,7 @@
                                     <img src="${loader}" width="100px">
                                 </div>`;
         $(document).ready(function(){
-            $('#form-search').on('submit', function(e){
+            $('#form_report').on('submit', function(e){
                 $('#detalle_reporte').html(`<div class="text-center" style="height:200px"><br><img src="${loader}" width="100px"></div>`);
                 e.preventDefault();
                 let datos = $(this).serialize();

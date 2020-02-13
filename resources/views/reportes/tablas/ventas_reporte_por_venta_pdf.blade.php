@@ -2,16 +2,14 @@
 <div class="row">
     <div class="col-md-12">
         <div class="panel panel-bordered">
-            <div class="col-md-12 text-right">
-                <button type="button" data-value="excel" class="btn btn-success btn-export">Excel</button>
-                <button type="button" data-value="pdf" class="btn btn-danger btn-export">PDF</button>
+            <div class="col-md-12 text-right" style="text-align:center">
+                <h3>Reporte de ventas generado desde {{ date('d-m-Y', strtotime($inicio)) }} hasta {{ date('d-m-Y', strtotime($fin)) }}</h3>
             </div>
             <div class="panel-body">
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover">
+                    <table width="100%" border="1" cellspacing="0" cellpadding="5">
                         <thead>
                             <tr>
-                                <th>N&deg;</th>
                                 <th>Fecha</th>
                                 <th>Cliente</th>
                                 <th>Detalle</th>
@@ -24,11 +22,9 @@
                         <tbody>
                             @php
                                 $total = 0;
-                                $cont = 1;
                             @endphp
                             @forelse ($ventas as $item)
                             <tr>
-                                <td>{{ $cont }}</td>
                                 <td>{{ $item->fecha }}</td>
                                 <td>{{ $item->cliente }}</td>
                                 <td>
@@ -48,15 +44,14 @@
                             </tr>
                             @php
                                 $total += $item->importe_base;
-                                $cont++;
                             @endphp
                             @empty
                             <tr>
-                                <td colspan="8" class="text-center">No existen ventas</td>
+                                <td colspan="7" class="text-center">No existen ventas</td>
                             </tr>
                             @endforelse
                             <tr>
-                                <td colspan="7"><h4>TOTAL</h4></td>
+                                <td colspan="6"><h4>TOTAL</h4></td>
                                 <td><h4>{{ number_format($total, 2, ',', '') }} Bs.</h4></td>
                             </tr>
                         </tbody>
@@ -66,17 +61,12 @@
         </div>
     </div>
 </div>
-<script>
-    $(document).ready(function(){
-        $('.btn-export').click(function(){
-            let value = $(this).data('value');
-            $('#report_type').val(value);
-            $('#form_report').attr('target', 'blank');
-            document.form_report.submit();
-            setTimeout(() => {
-                $('#form_report').removeAttr('target');
-                $('#report_type').val('');
-            }, 0);
-        });
-    });
-</script>
+<style>
+    th{
+        font-size: 20px
+    }
+    table td{
+        font-family: Sans-serif;
+        font-size: 15px
+    }
+</style>

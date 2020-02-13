@@ -22,7 +22,10 @@ Route::post('/login','ApiController@login');
 Route::post('/registro','ApiController@register');
 Route::post('/update/profile','ApiController@update_profile');
 Route::post('/confirm/profile','ApiController@confirm_profile');
+Route::post('/update/profile/delivery','ApiController@update_profile_delivery');
+Route::post('/update/profile/delivery/avatar/{id}','ApiController@update_profile_delivery_avatar');
 Route::post('/login/social','ApiController@login_social');
+Route::post('/login/delivery','ApiController@login_delivery');
 
 // Categorías diponibles
 Route::get('/categories','ApiController@categories_list');
@@ -53,3 +56,10 @@ Route::get('/pedidos/details/{id}','ApiController@pedidos_detalles');
 
 // Seguimiento de pedido
 Route::get('/pedidos/tracking/{id}','ApiController@pedidos_seguimiento');
+
+
+// =====Delivery=====
+// Lista de pedidos asignados a un repartidor
+Route::get('/delivery/pedidos/lista/{user_id}','ApiController@pedidos_pendientes');
+// Lista de pedidos asignados a un repartidor
+Route::get('/delivery/pedidos/close/{id}','ApiController@delivery_close');

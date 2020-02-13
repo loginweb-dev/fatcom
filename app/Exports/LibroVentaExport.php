@@ -4,9 +4,10 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 use Illuminate\Support\Facades\DB;
 
-class LibroVentaExport extends \PhpOffice\PhpSpreadsheet\Cell\StringValueBinder implements WithCustomValueBinder, FromCollection
+class LibroVentaExport extends \PhpOffice\PhpSpreadsheet\Cell\StringValueBinder implements WithCustomValueBinder, FromCollection, WithHeadings
 {
     /**
     * @return \Illuminate\Support\Collection
@@ -22,5 +23,28 @@ class LibroVentaExport extends \PhpOffice\PhpSpreadsheet\Cell\StringValueBinder 
                             ->get();
         session()->forget(['venta_mes', 'venta_anio']);
         return $ventas;
+    }
+
+    public function headings(): array
+    {
+        return [
+            'Especificación',
+            'Numero',
+            'Fecha',
+            'Nro de factura',
+            'Nro de autorización',
+            'Estado',
+            'CI/NIT',
+            'Razón social',
+            'Importe',
+            'Importe ICE',
+            'Importe exento',
+            'Tasa cero',
+            'Sub total',
+            'Descuento',
+            'Importe base',
+            'Débito fiscal',
+            'Código de control'
+        ];
     }
 }

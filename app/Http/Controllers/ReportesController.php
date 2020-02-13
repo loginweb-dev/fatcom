@@ -7,6 +7,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
+// Exportación a Excel
+use App\Exports\ReporteVentaExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 class ReportesController extends Controller
 {
     public function __construct()
@@ -20,7 +24,21 @@ class ReportesController extends Controller
 
     public function ventas_reporte_generar(Request $datos){
         $ventas = $this->get_ventas($datos->filtro ,$datos->inicio, $datos->fin, $datos->tipo);
-        // dd($ventas);
+        if($datos->type){
+            $inicio = $datos->inicio;
+            $fin = $datos->fin;
+            if($datos->type === 'pdf'){
+                $vista = view('reportes.tablas.ventas_reporte_por_venta_pdf', compact('ventas', 'inicio', 'fin'));;
+                $pdf = \App::make('dompdf.wrapper');
+                $pdf->loadHTML($vista)->setPaper('letter', 'landscape');
+                $pdf->loadHTML($vista);
+                return $pdf->stream();
+            }else{
+                session(['ventasReporteExcel' => $ventas]);
+                return Excel::download(new ReporteVentaExport, 'Ventas desde '.$inicio.' al '.$fin.'.xlsx');
+            }
+            
+        }
         return $datos->filtro == 1 ?
                 view('reportes.tablas.ventas_reporte_por_venta', compact('ventas')) :
                 view('reportes.tablas.ventas_reporte_por_producto', compact('ventas'));
@@ -60,7 +78,7 @@ class ReportesController extends Controller
         if($filtro==1){
             $ventas = DB::table('ventas as v')
                             ->join('clientes as c', 'c.id', 'v.cliente_id')
-                            ->select('v.id', 'v.fecha', 'v.importe', 'v.cobro_adicional', 'v.descuento', 'v.importe_base', 'c.razon_social as cliente', 'v.deleted_at as detalle')
+                            ->select('v.id', 'v.fecha', 'c.razon_social as cliente', 'v.deleted_at as detalle', 'v.importe', 'v.cobro_adicional', 'v.descuento', 'v.importe_base')
                             ->whereBetween('v.fecha', [$inicio, $fin])
                             ->where('v.estado', 'V')->where('v.deleted_at', NULL)
                             ->orderBy('v.id', 'DESC')
