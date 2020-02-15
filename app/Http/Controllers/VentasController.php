@@ -12,6 +12,7 @@ use NumerosEnLetras;
 // Nota: Agregar Caja para usar eloquent
 use App\Venta;
 use App\Cliente;
+use App\Empleado;
 use App\ClientesCoordenada;
 use App\RepartidoresPedido;
 use App\User;
@@ -40,6 +41,9 @@ use Maatwebsite\Excel\Facades\Excel;
 use Mike42\Escpos\Printer;
 use Mike42\Escpos\EscposImage;
 use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
+
+// Eventos
+use App\Events\pedidoAsignado;
 
 class VentasController extends Controller
 {
@@ -623,7 +627,19 @@ class VentasController extends Controller
             $repartidores_pedidos->repartidor_id = $data->repartidor_id;
             $repartidores_pedidos->pedido_id = $data->id;
             $repartidores_pedidos->estado = 1;
-            $query = $repartidores_pedidos->save();
+            $repartidores_pedidos->save();
+
+            // Emitir evento de pedido asignado
+            $empleado = Empleado::find($data->repartidor_id);
+            $pedido_nuevo = DB::table('empleados as e')
+                            ->join('repartidores_pedidos as rp', 'rp.repartidor_id', 'e.id')
+                            ->join('ventas as v', 'v.id', 'rp.pedido_id')
+                            ->join('clientes as c', 'c.id', 'v.cliente_id')
+                            ->select('v.id', 'c.razon_social', 'v.importe_base', 'v.venta_estado_id', DB::raw('DATE_FORMAT(v.created_at, "%d-%m-%Y") as created_at'), 'rp.estado')
+                            ->where('e.user_id', $empleado->user_id)
+                            ->where('rp.id', $repartidores_pedidos->id)
+                            ->first();
+            event(new pedidoAsignado($empleado->user_id, $pedido_nuevo));
 
             DB::commit();
             return response()->json(['success' => 1]);
@@ -716,8 +732,8 @@ class VentasController extends Controller
                             ->where('v.estado', 'V')
                             ->where('rp.deleted_at', NULL)
                             ->whereRaw('(rp.estado = 1 or rp.estado = 2)')
-                            ->orderBy('rp.id', 'DESC')
-                            ->paginate(10);
+                            ->orderBy('rp.id', 'ASC')
+                            ->get();
         $value = '';
         return view('ventas.delivery.delivery_index', compact('registros', 'value'));
     }

@@ -200,7 +200,7 @@ return [
     ],
 
     'additional_js' => [
-        //'js/custom.js',
+        'pushjs/push.min.js',
     ],
 
     'googlemaps' => [

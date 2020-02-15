@@ -41,10 +41,7 @@
                                                 {{-- <th class="actions text-right">Acciones</th> --}}
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            @php
-                                                $cont = 0;
-                                            @endphp
+                                        <tbody id="pedidosList">
                                             @forelse ($registros as $item)
                                                 <tr onclick="verDetalle('{{$item->id}}')" class="tr-registro" title="Ver detalles">
                                                     <td>{{$item->razon_social}}</td>
@@ -63,9 +60,6 @@
                                                         </a>
                                                     </td> --}}
                                                 </tr>
-                                                @php
-                                                    $cont++;
-                                                @endphp
                                             @empty
                                             <tr>
                                                 <td colspan="7"><p class="text-center"><br>No hay registros para mostrar.</p></td>
@@ -74,7 +68,7 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div class="col-md-12">
+                                {{-- <div class="col-md-12">
                                     <div class="col-md-6" style="overflow-x:auto">
                                         @if(count($registros)>0)
                                             <p class="text-muted">Mostrando del {{$registros->firstItem()}} al {{$registros->lastItem()}} de {{$registros->total()}} registros.</p>
@@ -85,7 +79,7 @@
                                             {{ $registros->links() }}
                                         </nav>
                                     </div>
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
                     </div>
@@ -127,10 +121,8 @@
         </style>
     @stop
     @section('javascript')
-
         <script>
             $(document).ready(function() {
-
                 // set valor de delete
                 $('.btn-delete').click(function(){
                     $('#modal_delete input[name="id"]').val($(this).data('id'));
@@ -146,6 +138,32 @@
 
             function verDetalle(id){
                 window.location = "{{url('admin/repartidor/delivery/view/')}}/"+id;
+            }
+        </script>
+
+        {{-- Laravel Echo --}}
+        <script src="{{ asset('js/app.js') }}"></script>
+        <script src="{{ asset('js/events/events.js') }}"></script>
+        <script>
+            let icon = '{{ url("storage/".setting("empresa.logo")) }}';
+            listenNeewPedido(icon, '{{ Auth::user()->id }}');
+            
+            Echo.channel('deliveryChannel{{ Auth::user()->id }}')
+            .listen('pedidoAsignado', (e) => {
+                newPedido(e.pedido);
+            });
+
+            function newPedido(pedido){
+                $('#pedidosList')
+                .append(
+                    `<tr onclick="verDetalle(${pedido.id})" class="tr-registro" title="Ver detalles">
+                        <td>${pedido.razon_social}</td>
+                        <td>${pedido.created_at} <br> <small>hace unos segundos</small> </td>
+                        <td>
+                            ${pedido.estado == 1 ? '<label class="label label-dark">Enviado</label>' : '<label class="label label-primary">Entregado</label>'}
+                        </td>
+                    </tr>`
+                );
             }
         </script>
     @stop

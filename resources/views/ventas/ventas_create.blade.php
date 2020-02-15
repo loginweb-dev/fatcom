@@ -7,247 +7,247 @@
         </h1>
     </div> --}}
 @stop
-
+@if(auth()->user()->hasPermission('add_ventas'))
 @section('content')
-<form id="form" action="{{route('ventas_store')}}" method="post">
-    <div class="page-content browse container-fluid">
-        <br>
-        @if(!$abierta)
-        <div class="alert alert-warning">
-            <strong>Atención:</strong>
-            <p>No puede realizar ventas debido a que no se ha aperturado la caja.</p>
-            <p>Para realizar la apertura de la caja preciona <a href="{{ route('cajas_create') }}"><b style="color:blue">Aquí</b></a></p>
-        </div>
-        @endif
-        @include('voyager::alerts')
-        <div class="row">
-            <div class="col-md-8">
-                <div class="panel panel-bordered">
-                    <div class="panel-body" id="panel-productos" style="padding:0px">
-                        <div style="position:absolute;z-index:1;right:0px;margin:5px">
-                            <a href="#" class="btn-nav" data-direccion="left" title="Izquierda"><span class="voyager-double-left"></span></a>
-                            <a href="#" class="btn-nav" data-direccion="right" title="Derecha"><span class="voyager-double-right"></span></a>
-                        </div>
-                        <ul class="nav nav-tabs" style="width:2000px">
-                            <li class="li-item active" id="li-0">
-                                <a data-toggle="tab" href="#tab1" onclick="productos_buscar()">Buscador <i class="voyager-search"></i></a>
-                            </li>
-                            @foreach ($categorias as $item)
-                            <li class="li-item" id="li-{{$item->id}}" style="display:inline">
-                                <a data-toggle="tab" href="#tab1" onclick="lista_categorias({{$item->id}})">{{$item->nombre}}</a>
-                            </li>
-                            @endforeach
-                        </ul>
-                        <div class="tab-content">
-                            <div id="tab1" class="tab-pane fade in  active ">
+    <form id="form" action="{{route('ventas_store')}}" method="post">
+        <div class="page-content browse container-fluid">
+            <br>
+            @if(!$abierta)
+            <div class="alert alert-warning">
+                <strong>Atención:</strong>
+                <p>No puede realizar ventas debido a que no se ha aperturado la caja.</p>
+                <p>Para realizar la apertura de la caja preciona <a href="{{ route('cajas_create') }}"><b style="color:blue">Aquí</b></a></p>
+            </div>
+            @endif
+            @include('voyager::alerts')
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="panel panel-bordered">
+                        <div class="panel-body" id="panel-productos" style="padding:0px">
+                            <div style="position:absolute;z-index:1;right:0px;margin:5px">
+                                <a href="#" class="btn-nav" data-direccion="left" title="Izquierda"><span class="voyager-double-left"></span></a>
+                                <a href="#" class="btn-nav" data-direccion="right" title="Derecha"><span class="voyager-double-right"></span></a>
+                            </div>
+                            <ul class="nav nav-tabs" style="width:2000px">
+                                <li class="li-item active" id="li-0">
+                                    <a data-toggle="tab" href="#tab1" onclick="productos_buscar()">Buscador <i class="voyager-search"></i></a>
+                                </li>
+                                @foreach ($categorias as $item)
+                                <li class="li-item" id="li-{{$item->id}}" style="display:inline">
+                                    <a data-toggle="tab" href="#tab1" onclick="lista_categorias({{$item->id}})">{{$item->nombre}}</a>
+                                </li>
+                                @endforeach
+                            </ul>
+                            <div class="tab-content">
+                                <div id="tab1" class="tab-pane fade in  active ">
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="panel panel-bordered" style="@if(setting('delivery.activo')) height:450px @else height:380px @endif">
-                    <div class="panel-body">
-                        <div class="row">
-                            @csrf
-                            <input type="hidden" name="venta_tipo_id" id="input-venta_tipo_id" value="1">
-                            <input type="hidden" name="facturacion" value="{{setting('empresa.facturas')}}">
+                <div class="col-md-4">
+                    <div class="panel panel-bordered" style="@if(setting('delivery.activo')) height:450px @else height:380px @endif">
+                        <div class="panel-body">
                             <div class="row">
-                                <div class="form-group col-md-12 @if(!$cambiar_sucursal) hidden @else hola @endif">
-                                    {{-- <label for="">Sucursal actual</label> --}}
-                                    <select name="sucursal_id" id="select-sucursal_id" class="form-control">
-                                        @foreach ($sucursales as $item)
-                                        <option value="{{$item->id}}">{{$item->nombre}}</option>
-                                        @endforeach
-                                    </select>
+                                @csrf
+                                <input type="hidden" name="venta_tipo_id" id="input-venta_tipo_id" value="1">
+                                <input type="hidden" name="facturacion" value="{{setting('empresa.facturas')}}">
+                                <div class="row">
+                                    <div class="form-group col-md-12 @if(!$cambiar_sucursal) hidden @else hola @endif">
+                                        {{-- <label for="">Sucursal actual</label> --}}
+                                        <select name="sucursal_id" id="select-sucursal_id" class="form-control">
+                                            @foreach ($sucursales as $item)
+                                            <option value="{{$item->id}}">{{$item->nombre}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                            <div style="@if(!setting('delivery.activo')) display:none @endif">
+                                <div style="@if(!setting('delivery.activo')) display:none @endif">
+                                    <div class="row">
+                                        <div class="form-group col-md-4 col-xs-4 text-center">
+                                            <label>¿Para llevar?</label><br>
+                                            <input type="checkbox" id="check-llevar" name="llevar" data-toggle="toggle" data-on="Sí" data-off="No">
+                                            <input type="hidden" name="fecha" class="form-control" value="{{date('Y-m-d')}}" required>
+                                        </div>
+                                        {{-- Div auxiliar para mantener el estilo --}}
+                                        <div class="form-group col-md-4 col-xs-4 text-center">
+                                            <input type="hidden" min="1" step="1" name="nro_mesa" id="input-nro_mesa" class="form-control" value="" required>
+                                        </div>
+                                        <div class="form-group col-md-4 col-xs-4 text-center">
+                                            <label>A domicilio</label><br>
+                                            <input type="checkbox" id="check-domicilio" name="domicilio" data-toggle="toggle" data-onstyle="success" data-on="Sí" data-off="No">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="form-group col-md-12">
+                                        {{-- <label>NIT/CI</label> --}}
+                                        <input type="number" name="nit" id="input-nit" class="form-control" onkeypress="return getClienteNIT(event)" placeholder="NIT/CI">
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                        {{-- <label>Nombre completo</label> --}}
+                                        <div class="input-group">
+                                            <select name="cliente_id" class="form-control select2" id="select-cliente_id">
+                                            </select>
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-primary" style="margin-top:0px;padding:8px" type="button" title="Crear nuevo" data-toggle="modal" data-target="#modal-nuevo_cliente" aria-expanded="true" aria-controls="collapseOne"><span class="voyager-person" aria-hidden="true"></span></button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr style="margin-bottom:10px;margin-top:0px">
+                                <div class="row">
+                                    <div class="form-group col-md-6 col-xs-6">
+                                        <label>Monto entregado</label>
+                                        <input type="number" id="input-entregado" value="0" min="0" step="0.01" onchange="calcular_cambio()" onkeyup="calcular_cambio()" style="font-size:18px" name="monto_recibido" class="form-control cero_default" required>
+                                    </div>
+                                    <div class="form-group col-md-6 col-xs-6">
+                                        <label>Cambio</label>
+                                        <input type="number" id="input-cambio" value="0" step="0.01" readonly style="font-size:18px" name="cambio" class="form-control" required>
+                                    </div>
+                                </div>
                                 <div class="row">
                                     <div class="form-group col-md-4 col-xs-4 text-center">
-                                        <label>¿Para llevar?</label><br>
-                                        <input type="checkbox" id="check-llevar" name="llevar" data-toggle="toggle" data-on="Sí" data-off="No">
-                                        <input type="hidden" name="fecha" class="form-control" value="{{date('Y-m-d')}}" required>
-                                    </div>
-                                    {{-- Div auxiliar para mantener el estilo --}}
-                                    <div class="form-group col-md-4 col-xs-4 text-center">
-                                        <input type="hidden" min="1" step="1" name="nro_mesa" id="input-nro_mesa" class="form-control" value="" required>
+                                        <input type="checkbox" id="check-efectivo" name="efectivo" data-toggle="toggle" data-on="Tarjeta" data-off="Efectivo">
                                     </div>
                                     <div class="form-group col-md-4 col-xs-4 text-center">
-                                        <label>A domicilio</label><br>
-                                        <input type="checkbox" id="check-domicilio" name="domicilio" data-toggle="toggle" data-onstyle="success" data-on="Sí" data-off="No">
+                                        @if(setting('ventas.ventas_credito'))
+                                        <input type="checkbox" id="check-credito" name="credito" data-toggle="toggle" data-on="Crédito" data-off="Contado">
+                                        @endif
+                                    </div>
+                                    <div class="form-group col-md-4 col-xs-4 text-center">
+                                        <input type="checkbox" id="check-factura" name="factura" data-toggle="toggle" data-on="Factura" data-off="Recibo">
                                     </div>
                                 </div>
+                                <input type="hidden" name="caja_id" value="{{$caja_id}}">
                             </div>
-                            <div class="row">
-                                <div class="form-group col-md-12">
-                                    {{-- <label>NIT/CI</label> --}}
-                                    <input type="number" name="nit" id="input-nit" class="form-control" onkeypress="return getClienteNIT(event)" placeholder="NIT/CI">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-bordered" style="margin-top:-20px">
+                        <div class="panel-body">
+                            <div class="col-md-12">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" style="font-size:15px">
+                                        <thead>
+                                            <th style="width:300px">Producto</th>
+                                            <th>observación</th>
+                                            <th style="width:150px">Precio</th>
+                                            <th style="width:100px">Cantidad</th>
+                                            <th colspan="2">Subtotal</th>
+                                        </thead>
+                                        <tbody>
+                                            <tr id="detalle_venta">
+                                                <td colspan="4" class="text-right"><h5>Descuento</h5></td>
+                                                <td id="label-descuento" colspan="2">
+                                                    <div class="input-group">
+                                                        <input type="number" name="descuento" class="form-control cero_default" style="width:80px" onchange="total();calcular_cambio()" onkeyup="total();calcular_cambio()" min="0" value="0" id="input-descuento">
+                                                        <span class="input-group-addon">Bs.</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4" class="text-right"><h5>Costo de envío</h5></td>
+                                                <td id="label-costo_envio" colspan="2">
+                                                    <div class="input-group">
+                                                        <input type="number" readonly name="cobro_adicional" class="form-control cero_default" style="width:80px" onchange="total();calcular_cambio()" onkeyup="total();calcular_cambio()" min="0" value="0" id="input-costo_envio">
+                                                        <span class="input-group-addon">
+                                                            <input type="checkbox" disabled id="check-cobro_adicional_factura" name="cobro_adicional_factura" data-toggle="tooltip" data-placement="bottom" title="Incluir costo de envío en factura">
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4" class="text-right"><h5>TOTAL</h5></td>
+                                                <td id="label-total" colspan="2"><h3>0.00 Bs.</h3></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
-                                <div class="form-group col-md-12">
-                                    {{-- <label>Nombre completo</label> --}}
-                                    <div class="input-group">
-                                        <select name="cliente_id" class="form-control select2" id="select-cliente_id">
-                                        </select>
-                                        <span class="input-group-btn">
-                                            <button class="btn btn-primary" style="margin-top:0px;padding:8px" type="button" title="Crear nuevo" data-toggle="modal" data-target="#modal-nuevo_cliente" aria-expanded="true" aria-controls="collapseOne"><span class="voyager-person" aria-hidden="true"></span></button>
-                                        </span>
-                                    </div>
-                                </div>
+                                
+                                <textarea name="observaciones" id="" class="form-control" rows="3" placeholder="Observaciones de la venta..."></textarea>
+                                <input type="hidden" name="importe" value="0" id="input-total">
                             </div>
-                            <hr style="margin-bottom:10px;margin-top:0px">
-                            <div class="row">
-                                <div class="form-group col-md-6 col-xs-6">
-                                    <label>Monto entregado</label>
-                                    <input type="number" id="input-entregado" value="0" min="0" step="0.01" onchange="calcular_cambio()" onkeyup="calcular_cambio()" style="font-size:18px" name="monto_recibido" class="form-control cero_default" required>
-                                </div>
-                                <div class="form-group col-md-6 col-xs-6">
-                                    <label>Cambio</label>
-                                    <input type="number" id="input-cambio" value="0" step="0.01" readonly style="font-size:18px" name="cambio" class="form-control" required>
-                                </div>
+                            <div class="col-md-12 text-right">
+                                {{-- <button type="reset" id="btn-reset" class="btn btn-default">Vaciar</button> --}}
+                                {{-- <input type="checkbox" id="check-factura" name="factura" data-toggle="toggle" data-on="Con factura" data-off="Sin factura" data-onstyle="success" data-offstyle="danger"> --}}
+                                <button type="submit" id="btn-vender" @if(!$abierta) disabled @endif class="btn btn-primary" style="padding:20px">Vender <span class="voyager-basket"></span> </button>
                             </div>
-                            <div class="row">
-                                <div class="form-group col-md-4 col-xs-4 text-center">
-                                    <input type="checkbox" id="check-efectivo" name="efectivo" data-toggle="toggle" data-on="Tarjeta" data-off="Efectivo">
-                                </div>
-                                <div class="form-group col-md-4 col-xs-4 text-center">
-                                    @if(setting('ventas.ventas_credito'))
-                                    <input type="checkbox" id="check-credito" name="credito" data-toggle="toggle" data-on="Crédito" data-off="Contado">
-                                    @endif
-                                </div>
-                                <div class="form-group col-md-4 col-xs-4 text-center">
-                                    <input type="checkbox" id="check-factura" name="factura" data-toggle="toggle" data-on="Factura" data-off="Recibo">
-                                </div>
-                            </div>
-                            <input type="hidden" name="caja_id" value="{{$caja_id}}">
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="panel panel-bordered" style="margin-top:-20px">
-                    <div class="panel-body">
-                        <div class="col-md-12">
-                            <div class="table-responsive">
-                                <table class="table table-bordered" style="font-size:15px">
-                                    <thead>
-                                        <th style="width:300px">Producto</th>
-                                        <th>observación</th>
-                                        <th style="width:150px">Precio</th>
-                                        <th style="width:100px">Cantidad</th>
-                                        <th colspan="2">Subtotal</th>
-                                    </thead>
-                                    <tbody>
-                                        <tr id="detalle_venta">
-                                            <td colspan="4" class="text-right"><h5>Descuento</h5></td>
-                                            <td id="label-descuento" colspan="2">
-                                                <div class="input-group">
-                                                    <input type="number" name="descuento" class="form-control cero_default" style="width:80px" onchange="total();calcular_cambio()" onkeyup="total();calcular_cambio()" min="0" value="0" id="input-descuento">
-                                                    <span class="input-group-addon">Bs.</span>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="4" class="text-right"><h5>Costo de envío</h5></td>
-                                            <td id="label-costo_envio" colspan="2">
-                                                <div class="input-group">
-                                                    <input type="number" readonly name="cobro_adicional" class="form-control cero_default" style="width:80px" onchange="total();calcular_cambio()" onkeyup="total();calcular_cambio()" min="0" value="0" id="input-costo_envio">
-                                                    <span class="input-group-addon">
-                                                        <input type="checkbox" disabled id="check-cobro_adicional_factura" name="cobro_adicional_factura" data-toggle="tooltip" data-placement="bottom" title="Incluir costo de envío en factura">
-                                                    </span>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="4" class="text-right"><h5>TOTAL</h5></td>
-                                            <td id="label-total" colspan="2"><h3>0.00 Bs.</h3></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            
-                            <textarea name="observaciones" id="" class="form-control" rows="3" placeholder="Observaciones de la venta..."></textarea>
-                            <input type="hidden" name="importe" value="0" id="input-total">
+        {{-- Modal mapa --}}
+        <div class="modal modal-primary fade" tabindex="-1" id="modal_mapa" data-backdrop="static" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title"><i class="voyager-location"></i> Ubicación del pedido</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="list-ubicaciones"></div>
+                        <div id="contenedor_mapa">
+                            <div id="map"></div>
                         </div>
-                        <div class="col-md-12 text-right">
-                            {{-- <button type="reset" id="btn-reset" class="btn btn-default">Vaciar</button> --}}
-                            {{-- <input type="checkbox" id="check-factura" name="factura" data-toggle="toggle" data-on="Con factura" data-off="Sin factura" data-onstyle="success" data-offstyle="danger"> --}}
-                            <button type="submit" id="btn-vender" @if(!$abierta) disabled @endif class="btn btn-primary" style="padding:20px">Vender <span class="voyager-basket"></span> </button>
-                        </div>
+                        <input type="hidden" name="lat" id="latitud" >
+                        <input type="hidden" name="lon" id="longitud">
+                        <input type="hidden" name="coordenada_id" id="input-coordenada_id">
+                        <textarea name="descripcion" class="form-control" id="input-descripcion" rows="2" maxlength="200" placeholder="Datos descriptivos de su ubicación..."></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="button" class="btn btn-primary pull-right"value="Aceptar" data-dismiss="modal">
+                        <button type="button" class="btn btn-default pull-right" id="btn-cancel-map" data-dismiss="modal">Cancelar</button>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    {{-- Modal mapa --}}
-    <div class="modal modal-primary fade" tabindex="-1" id="modal_mapa" data-backdrop="static" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title"><i class="voyager-location"></i> Ubicación del pedido</h4>
-                </div>
-                <div class="modal-body">
-                    <div id="list-ubicaciones"></div>
-                    <div id="contenedor_mapa">
-                        <div id="map"></div>
+    </form>
+
+    @include('ventas.partials.modal_cliente_create')
+
+        {{-- Modal de detalle de producto --}}
+        <div class="modal modal-primary fade" tabindex="-1" id="modal-info_producto" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title"><i class="voyager-harddrive"></i> Detalle de producto</h4>
                     </div>
-                    <input type="hidden" name="lat" id="latitud" >
-                    <input type="hidden" name="lon" id="longitud">
-                    <input type="hidden" name="coordenada_id" id="input-coordenada_id">
-                    <textarea name="descripcion" class="form-control" id="input-descripcion" rows="2" maxlength="200" placeholder="Datos descriptivos de su ubicación..."></textarea>
-                </div>
-                <div class="modal-footer">
-                    <input type="button" class="btn btn-primary pull-right"value="Aceptar" data-dismiss="modal">
-                    <button type="button" class="btn btn-default pull-right" id="btn-cancel-map" data-dismiss="modal">Cancelar</button>
+                    <div class="modal-body" id="info_producto"></div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default pull-right" data-dismiss="modal">cerrar</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</form>
 
-@include('ventas.partials.modal_cliente_create')
-
-    {{-- Modal de detalle de producto --}}
-    <div class="modal modal-primary fade" tabindex="-1" id="modal-info_producto" role="dialog">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title"><i class="voyager-harddrive"></i> Detalle de producto</h4>
-                </div>
-                <div class="modal-body" id="info_producto"></div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default pull-right" data-dismiss="modal">cerrar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-@include('partials.modal_load')
-{{-- Variables PHP para inicializar la vista --}}
-@php
-    $categoria_id = 0;
-    if(count($categorias)>0){
-        $categoria_id = $categorias[0]->id;
-    }
-@endphp
-
-@stop
-
-@section('css')
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
-    <style>
-        #map {
-            height: 340px;
+    @include('partials.modal_load')
+    {{-- Variables PHP para inicializar la vista --}}
+    @php
+        $categoria_id = 0;
+        if(count($categorias)>0){
+            $categoria_id = $categorias[0]->id;
         }
-        .img-producto:hover{
-            border: 5px solid #096FA9;
-        }
-    </style>
-@stop
+    @endphp
 
-@section('javascript')
+    @stop
+
+    @section('css')
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
+        <style>
+            #map {
+                height: 340px;
+            }
+            .img-producto:hover{
+                border: 5px solid #096FA9;
+            }
+        </style>
+    @stop
+
+    @section('javascript')
     <script src="{{url('js/ventas.js')}}"></script>
     <script src="{{url('js/loginweb.js')}}"></script>
     <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
@@ -657,3 +657,8 @@
         }
     </script>
 @stop
+@else
+    @section('content')
+        @include('errors.sin_permiso')
+    @stop
+@endif

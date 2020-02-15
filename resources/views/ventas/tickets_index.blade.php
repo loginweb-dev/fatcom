@@ -1,3 +1,4 @@
+@if(auth()->user()->hasPermission('browse_ventastickets'))
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -115,3 +116,18 @@
     </script>
 </body>
 </html>
+
+@else
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Error</title>
+    </head>
+    <body>
+        <h1>Acceso denegado!</h1>
+    </body>
+    </html>
+@endif
