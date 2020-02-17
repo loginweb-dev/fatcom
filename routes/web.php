@@ -323,5 +323,5 @@ Route::get('/clear-cache', function() {
     Artisan::call('cache:clear');
     Artisan::call('route:clear');
     Artisan::call('view:clear');
-    return "La cache del sistema está limpia";
+    return redirect('/admin')->with(['message' => 'Cache eliminada.', 'alert-type' => 'success']);
 });

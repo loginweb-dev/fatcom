@@ -9,5 +9,5 @@ class Moneda extends Model
 {
     use SoftDeletes;
     protected $dates = ['deleted_at'];
-    // protected $fillable = ['numero', 'tamanio_id'];
+    protected $fillable = ['nombre', 'abreviacion'];
 }
