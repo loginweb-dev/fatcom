@@ -14,7 +14,7 @@ class FatcomDataTypesTableSeeder extends Seeder
     {
         
 
-        // \DB::table('data_types')->truncate();
+        \DB::table('data_types')->delete();
         
         \DB::table('data_types')->insert(array (
             0 => 
@@ -466,6 +466,24 @@ class FatcomDataTypesTableSeeder extends Seeder
                 'details' => '{"order_column":null,"order_display_column":null,"order_direction":"asc","default_search_key":null,"scope":null}',
                 'created_at' => '2019-11-29 17:30:44',
                 'updated_at' => '2019-11-30 16:34:25',
+            ),
+            25 => 
+            array (
+                'id' => 45,
+                'name' => 'extras',
+                'slug' => 'extras',
+                'display_name_singular' => 'Extra',
+                'display_name_plural' => 'Extras',
+                'icon' => 'voyager-list-add',
+                'model_name' => 'App\\Extra',
+                'policy_name' => NULL,
+                'controller' => NULL,
+                'description' => NULL,
+                'generate_permissions' => 1,
+                'server_side' => 0,
+                'details' => '{"order_column":null,"order_display_column":null,"order_direction":"asc","default_search_key":null,"scope":null}',
+                'created_at' => '2020-02-18 17:04:55',
+                'updated_at' => '2020-02-18 18:29:11',
             ),
         ));
         

@@ -17,10 +17,10 @@ class UnidadesTableSeeder extends Seeder
                 ['nombre' => 'Por defecto', 'abreviacion' => 'Df.']
             );
             Unidade::create(
-                ['nombre' => 'Kilogramos', 'abreviacion' => 'Kg.'],
+                ['nombre' => 'Kilogramos', 'abreviacion' => 'Kg.']
             );
             Unidade::create(
-                ['nombre' => 'Litros', 'abreviacion' => 'Lt.'],
+                ['nombre' => 'Litros', 'abreviacion' => 'Lt.']
             );
             Unidade::create(
                 ['nombre' => 'Piezas', 'abreviacion' => 'Pz.']

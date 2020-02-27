@@ -49,11 +49,16 @@
                                         <tbody>
                                             @forelse ($registros as $item)
                                                 <tr>
-                                                    <td>{{$item->nombre}}</td>
-                                                    <td>{{$item->telefono}}</td>
-                                                    <td>{{$item->celular}}</td>
-                                                    <td>{{$item->direccion}}</td>
+                                                    <td>{{ $item->nombre }} @if($item->delivery==1) <br> <span class="label label-success">Delivery</span> @endif </td>
+                                                    <td>{{ $item->telefono }}</td>
+                                                    <td>{{ $item->celular }}</td>
+                                                    <td>{{ $item->direccion }}</td>
                                                     <td class="no-sort no-click text-right" id="bread-actions">
+                                                        @if(auth()->user()->hasPermission('read_depositos'))
+                                                        <a href="{{route('depositos_view', ['id' => $item->deposito_id])}}" title="Ir al deposito" class="btn btn-sm btn-dark view">
+                                                            <i class="voyager-list"></i> <span class="hidden-xs hidden-sm">Ver deposito</span>
+                                                        </a>
+                                                        @endif
                                                         @if(auth()->user()->hasPermission('read_sucursales'))
                                                         <a href="{{route('sucursales_view', ['id' => $item->id])}}" title="Ver" class="btn btn-sm btn-warning view">
                                                             <i class="voyager-eye"></i> <span class="hidden-xs hidden-sm">Ver</span>

@@ -6,9 +6,8 @@
         <h1 class="page-title">
             <i class="voyager-harddrive"></i> Añadir producto
         </h1>
-        {{-- <a href="{{route('sucursales_index')}}" class="btn btn-success btn-small">
-            <i class="voyager-double-left"></i> <span>Atras</span>
-        </a> --}}
+        <button type="button" data-toggle="modal" data-target="#modal_insumos" class="btn btn-success">Insumos <span class="voyager-list"></span> </button>
+        <button type="button" data-toggle="modal" data-target="#modal_extras" class="btn btn-primary">Extras <span class="voyager-list"></span> </button>
     @stop
 
     @section('content')
@@ -87,56 +86,26 @@
                                                     @enderror
                                                 </div>
                                             </div>
-                                            <div class="row">
-                                                <div class="form-group col-md-12">
-                                                    <label for="" id="label-descripcion">Descripción (0/255)</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Descripción breve del producto, no debe exceder los 255 caracteres. Este campo es obligatorio."></span> @endif
-                                                    <textarea name="descripcion_small" class="form-control" id="text-descripcion" maxlength="255" rows="4" placeholder="Descripción corta del producto" required>{{ old('descripcion_small') }}</textarea>
-                                                    @error('descripcion_small')
-                                                    <strong class="text-danger">{{ $message }}</strong>
-                                                    @enderror
-                                                </div>
-                                            </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="row">
                                                 <div class="col-md-12">
                                                     <label for="">Imagen(es)</label> @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Imagen o imagenes que se mostrarán del producto. Este campo no es obligatorio."></span> @endif
-                                                    <div class="img-small-wrap" style="height:120px;overflow-y:auto;border:3px solid #096FA9;padding:5px">
+                                                    <div class="img-small-wrap" style="height:110px;overflow-y:auto;border:3px solid #096FA9;padding:5px">
                                                         <div class="item-gallery" id="img-preview">
                                                             <button type="button" class="btn" title="Agregar imagen(es)" onclick="add_img()">
-                                                                <h1 style="font-size:50px;margin:10px"><span class="voyager-plus"></span></h1>
+                                                                <h1 style="font-size:40px;margin:10px"><span class="voyager-plus"></span></h1>
                                                             </button>
                                                         </div>
                                                         <input type="file" name="imagen[]" style="display:none" accept="image/png, image/jpeg" multiple id="gallery-photo-add">
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-md-12">
-                                                    <label for="">Insumos</label> @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Inusumos necesarios para la elaboración del producto. Este campo no es obligatorio."></span> @endif
-                                                    <div class="input-group">
-                                                        <select id="select-insumo_id" class="form-control select2">
-                                                            @foreach($insumos as $item)
-                                                            <option data-unidad="{{$item->unidad}}" value="{{$item->id}}" >{{$item->nombre}}</option>
-                                                            @endforeach
-                                                        </select>
-                                                        <span class="input-group-btn">
-                                                            <button class="btn btn-primary" id="btn-add" style="margin-top:0px;padding:8px" type="button"><span class="voyager-plus" aria-hidden="true"></span> Agregar</button>
-                                                        </span>
-                                                    </div>
-                                                    <div style="max-height:200px;overflow-y:auto">
-                                                        <table class="table table-bordered table-hover" >
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Insumo</th>
-                                                                    <th>Cantidad</th>
-                                                                    <th>Unid.</th>
-                                                                    <th></th>
-                                                                </tr>
-                                                                <tbody id="lista-insumos"></tbody>
-                                                            </thead>
-                                                        </table>
-                                                    </div>
+                                                <div class="form-group col-md-12">
+                                                    <label for="" id="label-descripcion">Descripción (0/255)</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Descripción breve del producto, no debe exceder los 255 caracteres. Este campo es obligatorio."></span> @endif
+                                                    <textarea name="descripcion_small" class="form-control" id="text-descripcion" maxlength="255" rows="2" placeholder="Descripción corta del producto" required>{{ old('descripcion_small') }}</textarea>
+                                                    @error('descripcion_small')
+                                                    <strong class="text-danger">{{ $message }}</strong>
+                                                    @enderror
                                                 </div>
                                             </div>
                                         </div>
@@ -169,9 +138,10 @@
                         </div>
                     </div>
                 </div>
+                
+                {{-- Modales de extras e insumos --}}
+                @include('inventarios.productos.restaurante.modal')
             </form>
-
-
         </div>
         @include('partials.modal_load')
     @stop

@@ -13,7 +13,8 @@ class FatcomPermissionsTableSeeder extends Seeder
     public function run()
     {
         
-        // \DB::table('permissions')->truncate();
+
+        \DB::table('permissions')->delete();
         
         \DB::table('permissions')->insert(array (
             0 => 
@@ -1677,8 +1678,48 @@ class FatcomPermissionsTableSeeder extends Seeder
                 'id' => 259,
                 'key' => 'browse_ventastickets',
                 'table_name' => 'ventas',
-                'created_at' => '2020-02-13 16:54:31',
-                'updated_at' => '2020-02-13 16:54:31',
+                'created_at' => '2020-02-13 19:57:44',
+                'updated_at' => '2020-02-13 19:57:44',
+            ),
+            208 => 
+            array (
+                'id' => 260,
+                'key' => 'browse_extras',
+                'table_name' => 'extras',
+                'created_at' => '2020-02-18 17:04:55',
+                'updated_at' => '2020-02-18 17:04:55',
+            ),
+            209 => 
+            array (
+                'id' => 261,
+                'key' => 'read_extras',
+                'table_name' => 'extras',
+                'created_at' => '2020-02-18 17:04:55',
+                'updated_at' => '2020-02-18 17:04:55',
+            ),
+            210 => 
+            array (
+                'id' => 262,
+                'key' => 'edit_extras',
+                'table_name' => 'extras',
+                'created_at' => '2020-02-18 17:04:55',
+                'updated_at' => '2020-02-18 17:04:55',
+            ),
+            211 => 
+            array (
+                'id' => 263,
+                'key' => 'add_extras',
+                'table_name' => 'extras',
+                'created_at' => '2020-02-18 17:04:55',
+                'updated_at' => '2020-02-18 17:04:55',
+            ),
+            212 => 
+            array (
+                'id' => 264,
+                'key' => 'delete_extras',
+                'table_name' => 'extras',
+                'created_at' => '2020-02-18 17:04:55',
+                'updated_at' => '2020-02-18 17:04:55',
             ),
         ));
         

@@ -20,9 +20,10 @@ class SucursalesController extends Controller
 
     public function index()
     {
-        $registros = DB::table('sucursales')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
+        $registros = DB::table('sucursales as s')
+                            ->join('depositos as d', 'd.sucursal_id', 's.id')
+                            ->select('s.*', 'd.id as deposito_id')
+                            ->where('s.deleted_at', NULL)
                             ->paginate(10);
         $value = '';
         return view('inventarios/sucursales/sucursales_index', compact('registros', 'value'));
@@ -67,6 +68,7 @@ class SucursalesController extends Controller
         $sucursal->direccion = $data->direccion;
         $sucursal->telefono = $data->telefono;
         $sucursal->celular = $data->celular;
+        $sucursal->delivery = (isset($data->delivery)) ? 1 : NULL;
         $sucursal->latitud = $data->latitud;
         $sucursal->longitud = $data->longitud;
         $sucursal->save();
@@ -106,6 +108,7 @@ class SucursalesController extends Controller
                             'telefono' => $data->telefono,
                             'celular' => $data->celular,
                             'direccion' => $data->direccion,
+                            'delivery' => (isset($data->delivery)) ? 1: NULL,
                             'latitud' => $data->latitud,
                             'longitud' => $data->longitud,
                             'updated_at' => Carbon::now()

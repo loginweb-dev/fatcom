@@ -13,7 +13,7 @@ $(function() {
                 var reader = new FileReader();
                 reader.onload = function(event) {
                     $(`
-                        <img src="${event.target.result}" style="height:100px" class="img-thumbnail img-sm img-gallery">
+                        <img src="${event.target.result}" style="height:80px" class="img-thumbnail img-sm img-gallery">
                     `).appendTo(placeToInsertImagePreview)
                 }
                 reader.readAsDataURL(input.files[i]);

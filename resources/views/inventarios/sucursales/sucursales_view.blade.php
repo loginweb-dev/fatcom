@@ -12,7 +12,7 @@
         </a>
         @endif
         <a href="{{route('sucursales_index')}}" class="btn btn-warning btn-small">
-            <i class="voyager-list"></i> <span>Volver a la lista</span>
+            <i class="voyager-list"></i> <span>Ir a la lista</span>
         </a>
     @stop
     @section('content')

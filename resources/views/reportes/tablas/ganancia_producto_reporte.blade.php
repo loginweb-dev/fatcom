@@ -38,7 +38,11 @@
                 </div>
             </div>
         </div>
-        <div id="detalle_reporte"></div>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="detalle_reporte"></div>
+            </div>
+        </div>
     </div>
 @stop
 
@@ -49,16 +53,18 @@
 @section('javascript')
     <script>
         var loader = "{{ url('storage').'/'.str_replace('\\', '/', setting('admin.img_loader')) }}";
-        var loader_request = `  <div style="@if(setting('delivery.activo')) height:370px @else height:300px @endif" class="text-center">
-                                    <br><br><br>
-                                    <img src="${loader}" width="100px">
+        var loader_request = `  <div class="panel panel-bordered">
+                                    <div class="panel-body">
+                                        <div class="text-center">
+                                            <img src="${loader}" width="80px">
+                                        </div>
+                                    </div>
                                 </div>`;
         $(document).ready(function(){
-            $().html(`<h3></`);
             $('#form-search').on('submit', function(e){
                 e.preventDefault();
                 let datos = $(this).serialize();
-                $('#detalle_reporte').html(`<div class="text-center" style="height:200px"><br><img src="${loader}" width="100px"></div>`);
+                $('#detalle_reporte').html(loader_request);
                 $.ajax({
                     url: '{{route("ganancia_producto_reporte_generar")}}',
                     type: 'post',

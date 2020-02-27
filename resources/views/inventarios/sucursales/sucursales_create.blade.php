@@ -29,6 +29,9 @@
                                                     @error('nombre')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
+                                                    <div  style="position:absolute;right:15px;top:27px">
+                                                        <input type="checkbox" id="input-delivery" name="delivery" data-toggle="toggle" data-on="<span class='voyager-check'></span> Delivery" data-off="<span class='voyager-x'></span> Delivery">
+                                                    </div>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="">Telefono</label> @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Telefono de la sucursal. Este campo no es obligatorio."></span> @endif

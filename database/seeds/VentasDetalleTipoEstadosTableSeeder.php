@@ -47,16 +47,16 @@ class VentasDetalleTipoEstadosTableSeeder extends Seeder
                 ['venta_tipo_id' => 3, 'venta_estado_id' => 5]
             );
             VentasDetalleTipoEstado::create(
-                ['venta_tipo_id' => 4, 'venta_estado_id' => 2],
+                ['venta_tipo_id' => 4, 'venta_estado_id' => 2]
             );
             VentasDetalleTipoEstado::create(
-                ['venta_tipo_id' => 4, 'venta_estado_id' => 3],
+                ['venta_tipo_id' => 4, 'venta_estado_id' => 3]
             );
             VentasDetalleTipoEstado::create(
-                ['venta_tipo_id' => 4, 'venta_estado_id' => 4],
+                ['venta_tipo_id' => 4, 'venta_estado_id' => 4]
             );
             VentasDetalleTipoEstado::create(
-                ['venta_tipo_id' => 4, 'venta_estado_id' => 5],
+                ['venta_tipo_id' => 4, 'venta_estado_id' => 5]
             );
         }
     }

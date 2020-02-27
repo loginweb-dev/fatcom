@@ -13,12 +13,6 @@ $(function(){
     $('#text-descripcion').keyup(function(e){
         $('#label-descripcion').text(`Descripción (${$(this).val().length}/255)`)
     });
-
-    // set valor de delete imagen
-    $('.btn-delete_img').click(function(){
-        $('#modal_delete input[name="id"]').val($(this).data('id'));
-    });
-
     // ===============/Genéricas===============
 
 
@@ -46,10 +40,27 @@ $(function(){
                                                 <td><span class="voyager-x text-danger" onclick="borrarTr(${insumo_indice})"></span></td>
                                             </tr>`);
                 insumo_indice++;
+                toastr.remove();
                 toastr.info('Insumo agregado correctamente', 'Bien hecho!');
             }
         }else{
+            toastr.remove();
             toastr.warning('Insumo no seleccionado o ya se encuentra agregado', 'Advertencia');
+        }
+    });
+
+    $('#btn-validadInsumos').click(function(){
+        let send = true;
+        $("input[name='cantidad_insumo[]']").each(function(index, element){
+            if($(element).val()==''){
+                send = false;
+            }
+        });
+        if(send){
+            $('#modal_insumos').modal('hide');
+        }else{
+            toastr.remove();
+            toastr.warning('Debe agregar una cantidad a todos los insumos', 'Advertencia')
         }
     });
 
@@ -79,6 +90,7 @@ function change_background(img_medium, img, id, url){
                 toastr.error('Ocurrió un error al eliminar la imagen', 'Error');
             }
             $('#modal_load').modal('hide');
+            imagesList();
         }
     });
 }
@@ -101,6 +113,7 @@ function delete_imagen(url, datos){
                 toastr.error('Ocurrió un error al eliminar la imagen', 'Error');
             }
             $('#modal_load').modal('hide');
+            imagesList();
         }
     });
 }

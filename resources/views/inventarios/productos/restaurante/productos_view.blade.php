@@ -74,45 +74,78 @@
                                         </div>
                                     </div>
                                     {{-- <hr style="margin:0;"> --}}
-                                    @if (count($insumos_productos)>0)
                                     <div class="row">
-                                        <div class="col-md-12" style="margin:0px">
-                                            <div class="panel-heading" style="border-bottom:0;">
-                                                <h3 class="panel-title">Insumos</h3>
-                                            </div>
-                                            <div class="panel-body" style="padding-top:0;">
-                                                <div class="col-md-12" style="margin:0px;max-height:200px;overflow-y:auto">
-                                                    <table class="table table-bordered table-hover" >
-                                                        <thead>
-                                                            <tr>
-                                                                <th>N&deg;</th>
-                                                                <th>Insumo</th>
-                                                                <th>Cantidad</th>
-                                                                <th>Unid.</th>
-                                                            </tr>
-                                                            <tbody>
-                                                                @php
-                                                                    $cont = 1;
-                                                                @endphp
-                                                                @foreach ($insumos_productos as $item)
+                                        @if (count($insumos_productos)>0)
+                                            <div class="col-md-6" style="margin:0px">
+                                                <div class="panel-heading" style="border-bottom:0;">
+                                                    <h3 class="panel-title">Insumos</h3>
+                                                </div>
+                                                <div class="panel-body" style="padding:0;">
+                                                    <div class="col-md-12" style="margin:0px;max-height:200px;overflow-y:auto">
+                                                        <table class="table table-bordered table-hover" >
+                                                            <thead>
                                                                 <tr>
-                                                                    <td>{{$cont}}</td>
-                                                                    <td>{{$item->nombre}}</td>
-                                                                    <td>{{$item->cantidad}}</td>
-                                                                    <td>{{$item->unidad}}</td>
+                                                                    <th>N&deg;</th>
+                                                                    <th>Insumo</th>
+                                                                    <th>Cantidad</th>
                                                                 </tr>
-                                                                @php
-                                                                    $cont++;
-                                                                @endphp
-                                                                @endforeach
-                                                            </tbody>
-                                                        </thead>
-                                                    </table>
+                                                                <tbody>
+                                                                    @php
+                                                                        $cont = 1;
+                                                                    @endphp
+                                                                    @foreach ($insumos_productos as $item)
+                                                                    <tr>
+                                                                        <td>{{ $cont }}</td>
+                                                                        <td>{{ $item->nombre }}</td>
+                                                                        <td>{{ $item->cantidad }} {{ $item->unidad }}</td>
+                                                                    </tr>
+                                                                    @php
+                                                                        $cont++;
+                                                                    @endphp
+                                                                    @endforeach
+                                                                </tbody>
+                                                            </thead>
+                                                        </table>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        @endif
+                                        @if (count($insumos_productos)>0)
+                                            <div class="col-md-6" style="margin:0px">
+                                                <div class="panel-heading" style="border-bottom:0;">
+                                                    <h3 class="panel-title">Extras</h3>
+                                                </div>
+                                                <div class="panel-body" style="padding:0;">
+                                                    <div class="col-md-12" style="margin:0px;max-height:200px;overflow-y:auto">
+                                                        <table class="table table-bordered table-hover" >
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>N&deg;</th>
+                                                                    <th>Nombre</th>
+                                                                    <th>Precio</th>
+                                                                </tr>
+                                                                <tbody>
+                                                                    @php
+                                                                        $cont = 1;
+                                                                    @endphp
+                                                                    @foreach ($productos_extras as $item)
+                                                                    <tr>
+                                                                        <td>{{ $cont }}</td>
+                                                                        <td>{{ $item->nombre }}</td>
+                                                                        <td>{{ $item->precio }} Bs.</td>
+                                                                    </tr>
+                                                                    @php
+                                                                        $cont++;
+                                                                    @endphp
+                                                                    @endforeach
+                                                                </tbody>
+                                                            </thead>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
                                     </div>
-                                    @endif
                                 </div>
                                 <div class="col-md-5">
                                     <article class="gallery-wrap">

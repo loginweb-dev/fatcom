@@ -71,13 +71,16 @@ Route::get('admin/sucursales/cambiar/{route}/{id}', 'SucursalesController@sucurs
 Route::get('admin/depositos', 'DepositosController@index')->name('depositos_index');
 Route::get('admin/depositos/buscar/{value}', 'DepositosController@search');
 Route::get('admin/depositos/ver/{id}', 'DepositosController@view')->name('depositos_view');
-Route::get('admin/depositos/ver/{id}/buscar/{value}', 'DepositosController@view_search');
+Route::get('admin/depositos/ver/list/{type}/{id}/{search?}', 'DepositosController@view_list');
 Route::get('admin/depositos/crear', 'DepositosController@create')->name('depositos_create');
 Route::post('admin/depositos/guardar', 'DepositosController@store')->name('depositos_store');
 Route::get('admin/depositos/editar/{id}', 'DepositosController@edit')->name('depositos_edit');
 Route::post('admin/depositos/actualizar', 'DepositosController@update')->name('depositos_update');
 Route::post('admin/depositos/eliminar/', 'DepositosController@delete')->name('depositos_delete');
 
+Route::post('admin/depositos/extras/registro', 'DepositosController@registro_extra')->name('deposito_registro_extra');
+Route::post('admin/depositos/insumos/registro', 'DepositosController@registro_insumo')->name('deposito_registro_insumo');
+Route::post('admin/depositos/items/traspasar', 'DepositosController@traspaso_items')->name('deposito_traspaso_items');
 Route::get('admin/depositos/producto/agregar/{id}', 'DepositosController@create_producto')->name('depositos_create_producto');
 Route::post('admin/depositos/producto/store', 'DepositosController@store_producto')->name('depositos_store_producto');
 Route::post('admin/depositos/producto/update', 'DepositosController@update_producto')->name('depositos_update_producto');
@@ -100,6 +103,8 @@ Route::post('admin/productos/puntuar/', 'ProductosController@puntuar')->name('pr
 Route::post('admin/productos/imprimir/codigo_barras', 'ProductosController@imprimir_codigo_barras')->name('imprimir_codigo_barras');
 
 Route::get('admin/productos/get_producto/{id}', 'ProductosController@get_producto');
+Route::get('admin/productos/lista_imagenes/{id}', 'ProductosController@lista_imagenes');
+Route::post('admin/productos/add_imagen/{id}', 'ProductosController@add_imagen')->name('add_images_product');
 Route::get('admin/productos/cambiar_imagen_principal/{producto_id}/{imagen_id}', 'ProductosController@cambiar_imagen');
 Route::post('admin/productos/eliminar_imagen', 'ProductosController@delete_imagen')->name('delete_imagen');
 

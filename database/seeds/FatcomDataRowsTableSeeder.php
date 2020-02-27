@@ -14,7 +14,7 @@ class FatcomDataRowsTableSeeder extends Seeder
     {
         
 
-        // \DB::table('data_rows')->truncate();
+        \DB::table('data_rows')->delete();
         
         \DB::table('data_rows')->insert(array (
             0 => 
@@ -3088,6 +3088,134 @@ class FatcomDataRowsTableSeeder extends Seeder
                 'delete' => 0,
                 'details' => '{}',
                 'order' => 6,
+            ),
+            192 => 
+            array (
+                'id' => 275,
+                'data_type_id' => 45,
+                'field' => 'id',
+                'type' => 'text',
+                'display_name' => 'Id',
+                'required' => 1,
+                'browse' => 0,
+                'read' => 0,
+                'edit' => 0,
+                'add' => 0,
+                'delete' => 0,
+                'details' => '{}',
+                'order' => 1,
+            ),
+            193 => 
+            array (
+                'id' => 276,
+                'data_type_id' => 45,
+                'field' => 'nombre',
+                'type' => 'text',
+                'display_name' => 'Nombre',
+                'required' => 0,
+                'browse' => 1,
+                'read' => 1,
+                'edit' => 1,
+                'add' => 1,
+                'delete' => 1,
+                'details' => '{"display":{"width":"6"}}',
+                'order' => 2,
+            ),
+            194 => 
+            array (
+                'id' => 277,
+                'data_type_id' => 45,
+                'field' => 'precio',
+                'type' => 'number',
+                'display_name' => 'Precio',
+                'required' => 0,
+                'browse' => 1,
+                'read' => 1,
+                'edit' => 1,
+                'add' => 1,
+                'delete' => 1,
+                'details' => '{"display":{"width":6},"step":0.1,"min":0.1}',
+                'order' => 3,
+            ),
+            195 => 
+            array (
+                'id' => 278,
+                'data_type_id' => 45,
+                'field' => 'estado',
+                'type' => 'checkbox',
+                'display_name' => 'Estado',
+                'required' => 0,
+                'browse' => 1,
+                'read' => 1,
+                'edit' => 1,
+                'add' => 1,
+                'delete' => 1,
+                'details' => '{"on":"Activo","off":"Inactivo","checked":true}',
+                'order' => 5,
+            ),
+            196 => 
+            array (
+                'id' => 279,
+                'data_type_id' => 45,
+                'field' => 'created_at',
+                'type' => 'timestamp',
+                'display_name' => 'Creado',
+                'required' => 0,
+                'browse' => 1,
+                'read' => 1,
+                'edit' => 1,
+                'add' => 0,
+                'delete' => 1,
+                'details' => '{}',
+                'order' => 6,
+            ),
+            197 => 
+            array (
+                'id' => 280,
+                'data_type_id' => 45,
+                'field' => 'updated_at',
+                'type' => 'timestamp',
+                'display_name' => 'Updated At',
+                'required' => 0,
+                'browse' => 0,
+                'read' => 0,
+                'edit' => 0,
+                'add' => 0,
+                'delete' => 0,
+                'details' => '{}',
+                'order' => 7,
+            ),
+            198 => 
+            array (
+                'id' => 281,
+                'data_type_id' => 45,
+                'field' => 'deleted_at',
+                'type' => 'timestamp',
+                'display_name' => 'Deleted At',
+                'required' => 0,
+                'browse' => 0,
+                'read' => 0,
+                'edit' => 0,
+                'add' => 0,
+                'delete' => 0,
+                'details' => '{}',
+                'order' => 8,
+            ),
+            199 => 
+            array (
+                'id' => 282,
+                'data_type_id' => 45,
+                'field' => 'imagen',
+                'type' => 'image',
+                'display_name' => 'Imagen',
+                'required' => 0,
+                'browse' => 1,
+                'read' => 1,
+                'edit' => 1,
+                'add' => 1,
+                'delete' => 1,
+                'details' => '{"resize":{"width":"1000","height":null},"quality":"70%","upsize":true,"thumbnails":[{"name":"medium","scale":"50%"},{"name":"small","scale":"25%"},{"name":"cropped","crop":{"width":"300","height":"250"}}]}',
+                'order' => 4,
             ),
         ));
         

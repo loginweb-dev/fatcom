@@ -14,7 +14,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
     {
         
 
-        \DB::table('menu_items')->truncate();
+        \DB::table('menu_items')->delete();
         
         \DB::table('menu_items')->insert(array (
             0 => 
@@ -88,12 +88,12 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'title' => 'Herramientas',
                 'url' => '',
                 'target' => '_self',
-                'icon_class' => 'voyager-tools',
+                'icon_class' => 'voyager-treasure',
                 'color' => '#000000',
                 'parent_id' => NULL,
-                'order' => 14,
+                'order' => 12,
                 'created_at' => '2019-05-13 22:44:14',
-                'updated_at' => '2019-07-04 22:07:01',
+                'updated_at' => '2020-02-18 17:06:50',
                 'route' => NULL,
                 'parameters' => '',
             ),
@@ -177,7 +177,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'voyager.settings.index',
                 'parameters' => 'null',
             ),
-            13 => 
+            10 => 
             array (
                 'id' => 14,
                 'menu_id' => 1,
@@ -193,7 +193,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'voyager.hooks',
                 'parameters' => NULL,
             ),
-            14 => 
+            11 => 
             array (
                 'id' => 15,
                 'menu_id' => 1,
@@ -209,7 +209,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'voyager.permissions.index',
                 'parameters' => 'null',
             ),
-            15 => 
+            12 => 
             array (
                 'id' => 16,
                 'menu_id' => 1,
@@ -219,13 +219,13 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'icon_class' => 'voyager-lock',
                 'color' => '#000000',
                 'parent_id' => NULL,
-                'order' => 4,
+                'order' => 2,
                 'created_at' => '2019-05-14 00:22:31',
-                'updated_at' => '2019-07-04 22:07:03',
+                'updated_at' => '2020-02-18 17:06:16',
                 'route' => NULL,
                 'parameters' => '',
             ),
-            17 => 
+            13 => 
             array (
                 'id' => 21,
                 'menu_id' => 1,
@@ -235,13 +235,13 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'icon_class' => 'voyager-data',
                 'color' => '#000000',
                 'parent_id' => NULL,
-                'order' => 5,
+                'order' => 3,
                 'created_at' => '2019-05-13 22:57:48',
-                'updated_at' => '2019-07-09 16:03:26',
+                'updated_at' => '2020-02-18 17:06:16',
                 'route' => NULL,
                 'parameters' => '',
             ),
-            18 => 
+            14 => 
             array (
                 'id' => 23,
                 'menu_id' => 1,
@@ -257,7 +257,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'depositos_index',
                 'parameters' => 'null',
             ),
-            19 => 
+            15 => 
             array (
                 'id' => 24,
                 'menu_id' => 1,
@@ -273,7 +273,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'productos_index',
                 'parameters' => 'null',
             ),
-            20 => 
+            16 => 
             array (
                 'id' => 26,
                 'menu_id' => 1,
@@ -289,7 +289,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'sucursales_index',
                 'parameters' => 'null',
             ),
-            21 => 
+            17 => 
             array (
                 'id' => 30,
                 'menu_id' => 1,
@@ -299,13 +299,13 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'icon_class' => 'voyager-params',
                 'color' => '#000000',
                 'parent_id' => 21,
-                'order' => 6,
+                'order' => 7,
                 'created_at' => '2019-05-18 18:42:51',
-                'updated_at' => '2019-10-30 17:29:17',
+                'updated_at' => '2020-02-18 17:06:50',
                 'route' => 'voyager.categorias.index',
                 'parameters' => 'null',
             ),
-            22 => 
+            18 => 
             array (
                 'id' => 32,
                 'menu_id' => 1,
@@ -321,7 +321,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'voyager.unidades.index',
                 'parameters' => 'null',
             ),
-            23 => 
+            19 => 
             array (
                 'id' => 33,
                 'menu_id' => 1,
@@ -331,13 +331,13 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'icon_class' => 'voyager-tag',
                 'color' => '#000000',
                 'parent_id' => 21,
-                'order' => 8,
+                'order' => 9,
                 'created_at' => '2019-05-20 18:21:55',
-                'updated_at' => '2019-06-14 21:44:18',
+                'updated_at' => '2020-02-18 17:06:50',
                 'route' => 'voyager.marcas.index',
                 'parameters' => 'null',
             ),
-            24 => 
+            20 => 
             array (
                 'id' => 34,
                 'menu_id' => 1,
@@ -353,7 +353,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'voyager.tallas.index',
                 'parameters' => 'null',
             ),
-            25 => 
+            21 => 
             array (
                 'id' => 35,
                 'menu_id' => 1,
@@ -369,7 +369,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'voyager.tamanios.index',
                 'parameters' => 'null',
             ),
-            26 => 
+            22 => 
             array (
                 'id' => 36,
                 'menu_id' => 1,
@@ -385,7 +385,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'voyager.colores.index',
                 'parameters' => 'null',
             ),
-            27 => 
+            23 => 
             array (
                 'id' => 37,
                 'menu_id' => 1,
@@ -401,7 +401,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'voyager.generos.index',
                 'parameters' => 'null',
             ),
-            28 => 
+            24 => 
             array (
                 'id' => 38,
                 'menu_id' => 1,
@@ -417,7 +417,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'voyager.usos.index',
                 'parameters' => 'null',
             ),
-            29 => 
+            25 => 
             array (
                 'id' => 40,
                 'menu_id' => 1,
@@ -433,7 +433,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'voyager.monedas.index',
                 'parameters' => 'null',
             ),
-            30 => 
+            26 => 
             array (
                 'id' => 42,
                 'menu_id' => 1,
@@ -443,13 +443,13 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'icon_class' => 'voyager-certificate',
                 'color' => '#000000',
                 'parent_id' => 21,
-                'order' => 4,
+                'order' => 5,
                 'created_at' => '2019-05-27 17:36:04',
-                'updated_at' => '2019-05-27 17:37:45',
+                'updated_at' => '2020-02-18 17:06:50',
                 'route' => 'ofertas_index',
                 'parameters' => 'null',
             ),
-            31 => 
+            27 => 
             array (
                 'id' => 43,
                 'menu_id' => 1,
@@ -459,13 +459,13 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'icon_class' => 'voyager-basket',
                 'color' => '#000000',
                 'parent_id' => 21,
-                'order' => 5,
+                'order' => 6,
                 'created_at' => '2019-05-28 16:39:06',
-                'updated_at' => '2019-05-28 16:40:02',
+                'updated_at' => '2020-02-18 17:06:50',
                 'route' => 'ecommerce_index',
                 'parameters' => NULL,
             ),
-            32 => 
+            28 => 
             array (
                 'id' => 44,
                 'menu_id' => 1,
@@ -475,13 +475,13 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'icon_class' => 'voyager-book',
                 'color' => '#000000',
                 'parent_id' => NULL,
-                'order' => 6,
+                'order' => 4,
                 'created_at' => '2019-06-14 16:32:04',
-                'updated_at' => '2019-11-27 16:02:56',
+                'updated_at' => '2020-02-18 17:06:16',
                 'route' => NULL,
                 'parameters' => '',
             ),
-            33 => 
+            29 => 
             array (
                 'id' => 45,
                 'menu_id' => 1,
@@ -497,7 +497,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'cajas_index',
                 'parameters' => 'null',
             ),
-            34 => 
+            30 => 
             array (
                 'id' => 46,
                 'menu_id' => 1,
@@ -513,23 +513,23 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'asientos_index',
                 'parameters' => NULL,
             ),
-            35 => 
+            31 => 
             array (
                 'id' => 47,
                 'menu_id' => 1,
                 'title' => 'Insumos',
                 'url' => '',
                 'target' => '_self',
-                'icon_class' => 'voyager-params',
+                'icon_class' => 'voyager-puzzle',
                 'color' => NULL,
-                'parent_id' => 48,
-                'order' => 2,
+                'parent_id' => 21,
+                'order' => 5,
                 'created_at' => '2019-06-14 21:19:57',
                 'updated_at' => '2019-06-18 18:26:15',
                 'route' => 'voyager.insumos.index',
                 'parameters' => NULL,
             ),
-            36 => 
+            32 => 
             array (
                 'id' => 48,
                 'menu_id' => 1,
@@ -539,13 +539,13 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'icon_class' => 'voyager-shop',
                 'color' => '#000000',
                 'parent_id' => NULL,
-                'order' => 7,
+                'order' => 5,
                 'created_at' => '2019-06-14 21:34:23',
-                'updated_at' => '2019-11-27 16:02:56',
+                'updated_at' => '2020-02-18 17:06:50',
                 'route' => NULL,
                 'parameters' => '',
             ),
-            37 => 
+            33 => 
             array (
                 'id' => 49,
                 'menu_id' => 1,
@@ -555,13 +555,13 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'icon_class' => 'voyager-params',
                 'color' => '#000000',
                 'parent_id' => NULL,
-                'order' => 11,
+                'order' => 9,
                 'created_at' => '2019-06-14 21:43:08',
-                'updated_at' => '2019-11-29 17:33:12',
+                'updated_at' => '2020-02-18 17:06:50',
                 'route' => NULL,
                 'parameters' => '',
             ),
-            38 => 
+            34 => 
             array (
                 'id' => 50,
                 'menu_id' => 1,
@@ -577,7 +577,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'compras_index',
                 'parameters' => 'null',
             ),
-            39 => 
+            35 => 
             array (
                 'id' => 51,
                 'menu_id' => 1,
@@ -593,7 +593,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'voyager.proveedores.index',
                 'parameters' => 'null',
             ),
-            40 => 
+            36 => 
             array (
                 'id' => 52,
                 'menu_id' => 1,
@@ -603,13 +603,13 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'icon_class' => 'voyager-basket',
                 'color' => '#000000',
                 'parent_id' => NULL,
-                'order' => 8,
+                'order' => 6,
                 'created_at' => '2019-06-19 15:06:09',
-                'updated_at' => '2019-11-29 17:33:12',
+                'updated_at' => '2020-02-18 17:06:50',
                 'route' => NULL,
                 'parameters' => '',
             ),
-            41 => 
+            37 => 
             array (
                 'id' => 53,
                 'menu_id' => 1,
@@ -625,7 +625,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'ventas_index',
                 'parameters' => NULL,
             ),
-            42 => 
+            38 => 
             array (
                 'id' => 56,
                 'menu_id' => 1,
@@ -641,7 +641,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'voyager.pasarela-pagos.index',
                 'parameters' => 'null',
             ),
-            43 => 
+            39 => 
             array (
                 'id' => 58,
                 'menu_id' => 1,
@@ -657,7 +657,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'delivery_index',
                 'parameters' => 'null',
             ),
-            44 => 
+            40 => 
             array (
                 'id' => 60,
                 'menu_id' => 1,
@@ -667,13 +667,13 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'icon_class' => 'voyager-people',
                 'color' => '#000000',
                 'parent_id' => NULL,
-                'order' => 9,
+                'order' => 7,
                 'created_at' => '2019-07-05 19:24:24',
-                'updated_at' => '2019-11-29 17:33:12',
+                'updated_at' => '2020-02-18 17:06:50',
                 'route' => 'empleados_index',
                 'parameters' => NULL,
             ),
-            45 => 
+            41 => 
             array (
                 'id' => 61,
                 'menu_id' => 1,
@@ -689,7 +689,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'clientes_index',
                 'parameters' => NULL,
             ),
-            46 => 
+            42 => 
             array (
                 'id' => 63,
                 'menu_id' => 1,
@@ -705,23 +705,23 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'dosificaciones_index',
                 'parameters' => 'null',
             ),
-            47 => 
+            43 => 
             array (
                 'id' => 64,
                 'menu_id' => 1,
-                'title' => 'Configuraciones',
+                'title' => 'Ajustes',
                 'url' => '',
                 'target' => '_self',
                 'icon_class' => 'voyager-tools',
                 'color' => '#000000',
                 'parent_id' => NULL,
-                'order' => 13,
+                'order' => 11,
                 'created_at' => '2019-07-09 16:02:33',
-                'updated_at' => '2019-11-29 17:33:12',
+                'updated_at' => '2020-02-18 17:06:50',
                 'route' => NULL,
                 'parameters' => '',
             ),
-            48 => 
+            44 => 
             array (
                 'id' => 65,
                 'menu_id' => 1,
@@ -737,7 +737,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'voyager.ventas-estados.index',
                 'parameters' => 'null',
             ),
-            49 => 
+            45 => 
             array (
                 'id' => 66,
                 'menu_id' => 1,
@@ -753,7 +753,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'voyager.ventas-tipos.index',
                 'parameters' => 'null',
             ),
-            50 => 
+            46 => 
             array (
                 'id' => 67,
                 'menu_id' => 1,
@@ -769,7 +769,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'voyager.ventas-detalle-tipo-estados.index',
                 'parameters' => NULL,
             ),
-            51 => 
+            47 => 
             array (
                 'id' => 68,
                 'menu_id' => 1,
@@ -779,13 +779,13 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'icon_class' => 'voyager-truck',
                 'color' => '#000000',
                 'parent_id' => NULL,
-                'order' => 10,
+                'order' => 8,
                 'created_at' => '2019-07-26 14:38:43',
-                'updated_at' => '2019-11-29 17:33:12',
+                'updated_at' => '2020-02-18 17:06:50',
                 'route' => NULL,
                 'parameters' => '',
             ),
-            52 => 
+            48 => 
             array (
                 'id' => 69,
                 'menu_id' => 1,
@@ -801,7 +801,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'delivery_admin_index',
                 'parameters' => 'null',
             ),
-            53 => 
+            49 => 
             array (
                 'id' => 70,
                 'menu_id' => 1,
@@ -817,7 +817,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'graficos_index',
                 'parameters' => 'null',
             ),
-            54 => 
+            50 => 
             array (
                 'id' => 72,
                 'menu_id' => 1,
@@ -827,13 +827,13 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'icon_class' => 'voyager-location',
                 'color' => '#000000',
                 'parent_id' => 21,
-                'order' => 9,
+                'order' => 10,
                 'created_at' => '2019-08-15 21:42:31',
-                'updated_at' => '2019-08-27 22:23:22',
+                'updated_at' => '2020-02-18 17:06:50',
                 'route' => 'voyager.localidades.index',
                 'parameters' => 'null',
             ),
-            55 => 
+            51 => 
             array (
                 'id' => 73,
                 'menu_id' => 1,
@@ -845,11 +845,11 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'parent_id' => 52,
                 'order' => 3,
                 'created_at' => '2019-08-27 22:22:56',
-                'updated_at' => '2019-11-27 16:03:01',
+                'updated_at' => '2020-02-18 17:06:45',
                 'route' => 'ventas_credito_index',
                 'parameters' => NULL,
             ),
-            56 => 
+            52 => 
             array (
                 'id' => 74,
                 'menu_id' => 1,
@@ -861,11 +861,11 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'parent_id' => 52,
                 'order' => 4,
                 'created_at' => '2019-08-28 14:55:07',
-                'updated_at' => '2019-11-27 16:03:01',
+                'updated_at' => '2020-02-18 17:06:45',
                 'route' => 'proformas_index',
                 'parameters' => NULL,
             ),
-            57 => 
+            53 => 
             array (
                 'id' => 75,
                 'menu_id' => 1,
@@ -875,13 +875,13 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'icon_class' => 'voyager-receipt',
                 'color' => '#000000',
                 'parent_id' => NULL,
-                'order' => 12,
+                'order' => 10,
                 'created_at' => '2019-10-08 23:04:20',
-                'updated_at' => '2019-11-29 17:33:12',
+                'updated_at' => '2020-02-18 17:06:50',
                 'route' => NULL,
                 'parameters' => '',
             ),
-            58 => 
+            54 => 
             array (
                 'id' => 76,
                 'menu_id' => 1,
@@ -897,7 +897,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'ventas_reporte',
                 'parameters' => NULL,
             ),
-            59 => 
+            55 => 
             array (
                 'id' => 77,
                 'menu_id' => 1,
@@ -913,7 +913,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'ganancia_producto_reporte',
                 'parameters' => NULL,
             ),
-            60 => 
+            56 => 
             array (
                 'id' => 78,
                 'menu_id' => 1,
@@ -929,7 +929,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'ventas_libro',
                 'parameters' => NULL,
             ),
-            61 => 
+            57 => 
             array (
                 'id' => 80,
                 'menu_id' => 1,
@@ -939,13 +939,13 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'icon_class' => 'voyager-list-add',
                 'color' => '#000000',
                 'parent_id' => 21,
-                'order' => 7,
+                'order' => 8,
                 'created_at' => '2019-10-30 15:15:23',
-                'updated_at' => '2019-11-27 16:01:52',
+                'updated_at' => '2020-02-18 17:06:50',
                 'route' => 'voyager.subcategorias.index',
                 'parameters' => 'null',
             ),
-            62 => 
+            58 => 
             array (
                 'id' => 81,
                 'menu_id' => 1,
@@ -957,11 +957,11 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'parent_id' => 52,
                 'order' => 5,
                 'created_at' => '2019-11-27 16:01:42',
-                'updated_at' => '2019-11-27 16:03:01',
+                'updated_at' => '2020-02-18 17:06:45',
                 'route' => 'cocina.index',
                 'parameters' => NULL,
             ),
-            63 => 
+            59 => 
             array (
                 'id' => 82,
                 'menu_id' => 1,
@@ -977,7 +977,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'voyager.publicaciones.index',
                 'parameters' => NULL,
             ),
-            64 => 
+            60 => 
             array (
                 'id' => 83,
                 'menu_id' => 1,
@@ -989,11 +989,11 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'parent_id' => 52,
                 'order' => 6,
                 'created_at' => '2019-11-29 17:32:44',
-                'updated_at' => '2019-11-30 15:26:37',
+                'updated_at' => '2020-02-18 17:06:45',
                 'route' => 'tickets_index',
                 'parameters' => 'null',
             ),
-            65 => 
+            61 => 
             array (
                 'id' => 84,
                 'menu_id' => 1,
@@ -1009,7 +1009,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'route' => 'productos_escasez',
                 'parameters' => NULL,
             ),
-            66 => 
+            62 => 
             array (
                 'id' => 85,
                 'menu_id' => 1,
@@ -1019,10 +1019,26 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'icon_class' => 'voyager-wand',
                 'color' => NULL,
                 'parent_id' => 5,
-                'order' => 6,
+                'order' => 7,
                 'created_at' => '2019-05-13 22:44:12',
-                'updated_at' => '2019-05-13 20:27:11',
+                'updated_at' => '2020-02-18 17:06:16',
                 'route' => NULL,
+                'parameters' => NULL,
+            ),
+            63 => 
+            array (
+                'id' => 86,
+                'menu_id' => 1,
+                'title' => 'Extras',
+                'url' => '',
+                'target' => '_self',
+                'icon_class' => 'voyager-list-add',
+                'color' => NULL,
+                'parent_id' => 21,
+                'order' => 4,
+                'created_at' => '2020-02-18 17:04:56',
+                'updated_at' => '2020-02-18 17:06:50',
+                'route' => 'voyager.extras.index',
                 'parameters' => NULL,
             ),
         ));

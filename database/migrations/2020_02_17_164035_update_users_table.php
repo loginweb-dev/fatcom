@@ -28,8 +28,6 @@ class UpdateUsersTable extends Migration
      */
     public function down()
     {
-        $table->dropColumn('cliente_id');
-        $table->dropColumn('localidad_id');
-        $table->dropColumn('tipo_login');
+        $table->dropColumn(['cliente_id', 'localidad_id', 'tipo_login']);
     }
 }

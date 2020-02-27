@@ -105,6 +105,7 @@ function store_product(formData, url){
             let res = JSON.parse(response);
             if(res.success===1){
                 toastr.success('Producto guardado exitosamente.', 'Bien hecho');
+                sessionStorage.clear();
             }else{
                 toastr.error('Ocurrio un error al guardar el producto', 'Error');
             }

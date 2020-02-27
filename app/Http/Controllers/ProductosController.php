@@ -28,6 +28,9 @@ use App\ProductoUnidade;
 use App\ProductoImagene;
 use App\ProductosDeposito;
 use App\Deposito;
+use App\ProductosInsumo;
+use App\Extra;
+use App\ProductosExtra;
 
 class ProductosController extends Controller
 {
@@ -143,6 +146,12 @@ class ProductosController extends Controller
                                 ->where('pi.producto_id', $id)
                                 ->where('pi.deleted_at', NULL)
                                 ->get();
+        $productos_extras = DB::table('productos_extras as pe')
+                                    ->join('extras as e', 'e.id', 'pe.extra_id')
+                                    ->select('e.nombre', 'e.precio')
+                                    ->where('pe.producto_id', $id)
+                                    ->where('pe.deleted_at', NULL)
+                                    ->get();
 
         switch (setting('admin.modo_sistema')) {
             case 'repuestos':
@@ -152,7 +161,7 @@ class ProductosController extends Controller
                 return view('inventarios/productos/electronica_computacion/productos_view', compact('producto', 'imagenes', 'id', 'precios_venta', 'precios_compra'));
                 break;
             case 'restaurante':
-                return view('inventarios/productos/restaurante/productos_view', compact('producto', 'imagenes', 'id', 'precios_venta', 'precios_compra', 'insumos_productos'));
+                return view('inventarios/productos/restaurante/productos_view', compact('producto', 'imagenes', 'id', 'precios_venta', 'precios_compra', 'insumos_productos', 'productos_extras'));
                 break;
             case 'boutique':
                 return view('inventarios/productos/boutique/productos_view', compact('producto', 'imagenes', 'id', 'precios_venta', 'precios_compra', 'insumos_productos'));
@@ -182,6 +191,7 @@ class ProductosController extends Controller
         $usos = Uso::where('deleted_at', NULL)->where('id', '>', 1)->get();
         $unidades = Unidade::where('deleted_at', NULL)->where('id', '>', 1)->get();
         $monedas = Moneda::where('deleted_at', NULL)->where('id', '>', 1)->get();
+        $extras = Extra::where('deleted_at', NULL)->where('estado', 1)->get();
 
         $insumos = DB::table('insumos as i')
                             ->join('unidades as u', 'u.id', 'i.unidad_id')
@@ -206,7 +216,7 @@ class ProductosController extends Controller
                 return view('inventarios/productos/electronica_computacion/productos_create', compact('codigo_grupo', 'categorias', 'subcategorias', 'marcas', 'monedas', 'depositos'));
                 break;
             case 'restaurante':
-                return view('inventarios/productos/restaurante/productos_create', compact('codigo_grupo', 'categorias', 'subcategorias', 'insumos', 'depositos'));
+                return view('inventarios/productos/restaurante/productos_create', compact('codigo_grupo', 'categorias', 'subcategorias', 'insumos', 'depositos', 'extras'));
                 break;
             case 'boutique':
                 return view('inventarios/productos/boutique/productos_create', compact('codigo_grupo', 'categorias', 'subcategorias', 'insumos', 'depositos', 'marcas', 'tallas', 'colores', 'generos', 'usos', 'unidades', 'depositos'));
@@ -329,7 +339,8 @@ class ProductosController extends Controller
         $generos = Genero::where('deleted_at', NULL)->where('id', '>', 1)->get();
         $usos = Uso::where('deleted_at', NULL)->where('id', '>', 1)->get();
         $unidades = Unidade::where('deleted_at', NULL)->where('id', '>', 1)->get();
-        $monedas = Moneda::where('deleted_at', NULL)->where('id', '>', 1)->get();                            
+        $monedas = Moneda::where('deleted_at', NULL)->where('id', '>', 1)->get();
+        $extras = Extra::where('deleted_at', NULL)->where('estado', 1)->get();                      
 
         $insumos = DB::table('insumos as i')
                             ->join('unidades as u', 'u.id', 'i.unidad_id')
@@ -368,11 +379,9 @@ class ProductosController extends Controller
                                 ->where('pi.producto_id', $id)
                                 ->where('pi.deleted_at', NULL)
                                 ->get();
-        // $productos_depositos = DB::table('productos_depositos as pd')
-        //                         ->join('depositos as d', 'd.id', 'pd.deposito_id')
-        //                         ->select('d.*')
-        //                         ->where('pd.producto_id', $id)
-        //                         ->get();                       
+        $productos_extras = ProductosExtra::where('producto_id', $id)
+                                ->where('deleted_at', NULL)
+                                ->get();
 
         switch (setting('admin.modo_sistema')) {
             case 'repuestos':
@@ -382,7 +391,7 @@ class ProductosController extends Controller
                 return view('inventarios/productos/electronica_computacion/productos_edit', compact('producto', 'imagen', 'precio_venta', 'precio_compra', 'categorias', 'subcategorias', 'marcas', 'monedas'));
                 break;
             case 'restaurante':
-                return view('inventarios/productos/restaurante/productos_edit', compact('producto', 'imagen', 'categorias', 'subcategorias', 'precio_venta', 'insumos', 'insumos_productos'));
+                return view('inventarios/productos/restaurante/productos_edit', compact('producto', 'imagen', 'categorias', 'subcategorias', 'precio_venta', 'insumos', 'insumos_productos', 'extras', 'productos_extras'));
                 break;
             case 'boutique':
                 return view('inventarios/productos/boutique/productos_edit', compact('producto', 'imagen', 'precio_venta', 'precio_compra', 'categorias', 'subcategorias', 'marcas', 'tallas', 'colores', 'generos', 'usos', 'unidades'));
@@ -551,46 +560,24 @@ class ProductosController extends Controller
                 DB::table('productos_insumos')
                         ->where('producto_id', $data->id)->update(['deleted_at' => Carbon::now()]);
                 for ($i=0; $i < count($data->insumo_id); $i++) {
-                    DB::table('productos_insumos')
-                            ->insert([
-                                'producto_id' => $data->id,
-                                'insumo_id' => $data->insumo_id[$i],
-                                'cantidad' => $data->cantidad_insumo[$i],
-                                'created_at' => Carbon::now(),
-                                'updated_at' => Carbon::now()
-                            ]);
+                    ProductosInsumo::create([
+                        'producto_id' => $data->id,
+                        'insumo_id' => $data->insumo_id[$i],
+                        'cantidad' => $data->cantidad_insumo[$i],
+                    ]);
                 }
             }
 
-            try {
-                // guardar imagen si se agregó
-                if($data->file('imagen')!=NULL){
-                    for ($i=0; $i < count($data->file('imagen')); $i++) {
-                        $imagen = $this->agregar_imagenes($data->file('imagen')[$i]);
-                        DB::table('producto_imagenes')
-                                ->insert([
-                                            'producto_id' => $data->id,
-                                            'imagen' => $imagen,
-                                            'tipo' => 'secundaria',
-                                            'created_at' => Carbon::now(),
-                                            'updated_at' => Carbon::now()
-                                        ]);
-                        
-                    }
-                    $producto = Producto::find($data->id);
-                    if(!$producto->imagen){
-                        $producto->imagen = $imagen;
-                        $producto->save();
-
-                        $p_i = ProductoImagene::where('producto_id', $data->id)->first();
-
-                        $producto_imagen = ProductoImagene::find($p_i->id);
-                        $producto_imagen->tipo = 'primaria';
-                        $producto_imagen->save();
-                    }
+            // Guardar insumos (si existen)
+            if(isset($data->extra_id)){
+                DB::table('productos_extras')
+                        ->where('producto_id', $data->id)->update(['deleted_at' => Carbon::now()]);
+                for ($i=0; $i < count($data->extra_id); $i++) {
+                    ProductosExtra::create([
+                        'producto_id' => $data->id,
+                        'extra_id' => $data->extra_id[$i],
+                    ]);
                 }
-            } catch (\Throwable $th) {
-                //throw $th;
             }
 
             if($query){
@@ -636,6 +623,35 @@ class ProductosController extends Controller
         } catch (\Exception $e) {
             DB::rollback();
             return redirect()->route('productos_index')->with(['message' => 'Ocurrió un problema al eliminar el producto.', 'alert-type' => 'error']);
+        }
+    }
+
+    public function lista_imagenes($producto_id){
+        $imagenes = DB::table('producto_imagenes')
+                            ->select('id', 'imagen', 'tipo')
+                            ->where('producto_id', $producto_id)
+                            ->where('deleted_at', NULL)
+                            ->get();
+        return view('inventarios.productos.partials.producto_images', compact('imagenes', 'producto_id'));
+    }
+
+    public function add_imagen($id, Request $request){
+        if($request->hasFile('file')) {
+            try{
+                $imagen = $this->agregar_imagenes($request->file('file'));
+                if($imagen){
+                    ProductoImagene::create([
+                        'producto_id' => $id,
+                        'imagen' => $imagen,
+                        'tipo' => 'secundaria'
+                    ]);
+                }
+                return response()->json(['data'=>'success']);
+            }catch (\Throwable $th) {
+                return response()->json(['data'=>$th]);
+            }
+        }else{
+            return response()->json(['error'=>"Archivo no válido"]);
         }
     }
 
@@ -802,14 +818,21 @@ class ProductosController extends Controller
         // Guardar insumos si existen
         if(isset($data->insumo_id)){
             for ($i=0; $i < count($data->insumo_id); $i++) {
-                DB::table('productos_insumos')
-                        ->insert([
+                ProductosInsumo::create([
                             'producto_id' => $producto_id,
                             'insumo_id' => $data->insumo_id[$i],
                             'cantidad' => $data->cantidad_insumo[$i],
-                            'created_at' => Carbon::now(),
-                            'updated_at' => Carbon::now()
                         ]);
+            }
+        }
+
+        // Guardar extras si existen
+        if(isset($data->extra_id)){
+            for ($i=0; $i < count($data->extra_id); $i++) {
+                ProductosExtra::create([
+                    'producto_id' => $producto_id,
+                    'extra_id' => $data->extra_id[$i],
+                ]);
             }
         }
 

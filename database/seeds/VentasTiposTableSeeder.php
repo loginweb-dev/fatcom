@@ -20,7 +20,7 @@ class VentasTiposTableSeeder extends Seeder
                 ['nombre' => 'Para llevar', 'etiqueta' => 'primary', 'descripcion' => 'Venta para llevar']
             );
             VentasTipo::create(
-                ['nombre' => 'Pedido', 'etiqueta' => 'danger', 'descripcion' => 'Pedido realizado'],
+                ['nombre' => 'Pedido', 'etiqueta' => 'danger', 'descripcion' => 'Pedido realizado']
             );
             VentasTipo::create(
                 ['nombre' => 'A domicilio', 'etiqueta' => 'dark', 'descripcion' => 'Venta para llevar a domicilio']

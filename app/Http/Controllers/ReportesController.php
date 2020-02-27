@@ -149,11 +149,15 @@ class ReportesController extends Controller
                 }
             }
 
-            array_push($datos, array([  'producto'=>$item->nombre,
-                                        'precio_venta'=>$ventas->precio,
-                                        'cantidad_venta'=>$ventas->cantidad,
-                                        'precio_compra'=>$precio_compra
-                                    ]));
+            if($ventas->precio){
+                array_push($datos, array([
+                    'producto'=>$item->nombre,
+                    'precio_venta'=>$ventas->precio,
+                    'cantidad_venta'=>$ventas->cantidad,
+                    'precio_compra'=>$precio_compra
+                ]));
+            }
+            
         }
         // dd($datos);
         return view('reportes.tablas.ganancia_producto_reporte_generar', compact('datos'));
