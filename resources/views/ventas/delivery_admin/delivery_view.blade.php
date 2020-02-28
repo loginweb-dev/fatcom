@@ -102,7 +102,7 @@
                         <div class="modal-footer">
                             {{ csrf_field() }}
                             <input type="hidden" name="id" value="{{ $id }}">
-                            <input type="submit" class="btn btn-primary pull-right delete-confirm"value="Sí, bórralo!">
+                            <input type="submit" class="btn btn-primary pull-right delete-confirm"value="Sí, cerrar!">
                             <button type="button" class="btn btn-default pull-right" data-dismiss="modal">
                                 Cancelar
                             </button>

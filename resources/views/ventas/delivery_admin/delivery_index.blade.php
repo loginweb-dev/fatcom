@@ -65,34 +65,6 @@
                 </div>
             </div>
         </div>
-
-        {{-- modal delete --}}
-        <form action="{{route('empleados_delete')}}" method="POST">
-            <div class="modal modal-danger fade" tabindex="-1" id="modal_delete" role="dialog">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                        aria-hidden="true">&times;</span></button>
-                            <h4 class="modal-title">
-                                <i class="voyager-trash"></i> Estás seguro que quieres borrar el siguiente registro?
-                            </h4>
-                        </div>
-
-                        <div class="modal-body">
-                        </div>
-                        <div class="modal-footer">
-                            {{ csrf_field() }}
-                            <input type="hidden" name="id" value="">
-                            <input type="submit" class="btn btn-danger pull-right delete-confirm"value="Sí, bórralo!">
-                            <button type="button" class="btn btn-default pull-right" data-dismiss="modal">
-                                Cancelar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
     @stop
     @section('css')
         <style>
@@ -104,11 +76,7 @@
     @section('javascript')
         <script>
             $(document).ready(function() {
-
-                // set valor de delete
-                // $('.btn-delete').click(function(){
-                //     $('#modal_delete input[name="id"]').val($(this).data('id'));
-                // });
+                
             });
             function verDetalle(id){
                 window.location = "{{url('admin/administracion/delivery/detalle')}}/"+id;

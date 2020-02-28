@@ -523,7 +523,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'icon_class' => 'voyager-puzzle',
                 'color' => NULL,
                 'parent_id' => 21,
-                'order' => 5,
+                'order' => 4,
                 'created_at' => '2019-06-14 21:19:57',
                 'updated_at' => '2019-06-18 18:26:15',
                 'route' => 'voyager.insumos.index',

@@ -1,4 +1,4 @@
-function listenNeewPedido(icon, user_id){
+function listenNewPedido(icon, user_id){
     Echo.channel(`deliveryChannel${user_id}`)
     .listen('pedidoAsignado', (e) => {
         Push.create("Nuevo pedido", {

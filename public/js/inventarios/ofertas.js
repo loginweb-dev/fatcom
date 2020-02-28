@@ -7,9 +7,10 @@ $(function(){
     // ===================/Genérico====================
 });
 
-function add_producto(indice, url){
+function add_producto(){
     let id = $('#select-producto_id').val();
     let nombre = $('#select-producto_id option:selected').text();
+    let precio = $('#select-producto_id option:selected').data('precio');
     let monto = $('#input-monto').val();
     let tipo = $('#select-tipo').val();
     if(id!=null && monto != '' && tipo != ''){
@@ -27,36 +28,20 @@ function add_producto(indice, url){
             return false;
         }
 
-        // obtener precios de ventas del producto
-        let precios = '';
-        let aux = indice;
-
         // Crear fila con datos del producto
-        $('#lista_productos').append(`<tr id="tr-${indice}">
-                                        <td><input type="hidden" class="input-producto_id" name="producto_id[]" value="${id}">${nombre}</td>
-                                        <td><span id="precios-${indice}">Cargando...</span></td>
-                                        <td><input type="number" min="1" step="1" class="form-control" name="monto[]" value="${monto}" required></td>
-                                        <td>
-                                            <select name="tipo[]" class="form-control" id="select-tipo${indice}">
-                                                <option value="porcentaje">Porcentaje (%)</option>
-                                                <option value="monto">Monto fijo</option>
-                                            </select>
-                                        </td>
-                                        <td style="padding-top:15px"><span onclick="borrarTr(${indice})" class="voyager-x text-danger"></span></td>
-                                    </tr>`);
-        $.ajax({
-            url: url+'/'+id,
-            type: 'get',
-            success: function(response){
-                console.log(response)
-                response.forEach(element => {
-                    precios = precios+element.precio+' '+element.moneda+' mínimo '+element.cantidad_minima+'<br>';
-                });
-                $('#precios-'+aux).html(precios);
-            }
-        });
-        $('#select-tipo'+indice).val(tipo);
-    indice++;
+        $('#lista_productos').append(`
+            <tr id="tr-${id}">
+                <td><input type="hidden" class="input-producto_id" name="producto_id[]" value="${id}">${nombre}</td>
+                <td><span id="precios-${id}">${precio}</span></td>
+                <td><input type="number" min="1" step="1" class="form-control" name="monto[]" value="${monto}" required></td>
+                <td>
+                    <select name="tipo[]" class="form-control" id="select-tipo${id}">
+                        <option value="porcentaje">Porcentaje (%)</option>
+                        <option value="monto">Monto fijo</option>
+                    </select>
+                </td>
+                <td style="padding-top:15px"><span onclick="borrarTr(${id})" class="voyager-x text-danger"></span></td>
+            </tr>`);
     }else{
         if(id==null){
             toastr.warning('Debe seleccionar un producto.', 'Advertencia');

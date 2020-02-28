@@ -44,6 +44,7 @@ use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
 
 // Eventos
 use App\Events\pedidoAsignado;
+use App\Events\TicketsSucursal;
 
 class VentasController extends Controller
 {
@@ -149,7 +150,9 @@ class VentasController extends Controller
     }
 
     public function tickets_index(){
-        return view('ventas.tickets_index');
+        $sucursal = UsersSucursale::where('user_id', Auth::user()->id)->where('deleted_at', NULL)->first();
+        $sucursal_id = $sucursal ? $sucursal->sucursal_id : 0;
+        return view('ventas.tickets_index', compact('sucursal_id'));
     }
 
     public function tickets_list(){
@@ -165,6 +168,7 @@ class VentasController extends Controller
                         ->whereRaw('(v.venta_estado_id = 5 or v.venta_estado_id= 3)')
                         ->orderBy('v.venta_estado_id', 'ASC')
                         ->orderBy('v.id', 'DESC')
+                        ->limit(10)
                         ->get();
         $cont = 0;
         foreach ($ventas as $item) {
@@ -601,8 +605,16 @@ class VentasController extends Controller
             // Crear registro de seguimiento de la venta
             VentasSeguimiento::create(['venta_id' => $id, 'venta_estado_id' => $valor]);
 
+            // Si el pedido es entregado se cambia el estado de la tabla de lso repartidores
             if($valor == 5){
                 RepartidoresPedido::where('pedido_id', $id)->update(['estado' => 2]);
+            }
+            // Si es un pedido listo o entregado se envian un evento a la vista de tickets
+            if($valor == 3 || $valor == 5){
+                $sucursal = UsersSucursale::where('user_id', Auth::user()->id)->where('deleted_at', NULL)->first();
+                if($sucursal){
+                    event(new TicketsSucursal($sucursal->sucursal_id));
+                }
             }
             DB::commit();
             return response()->json(['success' => 1]);
@@ -696,13 +708,12 @@ class VentasController extends Controller
             $pedidos = DB::table('empleados as e')
                                 ->join('repartidores_pedidos as rp', 'rp.repartidor_id', 'e.id')
                                 ->join('ventas as v', 'v.id', 'rp.pedido_id')
-                                ->join('clientes as c', 'c.id', 'v.cliente_id')
                                 ->select('v.id', 'v.importe', 'v.efectivo', 'e.nombre as empleado')
                                 ->where('e.id', $request->id)
                                 ->where('v.estado', 'V')
                                 ->where('rp.deleted_at', NULL)
                                 ->whereRaw('(rp.estado = 1 or rp.estado = 2)')
-                                ->orderBy('rp.id', 'DESC')
+                                ->orderBy('rp.id', 'DESC')->groupBy('v.id')
                                 ->get();
             foreach ($pedidos as $item) {
                 Venta::where('id', $item->id)->update(['venta_estado_id' => 5]);

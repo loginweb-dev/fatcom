@@ -217,7 +217,7 @@
                                             </select>
                                         </div>
                                         <div class="col-md-2">
-                                            <button style="margin-top:27px" id="btn-agregar" type="button" class="btn btn-success">Agregar <span class="voyager-plus"></span></button>
+                                            <button style="margin-top:27px" id="btn-agregar" onclick="add_producto()" type="button" class="btn btn-success">Agregar <span class="voyager-plus"></span></button>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -227,7 +227,7 @@
                                                     <thead>
                                                         <tr>
                                                             <th>Producto</th>
-                                                            <th>Precio(s)</th>
+                                                            <th>Precio</th>
                                                             <th width="200px">Monto</th>
                                                             <th width="200px">Tipo de descuento</th>
                                                             <th width="50px">Quitar</th>
@@ -261,6 +261,7 @@
     @section('javascript')
         <script src="{{url('image-preview/image-preview.js')}}"></script>
         <script src="{{url('js/loginweb.js')}}"></script>
+        <script src="{{url('js/inventarios/ofertas.js')}}"></script>
         <script src="{{url('js/inventarios/productos.js')}}"></script>
         <script src="{{ asset('js/rich_select.js') }}"></script>
         <script>

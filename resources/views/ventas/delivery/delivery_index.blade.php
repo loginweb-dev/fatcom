@@ -146,7 +146,7 @@
         <script src="{{ asset('js/events/events.js') }}"></script>
         <script>
             let icon = '{{ url("storage/".setting("empresa.logo")) }}';
-            listenNeewPedido(icon, '{{ Auth::user()->id }}');
+            listenNewPedido(icon, '{{ Auth::user()->id }}');
             
             Echo.channel('deliveryChannel{{ Auth::user()->id }}')
             .listen('pedidoAsignado', (e) => {

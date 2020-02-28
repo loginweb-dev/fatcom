@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Tickets</title>
 
     <!-- Favicon -->
@@ -82,10 +83,6 @@
             $('#data').css('height', ventana_alto-30)
             get_data();
             get_post();
-            setInterval(() => {
-                get_data()
-            },10000);
-            
         });
 
         // Obtener tickets
@@ -113,6 +110,15 @@
             }
             
         }
+    </script>
+
+    {{-- Laravel Echo --}}
+    <script src="{{ asset('js/app.js') }}"></script>
+    <script>
+        Echo.channel('ticketSucursal{{ $sucursal_id }}')
+        .listen('TicketsSucursal', (e) => {
+            get_data()
+        });
     </script>
 </body>
 </html>

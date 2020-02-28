@@ -32,3 +32,32 @@ FATCOM está desarrollado bajo el lenguaje PHP, pero también utiliza libreréas
 - **[laravel-mix](https://laravel.com/docs/5.8/mix)**
 - **[Laravel Socialite](https://laravel.com/docs/5.8/socialite)**
 
+
+## Instalación
+
+- **run: git clone https://github.com/loginweb-dev/fatcom.git**
+- **run: cd fatcom**
+- **run: cp .env.example .env**
+- **Crear la base de datos fatcom**
+- **run: nano .env**
+- **Editar el usuario y contraseña de la conexión a la base de datos**
+- **run: composer install**
+- **run: php artisan key:generate**
+- **run: php artisan migrate**
+- **run: php artisan db:seed --class=FatcomDatabaseSeeder**
+- **run: php artisan storage:link**
+- **run: cp -r ./vendor/tcg/voyager/publishable/dummy_content/users ./storage/app/public**
+- **run: composer dump-autoload**
+- **run: npm install**
+- **run: npm run prod**
+- **run: php artisan websockets:serve**
+- **run: php artisan serve**
+
+```bash
+Usuario : admin@admin.com
+Password: password
+```
+
+### Adicional
+
+- **Para que funcione el login desde Facebook y Google debe agregar la clave publica y privada en la parte inferior del archivo .env**
