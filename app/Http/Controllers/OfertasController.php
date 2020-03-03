@@ -13,6 +13,7 @@ use Intervention\Image\ImageManagerStatic as Image;
 use App\Http\Controllers\ProductosController as Productos;
 
 use App\Oferta;
+use App\OfertasDetalle;
 
 
 class OfertasController extends Controller
@@ -86,13 +87,13 @@ class OfertasController extends Controller
                             ->select('p.*', 's.nombre as subcategoria', 'm.nombre as marca', 'mo.abreviacion as moneda')
                             // ->where('deleted_at', NULL)
                             ->whereNotIn('p.id', function($q){
-                                // $dia_semana = date('N');
-                                // $dia_mes = date('j');
+                                $dia_semana = date('N');
+                                $dia_mes = date('j');
                                 $q->from('productos as p')
                                     ->join('ofertas_detalles as df', 'df.producto_id', 'p.id')
                                     ->join('ofertas as o', 'o.id', 'df.oferta_id')
                                     ->select('p.id')
-                                    // ->whereRaw("( (o.tipo_duracion = 'rango' and o.inicio < '".Carbon::now()."' and (o.fin is NULL or o.fin > '".Carbon::now()."')) or (o.tipo_duracion = 'semanal' and o.dia = $dia_semana) or (o.tipo_duracion = 'mensual' and o.dia = $dia_mes) )")
+                                    ->whereRaw("( (o.tipo_duracion = 'rango' and o.inicio < '".Carbon::now()."' and (o.fin is NULL or o.fin > '".Carbon::now()."')) or (o.tipo_duracion = 'semanal' and o.dia = $dia_semana) or (o.tipo_duracion = 'mensual' and o.dia = $dia_mes) )")
                                     ->where('df.deleted_at', NULL)
                                     ->where('o.deleted_at', NULL)->get();
                             })
@@ -101,60 +102,62 @@ class OfertasController extends Controller
     }
 
     public function store(Request $data){
-        // dd($data);
+
         $data->validate([
             'producto_id' => 'required'
         ]);
-        $imagen = null;
-        if($data->hasFile('imagen')){
-            $file = $data->file('imagen');
-            Storage::makeDirectory('public/ofertas/'.date('F').date('Y'));
-            $base_name = str_random(20);
+        DB::beginTransaction();
+        try {
+            $imagen = null;
+            if($data->hasFile('imagen')){
+                $file = $data->file('imagen');
+                Storage::makeDirectory('public/ofertas/'.date('F').date('Y'));
+                $base_name = str_random(20);
 
-            // imagen normal
-            $filename = $base_name.'.'.$file->getClientOriginalExtension();
-            $image_resize = Image::make($file->getRealPath())->orientate();
-            $image_resize->resize(500, null, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            $path =  'ofertas/'.date('F').date('Y').'/'.$filename;
-            $image_resize->save('storage/'.$path);
-            $imagen = $path;
-        }
+                // imagen normal
+                $filename = $base_name.'.'.$file->getClientOriginalExtension();
+                $image_resize = Image::make($file->getRealPath())->orientate();
+                $image_resize->resize(500, null, function ($constraint) {
+                    $constraint->aspectRatio();
+                });
+                $path =  'ofertas/'.date('F').date('Y').'/'.$filename;
+                $image_resize->save('storage/'.$path);
+                $imagen = $path;
+            }
 
-        // Si el tipo de duración es diferente de rango se debe obtener ya sea el dia de la semana o el dia del mes
-        if($data->tipo_duracion == 'rango'){
-            $dia = null;
-        }else{
-            $dia = ($data->tipo_duracion == 'semanal') ? $data->dia_semana : $data->dia_mes;
-        }
+            // Si el tipo de duración es diferente de rango se debe obtener ya sea el dia de la semana o el dia del mes
+            if($data->tipo_duracion == 'rango'){
+                $dia = null;
+            }else{
+                $dia = ($data->tipo_duracion == 'semanal') ? $data->dia_semana : $data->dia_mes;
+            }
 
-        $oferta = new Oferta;
-        $oferta->nombre = $data->nombre;
-        $oferta->descripcion = $data->descripcion;
-        $oferta->tipo_duracion = $data->tipo_duracion;
-        $oferta->dia = $dia;
-        $oferta->inicio = $data->inicio.' 00:00:00';
-        $oferta->fin = (!empty($data->fin)) ? $data->fin.' 23:00:00' : $data->fin;
-        $oferta->imagen = $imagen;
-        $oferta->save();
-        $oferta_id = Oferta::all()->last()->id;
+            $oferta = new Oferta;
+            $oferta->tipo_oferta = $data->tipo_oferta;
+            $oferta->nombre = $data->nombre;
+            $oferta->descripcion = $data->descripcion;
+            $oferta->tipo_duracion = $data->tipo_duracion;
+            $oferta->dia = $dia;
+            $oferta->inicio = $data->inicio.' 00:00:00';
+            $oferta->fin = (!empty($data->fin)) ? $data->fin.' 23:00:00' : $data->fin;
+            $oferta->imagen = $imagen;
+            $oferta->estado = isset($data->estado) ? 1 : 0;
+            $oferta->save();
 
-        for ($i=0; $i < count($data->producto_id); $i++) {
-            $query = DB::table('ofertas_detalles')
-                            ->insert([
-                                'oferta_id' => $oferta_id,
-                                'producto_id' => $data->producto_id[$i],
-                                'tipo_descuento' => $data->tipo[$i],
-                                'monto' => $data->monto[$i],
-                                'created_at' => Carbon::now(),
-                                'updated_at' => Carbon::now()
-                            ]);
-        }
-
-        if($query){
+            for ($i=0; $i < count($data->producto_id); $i++) {
+                $detalle_oferta = new OfertasDetalle;
+                $detalle_oferta->oferta_id = $oferta->id;
+                $detalle_oferta->producto_id = $data->producto_id[$i];
+                if($data->tipo_oferta == 1){
+                    $detalle_oferta->tipo_descuento = $data->tipo[$i];
+                    $detalle_oferta->monto = $data->monto[$i];
+                }
+                $detalle_oferta->save();
+            }
+            DB::commit();
             return redirect()->route('ofertas_index')->with(['message' => 'Campaña de oferta creada exitosamenete.', 'alert-type' => 'success']);
-        }else{
+        } catch (\Exception $e) {
+            DB::rollback();
             return redirect()->route('ofertas_index')->with(['message' => 'Ocurrio un problema al crear la campaña de oferta.', 'alert-type' => 'error']);
         }
     }
@@ -301,6 +304,7 @@ class OfertasController extends Controller
                     ->where('e.deleted_at', NULL)
                     ->where('df.deleted_at', NULL)
                     ->where('o.deleted_at', NULL)
+                    ->where('o.estado', 1)->where('o.tipo_oferta', 1)
                     ->paginate(5);
 
         return $ofertas;
@@ -315,6 +319,7 @@ class OfertasController extends Controller
                     ->where('d.producto_id', $id)
                     ->where('d.deleted_at', NULL)
                     ->where('o.deleted_at', NULL)
+                    ->where('o.estado', 1)->where('o.tipo_oferta', 1)
                     ->whereRaw("( (o.tipo_duracion = 'rango' and o.inicio < '".Carbon::now()."' and (o.fin is NULL or o.fin > '".Carbon::now()."')) or (o.tipo_duracion = 'semanal' and o.dia = $dia_semana) or (o.tipo_duracion = 'mensual' and o.dia = $dia_mes) )")
                     ->first();
     }

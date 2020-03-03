@@ -8,7 +8,7 @@
         </h1>
         @if(auth()->user()->hasPermission('add_ofertas'))
         <a href="{{route('ofertas_create')}}" class="btn btn-success btn-add-new">
-            <i class="voyager-plus"></i> <span>Añadir nuevo</span>
+            <i class="voyager-plus"></i> <span>Añadir nueva</span>
         </a>
         @endif
     @stop
@@ -43,19 +43,23 @@
                                                 <th>Descripción</th>
                                                 <th>Fecha de inicio</th>
                                                 <th>Fecha de fin</th>
+                                                <th>Estado</th>
                                                 <th>Imagen</th>
                                                 <th class="actions text-right">Acciones</th>
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            @php
+                                                $tipos_oferta = array('', 'Descuento', '2X1');
+                                            @endphp
                                             @forelse ($registros as $item)
                                                 @php
                                                     $img = ($item->imagen!='') ? $item->imagen : 'ofertas/default.png';
                                                 @endphp
                                                 <tr>
-                                                    <td>{{$item->nombre}}</td>
-                                                    <td>{{$item->descripcion}}</td>
-                                                    <td>{{date('d-m-Y', strtotime($item->inicio))}} <br> <small>{{\Carbon\Carbon::parse($item->inicio)->diffForHumans()}}</small> </td>
+                                                    <td>{{ $item->nombre }} <br> <small>{{ $tipos_oferta[$item->tipo_oferta] }}</small> </td>
+                                                    <td>{{ $item->descripcion }}</td>
+                                                    <td>{{ date('d-m-Y', strtotime($item->inicio)) }} <br> <small>{{\Carbon\Carbon::parse($item->inicio)->diffForHumans()}}</small> </td>
                                                     <td>
                                                         @if($item->fin!='')
                                                         {{date('d-m-Y', strtotime($item->fin))}} <br> <small>{{\Carbon\Carbon::parse($item->fin)->diffForHumans()}}</small>
@@ -63,6 +67,7 @@
                                                         No definido
                                                         @endif
                                                     </td>
+                                                    <td>{!! $item->estado=='1'?'<label class="label label-success">Activa</label>':'<label class="label label-danger">Inactiva</label>' !!}</td>
                                                     <td><a href="{{url('storage').'/'.$img}}" data-fancybox="galeria1" data-caption="{{$item->nombre}}"><img src="{{url('storage').'/'.$img}}" width="50px" alt=""></a></td>
                                                     <td class="no-sort no-click text-right" id="bread-actions">
                                                         @if(auth()->user()->hasPermission('read_ofertas'))

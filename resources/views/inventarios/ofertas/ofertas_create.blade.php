@@ -78,6 +78,12 @@
                                                 </div>
                                                 <input type="hidden" name="tipo_duracion" id="input-tipo_duracion" value="rango">
                                             </div>
+                                            <div class="row">
+                                                <div class="form-group col-md-12">
+                                                    <input type="hidden" name="tipo_oferta" value="1" id="input-tipo_oferta">
+                                                    <input type="checkbox" checked name="estado" data-toggle="toggle" data-onstyle="success" data-on="Activa" data-off="Inactiva">
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="row">
@@ -179,9 +185,9 @@
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-md-4">
-                                            <label for="">Producto</label>  @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Producto que se va agregar a la campaña. Este campo es obligatorio."></span> @endif
-                                            <select class="form-control" id="select-producto_id">
+                                        <div class="col-md-12">
+                                            <label for="">Producto</label>  @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Producto que se agregará a la campaña. Este campo es obligatorio."></span> @endif
+                                            <select class="form-control" id="select-producto_id" onchange="add_producto()">
                                                 <option value="">Todos</option>
                                                 @foreach ($productos as $item)
                                                     @php
@@ -205,37 +211,46 @@
                                                 @endforeach
                                             </select>
                                         </div>
-                                        <div class="col-md-3">
-                                            <label for="">Monto</label>  @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Monto de descuento que se aplicará al producto. Este campo es obligatorio."></span> @endif
-                                            <input type="text" class="form-control" id="input-monto" >
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label for="">Tipo de descuento</label>  @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Tipo de descuento que se aplicará al producto Porcentaje/Monto fijo. Este campo es obligatorio."></span> @endif
-                                            <select class="form-control select2" id="select-tipo">
-                                                <option value="porcentaje">Porcentaje (%)</option>
-                                                <option value="monto">Monto fijo</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <button style="margin-top:27px" id="btn-agregar" onclick="add_producto()" type="button" class="btn btn-success">Agregar <span class="voyager-plus"></span></button>
-                                        </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-12">
-                                            <div class="table-responsive">
-                                                <table class="table table-bordered">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Producto</th>
-                                                            <th>Precio</th>
-                                                            <th width="200px">Monto</th>
-                                                            <th width="200px">Tipo de descuento</th>
-                                                            <th width="50px">Quitar</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="lista_productos">
-                                                    </tbody>
-                                                </table>
+                                            <ul class="nav nav-tabs">
+                                                <li class="active"><a class="tab-detalle" data-toggle="tab" data-name="descuento" data-value="1" href="#descuento">Descuentos</a></li>
+                                                <li><a class="tab-detalle" data-toggle="tab" data-name="2_por_1" data-value="2" href="#2_por_1">2X1</a></li>
+                                            </ul>    
+                                            <div class="tab-content">
+                                                <div id="descuento" class="tab-pane fade in active">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-bordered">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Producto</th>
+                                                                    <th>Precio</th>
+                                                                    <th width="200px">Monto</th>
+                                                                    <th width="200px">Tipo de descuento</th>
+                                                                    <th width="50px">Quitar</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody class="table-content" id="lista_descuento">
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                <div id="2_por_1" class="tab-pane fade">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-bordered">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Producto</th>
+                                                                    <th>Precio</th>
+                                                                    <th width="50px">Quitar</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody class="table-content" id="lista_2_por_1">
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -265,6 +280,7 @@
         <script src="{{url('js/inventarios/productos.js')}}"></script>
         <script src="{{ asset('js/rich_select.js') }}"></script>
         <script>
+            var tipo_oferta = 'descuento';
             $(document).ready(function(){
                 $('[data-toggle="popover"]').popover({ html : true });
                 $('[data-toggle="tooltip"]').tooltip();
@@ -321,6 +337,13 @@
                             break;
                     }
                     $('#input-tipo_duracion').val(value)
+                });
+
+                // vaciar contenido de las tablas si se cambia de pestaña
+                $('.tab-detalle').click(function(){
+                    $('.table-content').html('');
+                    tipo_oferta = $(this).data('name');
+                    $('#input-tipo_oferta').val($(this).data('value'));
                 });
             });
 
