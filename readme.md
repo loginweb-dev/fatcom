@@ -44,7 +44,7 @@ FATCOM está desarrollado bajo el lenguaje PHP, pero también utiliza libreréas
 - **run: composer install**
 - **run: php artisan key:generate**
 - **run: php artisan migrate**
-- **run: php artisan db:seed --class=FatcomDatabaseSeeder**
+- **run: php artisan db:seed**
 - **run: php artisan storage:link**
 - **run: cp -r ./vendor/tcg/voyager/publishable/dummy_content/users ./storage/app/public**
 - **run: composer dump-autoload**
