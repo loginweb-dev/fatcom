@@ -59,13 +59,14 @@
     <script src="{{url('ecommerce_public/plugins/fancybox/fancybox.min.js')}}" type="text/javascript"></script>
     <script>
         var loader = "{{ url('storage').'/'.str_replace('\\', '/', setting('admin.img_loader')) }}";
-        var loader_request = `  <div style="@if(setting('delivery.activo')) height:370px @else height:300px @endif" class="text-center">
+        var loader_request = `  <div style="height:200px;background-color:white" class="text-center">
                                     <br><br><br>
                                     <img src="${loader}" width="100px">
+                                    <p>Cargando...</p>
                                 </div>`;
         $(document).ready(function(){
             $('#form_report').on('submit', function(e){
-                $('#detalle_reporte').html(`<div class="text-center" style="height:200px"><br><img src="${loader}" width="100px"></div>`);
+                $('#detalle_reporte').html(loader_request);
                 e.preventDefault();
                 let datos = $(this).serialize();
                 $.ajax({

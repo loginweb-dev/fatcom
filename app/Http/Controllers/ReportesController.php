@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
+use App\Sucursale;
+
 // Exportación a Excel
 use App\Exports\ReporteVentaExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -28,7 +30,8 @@ class ReportesController extends Controller
             $inicio = $datos->inicio;
             $fin = $datos->fin;
             if($datos->type === 'pdf'){
-                $vista = view('reportes.tablas.ventas_reporte_por_venta_pdf', compact('ventas', 'inicio', 'fin'));;
+                // return view('reportes.tablas.ventas_reporte_por_venta_pdf', compact('ventas', 'inicio', 'fin'));
+                $vista = view('reportes.tablas.ventas_reporte_por_venta_pdf', compact('ventas', 'inicio', 'fin'));
                 $pdf = \App::make('dompdf.wrapper');
                 $pdf->loadHTML($vista)->setPaper('letter', 'landscape');
                 $pdf->loadHTML($vista);
@@ -42,25 +45,6 @@ class ReportesController extends Controller
         return $datos->filtro == 1 ?
                 view('reportes.tablas.ventas_reporte_por_venta', compact('ventas')) :
                 view('reportes.tablas.ventas_reporte_por_producto', compact('ventas'));
-    }
-
-    public function ventas_reporte_pdf(Request $datos){
-        $ventas = DB::table('ventas as v')
-                        ->join('ventas_detalles as d', 'd.venta_id', 'v.id')
-                        ->join('productos as p', 'p.id', 'd.producto_id')
-                        ->select('v.fecha', 'p.nombre', 'd.precio', 'd.cantidad')
-                        // ->orderBy('ventas.id', 'DESC')
-                        ->whereBetween('v.fecha', [$datos->inicio, $datos->fin])
-                        // ->where('v.fecha', $datos->fecha)
-                        ->where('v.estado', 'V')
-                        ->get();
-        $fecha = $datos->fecha;
-        // return view('reportes.tablas.ventas_reporte_pdf', compact('ventas', 'fecha'));
-        $vista = view('reportes.tablas.ventas_reporte_pdf', compact('ventas', 'fecha'));;
-        $pdf = \App::make('dompdf.wrapper');
-        $pdf->loadHTML($vista)->setPaper('letter', 'landscape');
-        $pdf->loadHTML($vista);
-        return $pdf->stream();
     }
 
     public function get_ventas($filtro, $inicio, $fin, $tipo){
@@ -165,7 +149,8 @@ class ReportesController extends Controller
 
     public function graficos_index()
     {
-        return view('reportes.graficos.graficos_index');
+        $sucursales = Sucursale::where('deleted_at', NULL)->select('id', 'nombre')->get();
+        return view('reportes.graficos.graficos_index', compact('sucursales'));
     }
 
     public function graficos_generar(Request $data)
@@ -173,27 +158,59 @@ class ReportesController extends Controller
         switch ($data->tipo) {
             case 'mensual':
                 $registros  = DB::table('ventas as v')
-                                    ->select(DB::raw('SUM(v.importe_base ) as monto, DAY(v.fecha) as dia, v.fecha'))
+                                    ->select(DB::raw('SUM(v.importe_base) as monto, DAY(v.fecha) as dia, v.fecha'))
                                     ->whereMonth('v.fecha', $data->mes)
                                     ->whereYear('v.fecha', $data->anio_mes)
-                                    ->where('v.estado', 'V')
+                                    ->where('v.deleted_at', NULL)->where('v.estado', 'V')
                                     ->groupBy('dia', 'fecha')
                                     ->get();
                 return response()->json($registros);
                 case 'anual':
                 $registros  = DB::table('ventas as v')
-                                    ->select(DB::raw('SUM(v.importe_base ) as monto, MONTH(v.fecha) as mes'))
-                                    ->whereYear('v.fecha', $data->anio_mes)
-                                    ->where('v.estado', 'V')
+                                    ->select(DB::raw('SUM(v.importe_base) as monto, MONTH(v.fecha) as mes'))
+                                    ->whereYear('v.fecha', $data->anio_anual)
+                                    ->where('v.deleted_at', NULL)->where('v.estado', 'V')
                                     ->groupBy('mes')
                                     ->get();
                 return response()->json($registros);
+                case 'productos':
+                    
+                    $sentencia_sucursal = $data->sucursal_id ? "v.sucursal_id=".$data->sucursal_id : 1;
+                    $sentencia_mes = $data->mes_productos ? "MONTH(v.created_at)=".$data->mes_productos : 1;
+                    
+                    switch ($data->group_by) {
+                        case 'productos':
+                            $display_name = ', p.nombre as nombre';
+                            $groupBy = 'p.codigo_grupo';
+                        break;
+                        case 'categorias':
+                            $display_name = ', c.nombre as nombre';
+                            $groupBy = 'c.id';
+                        break;
+                        case 'subcategorias':
+                            $display_name = ', s.nombre as nombre';
+                            $groupBy = 's.id';
+                        break;
+                        default:
+                            $display_name = ', CONCAT(p.nombre," - ",s.nombre) as nombre';
+                            $groupBy = 'p.id';
+                            break;
+                    }
 
-            default:
-                # code...
-                break;
+                    $registros  = DB::table('ventas as v')
+                                        ->join('ventas_detalles as vd', 'vd.venta_id', 'v.id')
+                                        ->join('productos as p', 'p.id', 'vd.producto_id')
+                                        ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                                        ->join('categorias as c', 'c.id', 's.categoria_id')
+                                        ->select(DB::raw('p.id, SUM(vd.cantidad) as cantidad'.$display_name))
+                                        ->whereYear('v.fecha', $data->anio_productos)
+                                        ->where('v.deleted_at', NULL)->where('v.estado', 'V')
+                                        ->whereRaw($sentencia_sucursal)
+                                        ->whereRaw($sentencia_mes)
+                                        ->groupBy($groupBy)
+                                        ->get();
+                    return response()->json($registros);
         }
-        
     }
 
     public function productos_escasez(){

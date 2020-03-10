@@ -60896,10 +60896,12 @@ window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
   key: "ASDASD1212",
   cluster: "mt1",
-  // encrypted: true,
   wsHost: window.location.hostname,
   wsPort: 6001,
-  disableStatus: true
+  disableStats: true,
+  // wssPort: 6001,
+  // forceTLS: true,
+  enabledTransports: ['ws', 'wss']
 });
 
 /***/ }),

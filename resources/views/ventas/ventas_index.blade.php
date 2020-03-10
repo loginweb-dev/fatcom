@@ -164,14 +164,18 @@
     @stop
     @section('javascript')
         <script>
+            // Pedir autorización para mostrar notificaciones
+            Notification.requestPermission();
+
             var page_actual = 1;
             var sucursal_actual = "{{ $sucursal_actual ?? 'all' }}";
             var search = $('#search_value').val();
 
             var loader = "{{ url('storage').'/'.str_replace('\\', '/', setting('admin.img_loader')) }}";
-            var loader_request = `  <div style="@if(setting('delivery.activo')) height:370px @else height:300px @endif" class="text-center">
+            var loader_request = `  <div style="height:200px" class="text-center">
                                         <br><br><br>
                                         <img src="${loader}" width="100px">
+                                        <p>Cargando...</p>
                                     </div>`;
 
             $(document).ready(function() {
@@ -179,7 +183,7 @@
                 $('#select-sucursal_id').select2();
 
                 // Imagen de carga para la lista de ventas
-                $('#data').html(`<div class="text-center" style="height:200px"><br><img src="${loader}" width="100px"></div>`);
+                $('#data').html(loader_request);
                 get_data(sucursal_actual, search, page_actual);
 
                 // Cambiar de susursal
@@ -229,9 +233,9 @@
                     $('#modal_delete').modal('hide');
                 });
 
-                setInterval(function(){
-                    get_data(sucursal_actual, search, page_actual);
-                }, 20000);
+                // setInterval(function(){
+                //     get_data(sucursal_actual, search, page_actual);
+                // }, 20000);
 
             });
 
@@ -267,6 +271,45 @@
                     window.open("{{url('admin/venta/impresion/normal')}}/"+id, "Factura", `width=700, height=400`)
                 @endif
             }
+        </script>
+        {{-- Laravel Echo --}}
+        <script src="{{ asset('js/app.js') }}"></script>
+        <script>
+            // Escuchando los pedidos nuevo
+            Echo.channel('PedidoNuevoChannel{{ $sucursal_actual }}')
+            .listen('pedidoNuevo', (e) => {
+                if(Notification.permission==='granted'){
+                    let notificacion = new Notification('Pedido nuevo!',{
+                        body: 'Se ha recibido un pedido nuevo desde la App.',
+                        icon: '{{ url("img/assets/success.png") }}'
+                    });
+                }
+                get_data(sucursal_actual, search, page_actual);
+            });
+
+            // Escuchando los pedidos listos desde cocina
+            Echo.channel('PedidoCocinaListoChannel{{ $sucursal_actual }}')
+            .listen('pedidoListo', (e) => {
+                if(Notification.permission==='granted'){
+                    let notificacion = new Notification('Pedido listo!',{
+                        body: 'Pedidos listo para entregar desde cocina.',
+                        icon: '{{ url("img/assets/info.png") }}'
+                    });
+                }
+                get_data(sucursal_actual, search, page_actual);
+            });
+
+            // Escuchando los pedidos entregados por los repartidores
+            Echo.channel('PedidoEntregadoChannel{{ $sucursal_actual }}')
+            .listen('pedidoEntregado', (e) => {
+                if(Notification.permission==='granted'){
+                    let notificacion = new Notification('Pedido entregado!',{
+                        body: 'Pedidos entregado por delivery.',
+                        icon: '{{ url("img/assets/info.png") }}'
+                    });
+                }
+                get_data(sucursal_actual, search, page_actual);
+            });
         </script>
     @stop
 

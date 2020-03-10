@@ -175,10 +175,10 @@
     @stop
 
     @section('css')
-        <link href="{{url('ecommerce/plugins/fancybox/fancybox.min.css')}}" type="text/css" rel="stylesheet">
+        <link href="{{url('ecommerce_public/plugins/fancybox/fancybox.min.css')}}" type="text/css" rel="stylesheet">
         <!-- custom style -->
-        <link href="{{url('ecommerce/css/ui.css')}}" rel="stylesheet" type="text/css"/>
-        <link href="{{url('ecommerce/css/responsive.css')}}" rel="stylesheet" media="only screen and (max-width: 1200px)" />
+        <link href="{{url('ecommerce_public/css/ui.css')}}" rel="stylesheet" type="text/css"/>
+        <link href="{{url('ecommerce_public/css/responsive.css')}}" rel="stylesheet" media="only screen and (max-width: 1200px)" />
     @stop
 
     @section('javascript')

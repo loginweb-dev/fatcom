@@ -7,6 +7,20 @@
             <i class="voyager-pie-graph"></i> Gráficos
         </h1>
     @stop
+    @php
+        $meses = '  <option value="1">Enero</option>
+                    <option value="2">Febrero</option>
+                    <option value="3">Marzo</option>
+                    <option value="4">Abril</option>
+                    <option value="5">Mayo</option>
+                    <option value="6">Junio</option>
+                    <option value="7">Julio</option>
+                    <option value="8">Agosto</option>
+                    <option value="9">Septiembre</option>
+                    <option value="10">Octubre</option>
+                    <option value="11">Noviembre</option>
+                    <option value="12">Diciembre</option>';
+    @endphp
     @section('content')
         <div class="page-content">
             <div class="page-content browse container-fluid">
@@ -20,26 +34,16 @@
                                         <form id="form" method="post" action="{{route("graficos_generar")}}">
                                             @csrf
                                             <ul class="nav nav-tabs">
-                                                <li class="active"><a class="tab-tipo" data-toggle="tab" data-value="mensual" href="#mensual">Mensual</a></li>
-                                                <li><a class="tab-tipo" data-toggle="tab" data-value="anual" href="#anual">Anual</a></li>
+                                                <li class="active"><a class="tab-tipo" data-toggle="tab" data-value="mensual" href="#mensual">Ventas mensuales</a></li>
+                                                <li><a class="tab-tipo" data-toggle="tab" data-value="anual" href="#anual">Ventas anuales</a></li>
+                                                <li><a class="tab-tipo" data-toggle="tab" data-value="productos" href="#productos">Productos</a></li>
                                             </ul>    
                                             <div class="tab-content">
                                                 <div id="mensual" class="tab-pane fade in active">
                                                     <div class="form-group col-md-6">
                                                         <div class="input-group">
-                                                            <select name="mes" class="form-control" class="form-control" id="">
-                                                                <option value="1">Enero</option>
-                                                                <option value="2">Febrero</option>
-                                                                <option value="3">Marzo</option>
-                                                                <option value="4">Abril</option>
-                                                                <option value="5">Mayo</option>
-                                                                <option value="6">Junio</option>
-                                                                <option value="7">Julio</option>
-                                                                <option value="8">Agosto</option>
-                                                                <option value="9">Septiembre</option>
-                                                                <option value="10">Octubre</option>
-                                                                <option value="11">Noviembre</option>
-                                                                <option value="12">Diciembre</option>
+                                                            <select name="mes" class="form-control" class="form-control">
+                                                                {!! $meses !!}
                                                             </select>
                                                             <span class="input-group-btn">
                                                                 <input type="number" min="2019" step="1" style="width:80px" name="anio_mes" value="{{date('Y')}}" class="form-control" required>
@@ -54,7 +58,7 @@
                                                     <div class="row">
                                                         <div class="form-group col-md-6">
                                                             <div class="input-group">
-                                                                <input type="number" min="2019" step="1" name="anio" value="{{date('Y')}}" class="form-control">
+                                                                <input type="number" min="2019" step="1" name="anio_anual" value="{{date('Y')}}" class="form-control">
                                                                 <span class="input-group-btn">
                                                                     <button class="btn btn-primary" type="submit" style="margin:0px;padding:9px">
                                                                         <span class="hidden-xs hidden-sm">Generar</span> <span class="voyager-bulb" aria-hidden="true"></span>
@@ -64,13 +68,41 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <div id="productos" class="tab-pane fade">
+                                                    <div class="form-horizontal">
+                                                        <div class="input-group">
+                                                            <select name="sucursal_id" id="select-sucursal_id" class="form-control" style="width:150px">
+                                                                <option value="">Todas las sucursales</option>
+                                                                @foreach ($sucursales as $item)
+                                                                <option value="{{$item->id}}">{{$item->nombre}}</option>
+                                                                @endforeach
+                                                            </select>
+                                                            <select name="mes_productos" class="form-control" class="form-control" style="width:150px">
+                                                                <option value="">Todos los meses</option>
+                                                                {!! $meses !!}
+                                                            </select>
+                                                            <select name="group_by" class="form-control" class="form-control" style="width:200px">
+                                                                <option value="">Todos</option>
+                                                                <option value="productos">Agrupado por productos</option>
+                                                                <option value="categorias">Agrupado por categorías</option>
+                                                                <option value="subcategorias">Agrupado por subcategorías</option>
+                                                            </select>
+                                                            <input type="number" min="2019" step="1" style="width:100px" name="anio_productos" value="{{date('Y')}}" class="form-control" required>
+                                                            <button class="btn btn-primary" type="submit" style="margin:0px;padding:9px">
+                                                                <span class="hidden-xs hidden-sm">Generar</span> <span class="voyager-bulb" aria-hidden="true"></span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <input type="hidden" name="tipo" id="input-tipo" value="mensual">
                                             </div>
                                         </form>
                                         <div class="col-md-12">
                                             <input type="radio" class="radio-tipo_grafico" name="tipo" checked value="line" id="radio_line"> <label for="radio_line">Lineas</label>
-                                             &nbsp;&nbsp; 
+                                            &nbsp;&nbsp; 
                                             <input type="radio" class="radio-tipo_grafico" name="tipo" value="bar" id="radio_bar"> <label for="radio_bar">Barras</label>
+                                            &nbsp;&nbsp; 
+                                            <input type="radio" class="radio-tipo_grafico" name="tipo" value="pie" id="radio_pie"> <label for="radio_pie">Torta</label>
                                         </div>
                                     </div>
                                 </div>
@@ -94,6 +126,12 @@
     @section('javascript')
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" integrity="sha256-Uv9BNBucvCPipKQ2NS9wYpJmi8DTOEfTA/nH2aoJALw=" crossorigin="anonymous"></script>
         <script>
+            var loader = "{{ url('storage').'/'.str_replace('\\', '/', setting('admin.img_loader')) }}";
+            var loader_request = `  <div style="height:200px" class="text-center">
+                                        <br><br><br>
+                                        <img src="${loader}" width="100px">
+                                        <p>Cargando...</p>
+                                    </div>`;
             $(document).ready(function() {
                 // definir tipo de gráfico
                 var chart_type = 'line';
@@ -104,14 +142,26 @@
                 // Cambiar duración de oferta
                 $('.tab-tipo').click(function(){
                     let value = $(this).data('value');
+                    $('.radio-tipo_grafico').removeAttr('disabled');
                     switch (value) {
                         case 'mensual':
-                            $('#form input[name="anio_mes"]').attr('required', true)
-                            $('#form input[name="anio"]').removeAttr('required')
+                            $('#form input[name="anio_mes"]').attr('required', true);
+                            $('#form input[name="anio_anual"]').removeAttr('required');
+                            $('#form input[name="anio_productos"]').removeAttr('required');
                             break;
                         case 'anual':
-                        $('#form input[name="anio"]').attr('required', true)
-                            $('#form input[name="anio_mes"]').removeAttr('required')
+                            $('#form input[name="anio_anual"]').attr('required', true);
+                            $('#form input[name="anio_mes"]').removeAttr('required');
+                            $('#form input[name="anio_productos"]').removeAttr('required');
+                            break;
+                        case 'productos':
+                            $('#form input[name="anio_productos"]').attr('required', true);
+                            $('#form input[name="anio_mes"]').removeAttr('required');
+                            $('#form input[name="anio_anual"]').removeAttr('required');
+                            $('#radio_line').attr('disabled', 'disabled');
+                            $('#radio_line').removeAttr('checked');
+                            $('#radio_bar').attr('checked', 'checked');
+                            chart_type = 'bar'
                             break;
                         default:
                             break;
@@ -133,6 +183,7 @@
                 });
 
                 function enviar_form(){
+                    $('#list-data').html(loader_request)
                     let datos = $('#form').serialize();
                     $.ajax({
                         url: '{{route("graficos_generar")}}',
@@ -146,6 +197,9 @@
                                 case 'anual':
                                     generar_anual(data);
                                     break;
+                                case 'productos':
+                                    generar_productos(data);
+                                    break;
                             
                                 default:
                                     break;
@@ -157,6 +211,8 @@
                 function generar_mensual(data){
                     var montos = [];
                     var dias = [];
+                    var primary_color = [];
+                    var secondary_color = [];
 
                     let mes_actual = '';
                     let anio_actual = '';
@@ -167,36 +223,68 @@
                         dias.push(nombre_dias[dato.getUTCDay()]+' '+value.dia);
                         mes_actual = nombre_meses[dato.getMonth()];
                         anio_actual = dato.getUTCFullYear();
+
+                        // Definir colores (en caso de que el gráfico sea linea asignar el color por defecto)
+                        let color_aux = `rgba(${getNumber()}, ${getNumber()}, ${getNumber()}, #)`;
+                        primary_color.push(chart_type=='line'?'rgba(30, 101, 236, 0.5)':color_aux.replace('#','0.5'));
+                        secondary_color.push(chart_type=='line'?'rgba(30, 101, 236, 1)':color_aux.replace('#','1'));
                     });
-                    generar_grafico(dias, montos, 'Ventas de '+mes_actual+' del '+anio_actual, 'Venta por día', 'Días', 'Monto Bs.');
+                    generar_grafico(dias, montos, 'Ventas de '+mes_actual+' del '+anio_actual, 'Venta por día', 'Días', 'Monto Bs.', primary_color, secondary_color);
                 }
 
                 function generar_anual(data){
                     var montos = [];
                     var meses = [];
+                    var primary_color = [];
+                    var secondary_color = [];
+                    
 
                     let anio_actual = '';
 
                     data.map((value) => {
                         montos.push(value.monto);
                         meses.push(nombre_meses[value.mes - 1]);
+
+                        // Definir colores (en caso de que el gráfico sea linea asignar el color por defecto)
+                        let color_aux = `rgba(${getNumber()}, ${getNumber()}, ${getNumber()}, #)`;
+                        primary_color.push(chart_type=='line'?'rgba(30, 101, 236, 0.5)':color_aux.replace('#','0.5'));
+                        secondary_color.push(chart_type=='line'?'rgba(30, 101, 236, 1)':color_aux.replace('#','1'));
                     });
-                    generar_grafico(meses, montos, 'Ventas del '+anio_actual, 'Venta por mes', 'Mes', 'Monto Bs.');
+                    
+                    generar_grafico(meses, montos, 'Ventas del '+anio_actual, 'Venta por mes', 'Mes', 'Monto Bs.', primary_color, secondary_color);
                 }
 
-                function generar_grafico(label, data, title, tittleDataset, labelX, labelY){
-                    // Imagen de carga
-                    $('#list-data').html(`<div style="display: flex;justify-content: center;align-items: center;height:200px">
-                                            <img src="{{voyager_asset('images/load.gif')}}" width="80px" alt="">
-                                        </div>`);
+                function generar_productos(data){
+                    var titulos = [];
+                    var cantidades = [];
+                    var primary_color = [];
+                    var secondary_color = [];
+                    
+
+                    let anio_actual = '';
+
+                    data.map((value) => {
+                        cantidades.push(value.cantidad);
+                        titulos.push(value.nombre);
+
+                        // Definir colores (en caso de que el gráfico sea linea asignar el color por defecto)
+                        let color_aux = `rgba(${getNumber()}, ${getNumber()}, ${getNumber()}, #)`;
+                        primary_color.push(chart_type=='line'?'rgba(30, 101, 236, 0.5)':color_aux.replace('#','0.5'));
+                        secondary_color.push(chart_type=='line'?'rgba(30, 101, 236, 1)':color_aux.replace('#','1'));
+                    });
+                    
+                    generar_grafico(titulos, cantidades, 'Gráfico de productos vendidos', '', 'Mes', 'Monto Bs.', primary_color, secondary_color);
+                }
+
+                function generar_grafico(label, data, title, tittleDataset, labelX, labelY, primary_color, secondary_color){
                     var config = {
                         type: chart_type,
                         data: {
                             labels: label,
                             datasets: [{
                                 label: tittleDataset,
-                                backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                                borderColor: 'rgba(255,99,132,1)',
+                                backgroundColor: primary_color,
+                                borderColor: secondary_color,
                                 data: data,
                                 fill: false,
                             }]
@@ -238,6 +326,9 @@
 			        window.myLine = new Chart(ctx, config);
                 }
             });
+            function getNumber(min=0, max=255){
+                return Math.floor(Math.random() * (max - min) ) + min;
+            }
         </script>
     @stop
 

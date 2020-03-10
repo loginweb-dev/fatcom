@@ -1014,7 +1014,7 @@ class FatcomMenuItemsTableSeeder extends Seeder
                 'id' => 85,
                 'menu_id' => 1,
                 'title' => 'Borrar cache',
-                'url' => '/clear-cache',
+                'url' => 'admin/clear-cache',
                 'target' => '_self',
                 'icon_class' => 'voyager-wand',
                 'color' => NULL,

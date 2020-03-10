@@ -134,13 +134,11 @@
         </form>
     @stop
     @section('css')
-        <link href="{{url('ecommerce/plugins/fancybox/fancybox.min.css')}}" type="text/css" rel="stylesheet">
         <style>
 
         </style>
     @stop
     @section('javascript')
-        <script src="{{url('ecommerce/plugins/fancybox/fancybox.min.js')}}" type="text/javascript"></script>
         <script>
             $(document).ready(function() {
                 $('[data-toggle="popover"]').popover({ html : true });

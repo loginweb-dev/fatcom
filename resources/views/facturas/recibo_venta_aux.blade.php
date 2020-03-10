@@ -62,6 +62,8 @@
                     <!-- no se puede acceder a ruta del setting, hay q concatenar "../../storage/" -->
                     <img src="{{ url('storage').'/'.setting('empresa.logo') }}" alt="loginweb" width="80px"><br>
                     <h2>{{ setting('empresa.title') }}</h2>
+                    <b>De: {{ setting('empresa.propietario') }}</b><br>
+                    <b>{{ strtoupper($detalle_venta[0]->sucursal) }}</b><br>
                     <b>{{ setting('empresa.direccion') }}<b><br>
                     @if(setting('empresa.telefono')!='')
                     <b>Telf: {{ setting('empresa.telefono') }}</b>
@@ -124,7 +126,18 @@
                         @foreach ($detalle_venta as $item)
                             <tr>
                                 <td align="center"><b>{{ $item->cantidad }}</b></td>
-                                <td> <b>{{ $item->subcategoria }}</b> - {{$item->producto}} {{$producto_adicional[$indice]['nombre']}} </td>
+                                <td>
+                                    <b>{{ $item->subcategoria }}</b>
+                                    - {{ $item->producto }} {!! $producto_adicional[$indice]['nombre'] ? '/ '.$producto_adicional[$indice]['nombre']:'' !!}
+                                    @php
+                                        $extras = '';
+                                        for ($i=0; $i < count($item->extras); $i++) { 
+                                            $extras .= intval($item->extras[$i]->cantidad).' '.$item->extras[$i]->nombre.', ';
+                                        }
+                                        $extras = substr($extras, 0, -2);
+                                    @endphp
+                                    {!! $extras ? '<br>('.$extras.')' : '' !!}
+                                </td>
                                 {{-- <td align="center">{{number_format($item->precio, 2, ',', '.')}}</td> --}}
                                 <td align="right">{{number_format(($item->precio*$item->cantidad), 2, ',', '.')}}</td>
                             </tr>
@@ -210,7 +223,18 @@
                         @foreach ($detalle_venta as $item)
                             <tr>
                                 <td align="center"><b>{{ $item->cantidad }}</b></td>
-                                <td><b>{{ $item->subcategoria }}</b> - {{$item->producto}}  {{$producto_adicional[$indice]['nombre']}}</td>
+                                <td>
+                                    <b>{{ $item->subcategoria }}</b>
+                                    - {{ $item->producto }} {!! $producto_adicional[$indice]['nombre'] ? '/ '.$producto_adicional[$indice]['nombre']:'' !!}
+                                    @php
+                                        $extras = '';
+                                        for ($i=0; $i < count($item->extras); $i++) { 
+                                            $extras .= intval($item->extras[$i]->cantidad).' '.$item->extras[$i]->nombre.', ';
+                                        }
+                                        $extras = substr($extras, 0, -2);
+                                    @endphp
+                                    {!! $extras ? '<br>('.$extras.')' : '' !!}
+                                </td>
                                 <td>{{$item->observaciones}}</td>
                                 {{-- <td align="center">{{number_format($item->precio, 2, ',', '.')}}</td> --}}
                                 <td align="right">{{number_format(($item->precio*$item->cantidad), 2, ',', '.')}}</td>

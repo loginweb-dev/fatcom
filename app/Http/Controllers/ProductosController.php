@@ -32,6 +32,10 @@ use App\ProductosInsumo;
 use App\Extra;
 use App\ProductosExtra;
 
+// Exportación a Excel
+use App\Exports\CatalogoProductosExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 class ProductosController extends Controller
 {
     public function __construct()
@@ -50,9 +54,9 @@ class ProductosController extends Controller
                             ->where('c.id', '>', 1)
                             ->distinct()
                             ->get();
-
+        $count_productos = Producto::where('deleted_at', NULL)->count();
         $value = '';
-        return view('inventarios/productos/productos_index', compact('value', 'categorias'));
+        return view('inventarios/productos/productos_index', compact('value', 'categorias', 'count_productos'));
     }
 
     public function productos_list($categoria, $subcategoria, $marca, $talla, $genero, $color, $search){
@@ -1096,6 +1100,7 @@ class ProductosController extends Controller
     }
 
     // ===================================================
+    
     public function cargar_vista($tabla){
         switch ($tabla) {
             case 'categoria':
@@ -1119,5 +1124,40 @@ class ProductosController extends Controller
                     ->orderBy('p.codigo_interno', 'DESC')
                     ->first();
         return response()->json($result);
+    }
+
+    public function generar_catalogo($inicio, $cantidad){
+        // return Excel::download(new CatalogoProductosExport, 'Catálogo de productos '.date('YmdHis').'.xlsx');
+        $productos = DB::table('productos as p')
+                            ->join('subcategorias as s', 's.id', 'subcategoria_id')
+                            ->select('p.id', 'p.codigo', 'p.nombre', 's.nombre as categoria', 'p.precio_venta as precio', DB::raw("CONCAT(p.estante,' ',p.bloque) as ubicacion"))
+                            ->where('p.deleted_at', NULL)
+                            ->orderBy('p.nombre')
+                            ->skip($inicio)->take($cantidad)->get();
+        $vista = view('inventarios.productos.productos_catalogo_pdf', compact('productos'));
+        // return $vista;
+        $pdf = \App::make('dompdf.wrapper');
+        $pdf->loadHTML($vista)->setPaper('letter', 'landscape');
+        $pdf->loadHTML($vista);
+        return $pdf->stream();
+    }
+
+    public function lista_extras_productos($id, $sucursal_id = 0){
+        if($sucursal_id == 0){
+            return DB::table('extras as e')
+                    ->join('productos_extras as pe', 'pe.extra_id', 'e.id')
+                    ->select('e.id', 'e.nombre', 'e.precio', 'e.imagen', 'e.estado')
+                    ->where('pe.producto_id', $id)->where('e.deleted_at', NULL)
+                    ->where('pe.deleted_at', NULL)->get();
+        }else{
+            return DB::table('extras as e')
+                    ->join('productos_extras as pe', 'pe.extra_id', 'e.id')
+                    ->join('extras_depositos as ed', 'ed.extra_id', 'e.id')
+                    ->join('depositos as d', 'd.id', 'ed.deposito_id')
+                    ->select('e.id', 'e.nombre', 'e.precio', 'e.imagen', 'e.estado', 'ed.stock')
+                    ->where('pe.producto_id', $id)->where('d.sucursal_id', $sucursal_id)
+                    ->where('ed.stock', '>', 0)->where('e.deleted_at', NULL)->where('pe.deleted_at', NULL)->get();
+        }
+        
     }
 }

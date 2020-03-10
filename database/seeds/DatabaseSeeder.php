@@ -12,5 +12,7 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call(FatcomDatabaseSeeder::class);
+        $this->call(FatcomPermissionsTableSeeder::class);
+        $this->call(FatcomPermissionRoleTableSeeder::class);
     }
 }

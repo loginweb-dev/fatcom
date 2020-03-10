@@ -63,9 +63,10 @@ export default {
     methods: {
        fetchventas () {
             setInterval(() => {
-              axios.get('/admin/ventas/cocina/api')
+              axios.get('/admin/ventas/cocina/list')
                 .then(response => {
-                    this.ventas = response.data
+                    this.ventas = response.data;
+                    console.log(response.data);
                 });
             }, 5000)
         },

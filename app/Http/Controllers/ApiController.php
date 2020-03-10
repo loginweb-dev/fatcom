@@ -18,15 +18,21 @@ use App\Http\Controllers\LandingPageController as LandingPage;
 use App\Http\Controllers\VentasController as Ventas;
 use App\Http\Controllers\DosificacionesController as Dosificacion;
 use App\Http\Controllers\FacturasController as Facturacion;
+use App\Http\Controllers\LoginwebController as Loginweb;
 
 use App\User;
 use App\Cliente;
 use App\Producto;
 use App\Venta;
+use App\VentasDetalle;
 use App\ProductosLike;
 use App\RepartidoresPedido;
 use App\VentasSeguimiento;
 use App\Empleado;
+use App\Sucursale;
+
+// Eventos
+use App\Events\pedidoNuevo;
 
 class ApiController extends Controller
 {
@@ -259,6 +265,18 @@ class ApiController extends Controller
         return response()->json($categorias);
     }
     
+    public function get_oferta_actual(){
+        $dia_semana = date('N');
+        $dia_mes = date('j');
+        $ofertas = DB::table('ofertas as o')
+                    ->select('o.id', 'o.nombre', 'o.descripcion', 'o.imagen', 'tipo_oferta')
+                    ->whereRaw("( (o.tipo_duracion = 'rango' and o.inicio < '".Carbon::now()."' and (o.fin is NULL or o.fin > '".Carbon::now()."')) or (o.tipo_duracion = 'semanal' and o.dia = $dia_semana) or (o.tipo_duracion = 'mensual' and o.dia = $dia_mes) )")
+                    ->where('o.estado', 1)
+                    ->where('o.deleted_at', NULL)
+                    ->first();
+        return response()->json(['oferta'=>$ofertas]);
+    }
+    
     // Devolver los productos de una categoría
     public function products_list_filter($filtro, $id, $user_id){
         $query_filter = '';
@@ -413,44 +431,65 @@ class ApiController extends Controller
         }
 
         $efectivo = $request->tipo_pago == 1 ? 1 : 0;
-        
-        $venta = Venta::create([
-            'cliente_id' => $cliente_id,
-            'importe' => $request->importe,
-            'estado' => 'V',
-            'subtotal' => $request->importe,
-            'importe_base' => $request->importe,
-            'fecha' => date('Y-m-d'),
-            'venta_tipo_id' => 3,
-            'venta_estado_id' => 1,
-            'efectivo' => $efectivo,
-            'sucursal_id' => 3
-        ]);
-        
 
-        if($venta){
+        // Obtener la sucursal mas cercana
+        $sucursales = Sucursale::where('deleted_at', NULL)->where('delivery', 1)->get();
+
+        // Verificar si hay al menos una sucursal activa para el servicio de delvery
+        if(count($sucursales)==0){
+            return response()->json(["error" => 'Servicio de delivery no disponible.']);
+        }
+        
+        // Si existe mas de una sucursal activa para delivery se obtiene la más cercana, sino se elige la primera
+        if(count($sucursales)>1){
+            
+            // Poner la primera ubicacion como la mas cercana para comprar
+            $sucursal_id = $sucursales[0]->id;
+            $distancia_minima = (new Loginweb)->distanciaEnKm($sucursales[0]->latitud,$sucursales[0]->longitud,$request->lat,$request->lon);;
+            
+            foreach ($sucursales as $item) {
+                $distancia = (new Loginweb)->distanciaEnKm($item->latitud,$item->longitud,$request->lat,$request->lon);
+                if($distancia_minima>$distancia){
+                    $distancia_minima = $distancia;
+                    $sucursal_id = $item->id;
+                }
+            }
+        }else{
+            $sucursal_id = $sucursales[0]->id;
+        }
+
+        // Emitir evento de nuevo pedido
+        event(new pedidoNuevo($sucursal_id));
+
+        DB::beginTransaction();
+        try {
+            // Crear registro de venta
+            $venta = Venta::create([
+                'cliente_id' => $cliente_id,
+                'importe' => $request->importe,
+                'estado' => 'V',
+                'subtotal' => $request->importe,
+                'importe_base' => $request->importe,
+                'fecha' => date('Y-m-d'),
+                'venta_tipo_id' => 3,
+                'venta_estado_id' => 1,
+                'efectivo' => $efectivo,
+                'sucursal_id' => $sucursal_id
+            ]);
+
             Venta::where('id', $venta->id)->update(['nro_venta' => $venta->id]);
             
             foreach ($request->cart as $item) {
-                DB::table('ventas_detalles')
-                        ->insert([
-                            'venta_id' => $venta->id,
-                            'producto_id' => $item['id'],
-                            'precio' => $item['precio'],
-                            'cantidad' => $item['cantidad'],
-                            'created_at' => Carbon::now(),
-                            'updated_at' => Carbon::now()
-                        ]);
+                VentasDetalle::create([
+                    'venta_id' => $venta->id,
+                    'producto_id' => $item['id'],
+                    'precio' => $item['precio'],
+                    'cantidad' => $item['cantidad']
+                ]);
             }
             
-            // Usar Eloquent
-            DB::table('ventas_seguimientos')
-                ->insert([
-                    'venta_id' => $venta->id,
-                    'venta_estado_id' => 1,
-                    'created_at' => Carbon::now(),
-                    'updated_at' => Carbon::now()
-                ]);
+            // registrar seguimiento del pedido
+            VentasSeguimiento::create([ 'venta_id' => $venta->id, 'venta_estado_id' => 1]);
                 
             // Facturación
             if($request->factura){
@@ -471,9 +510,11 @@ class ApiController extends Controller
                     DB::table('dosificaciones')->where('id', $dosificacion->id)->increment('numero_actual', 1);
                 }
             }
-                        
+            
+            DB::commit();
             return response()->json(["error" => null, "venta_id" => $venta->id]);
-        }else{
+        } catch (\Exception $e) {
+            DB::rollback();
             return response()->json(["error" => 'error desconocido']);
         }
     }

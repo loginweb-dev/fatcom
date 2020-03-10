@@ -24,6 +24,7 @@
         <input type="hidden" name="venta_tipo_id" value="3">
         <input type="hidden" name="cliente_id" value="{{$cliente_id}}">
         <input type="hidden" name="caja_id" value="{{ $caja_id ? $caja_id->id : NULL }}">
+        <input type="hidden" name="sucursal_id" value="0">
         <!-- Main Container -->
         <div class="container" style="margin-top:100px">
             <!-- Section cart -->

@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         <link href="https://fonts.googleapis.com/css?family=Noto+Sans" rel="stylesheet">
-        <title>Recibo de venta</title>
+        <title>Factura de venta</title>
         <style>
             .btn-print{
                 background-color: #fa2a00;
@@ -62,7 +62,9 @@
                     <!-- no se puede acceder a ruta del setting, hay q concatenar "../../storage/" -->
                     <img src="{{ url('storage').'/'.setting('empresa.logo') }}" alt="loginweb" width="80px"><br>
                     <h2>{{ setting('empresa.title') }}</h2>
-
+                    <b>De: {{ setting('empresa.propietario') }}</b><br>
+                    <b>{{ strtoupper($detalle_venta[0]->sucursal) }}</b><br>
+                    <b>{{ setting('empresa.direccion') }}<b><br>
                     @if(setting('empresa.telefono')!='')
                     <b>Telf: {{ setting('empresa.telefono') }}</b>
                     @endif
@@ -74,6 +76,7 @@
                     @endif
                     <br>
                     <b>{{ setting('empresa.ciudad') }}</b><br>
+                    <b>{{ setting('empresa.actividad_economica') }}</b><br>
                 </td>
             </tr>
             <tr>

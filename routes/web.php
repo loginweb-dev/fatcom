@@ -101,6 +101,7 @@ Route::post('admin/productos/actualizar/stock', 'ProductosController@update_stoc
 Route::post('admin/productos/eliminar/', 'ProductosController@delete')->name('productos_delete');
 Route::post('admin/productos/puntuar/', 'ProductosController@puntuar')->name('productos_puntuar');
 Route::post('admin/productos/imprimir/codigo_barras', 'ProductosController@imprimir_codigo_barras')->name('imprimir_codigo_barras');
+Route::get('admin/productos/catalogo/generar/{inicio}/{cantidad}', 'ProductosController@generar_catalogo')->name('generar_catalogo');
 
 Route::get('admin/productos/get_producto/{id}', 'ProductosController@get_producto');
 Route::get('admin/productos/lista_imagenes/{id}', 'ProductosController@lista_imagenes');
@@ -202,9 +203,9 @@ Route::get('admin/ventas/get_producto/bar_code/{code}', 'VentasController@produc
 
 Route::get('admin/ventas/tickets','VentasController@tickets_index')->name('tickets_index');
 Route::get('admin/ventas/tickets/list','VentasController@tickets_list');
-Route::get('admin/ventas/cocina','VentasController@cocinaindex')->name('cocina.index');
-Route::get('admin/ventas/cocina/api','VentasController@apicocina');
-Route::post('admin/ventas/entregar/{id}','VentasController@entregar');
+Route::get('admin/ventas/cocina','VentasController@cocina_index')->name('cocina.index');
+Route::get('admin/ventas/cocina/list','VentasController@cocina_list')->name('cocina.list');
+Route::get('admin/ventas/lista/{id}','VentasController@pedido_listo');
 
 // Obtener publicaciones
 Route::get('admin/ventas/tickets/posts','VentasController@get_posts');
@@ -238,17 +239,17 @@ Route::post('admin/hojastrabajo/cerrar', 'VentasController@hojas_trabajos_close'
 Route::get('admin/ventas/crear/productos_search', 'VentasController@productos_search');
 Route::get('admin/ventas/crear/ventas_categorias/{id}', 'VentasController@ventas_categorias');
 Route::get('admin/ventas/crear/ventas_productos_categorias/{id}', 'VentasController@ventas_productos_categorias');
+Route::get('admin/ventas/crear/extras_producto/{id}/{sucursal_id}', 'VentasController@extras_producto');
 
 
 // libros
-Route::get('admin/ventas/libro', 'VentasController@ventas_libro')->name('ventas_libro');
-Route::post('admin/ventas/libro/generar', 'VentasController@ventas_libro_generar')->name('ventas_libro_generar');
-Route::get('admin/ventas/libro/generar/excel/{mes}/{anio}', 'VentasController@ventas_libro_generar_excel');
-Route::get('admin/ventas/libro/generar/pdf/{mes}/{anio}', 'VentasController@ventas_libro_generar_pdf');
-
+Route::get('admin/reporte/ventas/libro', 'VentasController@ventas_libro')->name('ventas_libro');
+Route::post('admin/reporte/ventas/libro/generar', 'VentasController@ventas_libro_generar')->name('ventas_libro_generar');
+Route::get('admin/reporte/ventas/libro/generar/excel/{mes}/{anio}', 'VentasController@ventas_libro_generar_excel');
+Route::get('admin/reporte/ventas/libro/generar/pdf/{mes}/{anio}', 'VentasController@ventas_libro_generar_pdf');
 // formularios
-Route::get('admin/ventas/formulario/200/pdf/{mes}/{anio}', 'VentasController@ventas_formulario_200_pdf');
-Route::get('admin/ventas/formulario/400/pdf/{mes}/{anio}', 'VentasController@ventas_formulario_400_pdf');
+Route::get('admin/reporte/ventas/formulario/200/pdf/{mes}/{anio}', 'VentasController@ventas_formulario_200_pdf');
+Route::get('admin/reporte/ventas/formulario/400/pdf/{mes}/{anio}', 'VentasController@ventas_formulario_400_pdf');
 
 // ============================Dosificacion====================================
 Route::get('admin/dosificaciones', 'DosificacionesController@index')->name('dosificaciones_index');
@@ -311,7 +312,6 @@ Route::post('admin/reportes/graficos/generar', 'ReportesController@graficos_gene
 
 Route::get('admin/reportes/ventas', 'ReportesController@ventas_reporte')->name('ventas_reporte');
 Route::post('admin/reportes/ventas/generar', 'ReportesController@ventas_reporte_generar')->name('ventas_reporte_generar');
-Route::post('admin/reportes/ventas/pdf', 'ReportesController@ventas_reporte_pdf')->name('ventas_reporte_pdf');
 
 Route::get('admin/reportes/ganancia_producto', 'ReportesController@ganancia_producto_reporte')->name('ganancia_producto_reporte');
 Route::post('admin/reportes/ganancia_producto/generar', 'ReportesController@ganancia_producto_reporte_generar')->name('ganancia_producto_reporte_generar');
@@ -324,7 +324,7 @@ Route::get('admin/productos/subcategoria/store/{categoria_id}/{value}', 'Product
 
 
 // Clear cache
-Route::get('/clear-cache', function() {
+Route::get('/admin/clear-cache', function() {
     Artisan::call('cache:clear');
     Artisan::call('route:clear');
     Artisan::call('view:clear');

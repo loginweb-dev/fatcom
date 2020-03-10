@@ -1719,42 +1719,77 @@ class FatcomPermissionRoleTableSeeder extends Seeder
             ),
             340 => 
             array (
-                'permission_id' => 259,
+                'permission_id' => 258,
                 'role_id' => 1,
             ),
             341 => 
             array (
                 'permission_id' => 259,
-                'role_id' => 3,
+                'role_id' => 1,
             ),
             342 => 
             array (
                 'permission_id' => 259,
-                'role_id' => 4,
+                'role_id' => 3,
             ),
             343 => 
+            array (
+                'permission_id' => 259,
+                'role_id' => 4,
+            ),
+            344 => 
             array (
                 'permission_id' => 260,
                 'role_id' => 1,
             ),
-            344 => 
+            345 => 
+            array (
+                'permission_id' => 260,
+                'role_id' => 3,
+            ),
+            346 => 
             array (
                 'permission_id' => 261,
                 'role_id' => 1,
             ),
-            345 => 
+            347 => 
+            array (
+                'permission_id' => 261,
+                'role_id' => 3,
+            ),
+            348 => 
             array (
                 'permission_id' => 262,
                 'role_id' => 1,
             ),
-            346 => 
+            349 => 
+            array (
+                'permission_id' => 262,
+                'role_id' => 3,
+            ),
+            350 => 
             array (
                 'permission_id' => 263,
                 'role_id' => 1,
             ),
-            347 => 
+            351 => 
+            array (
+                'permission_id' => 263,
+                'role_id' => 3,
+            ),
+            352 => 
             array (
                 'permission_id' => 264,
+                'role_id' => 1,
+            ),
+            353 => 
+            array (
+                'permission_id' => 264,
+                'role_id' => 3,
+            ),
+            354 => 
+            array (
+                'permission_id' => 265,
                 'role_id' => 1,
             ),
         ));

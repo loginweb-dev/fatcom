@@ -1548,7 +1548,7 @@ class FatcomPermissionsTableSeeder extends Seeder
             191 => 
             array (
                 'id' => 238,
-                'key' => 'browse_ventaslibro',
+                'key' => 'browse_reporteventaslibro',
                 'table_name' => 'reportes',
                 'created_at' => '2019-10-08 23:14:19',
                 'updated_at' => '2019-10-08 23:21:44',
@@ -1718,6 +1718,14 @@ class FatcomPermissionsTableSeeder extends Seeder
                 'id' => 264,
                 'key' => 'delete_extras',
                 'table_name' => 'extras',
+                'created_at' => '2020-02-18 17:04:55',
+                'updated_at' => '2020-02-18 17:04:55',
+            ),
+            213 => 
+            array (
+                'id' => 265,
+                'key' => 'browse_clear-cache',
+                'table_name' => 'development',
                 'created_at' => '2020-02-18 17:04:55',
                 'updated_at' => '2020-02-18 17:04:55',
             ),

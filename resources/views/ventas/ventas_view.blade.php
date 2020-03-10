@@ -73,11 +73,7 @@
                                             <thead>
                                                 <tr>
                                                     <th>N&deg;</th>
-                                                    <th></th>
                                                     <th>Producto</th>
-                                                    <th>Marca</th>
-                                                    <th>Talla</th>
-                                                    <th>Color</th>
                                                     <th>Precio</th>
                                                     <th>Cantidad</th>
                                                     <th>Subtotal</th>
@@ -94,11 +90,39 @@
                                                 @endphp
                                                     <tr>
                                                         <td>{{$cont}}</td>
-                                                        <td><a href="{{ url('storage').'/'.$imagen }}" data-fancybox="galeria1" data-caption="{{ $item->producto }}"><img src="{{url('storage').'/'.$img}}" width="50px" alt=""></a></td>
-                                                        <td>{{ $item->producto }}</td>
-                                                        <td>{{ $item->marca }}</td>
-                                                        <td>{{ $item->talla }}</td>
-                                                        <td>{{ $item->color }}</td>
+                                                        <td>
+                                                            <table width="100%">
+                                                                <tr>
+                                                                    <td rowspan="5" width="110px"><a href="{{ url('storage').'/'.$imagen }}" data-fancybox="galeria1" data-caption="{{ $item->producto }}"><img src="{{url('storage').'/'.$img}}" width="100px" alt=""></a></td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td><h4>{{ $item->producto }}</h4></td>
+                                                                </tr>
+                                                                @if(setting('admin.modo_sistema')!='restaurante')
+                                                                <tr>
+                                                                    <td><b>Marca: </b>{{ $item->marca }}</td>
+                                                                </tr>
+                                                                @endif
+                                                                @if(setting('admin.modo_sistema')=='boutique')
+                                                                <tr>
+                                                                    <td><b>Talla: </b> {{ $item->talla }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td><b>Color: </b>{{ $item->color }}</td>
+                                                                </tr>
+                                                                @endif
+                                                                @if(setting('admin.modo_sistema')=='restaurante')
+                                                                <td>
+                                                                    <b>Extras: </b>
+                                                                    @forelse ($item->extras as $extra)
+                                                                        {{ intval($extra->cantidad) }} {{ $extra->nombre }},
+                                                                    @empty
+                                                                        Ninguno
+                                                                    @endforelse
+                                                                </td>
+                                                                @endif
+                                                            </table>
+                                                        </td>
                                                         <td>{{ $item->precio }}</td>
                                                         <td>{{ $item->cantidad }}</td>
                                                         <td>{{ number_format($item->precio*$item->cantidad, 2, ',', '') }}</td>
@@ -108,11 +132,11 @@
                                                     @endphp
                                                 @endforeach
                                                 <tr>
-                                                    <td colspan="8">Descuento</td>
+                                                    <td colspan="4">Descuento</td>
                                                     <td><h5>{{number_format($venta->descuento, 2, ',', '.')}}</h5></td>
                                                 </tr>
                                                 <tr>
-                                                    <td colspan="8"><h4>TOTAL</h4></td>
+                                                    <td colspan="4"><h4>TOTAL</h4></td>
                                                     <td><h4>{{number_format($venta->importe_base, 2, ',', '.')}} Bs.</h4></td>
                                                 </tr>
                                             </tbody>

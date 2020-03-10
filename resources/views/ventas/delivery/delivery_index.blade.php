@@ -122,7 +122,11 @@
     @stop
     @section('javascript')
         <script>
+            // Pedir autorización para mostrar notificaciones
+            Notification.requestPermission();
+            
             $(document).ready(function() {
+
                 // set valor de delete
                 $('.btn-delete').click(function(){
                     $('#modal_delete input[name="id"]').val($(this).data('id'));
@@ -143,27 +147,29 @@
 
         {{-- Laravel Echo --}}
         <script src="{{ asset('js/app.js') }}"></script>
-        <script src="{{ asset('js/events/events.js') }}"></script>
         <script>
-            let icon = '{{ url("storage/".setting("empresa.logo")) }}';
-            listenNewPedido(icon, '{{ Auth::user()->id }}');
             
             Echo.channel('deliveryChannel{{ Auth::user()->id }}')
             .listen('pedidoAsignado', (e) => {
+                if(Notification.permission==='granted'){
+                    let notificacion = new Notification('Nuevo pedido!',{
+                        body: 'Se le asignó un nuevo pedido.',
+                        icon: '{{ url("img/assets/info.png") }}'
+                    });
+                }
                 newPedido(e.pedido);
             });
 
             function newPedido(pedido){
-                $('#pedidosList')
-                .append(
-                    `<tr onclick="verDetalle(${pedido.id})" class="tr-registro" title="Ver detalles">
-                        <td>${pedido.razon_social}</td>
-                        <td>${pedido.created_at} <br> <small>hace unos segundos</small> </td>
-                        <td>
-                            ${pedido.estado == 1 ? '<label class="label label-dark">Enviado</label>' : '<label class="label label-primary">Entregado</label>'}
-                        </td>
-                    </tr>`
-                );
+                var n_pedidos = $('.table').find('.tr-registro').length;
+                let nuevo_pedido = `<tr onclick="verDetalle(${pedido.id})" class="tr-registro" title="Ver detalles">
+                                        <td>${pedido.razon_social}</td>
+                                        <td>${pedido.created_at} <br> <small>hace unos segundos</small> </td>
+                                        <td>
+                                            ${pedido.estado == 1 ? '<label class="label label-dark">Enviado</label>' : '<label class="label label-primary">Entregado</label>'}
+                                        </td>
+                                    </tr>`;
+                n_pedidos > 0 ? $('#pedidosList').append(nuevo_pedido) : $('#pedidosList').html(nuevo_pedido);
             }
         </script>
     @stop

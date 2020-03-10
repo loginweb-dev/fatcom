@@ -30,6 +30,9 @@ Route::post('/login/delivery','ApiController@login_delivery');
 // Categorías diponibles
 Route::get('/categories','ApiController@categories_list');
 
+// Oferta actual diponibles
+Route::get('/oferta_actual','ApiController@get_oferta_actual');
+
 // Productos de una categoría
 Route::get('/products/list/{type}/{id}/{user_id}','ApiController@products_list_filter');
 

@@ -4,7 +4,9 @@
         <div class="panel panel-bordered">
             <div class="col-md-12 text-right">
                 <button type="button" data-value="excel" class="btn btn-success btn-export">Excel</button>
+                @if(count($ventas)<=200)
                 <button type="button" data-value="pdf" class="btn btn-danger btn-export">PDF</button>
+                @endif
             </div>
             <div class="panel-body">
                 <div class="table-responsive">

@@ -134,6 +134,9 @@
                                     <table class="table table-bordered" style="font-size:15px">
                                         <thead>
                                             <th style="width:300px">Producto</th>
+                                            @if (setting('admin.modo_sistema')=='restaurante')
+                                                <th style="width:50px">Extras</th>
+                                            @endif
                                             <th>observación</th>
                                             <th style="width:150px">Precio</th>
                                             <th style="width:100px">Cantidad</th>
@@ -144,7 +147,7 @@
                                                 <td colspan="4" class="text-right"><h5>Descuento</h5></td>
                                                 <td id="label-descuento" colspan="2">
                                                     <div class="input-group">
-                                                        <input type="number" name="descuento" class="form-control cero_default" style="width:80px" onchange="total();calcular_cambio()" onkeyup="total();calcular_cambio()" min="0" value="0" id="input-descuento">
+                                                        <input type="number" name="descuento" class="form-control cero_default" style="width:80px" onchange="total()" onkeyup="total()" min="0" value="0" id="input-descuento">
                                                         <span class="input-group-addon">Bs.</span>
                                                     </div>
                                                 </td>
@@ -153,7 +156,7 @@
                                                 <td colspan="4" class="text-right"><h5>Costo de envío</h5></td>
                                                 <td id="label-costo_envio" colspan="2">
                                                     <div class="input-group">
-                                                        <input type="number" readonly name="cobro_adicional" class="form-control cero_default" style="width:80px" onchange="total();calcular_cambio()" onkeyup="total();calcular_cambio()" min="0" value="0" id="input-costo_envio">
+                                                        <input type="number" readonly name="cobro_adicional" class="form-control cero_default" style="width:80px" onchange="total()" onkeyup="total()" min="0" value="0" id="input-costo_envio">
                                                         <span class="input-group-addon">
                                                             <input type="checkbox" disabled id="check-cobro_adicional_factura" name="cobro_adicional_factura" data-toggle="tooltip" data-placement="bottom" title="Incluir costo de envío en factura">
                                                         </span>
@@ -201,6 +204,33 @@
                     <div class="modal-footer">
                         <input type="button" class="btn btn-primary pull-right"value="Aceptar" data-dismiss="modal">
                         <button type="button" class="btn btn-default pull-right" id="btn-cancel-map" data-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Modal de lista extras --}}
+        <div class="modal modal-primary fade" tabindex="-1" id="modal-lista_extras" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title"><i class="voyager-list-add"></i> Lista de extras</h4>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="id">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th colspan="2">Extra</th>
+                                    <th>Precio</th>
+                                    <th>Cantidad</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-extras"></tbody>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Cerrar</button>
                     </div>
                 </div>
             </div>
@@ -257,9 +287,10 @@
         let marcador = {};
         let tab_active = '';
         let accordion_active = '';
+        var sucursal_id = '{{ $sucursal_actual }}';
         $(document).ready(function(){
             productos_buscar();
-            $('#select-sucursal_id').val({{$sucursal_actual}});
+            $('#select-sucursal_id').val({{ $sucursal_actual }});
             $('#select-sucursal_id').select2();
 
             $('[data-toggle="tooltip"]').tooltip();
@@ -327,6 +358,7 @@
                 $('#btn-vender').attr('disabled', true);
                 $('#modal_load').modal('show');
                 e.preventDefault();
+                // return 0;
                 let datos = $(this).serialize();
                 $.ajax({
                     url: "{{route('ventas_store')}}",
@@ -464,7 +496,6 @@
                 }
 
                 total();
-                calcular_cambio();
             });
 
             // anular o activar mesa si no es para llevar
@@ -536,8 +567,9 @@
 
             // recorer la lista para ver si el producto existe
             let existe = false;
+            let index_tr = `${id}_${Math.floor(Math.random() * 1001)}`;
             $(".tr-detalle").each(function(){
-                if($(this).data('id')==id+'_'+adicional_id){
+                if($(this).data('id')==index_tr){
                     existe = true;
                 }
             });
@@ -548,34 +580,52 @@
             editar_precio = '';
             @endif
 
+            let buttonExtras = '';
+            let url_extras = "{{ url('admin/ventas/crear/extras_producto') }}";
+            
+            @if (setting('admin.modo_sistema')=='restaurante')
+                buttonExtras = `<td><a href="" data-toggle="modal" data-target="#modal-lista_extras" onclick="verExtras('${url_extras}', '${index_tr}', ${sucursal_id})" class="btn btn-success btn-sm btn-list_extras" style="text-decoration:none" title="Lista de extras"><i class="voyager-list-add"></i></a></td>`;                          
+            @endif
+
             if(existe){
                 toastr.warning('El producto ya se encuentra en la lista.', 'Atención');
             }else{
-                $('#detalle_venta').before(`<tr class="tr-detalle" id="tr-${id}_${adicional_id}" data-id="${id}_${adicional_id}">
-                                                <td><input type="hidden" value="${id}" name="producto_id[]"><input type="hidden" value="${adicional_id}" name="adicional_id[]"><button type="button" class="btn btn-link" title="Ver información" onclick="producto_info(${id})">${(nombre.length > 50 ? nombre.substr(0,50)+'...' : nombre)+adicional_nombre}</button></td>
+                $('#detalle_venta').before(`<tr class="tr-detalle" id="tr-${index_tr}" data-id="${index_tr}">
+                                                <td>
+                                                    <input type="hidden" value="${id}" name="producto_id[]">
+                                                    <input type="hidden" value="${adicional_id}" name="adicional_id[]">
+                                                    <button type="button" class="btn btn-link" title="Ver información" onclick="producto_info(${id})">${(nombre.length > 50 ? nombre.substr(0,50)+'...' : nombre)+adicional_nombre}</button>
+                                                    <div id="extras_producto-${index_tr}"></div>
+                                                </td>
+                                                ${buttonExtras}
                                                 <td><input type="text" class="form-control" name="observacion[]"></td>
                                                 <td>
                                                     <div class="input-group">
-                                                        <input type="number" ${editar_precio} id="input-precio_${id}_${adicional_id}" min="0.01" step="0.01" value="${precio}" name="precio[]" class="form-control" onchange="subtotal('${id}_${adicional_id}');calcular_cambio()" onkeyup="subtotal('${id}_${adicional_id}');calcular_cambio()" required />
+                                                        <input type="number" ${editar_precio} id="input-precio_${index_tr}" min="0.01" step="0.01" data-precio="${precio}" value="${precio}" name="precio[]" class="form-control" onchange="subtotal('${index_tr}');" onkeyup="subtotal('${index_tr}')" required />
                                                         <span class="input-group-addon">Bs.</span>
                                                     </div>
+                                                    <input type="hidden" id="input-extras_id_${index_tr}" name="extras_id[]" />
+                                                    <input type="hidden" id="input-cantidad_extras_id_${index_tr}" name="cantidad_extras_id[]" />
+                                                    <input type="hidden" id="input-precio_extras_id_${index_tr}" name="precio_extras_id[]" />
+                                                    <input type="hidden" id="input-total_extras_${index_tr}" name="total_extras[]" value="0" />
+                                                    <div class="text-center text-success"><small id="label-extras_${index_tr}"></small></div>
                                                 </td>
-                                                <td><input type="number" min="0.1" max="${stock}" step="0.1" class="form-control" id="input-cantidad_${id}_${adicional_id}" value="1" name="cantidad[]" onchange="subtotal('${id}_${adicional_id}');calcular_cambio()" onkeyup="subtotal('${id}_${adicional_id}');calcular_cambio()" required></td>
-                                                <td class="label-subtotal" id="subtotal-${id}_${adicional_id}"><h4>${precio} Bs.</h4></td>
-                                                <td width="40px"><label onclick="borrarDetalle('${id}_${adicional_id}')" class="text-danger" style="cursor:pointer;font-size:20px"><span class="voyager-trash"></span></label></td>
+                                                <td><input type="number" min="0.1" max="${stock}" step="0.1" class="form-control" id="input-cantidad_${index_tr}" value="1" name="cantidad[]" onchange="subtotal('${index_tr}')" onkeyup="subtotal('${index_tr}')" required></td>
+                                                <td class="label-subtotal" id="subtotal-${index_tr}"><h4>${precio} Bs.</h4></td>
+                                                <td width="40px"><label onclick="borrarDetalle('${index_tr}')" class="text-danger" style="cursor:pointer;font-size:20px"><span class="voyager-trash"></span></label></td>
                                             <tr>`);
                 toastr.remove();
                 toastr.info('Producto agregar correctamente', 'Bien hecho!');
             }
             $('#input_cantidad-'+id).val('1');
             total();
-            calcular_cambio();
         }
 
         var loader = "{{ url('storage').'/'.str_replace('\\', '/', setting('admin.img_loader')) }}";
         var loader_request = `  <div style="@if(setting('delivery.activo')) height:370px @else height:300px @endif" class="text-center">
                                     <br><br><br>
                                     <img src="${loader}" width="100px">
+                                    <p>Cargando...</p>
                                 </div>`;
 
         // mostrar Buscador de productos
@@ -653,7 +703,6 @@
         function borrarDetalle(num){
             $(`#tr-${num}`).remove();
             subtotal();
-            calcular_cambio()
         }
     </script>
 @stop

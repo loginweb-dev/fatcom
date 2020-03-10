@@ -7,15 +7,33 @@
             <i class="voyager-harddrive"></i> Productos
         </h1>
         @if(auth()->user()->hasPermission('add_productos'))
-        <a href="{{route('productos_create')}}" class="btn btn-success btn-add-new">
-            <i class="voyager-plus"></i> <span>Añadir nuevo</span>
-        </a>
-        <button class="btn btn-dark btn-add-new" title="Ver filtros" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-            <i class="voyager-params"></i> <span>Filtros</span>
-        </button>
-        <button class="btn btn-danger btn-add-new" onclick="imprimir_codigo()" title="Imprimir código de barras">
-            <i class="voyager-polaroid"></i> <span>Imprimir código</span>
-        </button>
+            <a href="{{ route('productos_create') }}" class="btn btn-success btn-add-new">
+                <i class="voyager-plus"></i> <span>Añadir nuevo</span>
+            </a>
+            <button class="btn btn-dark btn-add-new" title="Ver filtros" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                <i class="voyager-params"></i> <span>Filtros</span>
+            </button>
+            <button class="btn btn-danger btn-add-new" onclick="imprimir_codigo()" title="Imprimir código de barras">
+                <i class="voyager-polaroid"></i> <span>Imprimir código</span>
+            </button>
+            @php
+                $limite_render = 500;
+            @endphp
+            @if ($count_productos<$limite_render)
+            <a href="{{ route('generar_catalogo', ['inicio'=>0, 'cantidad'=>50]) }}" target="_blank" class="btn btn-warning btn-add-new" title="Generar catálogo">
+                <i class="voyager-cloud-download"></i> <span>Generar catálogo</span>
+            </a>
+            @else
+            <div class="dropdown" style="display:inline">
+                <button class="btn btn-warning dropdown-toggle" type="button" data-toggle="dropdown" style="margin-top:1px" title="Imprimir catalogo."><i class="voyager-cloud-download"></i> Generar catálogo
+                <span class="caret"></span></button>
+                <ul class="dropdown-menu">
+                    @for ($i = 0; $i < $count_productos; $i += $limite_render)
+                    <li><a href="{{ route('generar_catalogo', ['inicio'=>$i, 'cantidad'=>$limite_render]) }}" target="_blank" >Del {{ $i }} al {{ $limite_render+$i }}</a></li>
+                    @endfor
+                </ul>
+            </div>
+            @endif
         @endif
     @stop
     @section('content')

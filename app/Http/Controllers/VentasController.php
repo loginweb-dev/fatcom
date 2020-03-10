@@ -26,6 +26,9 @@ use App\ProformasDetalle;
 use App\VentasSeguimiento;
 use App\HojasTrabajo;
 use App\HojasTrabajosDetalle;
+use App\VentasDetalle;
+use App\VentasDetallesExtra;
+use App\ExtrasDeposito;
 
 use App\Http\Controllers\ProductosController as Productos;
 use App\Http\Controllers\OfertasController as Ofertas;
@@ -45,6 +48,9 @@ use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
 // Eventos
 use App\Events\pedidoAsignado;
 use App\Events\TicketsSucursal;
+use App\Events\pedidoPreparacion;
+use App\Events\pedidoListo;
+use App\Events\pedidoEntregado;
 
 class VentasController extends Controller
 {
@@ -116,42 +122,43 @@ class VentasController extends Controller
         return view('ventas.partials.ventas_lista', compact('registros'));
     }
 
-    public function cocinaindex(){
-        return view('ventas.ventas_index_cocina');     
+    public function cocina_index(){
+        $sucursal_users = DB::table('users_sucursales')->select('sucursal_id')->where('user_id', Auth::user()->id)->where('deleted_at', NULL)->first();
+        $sucursal_id = $sucursal_users ? $sucursal_users->sucursal_id : 0;
+        return view('ventas.ventas_index_cocina', compact('sucursal_id'));
      }
  
-     public function apicocina(){
+     public function cocina_list(){
         $sucursal_users = DB::table('users_sucursales')->select('sucursal_id')->where('user_id', Auth::user()->id)->where('deleted_at', NULL)->first();
         $sucursal_id = $sucursal_users ? $sucursal_users->sucursal_id : 0;
         $ventas = Venta::with(['items.productoadicional','items.producto.subcategoria'])
-                                     ->join('ventas_seguimientos as vs','ventas.id','=','vs.venta_id')
-                                     ->join('ventas_tipos as tv','ventas.venta_tipo_id','=','tv.id')
-                                     ->join('ventas_estados as ve','vs.venta_estado_id','=','ve.id')
-                                     ->selectRaw("ventas.id,ventas.nro_venta,ventas.importe,
+                                    ->join('ventas_seguimientos as vs','ventas.id','=','vs.venta_id')
+                                    ->join('ventas_tipos as tv','ventas.venta_tipo_id','=','tv.id')
+                                    ->join('ventas_estados as ve','vs.venta_estado_id','=','ve.id')
+                                    ->selectRaw("ventas.id,ventas.nro_venta,ventas.importe,
                                                  ventas.fecha,ventas.estado,vs.created_at, DATE_FORMAT(vs.created_at, '%H:%i') as hora,
                                                  ADDDATE(vs.created_at, INTERVAL ve.duracion minute) as hora_entrega,
                                                  tv.nombre as tipo_venta,ve.nombre as estado_venta,ve.duracion")
-                                     ->where('ventas.venta_estado_id',2)
-                                     ->where('ventas.sucursal_id', $sucursal_id)
-                                     ->orderBy('ventas.created_at', 'ASC')
-                                     ->get();
-      return response()->json($ventas);
-     }
+                                    ->where('ventas.venta_estado_id',2)
+                                    ->where('ventas.sucursal_id', $sucursal_id)
+                                    ->orderBy('ventas.created_at', 'ASC')
+                                    ->groupBy('ventas.id')
+                                    ->havingRaw("TIMESTAMPDIFF(DAY, ventas.fecha, NOW()) < ?", [1])
+                                    ->get();
+        return view('ventas.partials.ventas_cocina_lista', compact('ventas'));  
+    }
  
-     public function entregar($id){
-         $venta = Venta::findOrFail($id);
-         $venta->venta_estado_id = 3;
-         $venta->update();
-       return response()
-                                 ->json([
-                                     'saved' => 'Se entrego con exito',
-                                     'venta' => $venta
-                                 ]);
+    public function pedido_listo($id){
+        $venta = Venta::findOrFail($id);
+        $venta->venta_estado_id = 3;
+        $venta->update();
+        $sucursal = $this->get_user_sucursal();
+        event(new pedidoListo($sucursal));
+        return redirect()->route('cocina.index')->with(['message' => 'Pedido listo.', 'alert-type' => 'success']);    
     }
 
     public function tickets_index(){
-        $sucursal = UsersSucursale::where('user_id', Auth::user()->id)->where('deleted_at', NULL)->first();
-        $sucursal_id = $sucursal ? $sucursal->sucursal_id : 0;
+        $sucursal_id = $this->get_user_sucursal();
         return view('ventas.tickets_index', compact('sucursal_id'));
     }
 
@@ -204,10 +211,20 @@ class VentasController extends Controller
                             ->join('marcas as m', 'm.id', 'p.marca_id')
                             ->join('tallas as t', 't.id', 'p.talla_id')
                             ->join('colores as c', 'c.id', 'p.color_id')
-                            ->select('d.*', 'p.nombre as producto', 'm.nombre as marca', 't.nombre as talla', 'c.nombre as color', 'p.imagen')
+                            ->select('d.*', 'p.nombre as producto', 'm.nombre as marca', 't.nombre as talla', 'c.nombre as color', 'p.imagen', 'd.deleted_at as extras')
                             ->where('d.deleted_at', NULL)
                             ->where('d.venta_id', $id)
                             ->get();
+        $cont = 0;
+        foreach ($detalle as $item) {
+            $aux = DB::table('extras as e')
+                            ->join('ventas_detalles_extras as d', 'd.extra_id', 'e.id')
+                            ->select('e.nombre', 'd.cantidad')
+                            ->where('d.venta_detalle_id', $item->id)->where('d.deleted_at', NULL)->get();
+            $detalle[$cont]->extras = $aux;
+            $cont++;
+        }
+
         $ubicacion = DB::table('clientes as c')
                             ->join('clientes_coordenadas as cc', 'cc.cliente_id', 'c.id')
                             ->select('cc.*')
@@ -313,6 +330,10 @@ class VentasController extends Controller
         return response()->json($productos);
     }
 
+    public function extras_producto($id, $sucursal_id){
+        $extras = (new Productos)->lista_extras_productos($id, $sucursal_id);
+        return response()->json(['extras'=>$extras]);
+    }
 
     public function store(Request $data){
         // dd($data);
@@ -353,19 +374,51 @@ class VentasController extends Controller
 
         // insertar detalle de venta
         if($venta_id != ''){
+
+            // Almacenar los datos de extras si se han agregado
+            $extras_id = $data->extras_id ?? [];
+            $cantidad_extras_id = $data->cantidad_extras_id ?? [];
+            $precio_extras_id = $data->precio_extras_id ?? [];
+
             for ($i=0; $i < count($data->producto_id); $i++) {
                 if(!is_null($data->producto_id[$i])){
-                    DB::table('ventas_detalles')
-                        ->insert([
-                            'venta_id' => $venta_id,
-                            'producto_id' => $data->producto_id[$i],
-                            'precio' => $data->precio[$i],
-                            'cantidad' => $data->cantidad[$i],
-                            'producto_adicional' => $data->adicional_id[$i],
-                            'observaciones' => $data->observacion[$i],
-                            'created_at' => Carbon::now(),
-                            'updated_at' => Carbon::now()
-                        ]);
+                    
+                    $detalle_venta = VentasDetalle::create([
+                        'venta_id' => $venta_id,
+                        'producto_id' => $data->producto_id[$i],
+                        'precio' => $data->precio[$i],
+                        'cantidad' => $data->cantidad[$i],
+                        'producto_adicional' => $data->adicional_id[$i],
+                        'observaciones' => $data->observacion[$i]
+                    ]);
+                    
+                    $extras_detalle = explode(',', $extras_id[$i]);
+                    $cantidad_extras_detalle = explode(',', $cantidad_extras_id[$i]);
+                    $precio_extras_detalle = explode(',', $precio_extras_id[$i]);
+
+                    for ($j=0; $j < count($extras_detalle); $j++) { 
+                        if($extras_detalle[$j]){
+                            VentasDetallesExtra::create([
+                                'venta_detalle_id' => $detalle_venta->id,
+                                'extra_id' => $extras_detalle[$j],
+                                'precio' => $precio_extras_detalle[$j],
+                                'cantidad' => $cantidad_extras_detalle[$j]
+                            ]);
+
+                            // Actualizar stock del extra en almacen
+                            DB::table('extras_depositos as ed')
+                                    ->join('depositos as d', 'd.id', 'ed.deposito_id')
+                                    ->where('ed.extra_id', $extras_detalle[$j])
+                                    ->where('d.sucursal_id', $data->sucursal_id)
+                                    ->where('ed.deleted_at', NULL)
+                                    ->decrement('stock', $cantidad_extras_detalle[$j]);
+
+                            // Actualizar el precio del producto añandiendo el precio de los extras
+                            $detalle_venta_aux = VentasDetalle::find($detalle_venta->id);
+                            $detalle_venta_aux->precio += ($precio_extras_detalle[$j] * $cantidad_extras_detalle[$j]);
+                            $detalle_venta_aux->save();
+                        }
+                    }
 
                     // Si el producto se almacena en stock descontar la cantidad vendidad
                     $sucursal_id = ($data->caja_id) ? DB::table('ie_cajas')->select('sucursal_id')->where('id', $data->caja_id)->first()->sucursal_id : NULL;
@@ -611,10 +664,8 @@ class VentasController extends Controller
             }
             // Si es un pedido listo o entregado se envian un evento a la vista de tickets
             if($valor == 3 || $valor == 5){
-                $sucursal = UsersSucursale::where('user_id', Auth::user()->id)->where('deleted_at', NULL)->first();
-                if($sucursal){
-                    event(new TicketsSucursal($sucursal->sucursal_id));
-                }
+                $sucursal = $this->get_user_sucursal();
+                event(new TicketsSucursal($sucursal));
             }
             DB::commit();
             return response()->json(['success' => 1]);
@@ -800,6 +851,10 @@ class VentasController extends Controller
             VentasSeguimiento::create([ 'venta_id' => $id, 'venta_estado_id' => 5,]);
             
             DB::commit();
+
+            $sucursal = $this->get_user_sucursal();
+            event(new pedidoEntregado($sucursal));
+
             return redirect()->route('delivery_index')->with(['message' => 'Pedido entregado exitosamente.', 'alert-type' => 'success']);
         } catch (\Exception $e) {
             DB::rollback();
@@ -1491,7 +1546,7 @@ class VentasController extends Controller
 
     // Función creada para utilizarla tanto para crear una venta normal o realizar un pedido por parte de un cliente
     public function crear_venta($data){
-
+        
         // Filtrar datos que no existen cuando se hace un pedido
         // $sucursal_id = isset($data->sucursal_id) ? $data->sucursal_id : NULL;
         $nro_factura = isset($data->nro_factura) ? $data->nro_factura : NULL;
@@ -1509,12 +1564,12 @@ class VentasController extends Controller
         $cobro_adicional = isset($data->cobro_adicional) ? $data->cobro_adicional : 0;
         $cobro_adicional_factura = isset($data->cobro_adicional_factura) ? 1 : 0;
         $caja_id = isset($data->caja_id) ? $data->caja_id : NULL;
-        $sucursal_id = ($caja_id) ? DB::table('ie_cajas')->select('sucursal_id')->where('id', $caja_id)->first()->sucursal_id : NULL;
+        $sucursal_id = isset($data->sucursal_id) ? $data->sucursal_id : 0;
         $autorizacion_id = isset($data->autorizacion_id) ? $data->autorizacion_id : NULL;
         $monto_recibido = isset($data->monto_recibido) ? $data->monto_recibido : 0;
         $pagada = isset($data->credito) ? 0 : 1;
         $efectivo = isset($data->efectivo) ? 0 : 1;
-
+        
         $venta_estado_id = DB::table('ventas_detalle_tipo_estados as d')
                                 ->join('ventas_estados as e', 'e.id', 'd.venta_estado_id')
                                 ->select('d.venta_estado_id')
@@ -1566,6 +1621,11 @@ class VentasController extends Controller
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
         ]);
+
+        if($venta_estado_id == 2){
+            $sucursal = $this->get_user_sucursal();
+            event(new pedidoPreparacion($sucursal));
+        }
 
         return $venta->id;
     }
@@ -1621,9 +1681,20 @@ class VentasController extends Controller
                                 ->join('marcas as m', 'm.id', 'p.marca_id')
                                 ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
                                 ->join('clientes as c', 'c.id', 'v.cliente_id')
-                                ->select('v.*', 'vt.nombre as tipo_nombre', 'c.razon_social as cliente', 'c.nit', 'p.nombre as producto', 'd.precio', 'd.cantidad', 'd.producto_adicional', 'd.observaciones', 's.nombre as subcategoria')
+                                ->join('sucursales as su', 'su.id', 'v.sucursal_id')
+                                ->select('v.*', 'd.id as detalle_id', 'su.nombre as sucursal', 'vt.nombre as tipo_nombre', 'c.razon_social as cliente', 'c.nit', 'p.nombre as producto', 'd.precio', 'd.cantidad', 'd.producto_adicional', 'd.observaciones', 's.nombre as subcategoria', 'v.created_at as extras')
                                 ->where('v.id', $id)
                                 ->get();
+        $cont = 0;
+        foreach ($detalle_venta as $item) {
+            $aux = DB::table('extras as e')
+                            ->join('ventas_detalles_extras as d', 'd.extra_id', 'e.id')
+                            ->select('e.nombre', 'd.cantidad')
+                            ->where('d.venta_detalle_id', $item->detalle_id)->where('d.deleted_at', NULL)->get();
+            $detalle_venta[$cont]->extras = $aux;
+            $cont++;
+        }
+
         // En caso de que el item de venta comprenda más de un producto
         $producto_adicional = [];
         foreach ($detalle_venta as $item) {

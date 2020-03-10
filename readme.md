@@ -43,8 +43,7 @@ FATCOM está desarrollado bajo el lenguaje PHP, pero también utiliza libreréas
 - **Editar el usuario y contraseña de la conexión a la base de datos**
 - **run: composer install**
 - **run: php artisan key:generate**
-- **run: php artisan migrate**
-- **run: php artisan db:seed**
+- **run: php artisan migrate --seed**
 - **run: php artisan storage:link**
 - **run: cp -r ./vendor/tcg/voyager/publishable/dummy_content/users ./storage/app/public**
 - **run: composer dump-autoload**

@@ -8,11 +8,20 @@
         </h1>
     @stop
     @section('content')
-        <div class="page-content" id="app">
-            <div class="page-content browse container-fluid">
-               <ventas/>
+    <div class="page-content">
+        <div class="page-content browse container-fluid">
+            @include('voyager::alerts')
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-bordered">
+                        <div class="panel-body">
+                            <div id="lista-pendientes"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
     @stop
     @section('css')
         <style>
@@ -25,7 +34,39 @@
         </style>
     @stop
     @section('javascript')
-        <script src="{{asset('js/app.js')}}"></script>
+        <script>
+            // Pedir autorización para mostrar notificaciones
+            Notification.requestPermission();
+            
+            var loader = "{{ url('storage').'/'.str_replace('\\', '/', setting('admin.img_loader')) }}";
+            var loader_request = `  <div style="height:200px" class="text-center">
+                                        <br><br><br>
+                                        <img src="${loader}" width="100px">
+                                    </div>`;
+            $(document).ready(function(){
+                get_pendientes();
+            });
+            function get_pendientes(){
+                $('#lista-pendientes').html(loader_request);
+                $.get('{{ route("cocina.list") }}', function(data){
+                    $('#lista-pendientes').html(data);
+                });
+            }
+        </script>
+        {{-- Laravel Echo --}}
+        <script src="{{ asset('js/app.js') }}"></script>
+        <script>
+            Echo.channel('PedidoCocinaChannel{{ $sucursal_id }}')
+            .listen('pedidoPreparacion', (e) => {
+                if(Notification.permission==='granted'){
+                    let notificacion = new Notification('Nuevo pedido!',{
+                        body: 'Se ingresado un nuevo pedido desde caja.',
+                        icon: '{{ url("img/assets/info.png") }}'
+                    });
+                }
+                get_pendientes();
+            });
+        </script>
     @stop
 
 @else
