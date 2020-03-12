@@ -10,20 +10,22 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class ticketsSucursal implements ShouldBroadcast
+class ubicacionRepartidor implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $sucursal;
+    public $pedido_id;
+    public $ubicacion;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($sucursal)
+    public function __construct($pedido_id, $ubicacion)
     {
-        $this->sucursal = $sucursal;
+        $this->pedido_id = $pedido_id;
+        $this->ubicacion = $ubicacion;
     }
 
     /**
@@ -33,6 +35,6 @@ class ticketsSucursal implements ShouldBroadcast
      */
     public function broadcastOn()
     {
-        return new Channel('ticketSucursal'.$this->sucursal);
+        return new Channel('UbicacionRepartidorChannel'.$this->pedido_id);
     }
 }

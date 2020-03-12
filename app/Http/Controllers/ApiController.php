@@ -19,6 +19,7 @@ use App\Http\Controllers\VentasController as Ventas;
 use App\Http\Controllers\DosificacionesController as Dosificacion;
 use App\Http\Controllers\FacturasController as Facturacion;
 use App\Http\Controllers\LoginwebController as Loginweb;
+use App\Http\Controllers\SucursalesController as Sucursales;
 
 use App\User;
 use App\Cliente;
@@ -432,8 +433,8 @@ class ApiController extends Controller
 
         $efectivo = $request->tipo_pago == 1 ? 1 : 0;
 
-        // Obtener la sucursal mas cercana
-        $sucursales = Sucursale::where('deleted_at', NULL)->where('delivery', 1)->get();
+        // Obtener sucursales habilitadas para delivery y que hayan abierto caja
+        $sucursales = (new Sucursales)->get_sucursales_activas();
 
         // Verificar si hay al menos una sucursal activa para el servicio de delvery
         if(count($sucursales)==0){
@@ -442,18 +443,7 @@ class ApiController extends Controller
         
         // Si existe mas de una sucursal activa para delivery se obtiene la más cercana, sino se elige la primera
         if(count($sucursales)>1){
-            
-            // Poner la primera ubicacion como la mas cercana para comprar
-            $sucursal_id = $sucursales[0]->id;
-            $distancia_minima = (new Loginweb)->distanciaEnKm($sucursales[0]->latitud,$sucursales[0]->longitud,$request->lat,$request->lon);;
-            
-            foreach ($sucursales as $item) {
-                $distancia = (new Loginweb)->distanciaEnKm($item->latitud,$item->longitud,$request->lat,$request->lon);
-                if($distancia_minima>$distancia){
-                    $distancia_minima = $distancia;
-                    $sucursal_id = $item->id;
-                }
-            }
+            $sucursal_id = (new Sucursales)->get_sucursal_cercana($sucursales, $data->lat, $data->lon);
         }else{
             $sucursal_id = $sucursales[0]->id;
         }

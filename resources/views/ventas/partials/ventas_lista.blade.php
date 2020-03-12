@@ -13,9 +13,6 @@
                 <th class="actions text-right">Acciones</th>
             </tr>
         </thead>
-        @php
-            $nuevo_pedido = false;
-        @endphp
         <tbody id="lista-ventas">
             @forelse ($registros as $item)
                 <tr>
@@ -37,11 +34,6 @@
                         if($item->importe_base > $item->monto_recibido){
                             $debe = true;
                             $deuda = number_format($item->importe_base - $item->monto_recibido, 2, ',', '');
-                        }
-
-                        // Verificar si existe nuevo pedido
-                        if($item->venta_tipo_id == 3 && $item->venta_estado_id ==1 and !$item->deleted_at){
-                            $nuevo_pedido = true;
                         }
                     @endphp
                     {{-- Mostrar etiqueta del estado de la venta --}}
@@ -116,13 +108,6 @@
 
 <script>
     $(document).ready(function(){
-
-        // Si existe nuevo pedido sonar el audio y mostrar alerta
-        @if($nuevo_pedido)
-        document.getElementById('alert').play();
-        toastr.remove();
-        toastr.info('Nuevo pedido', 'Alerta');
-        @endif
         
         // set id de venta que se convertirá a factura
         $('.btn-change').click(function(){

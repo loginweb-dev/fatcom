@@ -9,7 +9,7 @@ use Carbon\Carbon;
 use App\Http\Controllers\LoginwebController as LW;
 use App\Http\Controllers\OfertasController as Ofertas;
 use App\Http\Controllers\ProductosController as Productos;
-use App\Http\Controllers\LandingPageController as LandingPage;
+use App\Http\Controllers\SucursalesController as Sucursales;
 
 use App\User;
 use App\ClientesCoordenada;
@@ -472,7 +472,9 @@ class LandingPageController extends Controller
             array_push($ofertas, $oferta);
         }
 
-        $sucursal = Sucursale::all()->first();
+        // Obtener sucursales habilitadas para delivery y que hayan abierto caja
+        $sucursales = (new Sucursales)->get_sucursales_activas();
+        $count_sucursales = count($sucursales);
 
         $disponibles = [];
         foreach ($carrito as $item) {
@@ -492,10 +494,8 @@ class LandingPageController extends Controller
             $pedido_pendiente = $this->cantidad_pedidos();
         }
 
-        $caja_id = IeCaja::where('sucursal_id', 3)->where('abierta', 1)->first();
-
         // dd($disponibles);
-        return view('ecommerce.'.setting('admin.ecommerce').'carrito', compact('carrito', 'precios', 'ofertas', 'user_coords', 'pasarela_pago', 'cliente_id', 'sucursal', 'disponibles', 'mas_vendidos', 'pedido_pendiente', 'caja_id'));
+        return view('ecommerce.'.setting('admin.ecommerce').'carrito', compact('carrito', 'precios', 'ofertas', 'user_coords', 'pasarela_pago', 'cliente_id', 'sucursales', 'disponibles', 'mas_vendidos', 'pedido_pendiente', 'count_sucursales'));
     }
 
     public function get_precio($id, $cantidad){
@@ -576,8 +576,6 @@ class LandingPageController extends Controller
     }
 
     public function carrito_borrar($id){
-        // dd($id);
-        // session()->forget('carrito_compra');
         $carrito = session()->has('carrito_compra') ? session()->get('carrito_compra') : array();
         $carrito_aux = array();
         foreach ($carrito as $item) {
@@ -587,8 +585,6 @@ class LandingPageController extends Controller
         }
         session()->put('carrito_compra', $carrito_aux);
         return 1;
-        // $alerta = 'producto_eliminado';
-        // return redirect()->route('carrito_compra')->with(compact('alerta'));
     }
 
     public function pedidos_index($id){
@@ -596,8 +592,9 @@ class LandingPageController extends Controller
         $ultimo_pedido = DB::table('ventas as v')
                                 ->join('clientes as c', 'c.id', 'v.cliente_id')
                                 ->join('users as u', 'u.cliente_id', 'c.id')
+                                ->join('sucursales as s', 's.id', 'v.sucursal_id')
                                 ->join('ventas_estados as ve', 've.id', 'v.venta_estado_id')
-                                ->select('v.id', 'v.venta_estado_id')
+                                ->select('v.id', 'v.venta_estado_id', 'v.venta_tipo_id', 's.latitud', 's.longitud', 've.nombre as nombre_estado', 've.etiqueta as etiqueta_estado')
                                 ->where('u.id', Auth::user()->id)
                                 ->whereRaw($sentencia)
                                 ->orderBy('id', 'DESC')
@@ -610,6 +607,7 @@ class LandingPageController extends Controller
                                 ->where('u.id', Auth::user()->id)
                                 ->where('cc.ultima_ubicacion', 1)
                                 ->first();
+
             $detalle_pedido = DB::table('ventas_detalles as dv')
                                     ->join('productos as p', 'p.id', 'dv.producto_id')
                                     ->join('monedas as m', 'm.id', 'p.moneda_id')
@@ -636,22 +634,10 @@ class LandingPageController extends Controller
         }
 
         if($ultimo_pedido){
-            return view('ecommerce/pedidos', compact('ultimo_pedido', 'mi_ubicacion', 'detalle_pedido', 'pedidos', 'productos_pedidos'));
+            return view('ecommerce.'.setting('admin.ecommerce').'pedidos', compact('ultimo_pedido', 'mi_ubicacion', 'detalle_pedido', 'pedidos', 'productos_pedidos'));
         }else{
-            return view('ecommerce/pedidos_empty');
+            return view('ecommerce.pedidos_empty');
         }
-    }
-
-    public function get_estado_pedido($id){
-        return response()->json(DB::table('ventas as v')
-                                ->join('clientes as c', 'c.id', 'v.cliente_id')
-                                ->join('users as u', 'u.cliente_id', 'c.id')
-                                ->join('ventas_estados as ve', 've.id', 'v.venta_estado_id')
-                                ->select('v.venta_estado_id as id', 've.nombre', 've.etiqueta')
-                                ->where('u.id', Auth::user()->id)
-                                ->whereRaw('v.id', $id)
-                                ->orderBy('v.id', 'DESC')
-                                ->first());
     }
 
     public function ecommerce_policies(){

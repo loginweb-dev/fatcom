@@ -44,7 +44,6 @@ Route::get('/carrito/editar/{id}/{cantidad}', 'LandingPageController@carrito_edi
 Route::get('/carrito/borrar/{id}', 'LandingPageController@carrito_borrar');
 Route::get('/carrito/cantidad_pedidos', 'LandingPageController@cantidad_pedidos')->name('cantidad_pedidos');
 Route::get('/carrito/mis_pepdidos/{id}', 'LandingPageController@pedidos_index')->name('pedidos_index');
-Route::get('/carrito/mis_pepdidos/get_estado_pedido/{id}', 'LandingPageController@get_estado_pedido');
 
 
 Route::group(['prefix' => 'admin'], function () {
@@ -224,7 +223,7 @@ Route::get('admin/proformas', 'VentasController@proformas_index')->name('proform
 Route::get('admin/proformas/buscar/{value}', 'VentasController@proformas_search');
 Route::get('admin/proformas/crear', 'VentasController@proformas_create')->name('proformas_create');
 Route::post('admin/proformas/store', 'VentasController@proformas_store')->name('proformas_store');
-Route::get('admin/proformas/impresion/{tipo}/{id}', 'VentasController@proformas_print');
+Route::get('admin/proformas/impresion/{tipo}/{id}/{pdf?}', 'VentasController@proformas_print');
 Route::get('admin/proformas/detalle/{id}', 'VentasController@proformas_detalle');
 
 // Hojas de trabajo
@@ -281,7 +280,7 @@ Route::get('admin/repartidor/delivery/buscar/{value}', 'VentasController@deliver
 Route::get('admin/repartidor/delivery/view/{id}', 'VentasController@delivery_view')->name('delivery_view');
 Route::get('admin/repartidor/delivery/close/{id}', 'VentasController@delivery_close')->name('delivery_close');
 Route::get('admin/repartidor/delivery/set_ubicacion/{id}/{lat}/{lon}', 'VentasController@set_ubicacion');
-Route::get('admin/repartidor/delivery/get_ubicacion/{id}', 'VentasController@get_ubicacion');
+// Route::get('admin/repartidor/delivery/get_ubicacion/{id}', 'VentasController@get_ubicacion');
 
 
 // ============================Clientes====================================

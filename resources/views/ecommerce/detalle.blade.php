@@ -16,10 +16,10 @@
     <!-- Your customer chat code -->
     <div class="fb-customerchat"
 		attribution=setup_tool
-		page_id="277693723065936"
+		page_id="{{ env('FACEBOOK_CHAT_ID', NULL) }}"
 		theme_color="#ffc300"
-		logged_in_greeting="Hola! Te puedo ayudar ?"
-		logged_out_greeting="Hola! Te puedo ayudar ?">
+		logged_in_greeting="Hola! Te puedo ayudar?"
+		logged_out_greeting="Hola! Te puedo ayudar?">
 	</div>
     <!-- End your customer chat code -->
 @endsection

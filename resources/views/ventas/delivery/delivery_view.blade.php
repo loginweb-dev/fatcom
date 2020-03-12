@@ -135,20 +135,21 @@
 
                 var map = L.map('map').setView([{{$pedido->lat}}, {{$pedido->lon}}], 13);
                 var iconoBase = L.Icon.extend({ options: { iconSize: [40, 40], iconAnchor: [15, 35], popupAnchor: [0, -30] } });
-                let iconDelivery = new iconoBase({iconUrl: "{{ voyager_asset('images/delivery.png') }}"});
-                let marcador = {};
+                var iconDelivery = new iconoBase({iconUrl: "{{ url('img/delivery.png') }}"});
+                var marcador = {};
 
+                // si el pedido está pendiente que envíe la ubicación actual
+                @if ($repartidor_pedido->estado == 1)
                 navigator.geolocation.watchPosition(function(position) {
-                    let id = "{{$repartidor_pedido->id}}";
+                    let id = "{{ $repartidor_pedido->id }}";
                     let lat =  position.coords.latitude;
                     let lon = position.coords.longitude;
                     map.removeLayer(marcador);
                     marcador = L.marker([lat, lon], {icon: iconDelivery}).addTo(map).bindPopup('Mi ubicación');
                     $.ajax({
-                        url: '{{url("admin/repartidor/delivery/set_ubicacion")}}/'+id+'/'+lat+'/'+lon,
+                        url: '{{ url("admin/repartidor/delivery/set_ubicacion") }}/'+id+'/'+lat+'/'+lon,
                         type: 'get',
-                        success: function(data){
-                        }
+                        success: function(data){}
                     });
                 }, function(err) {
                     console.error(err);
@@ -157,6 +158,7 @@
                     timeout: 5000,
                     maximumAge: 0
                 });
+                @endif
 
 
                 //mapa

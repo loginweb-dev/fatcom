@@ -1,6 +1,24 @@
 $(document).ready(function(){
-    // let marcador = {};
-    var map = L.map('map').fitWorld();
+
+    // Cambiar tipo de entrega (Recoger/A domicilio)
+    $('.link-tab').click(function(){
+        let tipo_entrega =$(this).data('value');
+        $('#input-tipo_entrega').val(tipo_entrega);
+        if(tipo_entrega=='tienda'){
+            $('#form_carrito input[name=sucursal_id]').val($('input:radio[name=input-radio_sucursal]:checked').val());
+            $('#form_carrito input[name=venta_tipo_id]').val(2);
+        }else{
+            $('#form_carrito input[name=sucursal_id]').val(0);
+            $('#form_carrito input[name=venta_tipo_id]').val(3);
+        }
+    });
+});
+
+var map;
+var marcador;
+
+function inicializarMapa(map, marcador){
+    map = L.map('map').fitWorld();
     L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
         maxZoom: 20,
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
@@ -19,6 +37,8 @@ $(document).ready(function(){
 
         $('#input-coordenada_id').val(id);
         $('#input-descripcion').val(descripcion)
+        $('#latitud').val(lat);
+        $('#longitud').val(lon);
 
         marcador = L.marker([lat, lon], {
                         draggable: true
@@ -58,7 +78,6 @@ $(document).ready(function(){
     map.on('locationerror', onLocationError);
 
     map.locate();
-    map.setZoom(13)
-});
-
+    map.setZoom(13);
+}
 

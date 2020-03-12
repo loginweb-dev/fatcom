@@ -19,11 +19,10 @@
 
 <!-- Main Layout -->
 @section('content')
-    <form id="form_carrito" name="form_carrito" action="{{route('pedidos_store')}}" method="post">
+    <form id="form_carrito" name="form_carrito" action="{{ route('pedidos_store') }}" method="post">
         @csrf
         <input type="hidden" name="venta_tipo_id" value="3">
-        <input type="hidden" name="cliente_id" value="{{$cliente_id}}">
-        <input type="hidden" name="caja_id" value="{{ $caja_id ? $caja_id->id : NULL }}">
+        <input type="hidden" name="cliente_id" value="{{ $cliente_id }}">
         <input type="hidden" name="sucursal_id" value="0">
         <!-- Main Container -->
         <div class="container" style="margin-top:100px">
@@ -50,6 +49,7 @@
                                     @php
                                         $total = 0;
                                         $moneda = 'Bs.';
+                                        $envio_disponible = 0;
                                     @endphp
                                     @forelse ($carrito as $item)
                                     @php
@@ -102,12 +102,12 @@
                                         </td>
                                         <td colspan="2">
                                             <h4 class="mt-2"><strong id="label-total">{{ $moneda }} {{ number_format($total, 2, ',', '.') }}</strong></h4>
-                                            <input type="hidden" id="input-importe" name="importe" value="{{$total}}">
+                                            <input type="hidden" id="input-importe" name="importe" value="{{ $total }}">
                                         </td>
                                     </tr>
                                     <tr>
                                         <td colspan="4" class="text-right">
-                                            <button type="button" @if($total > 0 && !$pedido_pendiente && $caja_id) data-toggle="modal" data-target="#modal_entrega"  id="btn-entrega" @else disabled @endif class="btn btn-primary btn-rounded">Completar compra
+                                            <button type="button" @if($total > 0 && $pedido_pendiente<=1 && $count_sucursales>0) data-toggle="modal" data-target="#modal_entrega"  id="btn-entrega" @else disabled @endif class="btn btn-primary btn-rounded">Completar compra
                                                 <i class="fas fa-angle-right right"></i>
                                             </button>
                                         </td>
@@ -116,21 +116,6 @@
                                 </tbody>
                                 <!-- Table body -->
                             </table>
-                            @if(!$caja_id)
-                            <div class="alert alert-info" role="alert">
-                                <h4 class="alert-heading">Aviso importante!</h4>
-                                <p>Nuestro horario de atención es a partir de las 6:30 pm, te pedimos un poco de paciencia por favor!</p>
-                                <hr>
-                                <p class="mb-0">Si tienes alguna consulta por favor comunícate con nosotros por medio de cualquier canal de comunicación descritos en la parte inferios de la página.<b></b>.</p>
-                            </div>
-                            @elseif($pedido_pendiente)
-                            <div class="alert alert-warning" role="alert">
-                                <h4 class="alert-heading">Aviso importante!</h4>
-                                <p>Debido a que tienes un pedido pendiente y por politicas de nuestra empresa no puede solicitar otro pedido hasta que el actual sea entregado.</p>
-                                <hr>
-                                <p class="mb-0">Si tienes alguna consulta o modificación de tu pedido actual por favor comunícate con nosotros por medio de cualquier canal de comunicación descritos en la parte inferios de la página.<b></b>.</p>
-                            </div>
-                            @endif
                         </div>
                         <!-- Shopping Cart table -->
                     </div>
@@ -248,45 +233,111 @@
             <div class="modal-dialog modal-lg" role="document">
                 <!-- Content -->
                 <div class="modal-content">
-                    <!-- Header -->
-                    {{-- <div class="modal-header">
-                        <h4 class="modal-title font-weight-bold dark-grey-text" id="myModalLabel"> <span class="fas fa-map-marker-alt"></span> Metodo de envío</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div> --}}
-                    <!-- Body -->
                     <div class="modal-body">
-                        <div style="margin-bottom:20px">
-                            <ul class="nav nav-tabs nav-justified md-tabs principal-color" id="myTabJust" role="tablist">
-                                <li class="nav-item">
-                                    <a class="nav-link active" data-value="domicilio" onclick="ubicacionActual()" id="home-tab-just" data-toggle="tab" href="#home-just" role="tab" aria-controls="home-just" aria-selected="true">Entegar a domicilio</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" data-value="tienda" onclick="ubicacionRestaurante()" id="profile-tab-just" data-toggle="tab" href="#profile-just" role="tab" aria-controls="profile-just"aria-selected="false">Recoger en Restaurante</a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div style="margin:10px 0px" id="div-ubicaciones">
-                            @if(count($user_coords)>0)
-                                @foreach ($user_coords as $item)
-                                    {{-- Si la descripcion es larga se edita la cadena --}}
+                        @if(count($sucursales)>0)
+                            {{-- Mostrar opciones según dependiendo si el usuario está logueado o no --}}
+                            @if (Auth::user())
+                                @if (Auth::user()->localidad_id)
                                     @php
-                                        $descripcion = $item->descripcion;
-                                        if(strlen($descripcion)>30){
-                                            $descripcion = substr($descripcion, 0, 30).'...';
-                                        }
+                                        $tipo_negocio = (setting('admin.modo_sistema') == 'restaurante') ? 'Restaurante' : 'Tienda' 
                                     @endphp
-                                    <button type="button" class="btn btn-outline-primary btn-coor" data-id="{{$item->id}}" data-lat="{{$item->lat}}" data-lon="{{$item->lon}}" data-descripcion="{{$item->descripcion}}" data-toggle="tooltip" data-placement="top" title="{{$item->descripcion}}">{{$descripcion}}</button>
-                                @endforeach
+                                    <div style="margin-bottom:20px">
+                                        <ul class="nav nav-tabs nav-justified md-tabs principal-color" id="myTabJust" role="tablist">
+                                            <li class="nav-item">
+                                                <a class="nav-link link-tab active" data-value="domicilio" id="pills-tab1-tab" data-toggle="pill" href="#pills-tab1" role="tab" aria-controls="pills-tab1" aria-selected="true">Entrega a Domicilio</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a class="nav-link link-tab" data-value="tienda" id="pills-tab2-tab" data-toggle="pill" href="#pills-tab2" role="tab" aria-controls="pills-tab2" aria-selected="false">Recoger en {{ $tipo_negocio }}</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="tab-content" id="pills-tabContent">
+                                        <div class="tab-pane fade show active" id="pills-tab1" role="tabpanel" aria-labelledby="pills-tab1-tab">
+                                            <div style="margin:2px">
+                                                @if(count($user_coords)>0)
+                                                    <h6 class="text-muted">Mis Ubicaciones:</h6>
+                                                    @foreach ($user_coords as $item)
+                                                        {{-- Si la descripcion es larga se edita la cadena --}}
+                                                        @php
+                                                            $descripcion = $item->descripcion;
+                                                            if(strlen($descripcion)>30){
+                                                                $descripcion = substr($descripcion, 0, 30).'...';
+                                                            }
+                                                        @endphp
+                                                        <button type="button" class="btn btn-outline-primary btn-coor" data-id="{{ $item->id }}" data-lat="{{ $item->lat }}" data-lon="{{ $item->lon }}" data-descripcion="{{$item->descripcion}}" data-toggle="tooltip" data-placement="top" title="{{$item->descripcion}}">{{$descripcion}}</button>
+                                                    @endforeach
+                                                @else
+                                                <span>No tiene ubicaciones, crea una.</span>
+                                                @endif
+                                            </div>
+                                            <div id="map"></div>
+                                            <input type="hidden" name="lat" id="latitud" >
+                                            <input type="hidden" name="lon" id="longitud">
+                                            <input type="hidden" name="coordenada_id" id="input-coordenada_id">
+                                            <input type="hidden" name="tipo_entrega" id="input-tipo_entrega" value="domicilio">
+                                            <textarea name="descripcion" class="form-control" id="input-descripcion" rows="2" maxlength="200" placeholder="Datos descriptivos de su ubicación..."></textarea>
+                                        </div>
+                                        <div class="tab-pane fade" id="pills-tab2" role="tabpanel" aria-labelledby="pills-tab2-tab">
+                                            <div class="card">
+                                                {{-- <div class="card-header">Featured</div> --}}
+                                                <div class="card-body">
+                                                    <p>Elije la sucursal en la que quieras recoger tu pedido.</p>
+                                                    <div id="contenedor_mapa">
+                                                        <div id="map2"></div>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        @php
+                                                            $checked = 'checked';
+                                                        @endphp
+                                                        @foreach ($sucursales as $item)
+                                                        <label class="radio-inline">
+                                                        <div class="custom-control custom-radio">
+                                                            <input type="radio" id="custom-control-input{{ $item->id }}" class="custom-control-input radio-sucursal" name="input-radio_sucursal" class="input-radio" value="{{ $item->id }}" data-lat="{{ $item->latitud }}" data-lon="{{ $item->longitud }}" {{ $checked }}>
+                                                            <label class="custom-control-label" for="custom-control-input{{ $item->id }}">{{ $item->nombre }}</label>
+                                                          </div>
+                                                        </label>
+                                                        @php
+                                                            $checked = '';
+                                                        @endphp
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                                <div class="card-footer text-muted">
+                                                    <p>Puedes pasar en cualquie momento por nuestra tienda para recoger tu pedido.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else
+                                    <i>No has elegido la ciudad en la que te encuentras, por favor ingresa <a href="#"><b>aquí</b></a> para editar tu información.</i>
+                                @endif
+                            @else
+                                <div class="card">
+                                    {{-- <div class="card-header">Featured</div> --}}
+                                    <div class="card-body">
+                                        <h5 class="card-title">Oops!... aún no has iniciado sesión</h5>
+                                        <p class="card-text">Para poder utilizar el servicio de pedidos en nuestra plataforma debes tener una sesión iniciada.</p>
+                                        <div class="text-center">
+                                            <a href="{{ route('login') }}" class="btn btn-outline-primary">Iniciar sesión</a> o <a href="{{ route('register') }}" class="btn btn-outline-dark">Registrarse</a>
+                                        </div>
+                                    </div>
+                                </div>
                             @endif
-                        </div>
-                        <div id="map" style="height:300px"></div>
-                        <input type="hidden" name="lat" id="latitud" >
-                        <input type="hidden" name="lon" id="longitud">
-                        <input type="hidden" name="coordenada_id" id="input-coordenada_id">
-                        <input type="hidden" name="tipo_entrega" id="input-tipo_entrega" value="domicilio">
-                        <textarea name="descripcion" class="form-control" id="input-descripcion" rows="2" maxlength="200" placeholder="Ingrese una descripción de su domicilio..."></textarea>
+                        @else
+                            <div id="map" style="display:none"></div>
+                            <div class="card">
+                                <div style="margin:20px">
+                                    <div class="col-md-12 text-center">
+                                        <div class="alert alert-info" role="alert">
+                                            <h4 class="alert-heading">Aviso importante!</h4>
+                                            <p>Nuestro horario de atención es a partir de las 6:30 pm, te pedimos un poco de paciencia por favor!</p>
+                                            <hr>
+                                            <p class="mb-0">Si tienes alguna consulta por favor comunícate con nosotros por medio de cualquier canal de comunicación descritos en la parte inferios de la página.<b></b>.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                     <!-- Footer -->
                     <div class="modal-footer">
@@ -307,161 +358,100 @@
 
 @section('css')
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
+    <style>
+        #map, #map2 {
+            height: 300px;
+        }
+        .img-wrap{
+            cursor: pointer;
+        }
+        .radio-inline{
+            margin-right: 20px;
+            margin-top: 20px
+        }
+        .radio-sucursal{
+            margin-right: 5px;
+        }
+    </style>
 @endsection
 
 @section('script')
     <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
+    <script src="{{url('js/ubicacion_cliente.js')}}" type="text/javascript"></script>
     <script src="{{ url('js/ecommerce.js') }}"></script>
     <script>
-        var entrega_select = false;
-        var map = null;
-        var marker = {};
         var moneda = "{{ $moneda }}";
+        buscar(1);
+        cantidad_carrito();
         $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
+
             // Cargar mapa en modal
             $('#btn-entrega').click(function(){
                 setTimeout(()=>{
-                    rederMap();
-                    if(!entrega_select){
-                        // ubicacionRestaurante();
-                        ubicacionActual();
-                        entrega_select = true;
-                    }
+                    inicializarMapa(map, marcador);
                 }, 500);
             });
 
-            // Cambiar tipo de entrega
-            $('.nav-link').click(function(){
-                let tipo_entrega =$(this).data('value');
-                $('#input-tipo_entrega').val(tipo_entrega);
-            });
-        });
-
-        buscar(1);
-        cantidad_carrito();
-
-        function cambiarCantidad(tipo, id){
-            let cantidad = $(`#input-cantidad-${id}`).val();
-            let precio = $(`#input-precio-${id}`).val();
-            if(tipo == 'sumar'){
-                cantidad++;
-                $(`#input-cantidad-${id}`).val(cantidad);
-            }else{
-                if(cantidad > 1){
-                    cantidad--;
-                    $(`#input-cantidad-${id}`).val(cantidad);
+            // Mostrar modal de pasarela de pago
+            $('#btn-pasarela').click(function(){
+                if({{$envio_disponible}} == {{count($carrito)}}){
+                    let descripcion = $('#input-descripcion').val();
+                    if(descripcion != '' || $('#input-tipo_entrega').val() == 'tienda'){
+                        $('#modal_confirmar').modal();
+                    }else{
+                        toastr.options = {"positionClass": "toast-top-right",}
+                        $('#input-descripcion').focus()
+                        toastr.warning('Debe proporcionar una descripción de su ubicación para su fácil localización', 'Advertencia');
+                    }
+                }else{
+                    toastr.options = {"positionClass": "toast-top-right",}
+                    toastr.error('Existe un producto en el carrito de compra que no está disponible en su ciudad, por favor eliminelo de la lista para completar el pedido.', 'Error');
                 }
-            }
-            $(`#label-cantidad-${id}`).text(` ${cantidad} `);
-            $(`#input-subtotal-${id}`).val(cantidad*precio);
-            $(`#label-subtotal-${id}`).text(`${moneda} ${parseFloat(cantidad*precio).toFixed(2)}`);
-            totalVenta();
+            });
 
-            $.get(`carrito/editar/${id}/${cantidad}`, function(data){});
-        }
+            var iconDelivery;
+            var MarkerTienda;
 
-        function rederMap(){
-            if($('#map').html()== ''){
-                map = L.map('map').fitWorld();
-                L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
-                    maxZoom: 20,
-                    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-                        '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-                        'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-                    id: 'mapbox.streets'
-                }).addTo(map);
-            }
-        }
+            // Ver ubicacion de la tienda
+            $('#pills-tab2-tab').click(function(){
+                @if(count($sucursales)>0)
+                    map2.remove();
+                    let lat = $('input:radio[name=input-radio_sucursal]:checked').data('lat');
+                    let lon = $('input:radio[name=input-radio_sucursal]:checked').data('lon');
+                    setTimeout(()=>{
+                        $('#contenedor_mapa').html('<div id="map2"></div>');
+                        map2 = L.map('map2').setView([lat, lon], 13);
+                        var iconoBase = L.Icon.extend({ options: { iconSize: [40, 40], iconAnchor: [15, 35], popupAnchor: [0, -30] } });
+                        iconDelivery = new iconoBase({iconUrl: "{{url('storage').'/'.str_replace('\\', '/', setting('empresa.logo'))}}"});
+                        
+                        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+                            maxZoom: 20,
+                            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+                                '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+                                'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+                            id: 'mapbox.streets'
+                        }).addTo(map2);
 
-        function ubicacionRestaurante(){
-            $('#div-ubicaciones').css('display', 'none');
-            $('#input-descripcion').css('display', 'none');
-            $('#input-descripcion').removeAttr('required');
-            
-            let ubicacion = {
-                'id': '{{ $sucursal->id }}',
-                'nombre': '{{ $sucursal->nombre }}',
-                'lat': '{{ $sucursal->latitud }}',
-                'lon': '{{ $sucursal->longitud }}'
-            }
-            
-            $('#latitud').val('');
-            $('#longitud').val('');
-            $('#input-coordenada_id').val('');
-            $('#input-descripcion').val('')
-            
-            map.removeLayer(marker);
-            var iconoBase = L.Icon.extend({ options: { iconSize: [45, 45], iconAnchor: [15, 35], popupAnchor: [8, -35] } });
-            let iconDelivery = new iconoBase({iconUrl: "{{ url('ecommerce_public/templates/restaurante_v1/media/logo.png') }}"});
-            marker = new L.marker([ ubicacion.lat, ubicacion.lon], {icon: iconDelivery}).addTo(map).bindPopup("<b>{{ setting('empresa.title') }}</b>").openPopup();
-            map.setView([ ubicacion.lat, ubicacion.lon]);
-        }
+                        MarkerTienda = L.marker([lat, lon], {icon: iconDelivery}).addTo(map2)
+                        .bindPopup("Ubicación de nuestra tienda").openPopup();
+                    }, 400);
+                @endif
+            });
 
-        function ubicacionActual(){
-            $('#div-ubicaciones').css('display', 'flex');
-            $('#input-descripcion').css('display', 'flex');
-            $('#input-descripcion').attr('required', true);
-
-            function onLocationFound(e) {
-                $('#latitud').val(e.latlng.lat);
-                $('#longitud').val(e.latlng.lng);
-                $('#input-coordenada_id').val('');
-                $('#input-descripcion').val('')
-                map.removeLayer(marker);
-                marker = new L.marker(e.latlng, {
-                                                draggable: true
-                                            }).addTo(map)
-                                            .bindPopup("Localización actual").openPopup()
-                                            .on('drag', function(e) {
-                                                $('#latitud').val(e.latlng.lat);
-                                                $('#longitud').val(e.latlng.lng);
-                                            });
-                map.setView(e.latlng);
-            }
-
-            function onLocationError(e) {
-                alert(e.message);
-            }
-
-            map.on('locationfound', onLocationFound);
-            map.on('locationerror', onLocationError);
-
-            map.locate();
-            map.setZoom(13)
-        }
-
-        // CAmbiar coordenadas al pulsar en una ubicación ntigua
-        $('.btn-coor').click(function(){
-            map.removeLayer(marker);
-            let id = $(this).data('id');
-            let lat = $(this).data('lat');
-            let lon = $(this).data('lon');
-            let descripcion = $(this).data('descripcion');
-
-            $('#input-coordenada_id').val(id);
-            $('#input-descripcion').val(descripcion)
-
-            map.removeLayer(marker);
-            marker = new L.marker([lat, lon], {draggable: true}).addTo(map)
-                        .bindPopup("Localización actual").openPopup()
-                        .on('drag', function(e) {
-                            $('#latitud').val(e.latlng.lat);
-                            $('#longitud').val(e.latlng.lng);
-                            $('#input-coordenada_id').val('');
-                            $('#input-descripcion').val('')
-                        });
-            map.setView([lat, lon]);
+            $('.radio-sucursal').click(function(){
+                map2.removeLayer(MarkerTienda)
+                let id = $('input:radio[name=input-radio_sucursal]:checked').val();
+                let lat = $('input:radio[name=input-radio_sucursal]:checked').data('lat');
+                let lon = $('input:radio[name=input-radio_sucursal]:checked').data('lon');
+                $('#form_carrito input[name=sucursal_id]').val(id);
+                MarkerTienda = L.marker([lat, lon], {icon: iconDelivery}).addTo(map2)
+            });
         });
 
-        // Calcular total
-        function totalVenta(){
-            let total = 0;
-            $(".input-subtotal").each(function() {
-                total += parseFloat($(this).val());
-            });
-            $('#label-total').text(`${moneda} ${total.toFixed(2)}`);
-            $('#input-importe').val(total);
+        // Ver detalle de producto
+        function ver_detalle(slug){
+            window.location = '{{ url("detalle") }}/'+slug;
         }
-
     </script>
 @endsection

@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-use App\Http\Controllers\LoginwebController as LW;
+use App\Http\Controllers\LoginwebController as Loginweb;
 
 use App\Sucursale;
 use App\UsersSucursale;
@@ -131,5 +131,31 @@ class SucursalesController extends Controller
         $sucursal = UsersSucursale::where('user_id', Auth::user()->id)
                                         ->update(['sucursal_id' => $id]);
         return redirect()->route($route)->with(['message' => 'Se realizo el cambio de sucursal exitosamente.', 'alert-type' => 'success']);
+    }
+
+    // Obtener sucursales habilitadas para delivery y que hayan habierto caja
+    public function get_sucursales_activas(){
+        return DB::table('sucursales as s')
+                    ->join('ie_cajas as c', 'c.sucursal_id', 's.id')
+                    ->select('s.*')
+                    ->where('c.abierta', 1)->where('s.deleted_at', NULL)
+                    ->where('s.delivery', 1)->get();
+    }
+
+    // Obtener la susucrsal mas cercana según ubicación
+    public function get_sucursal_cercana($sucursales, $lat, $lon){
+        // Poner la primera ubicacion como la mas cercana para comprar
+        $sucursal_id = $sucursales[0]->id;
+        $distancia_minima = (new Loginweb)->distanciaEnKm($sucursales[0]->latitud,$sucursales[0]->longitud,$lat,$lon);;
+        
+        foreach ($sucursales as $item) {
+            $distancia = (new Loginweb)->distanciaEnKm($item->latitud,$item->longitud,$lat,$lon);
+            if($distancia_minima>$distancia){
+                $distancia_minima = $distancia;
+                $sucursal_id = $item->id;
+            }
+        }
+
+        return $sucursal_id;
     }
 }

@@ -22,13 +22,13 @@
                             <tr>
                                 {{-- <th scope="col">Código</th> --}}
                                 <th scope="col" id="head-detalle_pedido">
-                                    Detalles del pedido actual
+                                    Detalles del pedido <span class="badge badge-{{ $ultimo_pedido->etiqueta_estado }}">{{ $ultimo_pedido->nombre_estado }}</span>
                                 </th>
-                                <th class="text-right">
+                                {{-- <th class="text-right">
                                     @if($ultimo_pedido->venta_estado_id==5)
                                     <button type="button" class="btn btn-danger" title="Realizar el mismo pedido">Pedir <span class="fa fa-cart-plus"></span></button>
                                     @endif
-                                </th>
+                                </th> --}}
                             </tr>
                         </thead>
                         <tbody>
@@ -45,21 +45,21 @@
                                     <figure class="media">
                                         <div class="img-wrap"><img src="{{url('storage').'/'.$imagen}}" class="img-thumbnail img-sm"></div>
                                         <figcaption class="media-body">
-                                            <h6 class="title text-truncate">{{$item->nombre}}</h6>
+                                            <h6 class="title text-truncate">{{ $item->nombre }}</h6>
                                             <dl class="dlist-align">
                                                 <dt>Precio</dt>
-                                                <dd><var class="price">{{$item->moneda}} {{$item->precio_pedido}}</var></dd>
+                                                <dd><var class="price">{{ $item->moneda }} {{ $item->precio_pedido }}</var></dd>
                                             </dl>
                                             <dl class="dlist-align">
                                                 <dt>Cantidad</dt>
-                                                <dd><var class="price">{{intval($item->cantidad_pedido)}}</var></dd>
+                                                <dd><var class="price">{{ intval($item->cantidad_pedido) }}</var></dd>
                                             </dl>
                                         </figcaption>
                                     </figure>
                                 </td>
                             </tr>
                             @php
-                                $total += $item->precio_pedido;
+                                $total += $item->precio_pedido * $item->cantidad_pedido;
                             @endphp
                             @empty
                             <tr>
@@ -75,6 +75,7 @@
                 </aside>
                 <aside class="col-sm-6">
                     <article class="card-body">
+                        {!! $ultimo_pedido->venta_tipo_id == 3 ? '<h6 class="text-muted">Tu ubicación</h6>' : '<h6 class="text-muted">Ubicación para recoger tu pedido</h6>' !!}
                         <div id="map"></div>
                     </article>
                 </aside>
@@ -156,26 +157,37 @@
 </style>
 <script src="{{url('ecommerce_public/js/jquery-2.0.0.min.js')}}" type="text/javascript"></script>
 <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
+<script src="{{ asset('js/app.js') }}"></script>
 <script>
     $(document).ready(function(){
+        Notification.requestPermission();
         $('[data-toggle="tooltip"]').tooltip();
         $('[data-toggle="popover"]').popover({ html : true });
-
+        
+        var lat;
+        var lon;
+        var iconoBase = L.Icon.extend({ options: { iconSize: [40, 40], iconAnchor: [15, 35], popupAnchor: [0, -30] } });
+        var iconDelivery = new iconoBase({iconUrl: "{{ url('img/delivery.png') }}"});
+        var iconSucursal = new iconoBase({iconUrl: "{{url('storage').'/'.str_replace('\\', '/', setting('empresa.logo'))}}"});
+        var marcador = {};
         //mapa
 
         // Obetener ubicación atual
         navigator.geolocation.getCurrentPosition(function(position) {
-            let lat_actual =  position.coords.latitude;
-            let lon_actual = position.coords.longitude;
+            lat =  position.coords.latitude;
+            lon = position.coords.longitude;
         }, function(err) { console.error(err); });
 
         // Setear ubicacion del ultimo pedido, caso de que el pedido haya sido entregado se mostrará la ubicación actual
-        let lat = {{isset($mi_ubicacion->lat)}} ? {{$mi_ubicacion->lat}} : lat_actual;
-        let lon = {{isset($mi_ubicacion->lon)}} ? {{$mi_ubicacion->lon}} : lon_actual;
+        @if($ultimo_pedido->venta_tipo_id == 2)
+        lat = parseFloat('{{ $ultimo_pedido->latitud }}');
+        lon = parseFloat('{{$ultimo_pedido->longitud}}');
+        @else
+        lat = parseFloat('{{ $mi_ubicacion->lat }}');
+        lon = parseFloat('{{ $mi_ubicacion->lon }}');
+        @endif
 
         var map = L.map('map').setView([lat, lon], 13);
-        var iconoBase = L.Icon.extend({ options: { iconSize: [40, 40], iconAnchor: [15, 35], popupAnchor: [0, -30] } });
-        let iconDelivery = new iconoBase({iconUrl: "{{ voyager_asset('images/delivery.png') }}"});
 
         L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
             maxZoom: 20,
@@ -185,56 +197,33 @@
             id: 'mapbox.streets'
         }).addTo(map);
 
-        L.marker([lat, lon] @if($ultimo_pedido->venta_estado_id==5), {draggable: true} @endif).addTo(map)
+        L.marker([lat, lon] @if($ultimo_pedido->venta_tipo_id == 2), {icon: iconSucursal} @endif).addTo(map)
         .bindPopup("Ubicación actual").openPopup();
 
-        // Obtener posicion de mi pedido
-        setInterval(function(){
-            get_estado_pedido({{$ultimo_pedido->id}}, map, iconDelivery)
-        }, 5000);
-        // setInterval(function(){
-        //
+        // Laravel Echo
+        // Escuchando el cambio de estado del pedido
+        Echo.channel('PedidoEstadoClienteChannel{{ $ultimo_pedido->id }}')
+        .listen('pedidoEstadoCliente', (e) => {
+            // if(Notification.permission==='granted'){
+            //     let notificacion = new Notification('Pedido nuevo!',{
+            //         body: 'Se ha recibido un pedido nuevo.',
+            //         icon: '{{ url("img/assets/success.png") }}'
+            //     });
+            // }
+            $('#head-detalle_pedido').html(`Detalles del pedido <span class="badge badge-${e.pedido.etiqueta}">${e.pedido.nombre}</span>`);
+        });
 
-        // }, 5000);
+        // Escuchando ubicación actual del repartidor
+        Echo.channel('UbicacionRepartidorChannel{{ $ultimo_pedido->id }}')
+        .listen('ubicacionRepartidor', (e) => {
+            get_ubicacion_repartidor(map, marcador, iconDelivery, e.ubicacion.lat, e.ubicacion.lon);
+        });
     });
-
-    let estado_pedido = {{$ultimo_pedido->venta_estado_id}};
-    let label_estado = [  '',
-                    '<span class="badge badge-warning">Pedido realizado</span>',
-                    '<span class="badge badge-info">En preparación</span>',
-                    '<span class="badge badge-dark">Listo</span>',
-                    '<span class="badge badge-success">Enviado</span>',
-                    '<span class="badge badge-primary">Entregado</span>'];
-
-    function get_estado_pedido(id, map, iconDelivery){
-        if(estado_pedido<5){
-            $.get("{{url('carrito/mis_pepdidos/get_estado_pedido')}}/"+id, function(estado){
-                $('#head-detalle_pedido').html(`Detalles del pedido actual <span class="badge badge-${estado.etiqueta}">${estado.nombre}</span>`);
-                if(estado_pedido == 4){
-                    get_ubicacion(id, map, iconDelivery)
-                }
-            });
-        }
-    }
     
     // Nota: si se edita esta función, tambien debe editarse en la vista ver producto
-    let marcador = {};
-    function get_ubicacion(id, map, iconDelivery){
-        $.ajax({
-                url: '{{url("admin/repartidor/delivery/get_ubicacion")}}/'+id,
-                type: 'get',
-                success: function(data){
-                    if(data.length){
-                        map.removeLayer(marcador);
-                        let lat = data[0].lat;
-                        let lon = data[0].lon;
-                        if(lat != '' && lon != ''){
-                            marcador = L.marker([lat, lon], {icon: iconDelivery}).addTo(map).bindPopup('Tu pedido').openPopup();
-                            map.setView([lat, lon]);
-                        }
-                    }
-                }
-            });
+    function get_ubicacion_repartidor(map, marcador, iconDelivery, lat, lon){
+        map.removeLayer(marcador);       
+        marcador = L.marker([parseFloat(lat), parseFloat(lon)], {icon: iconDelivery}).addTo(map).bindPopup('Tu pedido').openPopup();
+        map.setView([lat, lon]);
     }
-
 </script>

@@ -29,12 +29,16 @@ use App\HojasTrabajosDetalle;
 use App\VentasDetalle;
 use App\VentasDetallesExtra;
 use App\ExtrasDeposito;
+use App\IeCaja;
+use App\RepartidoresUbicacione;
 
 use App\Http\Controllers\ProductosController as Productos;
 use App\Http\Controllers\OfertasController as Ofertas;
 use App\Http\Controllers\LandingPageController as LandingPage;
 use App\Http\Controllers\DosificacionesController as Dosificacion;
 use App\Http\Controllers\FacturasController as Facturacion;
+use App\Http\Controllers\LoginwebController as Loginweb;
+use App\Http\Controllers\SucursalesController as Sucursales;
 
 // Exportación a Excel
 use App\Exports\LibroVentaExport;
@@ -47,10 +51,13 @@ use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
 
 // Eventos
 use App\Events\pedidoAsignado;
-use App\Events\TicketsSucursal;
+use App\Events\ticketsSucursal;
+use App\Events\pedidoNuevo;
 use App\Events\pedidoPreparacion;
 use App\Events\pedidoListo;
 use App\Events\pedidoEntregado;
+use App\Events\pedidoEstadoCliente;
+use App\Events\ubicacionRepartidor;
 
 class VentasController extends Controller
 {
@@ -267,17 +274,15 @@ class VentasController extends Controller
                             ->where('c.sucursal_id', $sucursal_actual)
                             ->first();
         $abierta = false;
-        $caja_id = 0;
         if($aux){
             $abierta = true;
-            $caja_id = $aux->id;
         }
 
         $facturacion = (new Dosificacion)->get_dosificacion();
 
         // En caso de recibir un variable de tipo Request la asignamos a proforma_id
         $proforma_id = $data->query('proforma');
-        return view('ventas.ventas_create', compact('categorias', 'abierta', 'caja_id', 'facturacion', 'tamanio', 'sucursales', 'sucursal_actual', 'proforma_id', 'cambiar_sucursal'));
+        return view('ventas.ventas_create', compact('categorias', 'abierta', 'facturacion', 'tamanio', 'sucursales', 'sucursal_actual', 'proforma_id', 'cambiar_sucursal'));
     }
 
     public function productos_search(){
@@ -596,7 +601,7 @@ class VentasController extends Controller
 
     public function pedidos_store(Request $data){
 
-        if((new LandingPage)->cantidad_pedidos() > 0){
+        if((new LandingPage)->cantidad_pedidos() > 1){
             $alerta = 'pedido_pendiente';
             return redirect()->route('carrito_compra')->with(compact('alerta'));
         }
@@ -623,21 +628,39 @@ class VentasController extends Controller
             return redirect()->route('carrito_compra')->with(compact('alerta'));
         }
 
+        if($data->sucursal_id==0){
+            // Obtener sucursales habilitadas para delivery y que hayan abierto caja
+            $sucursales = (new Sucursales)->get_sucursales_activas();
+
+            // Verificar si hay al menos una sucursal activa para el servicio de delvery
+            if(count($sucursales)==0){
+                $alerta = 'sucursal_no_disponible';
+                return redirect()->route('carrito_compra')->with(compact('alerta'));
+            }
+            
+            // Si existe mas de una sucursal activa para delivery se obtiene la más cercana, sino se elige la primera
+            if(count($sucursales)>1){
+                $data->sucursal_id = (new Sucursales)->get_sucursal_cercana($sucursales, $data->lat, $data->lon);
+            }else{
+                $data->sucursal_id = $sucursales[0]->id;
+            }
+        }
+
+        // Emitir evento de nuevo pedido
+        event(new pedidoNuevo($data->sucursal_id));
+
         $venta_id = $this->crear_venta($data);
 
         if($venta_id != ''){
-            $cont = 0;
             foreach ($carrito as $item) {
-                DB::table('ventas_detalles')
-                        ->insert([
-                            'venta_id' => $venta_id,
-                            'producto_id' => $item->id,
-                            'precio' => $item->precio_venta,
-                            'cantidad' => $item->cantidad,
-                            'created_at' => Carbon::now(),
-                            'updated_at' => Carbon::now()
-                        ]);
-                $cont++;
+                $detalle_venta = VentasDetalle::create([
+                    'venta_id' => $venta_id,
+                    'producto_id' => $item->id,
+                    'precio' => $item->precio_venta,
+                    'cantidad' => $item->cantidad,
+                    // 'producto_adicional' => $item->adicional_id,
+                    // 'observaciones' => $item->observacion
+                ]);
             }
         }
 
@@ -665,8 +688,18 @@ class VentasController extends Controller
             // Si es un pedido listo o entregado se envian un evento a la vista de tickets
             if($valor == 3 || $valor == 5){
                 $sucursal = $this->get_user_sucursal();
-                event(new TicketsSucursal($sucursal));
+                event(new ticketsSucursal($sucursal));
             }
+
+            // Emitir el evento al cliente dueño del pedido
+            $pedido = DB::table('ventas as v')
+                            ->join('ventas_estados as ve', 've.id', 'v.venta_estado_id')
+                            ->select('v.venta_estado_id as id', 've.nombre', 've.etiqueta')
+                            ->where('v.id', $id)
+                            ->orderBy('v.id', 'DESC')
+                            ->first();
+            event(new pedidoEstadoCliente($id, $pedido));
+
             DB::commit();
             return response()->json(['success' => 1]);
             // return redirect()->route('ventas_index')->with(['message' => 'El cambio de estado fué actualizado exitosamente.', 'alert-type' => 'success']);
@@ -703,6 +736,15 @@ class VentasController extends Controller
                             ->where('rp.id', $repartidores_pedidos->id)
                             ->first();
             event(new pedidoAsignado($empleado->user_id, $pedido_nuevo));
+
+            // Emitir el evento al cliente dueño del pedido
+            $pedido = DB::table('ventas as v')
+                            ->join('ventas_estados as ve', 've.id', 'v.venta_estado_id')
+                            ->select('v.venta_estado_id as id', 've.nombre', 've.etiqueta')
+                            ->where('v.id', $data->id)
+                            ->orderBy('v.id', 'DESC')
+                            ->first();
+            event(new pedidoEstadoCliente($data->id, $pedido));
 
             DB::commit();
             return response()->json(['success' => 1]);
@@ -855,6 +897,15 @@ class VentasController extends Controller
             $sucursal = $this->get_user_sucursal();
             event(new pedidoEntregado($sucursal));
 
+            // Emitir el evento al cliente dueño del pedido
+            $pedido = DB::table('ventas as v')
+                            ->join('ventas_estados as ve', 've.id', 'v.venta_estado_id')
+                            ->select('v.venta_estado_id as id', 've.nombre', 've.etiqueta')
+                            ->where('v.id', $id)
+                            ->orderBy('v.id', 'DESC')
+                            ->first();
+            event(new pedidoEstadoCliente($id, $pedido));
+
             return redirect()->route('delivery_index')->with(['message' => 'Pedido entregado exitosamente.', 'alert-type' => 'success']);
         } catch (\Exception $e) {
             DB::rollback();
@@ -864,46 +915,42 @@ class VentasController extends Controller
 
     // Envío de ubicacion actual del repartidor
     public function set_ubicacion($id, $lat, $lon){
-        $ultima_ubicacion = DB::table('repartidores_ubicaciones')
-                                    ->select('lon', 'lat')
-                                    ->where('repartidor_pedido_id', $id)
-                                    ->orderBy('id', 'DESC')
-                                    ->first();
+        // NOTA: Se hace toda esta verificación debido a que el navegador emite aveces la misma ubicación
+        // y se debe verificar que no se esté registrando el mismo dato (por razones de optimización)
+        $ultima_ubicacion = RepartidoresUbicacione::where('repartidor_pedido_id', $id)->orderBy('id', 'DESC')->first();
+        $pedido_id = RepartidoresPedido::find($id)->pedido_id;
+        
+        // Verificar si existe una ultima ubicación
         if($ultima_ubicacion){
             if($ultima_ubicacion->lon != $lon && $ultima_ubicacion->lat != $lat){
-                DB::table('repartidores_ubicaciones')
-                            ->insert([
+                $ubicacion = RepartidoresUbicacione::create([
                                 'repartidor_pedido_id' => $id,
                                 'lat' => $lat,
-                                'lon' => $lon,
-                                'created_at' => Carbon::now(),
-                                'updated_at' => Carbon::now()
+                                'lon' => $lon
                             ]);
+                event(new ubicacionRepartidor($pedido_id, $ubicacion));
             }
         }else{
-            DB::table('repartidores_ubicaciones')
-                            ->insert([
-                                'repartidor_pedido_id' => $id,
-                                'lat' => $lat,
-                                'lon' => $lon,
-                                'created_at' => Carbon::now(),
-                                'updated_at' => Carbon::now()
-                            ]);
+            $ubicacion = RepartidoresUbicacione::create([
+                            'repartidor_pedido_id' => $id,
+                            'lat' => $lat,
+                            'lon' => $lon
+                        ]);
+            event(new ubicacionRepartidor($pedido_id, $ubicacion));
         }
-        return 1;
     }
 
     // obetener la ubicación actual del repartidos asignado a un pedido
-    public function get_ubicacion($id){
-        $data =  DB::table('repartidores_pedidos as r')
-                        ->join('repartidores_ubicaciones as ru', 'ru.repartidor_pedido_id', 'r.id')
-                        ->select('ru.lat', 'ru.lon')
-                        ->where('r.pedido_id', $id)
-                        ->orderBy('ru.id', 'DESC')
-                        ->limit(1)
-                        ->get();
-        return $data;
-    }
+    // public function get_ubicacion($id){
+    //     $data =  DB::table('repartidores_pedidos as r')
+    //                     ->join('repartidores_ubicaciones as ru', 'ru.repartidor_pedido_id', 'r.id')
+    //                     ->select('ru.lat', 'ru.lon')
+    //                     ->where('r.pedido_id', $id)
+    //                     ->orderBy('ru.id', 'DESC')
+    //                     ->limit(1)
+    //                     ->get();
+    //     return $data;
+    // }
 
     // Obtener lista de ubicaciones frecuentes de un cliente
     public function get_ubicaciones_cliente($cliente_id){
@@ -1130,18 +1177,27 @@ class VentasController extends Controller
         }
     }
 
-    public function proformas_print($tipo, $id){
+    public function proformas_print($tipo, $id, $pdf = false){
+
+        $detalle_proforma = $this->get_proforma_detalles($id);
+        $monto_total = 0;
+        foreach($detalle_proforma as $item){
+            $monto_total += $item->precio * $item->cantidad;
+        }
+
+        $total_literal = NumerosEnLetras::convertir($monto_total,'Bolivianos',true);
+
+        if($pdf){
+            $vista = view('facturas.proforma_venta', compact('detalle_proforma', 'monto_total', 'total_literal', 'pdf'));
+            $pdf = \App::make('dompdf.wrapper');
+            $pdf->loadHTML($vista)->setPaper('letter', 'portrait');
+            $pdf->loadHTML($vista);
+            return $pdf->stream();
+        }
+
         if($tipo == 'rollo'){
             // return $this->imprimir_rollo($id);
         }else{
-            $detalle_proforma = $this->get_proforma_detalles($id);
-            $monto_total = 0;
-            foreach($detalle_proforma as $item){
-                $monto_total += $item->precio * $item->cantidad;
-            }
-
-            $total_literal = NumerosEnLetras::convertir($monto_total,'Bolivianos',true);
-
             return view('facturas.proforma_venta', compact('detalle_proforma', 'monto_total', 'total_literal'));
         }
     }
@@ -1563,12 +1619,15 @@ class VentasController extends Controller
         $debito_fiscal = $importe_base * 0.13;
         $cobro_adicional = isset($data->cobro_adicional) ? $data->cobro_adicional : 0;
         $cobro_adicional_factura = isset($data->cobro_adicional_factura) ? 1 : 0;
-        $caja_id = isset($data->caja_id) ? $data->caja_id : NULL;
         $sucursal_id = isset($data->sucursal_id) ? $data->sucursal_id : 0;
         $autorizacion_id = isset($data->autorizacion_id) ? $data->autorizacion_id : NULL;
         $monto_recibido = isset($data->monto_recibido) ? $data->monto_recibido : 0;
         $pagada = isset($data->credito) ? 0 : 1;
         $efectivo = isset($data->efectivo) ? 0 : 1;
+
+        // Obtener la caja abierta de la sucursal
+        $caja_actual = IeCaja::where('sucursal_id', $sucursal_id)->where('abierta', 1)->where('deleted_at', NULL)->first();
+        $caja_id = $caja_actual ? $caja_actual->id : 0;
         
         $venta_estado_id = DB::table('ventas_detalle_tipo_estados as d')
                                 ->join('ventas_estados as e', 'e.id', 'd.venta_estado_id')
@@ -1631,13 +1690,15 @@ class VentasController extends Controller
     }
 
     public function pedidos_success(){
-        $sucursal = DB::table('sucursales')
-                            ->select('*')
-                            ->where('deleted_at', NULL)
-                            ->first();
+        $venta_id = DB::table('ventas as v')
+                        ->join('clientes as c', 'c.id', 'v.cliente_id')
+                        ->join('users as u', 'u.cliente_id', 'c.id')
+                        ->select('v.id')
+                        ->where('u.id', Auth::user()->id)
+                        ->orderBy('id', 'DESC')->first()->id;
         $mas_vendidos = (new LandingPage)->get_masVendidos();
 
-        return view('ecommerce.'.setting('admin.ecommerce').'agradecimiento', compact('mas_vendidos'));
+        return view('ecommerce.'.setting('admin.ecommerce').'agradecimiento', compact('mas_vendidos', 'venta_id'));
     }
 
     public function crear_asiento_venta($venta_id, $monto, $caja_id, $detalle){

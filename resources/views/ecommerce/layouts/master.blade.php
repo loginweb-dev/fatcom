@@ -5,77 +5,65 @@
     <meta http-equiv="pragma" content="no-cache" />
     <meta http-equiv="cache-control" content="max-age=604800" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="csrf-token" content="{{ csrf_token() }}"/>
     {{-- <meta name="author" content="Bootstrap-ecommerce by Vosidiy"> --}}
-    <link rel="shortcut icon" href="{{url('storage').'/'.setting('empresa.logo')}}" type="image/x-icon">
+    <?php $admin_logo_img = Voyager::setting('empresa.logo', ''); ?>
+    @if($admin_logo_img == '')
+    <link rel="shortcut icon" href="{{ url('ecommerce_public/images/icon.png') }}" type="image/x-icon">
+    @else
+    <link rel="shortcut icon" href="{{ url('storage/'.setting('empresa.logo')) }}" type="image/x-icon">
+    @endif
     {{-- metadatos para facebook --}}
     @yield('meta-datos')
 
     <link rel="stylesheet" href="{{url('css/style.css')}}">
     
     {{-- PWA --}}
-    <!-- CODELAB: Add link rel manifest -->
-    <link rel="manifest" href="/manifest.json">
-    <!-- CODELAB: Add iOS meta tags and icons -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="{{setting('admin.title')}}">
-    <link rel="apple-touch-icon" href="img/icons/icon-152x152.png">
-    <!-- CODELAB: Add description here -->
-    <meta name="description" content="{{setting('admin.descripcion')}}">
-    <!-- CODELAB: Add meta theme-color -->
-    <meta name="theme-color" content="#343A40" />
-
-    <script>
-        // CODELAB: Register service worker.
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/service-worker.js')
-                .then((reg) => {
-                    // console.log('Service worker registered.', reg);
-                });
-            });
-        }
-    </script>
-    {{-- END PWA --}}
+    @include('ecommerce.layouts.pwa-config')
 
     <!-- jQuery -->
-    <script src="{{url('ecommerce_public/js/jquery-2.0.0.min.js')}}" type="text/javascript"></script>
+    <script src="{{ url('ecommerce_public/js/jquery-2.0.0.min.js') }}" type="text/javascript"></script>
 
     <!-- Bootstrap4 files-->
-    <script src="{{url('ecommerce_public/js/bootstrap.bundle.min.js')}}" type="text/javascript"></script>
-    <link href="{{url('ecommerce_public/css/bootstrap.css')}}" rel="stylesheet" type="text/css"/>
+    <script src="{{ url('ecommerce_public/js/bootstrap.bundle.min.js') }}" type="text/javascript"></script>
+    <link href="{{ url('ecommerce_public/css/bootstrap.css') }}" rel="stylesheet" type="text/css"/>
 
     <!-- Font awesome 5 -->
-    <link href="{{url('ecommerce_public/fonts/fontawesome/css/fontawesome-all.min.css')}}" type="text/css" rel="stylesheet">
+    <link href="{{ url('ecommerce_public/fonts/fontawesome/css/fontawesome-all.min.css') }}" type="text/css" rel="stylesheet">
 
     <!-- custom style -->
-    <link href="{{url('ecommerce_public/css/ui.css')}}" rel="stylesheet" type="text/css"/>
-    <link href="{{url('ecommerce_public/css/responsive.css')}}" rel="stylesheet" media="only screen and (max-width: 1200px)" />
+    <link href="{{ url('ecommerce_public/css/ui.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ url('ecommerce_public/css/responsive.css') }}" rel="stylesheet" media="only screen and (max-width: 1200px)" />
 
     <!-- custom javascript -->
-    <script src="{{url('ecommerce_public/js/script.js')}}" type="text/javascript"></script>
+    <script src="{{ url('ecommerce_public/js/script.js') }}" type="text/javascript"></script>
 
     {{-- toastr --}}
-    <link rel="stylesheet" href="{{url('ecommerce_public/css/toastr.min.css')}}">
-    <script src="{{url('ecommerce_public/js/toastr.min.js')}}" type="text/javascript"></script>
+    <link rel="stylesheet" href="{{url('ecommerce_public/css/toastr.min.css') }}">
+    <script src="{{ url('ecommerce_public/js/toastr.min.js') }}" type="text/javascript"></script>
 
     <!-- plugin: fancybox  -->
-    <script src="{{url('ecommerce_public/plugins/fancybox/fancybox.min.js')}}" type="text/javascript"></script>
-    <link href="{{url('ecommerce_public/plugins/fancybox/fancybox.min.css')}}" type="text/css" rel="stylesheet">
+    <script src="{{ url('ecommerce_public/plugins/fancybox/fancybox.min.js') }}" type="text/javascript"></script>
+    <link href="{{ url('ecommerce_public/plugins/fancybox/fancybox.min.css') }}" type="text/css" rel="stylesheet">
 
     <!-- plugin: owl carousel  -->
-    <link href="{{url('ecommerce_public/plugins/owlcarousel/assets/owl.carousel.min.css')}}" rel="stylesheet">
-    <link href="{{url('ecommerce_public/plugins/owlcarousel/assets/owl.theme.default.css')}}" rel="stylesheet">
-    <script src="{{url('ecommerce_public/plugins/owlcarousel/owl.carousel.min.js')}}"></script>
+    <link href="{{ url('ecommerce_public/plugins/owlcarousel/assets/owl.carousel.min.css') }}" rel="stylesheet">
+    <link href="{{ url('ecommerce_public/plugins/owlcarousel/assets/owl.theme.default.css') }}" rel="stylesheet">
+    <script src="{{ url('ecommerce_public/plugins/owlcarousel/owl.carousel.min.js') }}"></script>
 
+    {{-- Alert ohsnap --}}
+    <script src="{{ url('ecommerce_public/plugins/snap/ohsnap.js') }}"></script>
+
+    <?php $admin_logo_bg = Voyager::setting('admin.bg_image', ''); ?>
+    @if($admin_logo_bg == '')
     <style>
-        .bg-img {
-            background-image: linear-gradient(135deg, rgba(87, 80, 80, 0.438), rgba(0, 0, 0, 0.589)), url("{{ url('storage').'/'.str_replace('\\', '/', setting('admin.bg_image')) }}"); }
+        .bg-img {background-image: linear-gradient(135deg, rgba(87, 80, 80, 0.438), rgba(0, 0, 0, 0.589)), url("{{ url('ecommerce_public/images/bg.jpg') }}"); }
     </style>
-
-    <!-- Load Facebook SDK for JavaScript -->
-    {{-- <div id="fb-root"></div>
-    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/es_ES/sdk.js#xfbml=1&version=v3.3"></script> --}}
+    @else
+    <style>
+        .bg-img {background-image: linear-gradient(135deg, rgba(87, 80, 80, 0.438), rgba(0, 0, 0, 0.589)), url("{{ url('storage/'.setting('admin.bg_image')) }}"); }
+    </style>
+    @endif
 
     <script type="text/javascript">
         // jquery ready start
@@ -287,10 +275,10 @@
         t.src=v;s=b.getElementsByTagName(e)[0];
         s.parentNode.insertBefore(t,s)}(window, document,'script',
         'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '314624272809898');
+        fbq('init', "{{ env('FACEBOOK_PIXEL_ID', NULL) }}");
         fbq('track', 'PageView');
     </script>
-    <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=314624272809898&ev=PageView&noscript=1"/></noscript>
+    <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id={{ env('FACEBOOK_PIXEL_ID', NULL) }}&ev=PageView&noscript=1"/></noscript>
     <!-- End Facebook Pixel Code -->
 
     @yield('chat_facebook')
@@ -303,8 +291,13 @@
             <div class="container">
                 <div class="row">
                     <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2" style="margin-bottom:10px">
-                        <a class="brand-wrap link-page" href="{{url('/')}}">
-                            <img class="logo" src="{{url('storage').'/'.setting('empresa.logo')}}" alt="loginWeb">
+                        <a class="brand-wrap link-page" href="{{ url('/') }}">
+                            <?php $admin_logo_img = Voyager::setting('empresa.logo', ''); ?>
+                            @if($admin_logo_img == '')
+                            <img class="logo" src="{{ url('ecommerce_public/images/icon.png') }}" alt="loginWeb">
+                            @else
+                            <img class="logo" src="{{ url('storage/'.setting('empresa.logo')) }}" alt="loginWeb">
+                            @endif
                         </a>
                     </div>
                     <div class="col-lg-8 col-md-8 col-sm-8 col-xs-8">
@@ -384,22 +377,24 @@
 
     {{-- boton de whatsapp--}}
     {{-- <div id="btn-whatsapp"></div> --}}
-    <link rel="stylesheet" href="{{url('whatsapp/floating-wpp.css')}}">
-    <script src="{{url('whatsapp/floating-wpp.js')}}"></script>
+    <link rel="stylesheet" href="{{ url('whatsapp/floating-wpp.css') }}">
+    <script src="{{ url('whatsapp/floating-wpp.js') }}"></script>
     <script>
         $(document).ready(function(){
             $('#btn-whatsapp').floatingWhatsApp({
-                phone: '591{{setting('empresa.telefono')}}',
+                phone: '591{{ setting('empresa.telefono') ?? 75199157 }}',
                 popupMessage: 'Tienes alguna duda?',
                 message: "",
                 showPopup: true,
                 showOnIE: false,
                 size: '50px',
                 position: 'right',
-                headerTitle: '{{setting('empresa.title')}}',
+                headerTitle: '{{ setting('empresa.title') ?? "FATCOM" }}',
                 zIndex: 1111111
             });
         });
     </script>
+    {{-- Notificaciones --}}
+    <div id="ohsnap"></div>
 </body>
 </html>

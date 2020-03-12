@@ -39,6 +39,15 @@ const FILES_TO_CACHE = [
     '/ecommerce_public/plugins/owlcarousel/assets/owl.carousel.min.css',
     '/ecommerce_public/plugins/owlcarousel/assets/owl.theme.default.css',
     '/ecommerce_public/plugins/owlcarousel/owl.carousel.min.js',
+    // Resoaurante V1
+    'ecommerce_public/templates/restaurante_v1/css/bootstrap.min.css',
+    'ecommerce_public/templates/restaurante_v1/css/mdb.min.css',
+    'ecommerce_public/templates/restaurante_v1/css/style.css',
+    'ecommerce_public/templates/restaurante_v1/js/jquery-3.4.1.min.js',
+    'ecommerce_public/templates/restaurante_v1/js/popper.min.js',
+    'ecommerce_public/templates/restaurante_v1/js/bootstrap.min.js',
+    'ecommerce_public/templates/restaurante_v1/js/mdb.min.js',
+    'ecommerce_public/plugins/snap/ohsnap.js',
 ];
 
 

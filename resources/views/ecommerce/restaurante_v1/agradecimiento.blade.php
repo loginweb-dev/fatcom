@@ -37,7 +37,7 @@
                     <!-- Grid row -->
                     <div class="row">
                         <div class="col-md-12 text-center mt-5">
-                            <a href="{{ route('ecommerce_home') }}" class="btn btn-primary">Volver al inicio</a>
+                            <a href="{{ route('pedidos_index', ['id'=>$venta_id]) }}" class="btn btn-primary">Ver detalles</a>
                         </div>
                     </div>
                 </section>

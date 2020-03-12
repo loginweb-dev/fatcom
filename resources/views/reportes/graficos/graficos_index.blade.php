@@ -40,30 +40,39 @@
                                             </ul>    
                                             <div class="tab-content">
                                                 <div id="mensual" class="tab-pane fade in active">
-                                                    <div class="form-group col-md-6">
+                                                    <div class="form-horizontal">
                                                         <div class="input-group">
-                                                            <select name="mes" class="form-control" class="form-control">
+                                                            <select name="sucursal_id_mensual" class="form-control" style="width:150px">
+                                                                <option value="">Todas las sucursales</option>
+                                                                @foreach ($sucursales as $item)
+                                                                <option value="{{$item->id}}">{{$item->nombre}}</option>
+                                                                @endforeach
+                                                            </select>
+                                                            <select name="mes" class="form-control" class="form-control" style="width:150px">
                                                                 {!! $meses !!}
                                                             </select>
-                                                            <span class="input-group-btn">
-                                                                <input type="number" min="2019" step="1" style="width:80px" name="anio_mes" value="{{date('Y')}}" class="form-control" required>
-                                                                <button class="btn btn-primary" type="submit" style="margin:0px;padding:9px">
-                                                                    <span class="hidden-xs hidden-sm">Generar</span> <span class="voyager-bulb" aria-hidden="true"></span>
-                                                                </button>
-                                                            </span>
+                                                            <input type="number" min="2019" step="1" style="width:80px" name="anio_mes" value="{{date('Y')}}" class="form-control" required>
+                                                            <button class="btn btn-primary" type="submit" style="margin:0px;padding:9px">
+                                                                <span class="hidden-xs hidden-sm">Generar</span> <span class="voyager-bulb" aria-hidden="true"></span>
+                                                            </button>
                                                         </div>
                                                     </div>
+                                                    
                                                 </div>
                                                 <div id="anual" class="tab-pane fade">
                                                     <div class="row">
-                                                        <div class="form-group col-md-6">
+                                                        <div class="form-horizontal">
                                                             <div class="input-group">
-                                                                <input type="number" min="2019" step="1" name="anio_anual" value="{{date('Y')}}" class="form-control">
-                                                                <span class="input-group-btn">
-                                                                    <button class="btn btn-primary" type="submit" style="margin:0px;padding:9px">
-                                                                        <span class="hidden-xs hidden-sm">Generar</span> <span class="voyager-bulb" aria-hidden="true"></span>
-                                                                    </button>
-                                                                </span>
+                                                                <select name="sucursal_id_anual" class="form-control" style="width:150px">
+                                                                    <option value="">Todas las sucursales</option>
+                                                                    @foreach ($sucursales as $item)
+                                                                    <option value="{{$item->id}}">{{$item->nombre}}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                                <input type="number" min="2019" step="1" name="anio_anual" value="{{date('Y')}}" class="form-control" style="width:150px">
+                                                                <button class="btn btn-primary" type="submit" style="margin:0px;padding:9px">
+                                                                    <span class="hidden-xs hidden-sm">Generar</span> <span class="voyager-bulb" aria-hidden="true"></span>
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -71,7 +80,7 @@
                                                 <div id="productos" class="tab-pane fade">
                                                     <div class="form-horizontal">
                                                         <div class="input-group">
-                                                            <select name="sucursal_id" id="select-sucursal_id" class="form-control" style="width:150px">
+                                                            <select name="sucursal_id_productos" class="form-control" style="width:150px">
                                                                 <option value="">Todas las sucursales</option>
                                                                 @foreach ($sucursales as $item)
                                                                 <option value="{{$item->id}}">{{$item->nombre}}</option>

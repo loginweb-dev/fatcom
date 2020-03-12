@@ -34,7 +34,7 @@
                                     </div>
                                 </div>
                                 <div class="table-responsive">
-                                    <table id="dataTable" class="table table-bordered table-hover">
+                                    <table id="dataTable" class="table table-bordered table-hover" style="margin-bottom:50px">
                                         <thead>
                                             <tr>
                                                 <th>Código</th>
@@ -53,9 +53,14 @@
                                                         <a title="Realizar venta" href="{{url('admin/ventas/crear').'?proforma='.$item->id}}" class="btn btn-sm btn-success">
                                                             <i class="voyager-basket"></i> <span class="hidden-xs hidden-sm">Vender</span>
                                                         </a>
-                                                        <a title="Imprimir" data-id="{{$item->id}}" class="btn btn-sm btn-danger btn-print">
-                                                            <i class="voyager-polaroid"></i> <span class="hidden-xs hidden-sm">Imprimir</span>
-                                                        </a>
+                                                        <div class="dropdown" style="display:inline">
+                                                            <button class="btn btn-sm btn-danger dropdown-toggle" type="button" data-toggle="dropdown" title="Exportar"><i class="voyager-polaroid"></i> Generar
+                                                            <span class="caret"></span></button>
+                                                            <ul class="dropdown-menu">
+                                                                <li><a href="#" title="Imprimir" data-id="{{ $item->id }}" class="btn-print" >Impresión</a></li>
+                                                                <li><a href="{{ url('admin/proformas/impresion/normal/'.$item->id.'/true') }}" target="_blank">PDF</a></li>
+                                                            </ul>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             @empty
@@ -108,7 +113,8 @@
             });
 
             // imprimir proforma
-            $('.btn-print').click(function(){
+            $('.btn-print').click(function(e){
+                e.preventDefault();
                 let id = $(this).data('id');
                 @if($tamanio=='rollo')
                     $.get("{{url('admin/proformas/impresion/rollo')}}/"+id, function(){});

@@ -280,10 +280,11 @@
             .listen('pedidoNuevo', (e) => {
                 if(Notification.permission==='granted'){
                     let notificacion = new Notification('Pedido nuevo!',{
-                        body: 'Se ha recibido un pedido nuevo desde la App.',
+                        body: 'Se ha recibido un pedido nuevo.',
                         icon: '{{ url("img/assets/success.png") }}'
                     });
                 }
+                document.getElementById('alert').play();
                 get_data(sucursal_actual, search, page_actual);
             });
 

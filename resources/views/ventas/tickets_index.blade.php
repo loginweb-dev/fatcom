@@ -22,7 +22,7 @@
     <style>
         body {
             font-family: 'Noto Sans', sans-serif;
-            background: url("{{ url('ecommerce_public/images/background-tickets.png') }}") no-repeat center center fixed;
+            background: url("{{ url('storage/'.setting('admin.tickets_image')) }}") no-repeat center center fixed;
             -webkit-background-size: cover;
             -moz-background-size: cover;
             -o-background-size: cover;
@@ -116,7 +116,7 @@
     <script src="{{ asset('js/app.js') }}"></script>
     <script>
         Echo.channel('ticketSucursal{{ $sucursal_id }}')
-        .listen('TicketsSucursal', (e) => {
+        .listen('ticketsSucursal', (e) => {
             get_data()
         });
     </script>

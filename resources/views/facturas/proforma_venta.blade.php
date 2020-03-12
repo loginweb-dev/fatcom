@@ -2,9 +2,9 @@
 <html lang="es">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        {{-- <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
-        <link href="https://fonts.googleapis.com/css?family=Noto+Sans" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Noto+Sans" rel="stylesheet"> --}}
         <title>Proforma de venta</title>
         <style>
             .btn-print{
@@ -20,32 +20,21 @@
                 }
             }
             body{
-                font-size: 11px;
+                font-size: 12px;
                 font-family: 'Noto Sans', sans-serif;
                 /* border: 1px solid black;
                 border-radius: 1px; */
                 padding: 5px 10px;
                 margin: 0px
             }
-
-			@media all {
-			   div.saltopagina{
-			      display: none;
-			   }
-			}
-
-			@media print{
-			   div.saltopagina{
-			      display:block;
-			      page-break-before:always;
-			   }
-			}
 		</style>
     </head>
     <body>
+        @if(!isset($pdf))
         <div style="text-align:right" id="print">
             <button onclick="javascript:window.print()" class="btn-print">Imprimir</button>
         </div>
+        @endif
 
         <table width="100%">
                     <tr>

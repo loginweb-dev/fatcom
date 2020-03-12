@@ -15,22 +15,23 @@
 @section('content')
         <main class="col-md-12">
             <div class="card text-white bg-success col-md-6 offset-md-3">
-                <div class="card-body">
-                    <h3 class="text-center card-title">Muchas gracias!!!</h3>
-                    <p class="card-text text-center">Puede pasar por nuestra tienda cuando desee para recoger su compra.</p>
+                <div class="card-body text-center">
+                    <h3 class="card-title">Muchas gracias por tu preferencia!!!</h3>
+                    <p class="card-text">Tu pedido estará listo en un momento.</p>
                 </div>
             </div>
             <br>
-            <div class="col-md-8 offset-md-2">
+            <div class="col-md-8 offset-md-2 text-center">
+                <a href="{{ route('pedidos_index', ['id'=>$venta_id]) }}" class="btn btn-primary">Ver detalles</a>
                 {{-- <div id="map"></div> --}}
             </div>
         </main>
 @endsection
-<script>
+{{-- <script>
     setTimeout(function(){
         window.location = "{{url('')}}";
     }, 5000);
-</script>
+</script> --}}
 {{-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
 <style>
     #map {

@@ -421,6 +421,17 @@ class FatcomSettingsTableSeeder extends Seeder
                 'order' => 1,
                 'group' => 'Empresa',
             ),
+            35 => 
+            array (
+                'id' => 36,
+                'key' => 'admin.tickets_image',
+                'display_name' => 'Imagen de fondo tickets',
+                'value' => '',
+                'details' => NULL,
+                'type' => 'image',
+                'order' => 5,
+                'group' => 'Admin',
+            ),
         ));
         
         

@@ -119,7 +119,6 @@
                                         <input type="checkbox" id="check-factura" name="factura" data-toggle="toggle" data-on="Factura" data-off="Recibo">
                                     </div>
                                 </div>
-                                <input type="hidden" name="caja_id" value="{{$caja_id}}">
                             </div>
                         </div>
                     </div>

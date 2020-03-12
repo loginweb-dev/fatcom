@@ -157,25 +157,29 @@ class ReportesController extends Controller
     {
         switch ($data->tipo) {
             case 'mensual':
+                $sentencia_sucursal = $data->sucursal_id_mensual ? "v.sucursal_id=".$data->sucursal_id_mensual : 1;
                 $registros  = DB::table('ventas as v')
                                     ->select(DB::raw('SUM(v.importe_base) as monto, DAY(v.fecha) as dia, v.fecha'))
                                     ->whereMonth('v.fecha', $data->mes)
                                     ->whereYear('v.fecha', $data->anio_mes)
                                     ->where('v.deleted_at', NULL)->where('v.estado', 'V')
                                     ->groupBy('dia', 'fecha')
+                                    ->whereRaw($sentencia_sucursal)
                                     ->get();
                 return response()->json($registros);
                 case 'anual':
+                    $sentencia_sucursal = $data->sucursal_id_anual ? "v.sucursal_id=".$data->sucursal_id_anual : 1;
                 $registros  = DB::table('ventas as v')
                                     ->select(DB::raw('SUM(v.importe_base) as monto, MONTH(v.fecha) as mes'))
                                     ->whereYear('v.fecha', $data->anio_anual)
                                     ->where('v.deleted_at', NULL)->where('v.estado', 'V')
+                                    ->whereRaw($sentencia_sucursal)
                                     ->groupBy('mes')
                                     ->get();
                 return response()->json($registros);
                 case 'productos':
                     
-                    $sentencia_sucursal = $data->sucursal_id ? "v.sucursal_id=".$data->sucursal_id : 1;
+                    $sentencia_sucursal = $data->sucursal_id_productos ? "v.sucursal_id=".$data->sucursal_id_productos : 1;
                     $sentencia_mes = $data->mes_productos ? "MONTH(v.created_at)=".$data->mes_productos : 1;
                     
                     switch ($data->group_by) {
