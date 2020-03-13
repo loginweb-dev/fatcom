@@ -163,7 +163,11 @@ class VentasController extends Controller
         $venta->venta_estado_id = 3;
         $venta->update();
         $sucursal = $this->get_user_sucursal();
-        event(new pedidoListo($sucursal));
+        try {
+            event(new pedidoListo($sucursal));
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
         return redirect()->route('cocina.index')->with(['message' => 'Pedido listo.', 'alert-type' => 'success']);    
     }
 
@@ -613,7 +617,11 @@ class VentasController extends Controller
         }
 
         // Emitir evento de nuevo pedido
-        event(new pedidoNuevo($data->sucursal_id));
+        try {
+            event(new pedidoNuevo($data->sucursal_id));
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
 
         $venta_id = $this->crear_venta($data);
 
@@ -665,7 +673,11 @@ class VentasController extends Controller
             // Si es un pedido listo o entregado se envian un evento a la vista de tickets
             if($valor == 3 || $valor == 5){
                 $sucursal = $this->get_user_sucursal();
-                event(new ticketsSucursal($sucursal));
+                try {
+                    event(new ticketsSucursal($sucursal));
+                } catch (\Throwable $th) {
+                    //throw $th;
+                }
             }
 
             // Emitir el evento al cliente dueño del pedido
@@ -675,7 +687,11 @@ class VentasController extends Controller
                             ->where('v.id', $id)
                             ->orderBy('v.id', 'DESC')
                             ->first();
-            event(new pedidoEstadoCliente($id, $pedido));
+            try {
+                event(new pedidoEstadoCliente($id, $pedido));
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
             
             // Cuando el pedido se pone en estado "En preparación"
             if($valor == 2){
@@ -729,7 +745,11 @@ class VentasController extends Controller
                             ->where('e.user_id', $empleado->user_id)
                             ->where('rp.id', $repartidores_pedidos->id)
                             ->first();
-            event(new pedidoAsignado($empleado->user_id, $pedido_nuevo));
+            try {
+                event(new pedidoAsignado($empleado->user_id, $pedido_nuevo));
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
 
             // Emitir el evento al cliente dueño del pedido
             $pedido = DB::table('ventas as v')
@@ -738,7 +758,11 @@ class VentasController extends Controller
                             ->where('v.id', $data->id)
                             ->orderBy('v.id', 'DESC')
                             ->first();
-            event(new pedidoEstadoCliente($data->id, $pedido));
+            try {
+                event(new pedidoEstadoCliente($data->id, $pedido));
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
 
             DB::commit();
             return response()->json(['success' => 1]);
@@ -889,7 +913,11 @@ class VentasController extends Controller
             DB::commit();
 
             $sucursal = $this->get_user_sucursal();
-            event(new pedidoEntregado($sucursal));
+            try {
+                event(new pedidoEntregado($sucursal));
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
 
             // Emitir el evento al cliente dueño del pedido
             $pedido = DB::table('ventas as v')
@@ -922,7 +950,11 @@ class VentasController extends Controller
                                 'lat' => $lat,
                                 'lon' => $lon
                             ]);
-                event(new ubicacionRepartidor($pedido_id, $ubicacion));
+                try {
+                    event(new ubicacionRepartidor($pedido_id, $ubicacion));
+                } catch (\Throwable $th) {
+                    //throw $th;
+                }
             }
         }else{
             $ubicacion = RepartidoresUbicacione::create([
@@ -930,7 +962,11 @@ class VentasController extends Controller
                             'lat' => $lat,
                             'lon' => $lon
                         ]);
-            event(new ubicacionRepartidor($pedido_id, $ubicacion));
+            try {
+                event(new ubicacionRepartidor($pedido_id, $ubicacion));
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
         }
     }
 
@@ -1643,7 +1679,11 @@ class VentasController extends Controller
 
         if($venta_estado_id == 2){
             $sucursal = $this->get_user_sucursal();
-            event(new pedidoPreparacion($sucursal));
+            try {
+                event(new pedidoPreparacion($sucursal));
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
         }
 
         return $venta->id;

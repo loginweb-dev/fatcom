@@ -449,7 +449,11 @@ class ApiController extends Controller
         }
 
         // Emitir evento de nuevo pedido
-        event(new pedidoNuevo($sucursal_id));
+        try {
+            event(new pedidoNuevo($sucursal_id));
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
 
         DB::beginTransaction();
         try {
