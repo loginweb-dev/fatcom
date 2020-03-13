@@ -82,14 +82,6 @@
                 window.location = "{{url('admin/administracion/delivery/detalle')}}/"+id;
             }
         </script>
-
-        {{-- Laravel Echo --}}
-        <script src="{{ asset('js/app.js') }}"></script>
-        <script src="{{ asset('js/events/events.js') }}"></script>
-        <script>
-            let icon = '{{ url("storage/".setting("empresa.logo")) }}';
-            listenNeewPedido(icon, '{{ Auth::user()->id }}')
-        </script>
     @stop
 
 @else

@@ -102,7 +102,9 @@
                 id: 'mapbox.streets'
             }).addTo(map);
 
-            L.marker([{{$registro->latitud}}, {{$registro->longitud}}], {
+            let lat = parseFloat('{{ $registro->latitud }}');
+            let lon = parseFloat('{{ $registro->longitud }}');
+            L.marker([lat, lon], {
                 draggable: true
             }).addTo(map)
             .bindPopup("Localización actual").openPopup()

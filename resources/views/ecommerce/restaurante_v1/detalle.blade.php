@@ -149,7 +149,7 @@
                                         </div>  
                                         <div class="row mt-3 mb-4">
                                             <div class="col-md-12 text-center text-md-left text-md-right">
-                                                <a  href="{{ url('/carrito/agregar/comprar').'/'.$id }}" class="btn btn-warning btn-rounded btn-sm"><i class="far fa-money-bill-alt mr-2" aria-hidden="true"></i> Comprar ahora</a>
+                                                <a  href="{{ url('/carrito/agregar/comprar').'/'.$id }}" id="btn-buy_now" class="btn btn-warning btn-rounded btn-sm"><i class="far fa-money-bill-alt mr-2" aria-hidden="true"></i> Comprar ahora</a>
                                                 <button class="btn btn-primary btn-rounded btn-sm btn-cart_add"><i class="fas fa-cart-plus mr-2" aria-hidden="true"></i> Agregar</button>
                                             </div>
                                         </div>
@@ -300,6 +300,10 @@
                     }
                     $('#producto-puntos').html(`<ul class="rating">${estrellas}</ul>`)
                 });
+
+                // Set id del producto a la ruta del boton de comprar ahora
+                let url_buy_now = "{{ url('/carrito/agregar/comprar') }}";
+                $('#btn-buy_now').attr('href', `${url_buy_now}/${id}`);
             });
 
             // Agregar producto al carrito

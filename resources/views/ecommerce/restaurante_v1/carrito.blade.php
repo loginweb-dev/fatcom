@@ -264,15 +264,15 @@
                                                                 $descripcion = substr($descripcion, 0, 30).'...';
                                                             }
                                                         @endphp
-                                                        <button type="button" class="btn btn-outline-primary btn-coor" data-id="{{ $item->id }}" data-lat="{{ $item->lat }}" data-lon="{{ $item->lon }}" data-descripcion="{{$item->descripcion}}" data-toggle="tooltip" data-placement="top" title="{{$item->descripcion}}">{{$descripcion}}</button>
+                                                        <button type="button" class="btn btn-sm btn-outline-primary btn-coor" data-id="{{ $item->id }}" data-lat="{{ $item->lat }}" data-lon="{{ $item->lon }}" data-descripcion="{{$item->descripcion}}" data-toggle="tooltip" data-placement="top" title="{{$item->descripcion}}">{{$descripcion}}</button>
                                                     @endforeach
                                                 @else
                                                 <span>No tiene ubicaciones, crea una.</span>
                                                 @endif
                                             </div>
                                             <div id="map"></div>
-                                            <input type="hidden" name="lat" id="latitud" >
-                                            <input type="hidden" name="lon" id="longitud">
+                                            <input type="hidden" name="latitud" id="latitud" >
+                                            <input type="hidden" name="longitud" id="longitud">
                                             <input type="hidden" name="coordenada_id" id="input-coordenada_id">
                                             <input type="hidden" name="tipo_entrega" id="input-tipo_entrega" value="domicilio">
                                             <textarea name="descripcion" class="form-control" id="input-descripcion" rows="2" maxlength="200" placeholder="Datos descriptivos de su ubicación..."></textarea>
@@ -314,7 +314,7 @@
                             @else
                                 <div class="card">
                                     {{-- <div class="card-header">Featured</div> --}}
-                                    <div class="card-body">
+                                    <div class="card-body text-center">
                                         <h5 class="card-title">Oops!... aún no has iniciado sesión</h5>
                                         <p class="card-text">Para poder utilizar el servicio de pedidos en nuestra plataforma debes tener una sesión iniciada.</p>
                                         <div class="text-center">

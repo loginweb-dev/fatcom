@@ -43,8 +43,7 @@ Route::get('/carrito/agregar/{id}', 'LandingPageController@carrito_agregar');
 Route::get('/carrito/editar/{id}/{cantidad}', 'LandingPageController@carrito_editar');
 Route::get('/carrito/borrar/{id}', 'LandingPageController@carrito_borrar');
 Route::get('/carrito/cantidad_pedidos', 'LandingPageController@cantidad_pedidos')->name('cantidad_pedidos');
-Route::get('/carrito/mis_pepdidos/{id}', 'LandingPageController@pedidos_index')->name('pedidos_index');
-
+Route::get('/carrito/pedidos/{id}', 'LandingPageController@pedidos_index')->name('pedidos_index');
 
 Route::group(['prefix' => 'admin'], function () {
     Voyager::routes();
@@ -124,10 +123,8 @@ Route::get('admin/productos/list/colores/{subcategoria_id}/{marca_id}/{talla_id}
 
 Route::get('admin/ofertas/filtros/filtro_simple/{tipo}/{categoria}/{subcategoria}/{marca}/{talla}/{genero}/{color}', 'ProductosController@filtro_simple');
 
-
 // Llamadas a vistas para cargar el modal de nuevo registro
 Route::get('admin/productos/crear/agregar/{vista}', 'ProductosController@cargar_vista');
-
 
 // ================================Subcategorias===========================
 Route::get('admin/subcategorias/create_new/{value}', 'SubcategoriasController@create_new');
@@ -173,7 +170,6 @@ Route::get('/admin/asientos/buscar/{valor}', 'CajasController@asientos_buscar');
 Route::get('/admin/asientos/crear', 'CajasController@asientos_create')->name('asientos_create');
 Route::post('/admin/asientos/store', 'CajasController@asientos_store')->name('asientos_store');
 Route::post('/admin/asientos/delete', 'CajasController@asientos_delete')->name('asientos_delete');
-
 
 // ================================Compras===========================
 Route::get('admin/compras', 'ComprasController@index')->name('compras_index');
@@ -240,7 +236,6 @@ Route::get('admin/ventas/crear/ventas_categorias/{id}', 'VentasController@ventas
 Route::get('admin/ventas/crear/ventas_productos_categorias/{id}', 'VentasController@ventas_productos_categorias');
 Route::get('admin/ventas/crear/extras_producto/{id}/{sucursal_id}', 'VentasController@extras_producto');
 
-
 // libros
 Route::get('admin/reporte/ventas/libro', 'VentasController@ventas_libro')->name('ventas_libro');
 Route::post('admin/reporte/ventas/libro/generar', 'VentasController@ventas_libro_generar')->name('ventas_libro_generar');
@@ -282,7 +277,6 @@ Route::get('admin/repartidor/delivery/close/{id}', 'VentasController@delivery_cl
 Route::get('admin/repartidor/delivery/set_ubicacion/{id}/{lat}/{lon}', 'VentasController@set_ubicacion');
 // Route::get('admin/repartidor/delivery/get_ubicacion/{id}', 'VentasController@get_ubicacion');
 
-
 // ============================Clientes====================================
 Route::get('admin/clientes', 'ClientesController@index')->name('clientes_index');
 Route::get('admin/clientes/buscar/{value}', 'ClientesController@search')->name('clientes_search');
@@ -320,7 +314,6 @@ Route::get('admin/reportes/productos/escasez', 'ReportesController@productos_esc
 Route::get('admin/productos/parametros/store/{type}/{value}', 'ProductosController@crear_parametros');
 // Se debe crear una ruta exclusiva para crear sub categoría debido a que necesita la llave foranea de categoría
 Route::get('admin/productos/subcategoria/store/{categoria_id}/{value}', 'ProductosController@crear_subcategoria');
-
 
 // Clear cache
 Route::get('/admin/clear-cache', function() {

@@ -206,8 +206,8 @@
                                 <span>No tiene ubicaciones, crea una.</span>
                             @endif
                             <div id="map"></div>
-                            <input type="hidden" name="lat" id="latitud" >
-                            <input type="hidden" name="lon" id="longitud">
+                            <input type="hidden" name="latitud" id="latitud" >
+                            <input type="hidden" name="longitud" id="longitud">
                             <input type="hidden" name="coordenada_id" id="input-coordenada_id">
                             <input type="hidden" name="tipo_entrega" id="input-tipo_entrega" value="domicilio">
                             <textarea name="descripcion" class="form-control" id="input-descripcion" rows="2" maxlength="200" placeholder="Datos descriptivos de su ubicación..."></textarea>

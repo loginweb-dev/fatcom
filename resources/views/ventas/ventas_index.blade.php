@@ -233,10 +233,6 @@
                     $('#modal_delete').modal('hide');
                 });
 
-                // setInterval(function(){
-                //     get_data(sucursal_actual, search, page_actual);
-                // }, 20000);
-
             });
 
             // Obtenes lista de ventas

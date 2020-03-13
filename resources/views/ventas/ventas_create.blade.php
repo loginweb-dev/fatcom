@@ -192,11 +192,9 @@
                     </div>
                     <div class="modal-body">
                         <div id="list-ubicaciones"></div>
-                        <div id="contenedor_mapa">
-                            <div id="map"></div>
-                        </div>
-                        <input type="hidden" name="lat" id="latitud" >
-                        <input type="hidden" name="lon" id="longitud">
+                        <div id="map"></div>
+                        <input type="hidden" name="latitud" id="latitud" >
+                        <input type="hidden" name="longitud" id="longitud">
                         <input type="hidden" name="coordenada_id" id="input-coordenada_id">
                         <textarea name="descripcion" class="form-control" id="input-descripcion" rows="2" maxlength="200" placeholder="Datos descriptivos de su ubicación..."></textarea>
                     </div>
@@ -282,8 +280,7 @@
     <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
     <script src="{{url('js/ubicacion_cliente.js')}}" type="text/javascript"></script>
     <script>
-        let costo_envio = {{intval(setting('delivery.costo_envio'))}};
-        let marcador = {};
+        let costo_envio = {{ intval(setting('delivery.costo_envio')) }};
         let tab_active = '';
         let accordion_active = '';
         var sucursal_id = '{{ $sucursal_actual }}';
@@ -454,40 +451,9 @@
                         });
                     }
 
-                    map.remove();
                     setTimeout(function(){
-                        $('#contenedor_mapa').html('<div id="map"></div>');
-                        map = L.map('map').fitWorld();
-                        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
-                            maxZoom: 20,
-                            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-                                '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-                                'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-                            id: 'mapbox.streets'
-                        }).addTo(map);
-
-                        navigator.geolocation.getCurrentPosition(function(position) {
-                            let lat =  position.coords.latitude;
-                            let lon = position.coords.longitude;
-                            $('#input-coordenada_id').val('');
-                            $('#input-descripcion').val('')
-                            map.removeLayer(marcador);
-                            marcador = L.marker([lat, lon], {
-                                            draggable: true
-                                        }).addTo(map)
-                                        .bindPopup("Localización actual")
-                                        .openPopup()
-                                        .on('drag', function(e) {
-                                            $('#latitud').val(e.latlng.lat);
-                                            $('#longitud').val(e.latlng.lng);
-                                            $('#input-coordenada_id').val('');
-                                            $('#input-descripcion').val('')
-                                        });
-                            map.setView([lat, lon], 13);
-                        }, function(err) {
-                            alert(err);
-                        });
-                    }, 1000);
+                        inicializarMapa(map, marcador);
+                    }, 500);
                 }else{
                     // $('#input-venta_tipo_id').val('1');
                     $('#input-costo_envio').attr('readonly', true);

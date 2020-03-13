@@ -28,9 +28,12 @@ use App\HojasTrabajo;
 use App\HojasTrabajosDetalle;
 use App\VentasDetalle;
 use App\VentasDetallesExtra;
+use App\Deposito;
 use App\ExtrasDeposito;
 use App\IeCaja;
 use App\RepartidoresUbicacione;
+use App\ProductosInsumo;
+use App\InsumosDeposito;
 
 use App\Http\Controllers\ProductosController as Productos;
 use App\Http\Controllers\OfertasController as Ofertas;
@@ -341,7 +344,7 @@ class VentasController extends Controller
     }
 
     public function store(Request $data){
-        // dd($data);
+
         // validar si exiten productos en la venta
         if(!isset($data->producto_id)){
             return null;
@@ -371,7 +374,7 @@ class VentasController extends Controller
 
         // Si la venta es adimicilio actualizar ultima ubicación del cliente
         if($data->venta_tipo_id == 4){
-            $this->set_ultima_ubicacion($data->cliente_id, $data->coordenada_id, $data->lat, $data->lon, $data->descripcion);
+            $this->set_ultima_ubicacion($data->cliente_id, $data->coordenada_id, $data->latitud, $data->longitud, $data->descripcion);
         }
 
         // insertar y obtener ultima venta
@@ -384,6 +387,7 @@ class VentasController extends Controller
             $extras_id = $data->extras_id ?? [];
             $cantidad_extras_id = $data->cantidad_extras_id ?? [];
             $precio_extras_id = $data->precio_extras_id ?? [];
+            $sucursal_id = $data->sucursal_id;
 
             for ($i=0; $i < count($data->producto_id); $i++) {
                 if(!is_null($data->producto_id[$i])){
@@ -397,69 +401,22 @@ class VentasController extends Controller
                         'observaciones' => $data->observacion[$i]
                     ]);
                     
+                    // Convertir en array las cadenas que viene del formulario
                     $extras_detalle = explode(',', $extras_id[$i]);
-                    $cantidad_extras_detalle = explode(',', $cantidad_extras_id[$i]);
                     $precio_extras_detalle = explode(',', $precio_extras_id[$i]);
-
-                    for ($j=0; $j < count($extras_detalle); $j++) { 
-                        if($extras_detalle[$j]){
-                            VentasDetallesExtra::create([
-                                'venta_detalle_id' => $detalle_venta->id,
-                                'extra_id' => $extras_detalle[$j],
-                                'precio' => $precio_extras_detalle[$j],
-                                'cantidad' => $cantidad_extras_detalle[$j]
-                            ]);
-
-                            // Actualizar stock del extra en almacen
-                            DB::table('extras_depositos as ed')
-                                    ->join('depositos as d', 'd.id', 'ed.deposito_id')
-                                    ->where('ed.extra_id', $extras_detalle[$j])
-                                    ->where('d.sucursal_id', $data->sucursal_id)
-                                    ->where('ed.deleted_at', NULL)
-                                    ->decrement('stock', $cantidad_extras_detalle[$j]);
-
-                            // Actualizar el precio del producto añandiendo el precio de los extras
-                            $detalle_venta_aux = VentasDetalle::find($detalle_venta->id);
-                            $detalle_venta_aux->precio += ($precio_extras_detalle[$j] * $cantidad_extras_detalle[$j]);
-                            $detalle_venta_aux->save();
-                        }
-                    }
+                    $cantidad_extras_detalle = explode(',', $cantidad_extras_id[$i]);
+                    
+                    // Agregar extras a cada producto (si se les asignó)
+                    $this->agregar_extras_detalle_venta($detalle_venta->id, $sucursal_id, $extras_detalle, $precio_extras_detalle, $cantidad_extras_detalle);
 
                     // Si el producto se almacena en stock descontar la cantidad vendidad
-                    $sucursal_id = ($data->caja_id) ? DB::table('ie_cajas')->select('sucursal_id')->where('id', $data->caja_id)->first()->sucursal_id : NULL;
                     if(Producto::find($data->producto_id[$i])->se_almacena){
-                        $dp = DB::table('productos_depositos as pd')
-                                    ->join('depositos as d', 'd.id', 'pd.deposito_id')
-                                    ->select('pd.id', 'pd.stock', 'pd.stock_compra', 'd.id as deposito_id')
-                                    ->where('pd.producto_id', $data->producto_id[$i])->where('d.sucursal_id', $sucursal_id)
-                                    ->first();
-                        
-                        // Si la venta emitió factura se descontará del stock de compra, caso contrario del stock normal
-                        // Nota:   la variable stock_secuandario se usará en caso de que el stock primario sea menor a la cantidad
-                        //         de producto a vender, para así descontarselo al otro stock y no quede con número negativo.
-                        if($data->factura){
-                            $stock = $dp->stock_compra;
-                            $stock_primario = 'stock_compra';
-                            $stock_secundario = 'stock';
-                        }else{
-                            $stock = $dp->stock;
-                            $stock_primario = 'stock';
-                            $stock_secundario = 'stock_compra';
-                        }
-
-                        // Si el stock seleccionado es menor o igual a la cantidad vendida se decrementa, sino se deja en 0
-                        // y se decrementa al stock secundario la resta entre la cantidad vendida y el stock seleccionado
-                        if($stock >= $data->cantidad[$i]){
-                            DB::table('productos_depositos')->where('id', $dp->id)->decrement($stock_primario, $data->cantidad[$i]);
-                        }else{
-                            $monto_sobrante = $data->cantidad[$i] - $stock;
-                            DB::table('productos_depositos')->where('id', $dp->id)->update([$stock_primario => 0]);
-                            DB::table('productos_depositos')->where('id', $dp->id)->decrement($stock_secundario, $monto_sobrante);
-                        }
-
-                        // Descontar stock del registro global
-                        DB::table('productos')->where('id', $data->producto_id[$i])->decrement('stock', $data->cantidad[$i]);
+                        $factura = $data->factura ? true : false;
+                        $this->descontar_producto_almacen($data->producto_id[$i], $data->cantidad[$i], $sucursal_id, $factura);
                     }
+
+                    // Descontar los insumos que contiene el producto
+                    $this->cambiar_stock_insumo_almacen('decrementar', $data->producto_id[$i], $data->cantidad[$i], $sucursal_id);
                 }
             }
 
@@ -489,8 +446,7 @@ class VentasController extends Controller
                     DB::table('dosificaciones')->where('id', $dosificacion->id)->increment('numero_actual', 1);
                 }
             }
-            
-
+        
             // Si es una venta a credito crear un registro de pago
             if(isset($data->credito) && $data->monto_recibido){
                 VentasPago::create([
@@ -550,15 +506,14 @@ class VentasController extends Controller
     }
 
     public function delete(Request $data){
-        // Eliminacion provisional para productos que no pertenencen a un almacen
-        $query = Venta::where('id', $data->id)->update(['deleted_at' => Carbon::now(), 'estado' => $data->tipo]);
-        if($query){
-
+        DB::beginTransaction();
+        try {
+            Venta::where('id', $data->id)->update(['deleted_at' => Carbon::now(), 'estado' => $data->tipo]);
             // Si el producto se almacena en stock agregar la cantidad del detalle de la venta
             $vd = DB::table('ventas_detalles as d')
                             ->join('ventas as v', 'v.id', 'd.venta_id')
                             ->join('productos as p', 'p.id', 'd.producto_id')
-                            ->select('d.*', 'v.sucursal_id', 'p.se_almacena', 'v.nro_factura', 'v.venta_tipo_id')
+                            ->select('d.*', 'v.sucursal_id', 'p.se_almacena', 'v.nro_factura', 'v.venta_tipo_id', 'v.venta_estado_id')
                             ->where('d.venta_id', $data->id)
                             ->get();
                             
@@ -571,28 +526,39 @@ class VentasController extends Controller
                 DB::table('ie_cajas')->where('id', $data->caja_id)->decrement('monto_final', $data->importe);
             }
 
-            foreach ($vd as $item) {
-                if($item->se_almacena){
+            // Si la venta esta en preparación o un estado arriba los productos y los insumos vuelven a almacen
+            if($vd[0]->venta_estado_id >= 2){
+                foreach ($vd as $item) {
+                    if($item->se_almacena){
+                        $stock = ($item->nro_factura) ? 'stock_compra' : 'stock';
+                        $pd = DB::table('productos_depositos as pd')
+                                    ->join('depositos as d', 'd.id', 'pd.deposito_id')
+                                    ->select('pd.id', 'pd.stock', 'pd.stock_compra', 'd.id as deposito_id')
+                                    ->where('pd.producto_id', $item->producto_id)->where('d.sucursal_id', $item->sucursal_id)
+                                    ->first();
+    
+                            DB::table('productos_depositos')->where('id', $pd->id)->increment($stock, $item->cantidad);
+                        
+                        // Incrementar stock del registro global
+                        DB::table('productos')->where('id', $item->producto_id)->increment('stock', $item->cantidad);
+                    }
 
-                    $stock = ($item->nro_factura) ? 'stock_compra' : 'stock';
-
-                    $pd = DB::table('productos_depositos as pd')
-                                ->join('depositos as d', 'd.id', 'pd.deposito_id')
-                                ->select('pd.id', 'pd.stock', 'pd.stock_compra', 'd.id as deposito_id')
-                                ->where('pd.producto_id', $item->producto_id)->where('d.sucursal_id', $item->sucursal_id)
-                                ->first();
-
-                        DB::table('productos_depositos')->where('id', $pd->id)->increment($stock, $item->cantidad);
+                    // Incrementar todos los extras que se incluyen en la venta eliminada
+                    $venta_detalle_extras =  VentasDetallesExtra::where('venta_detalle_id', $vd[0]->id)->get();
+                    foreach ($venta_detalle_extras as $detalle_extra) {
+                        $this->cambiar_stock_extras_almacen('incrementar', $detalle_extra->extra_id, $item->sucursal_id, $detalle_extra->cantidad);
+                    }
                     
-                    // Descontar stock del registro global
-                    DB::table('productos')->where('id', $item->producto_id)->increment('stock', $item->cantidad);
+                    // Devolver al stock de almacen los insumos que contiene el producto
+                    $this->cambiar_stock_insumo_almacen('incrementar', $item->producto_id, $item->cantidad, $item->sucursal_id);
                 }
             }
+
+            DB::commit();
             return 1;
-            // return redirect()->route('ventas_index')->with(['message' => 'Venta eliminada exitosamenete.', 'alert-type' => 'success']);              
-        }else{
+        } catch (\Exception $e) {
+            DB::rollback();
             return 0;
-            // return redirect()->route('ventas_index')->with(['message' => 'Ocurrio un problema al eliminar la venta.', 'alert-type' => 'error']);
         }
     }
 
@@ -618,7 +584,7 @@ class VentasController extends Controller
         // Verificar coordenadas si el producto se entrega a domicilio
         if(isset($data->tipo_entrega)){
             if($data->tipo_entrega == 'domicilio'){
-                $this->set_ultima_ubicacion($data->cliente_id, $data->coordenada_id, $data->lat, $data->lon, $data->descripcion);
+                $this->set_ultima_ubicacion($data->cliente_id, $data->coordenada_id, $data->latitud, $data->lon, $data->descripcion);
             }
         }
 
@@ -640,7 +606,7 @@ class VentasController extends Controller
             
             // Si existe mas de una sucursal activa para delivery se obtiene la más cercana, sino se elige la primera
             if(count($sucursales)>1){
-                $data->sucursal_id = (new Sucursales)->get_sucursal_cercana($sucursales, $data->lat, $data->lon);
+                $data->sucursal_id = (new Sucursales)->get_sucursal_cercana($sucursales, $data->latitud, $data->longitud);
             }else{
                 $data->sucursal_id = $sucursales[0]->id;
             }
@@ -661,6 +627,17 @@ class VentasController extends Controller
                     // 'producto_adicional' => $item->adicional_id,
                     // 'observaciones' => $item->observacion
                 ]);
+
+                // Si el pedido es para recoger en tienda/restaurante
+                if($data->tipo_entrega == 'tienda'){
+                    // Descontar de stock los productos que contiene el pedido
+                    $factura = $data->factura ? true : false;
+                    $this->descontar_producto_almacen($item->id, $item->cantidad, $data->sucursal_id, $factura);
+
+                    // Descontar los insumos que contiene el producto
+                    $this->cambiar_stock_insumo_almacen('decrementar', $item->id, $item->cantidad, $data->sucursal_id);
+
+                }
             }
         }
 
@@ -694,19 +671,36 @@ class VentasController extends Controller
             // Emitir el evento al cliente dueño del pedido
             $pedido = DB::table('ventas as v')
                             ->join('ventas_estados as ve', 've.id', 'v.venta_estado_id')
-                            ->select('v.venta_estado_id as id', 've.nombre', 've.etiqueta')
+                            ->select('v.venta_estado_id as id', 'v.venta_tipo_id', 'v.nro_factura', 'v.sucursal_id', 've.nombre', 've.etiqueta')
                             ->where('v.id', $id)
                             ->orderBy('v.id', 'DESC')
                             ->first();
             event(new pedidoEstadoCliente($id, $pedido));
+            
+            // Cuando el pedido se pone en estado "En preparación"
+            if($valor == 2){
+                // Obtener detalle del pedido
+                $detalle_pedido = VentasDetalle::where('venta_id', $id)->get();
+
+                // Descontar los insumos que contiene del stock
+                foreach ($detalle_pedido as $item) {
+                    $this->cambiar_stock_insumo_almacen('decrementar', $item->producto_id, $item->cantidad, $pedido->sucursal_id);
+                }
+
+                // Si el pedido se entrega a domicilio se descuentan de stock (los producto que se almacenan)
+                if($pedido->venta_tipo_id == 3){
+                    foreach ($detalle_pedido as $item) {
+                        $factura = $pedido->nro_factura ? true : false;
+                        $this->descontar_producto_almacen($item->producto_id, $item->cantidad, $pedido->sucursal_id, $factura);
+                    }
+                }
+            }
 
             DB::commit();
             return response()->json(['success' => 1]);
-            // return redirect()->route('ventas_index')->with(['message' => 'El cambio de estado fué actualizado exitosamente.', 'alert-type' => 'success']);
         } catch (\Exception $e) {
             DB::rollback();
             return response()->json(['error' => 'Ocurrio un problema al actualizar el estado.']);
-            // return redirect()->route('ventas_index')->with(['message' => 'Ocurrio un problema al actualizar el estado.', 'alert-type' => 'error']);
         }
     }
 
@@ -939,18 +933,6 @@ class VentasController extends Controller
             event(new ubicacionRepartidor($pedido_id, $ubicacion));
         }
     }
-
-    // obetener la ubicación actual del repartidos asignado a un pedido
-    // public function get_ubicacion($id){
-    //     $data =  DB::table('repartidores_pedidos as r')
-    //                     ->join('repartidores_ubicaciones as ru', 'ru.repartidor_pedido_id', 'r.id')
-    //                     ->select('ru.lat', 'ru.lon')
-    //                     ->where('r.pedido_id', $id)
-    //                     ->orderBy('ru.id', 'DESC')
-    //                     ->limit(1)
-    //                     ->get();
-    //     return $data;
-    // }
 
     // Obtener lista de ubicaciones frecuentes de un cliente
     public function get_ubicaciones_cliente($cliente_id){
@@ -1388,29 +1370,7 @@ class VentasController extends Controller
 
                     // Si el producto se almacena en stock descontar la cantidad vendidad
                     if(Producto::find($request->producto_id[$i])->se_almacena){
-                        $dp = DB::table('productos_depositos as pd')
-                                    ->join('depositos as d', 'd.id', 'pd.deposito_id')
-                                    ->select('pd.id', 'pd.stock', 'pd.stock_compra', 'd.id as deposito_id')
-                                    ->where('pd.producto_id', $request->producto_id[$i])->where('d.sucursal_id', $request->sucursal_id)
-                                    ->first();
-                        
-                        $stock = $dp->stock;
-                        $stock_primario = 'stock';
-                        $stock_secundario = 'stock_compra';
-                        
-
-                        // Si el stock seleccionado es menor o igual a la cantidad vendida se decrementa, sino se deja en 0
-                        // y se decrementa al stock secundario la resta entre la cantidad vendida y el stock seleccionado
-                        if($stock >= $request->cantidad[$i]){
-                            DB::table('productos_depositos')->where('id', $dp->id)->decrement($stock_primario, $request->cantidad[$i]);
-                        }else{
-                            $monto_sobrante = $request->cantidad[$i] - $stock;
-                            DB::table('productos_depositos')->where('id', $dp->id)->update([$stock_primario => 0]);
-                            DB::table('productos_depositos')->where('id', $dp->id)->decrement($stock_secundario, $monto_sobrante);
-                        }
-
-                        // Descontar stock del registro global
-                        DB::table('productos')->where('id', $request->producto_id[$i])->decrement('stock', $request->cantidad[$i]);
+                        $this->descontar_producto_almacen($request->producto_id[$i], $request->cantidad[$i], $request->sucursal_id, false);
                     }
                 }
             }
@@ -1689,6 +1649,164 @@ class VentasController extends Controller
         return $venta->id;
     }
 
+    /**
+    * @param detalle_venta_id id del detalle de la venta
+    * @param sucursal_id id de la sucursal donde fué efectuada la venta
+    * @param extras_detalle array con el id de los extras
+    * @param precio_extras_detalle array con el precio de los extras
+    * @param cantidad_extras_detalle array con la cantidad de los extras
+    * @return Int retorna 1 o 0
+    */
+    // Agregar extras a los detalle de ventas (si los tiene)
+    public function agregar_extras_detalle_venta($detalle_venta_id, $sucursal_id, $extras_detalle, $precio_extras_detalle, $cantidad_extras_detalle){
+        DB::beginTransaction();
+        try {
+            for ($j=0; $j < count($extras_detalle); $j++) { 
+                if($extras_detalle[$j]){
+                    VentasDetallesExtra::create([
+                        'venta_detalle_id' => $detalle_venta_id,
+                        'extra_id' => $extras_detalle[$j],
+                        'precio' => $precio_extras_detalle[$j],
+                        'cantidad' => $cantidad_extras_detalle[$j]
+                    ]);
+    
+                    // Actualizar stock del extra en almacen
+                    $this->cambiar_stock_extras_almacen('decrementar', $extras_detalle[$j], $sucursal_id, $cantidad_extras_detalle[$j]);
+    
+                    // Actualizar el precio del producto añandiendo el precio de los extras
+                    $detalle_venta_aux = VentasDetalle::find($detalle_venta_id);
+                    $detalle_venta_aux->precio += ($precio_extras_detalle[$j] * $cantidad_extras_detalle[$j]);
+                    $detalle_venta_aux->save();
+                }
+            }
+            DB::commit();
+            return 1;
+        } catch (\Exception $e) {
+            DB::rollback();
+            return 0;
+        }
+    }
+
+    /**
+    * @param tipo incrementar o decrementar
+    * @param producto_id id de producto
+    * @param cantidad cantidad que se va a descontar
+    * @param sucursal_id id de la sucursal de la que se descontara el stock
+    * @return Int retorna 1 o 0
+    */
+    public function cambiar_stock_insumo_almacen($tipo, $producto_id, $cantidad, $sucursal_id){
+        DB::beginTransaction();
+        try {
+            $deposito_id = Deposito::where('sucursal_id', $sucursal_id)->where('deleted_at', NULL)->first()->id;
+            $insumos = ProductosInsumo::where('producto_id', $producto_id)->where('deleted_at', NULL)->get();
+            foreach ($insumos as $item) {
+                $insumo_deposito = InsumosDeposito::where('deposito_id', $deposito_id)->where('insumo_id', $item->insumo_id)->where('deleted_at', NULL)->first();
+                // cantidad de producto multiplicado por la cantidad del insumo que contiene
+                $total_insumo = $cantidad * $item->cantidad;
+
+                if($tipo == 'incrementar'){
+                    $insumo_deposito->stock += $total_insumo;
+                }else{
+                    if($total_insumo > $insumo_deposito->stock){
+                        $insumo_deposito->stock = 0;
+                    }else{
+                        $insumo_deposito->stock -= $total_insumo;
+                    }
+                }
+
+                $insumo_deposito->save();
+            }
+            DB::commit();
+            return 1;
+        } catch (\Exception $e) {
+            DB::rollback();
+            return 0;
+        }
+    }
+
+    /**
+    * @param producto_id id de producto
+    * @param cantidad cantidad que se va a descontar
+    * @param sucursal_id id de la sucursal de la que se descontara el stock
+    * @param factura parametro que indica si la venta emite factura (para quitar preferentemente el stock del producto registrado en las compras)
+    * @return Int retorna 1 o 0
+    */
+    public function descontar_producto_almacen($producto_id, $cantidad, $sucursal_id, $factura){
+        DB::beginTransaction();
+        try {
+            $dp = DB::table('productos_depositos as pd')
+                        ->join('depositos as d', 'd.id', 'pd.deposito_id')
+                        ->select('pd.id', 'pd.stock', 'pd.stock_compra', 'd.id as deposito_id')
+                        ->where('pd.producto_id', $producto_id)->where('d.sucursal_id', $sucursal_id)
+                        ->first();
+            
+            // Si la venta emitió factura se descontará del stock de compra, caso contrario del stock normal
+            // Nota:   la variable stock_secuandario se usará en caso de que el stock primario sea menor a la cantidad
+            //         de producto a vender, para así descontarselo al otro stock y no quede con número negativo.
+            if($factura){
+                $stock = $dp->stock_compra;
+                $stock_primario = 'stock_compra';
+                $stock_secundario = 'stock';
+            }else{
+                $stock = $dp->stock;
+                $stock_primario = 'stock';
+                $stock_secundario = 'stock_compra';
+            }
+
+            // Si el stock seleccionado es menor o igual a la cantidad vendida se decrementa, sino se deja en 0
+            // y se decrementa al stock secundario la resta entre la cantidad vendida y el stock seleccionado
+            if($stock >= $cantidad){
+                DB::table('productos_depositos')->where('id', $dp->id)->decrement($stock_primario, $cantidad);
+            }else{
+                $monto_sobrante = $cantidad - $stock;
+                DB::table('productos_depositos')->where('id', $dp->id)->update([$stock_primario => 0]);
+                DB::table('productos_depositos')->where('id', $dp->id)->decrement($stock_secundario, $monto_sobrante);
+            }
+
+            // Descontar stock del registro global
+            DB::table('productos')->where('id', $producto_id)->decrement('stock', $cantidad);
+            
+            DB::commit();
+            return 1;
+        } catch (\Exception $e) {
+            DB::rollback();
+            return 0;
+        }
+    }
+
+    /**
+    * @param tipo incrementar o decrementar
+    * @param extra_id id del extra
+    * @param sucursal_id id de la sucursal de la que se descontara el stock
+    * @param cantidad cantidad a incrementar o decrementar
+    * @return Int retorna 1 o 0
+    */
+    public function cambiar_stock_extras_almacen($tipo, $extra_id, $sucursal_id, $cantidad){
+        DB::beginTransaction();
+        try {
+            if($tipo == 'incrementar'){
+                DB::table('extras_depositos as ed')
+                        ->join('depositos as d', 'd.id', 'ed.deposito_id')
+                        ->where('ed.extra_id', $extra_id)
+                        ->where('d.sucursal_id', $sucursal_id)
+                        ->where('ed.deleted_at', NULL)
+                        ->increment('stock', $cantidad);
+            }else{
+                DB::table('extras_depositos as ed')
+                        ->join('depositos as d', 'd.id', 'ed.deposito_id')
+                        ->where('ed.extra_id', $extra_id)
+                        ->where('d.sucursal_id', $sucursal_id)
+                        ->where('ed.deleted_at', NULL)
+                        ->decrement('stock', $cantidad);
+            }
+            DB::commit();
+            return 1;
+        } catch (\Exception $e) {
+            DB::rollback();
+            return 0;
+        }
+    }
+
     public function pedidos_success(){
         $venta_id = DB::table('ventas as v')
                         ->join('clientes as c', 'c.id', 'v.cliente_id')
@@ -1717,14 +1835,14 @@ class VentasController extends Controller
             DB::table('ie_cajas')->where('id', $caja_id)->increment('monto_final', $monto);
             DB::table('ie_cajas')->where('id', $caja_id)->increment('total_ingresos', $monto);
             DB::commit();
-            return 0;
+            return 1;
         } catch (\Exception $e) {
             DB::rollback();
-            return 1;
+            return 0;
         }
     }
 
-    // =========Ipresion de factura y recibo=========
+    // =========Impresion de factura y recibo=========
 
     public function ventas_print($tipo, $id){
         if($tipo == 'rollo'){
