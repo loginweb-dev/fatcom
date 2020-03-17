@@ -379,6 +379,7 @@
     {{-- <div id="btn-whatsapp"></div> --}}
     <link rel="stylesheet" href="{{ url('whatsapp/floating-wpp.css') }}">
     <script src="{{ url('whatsapp/floating-wpp.js') }}"></script>
+    <script src="{{ asset('js/app.js') }}"></script>
     <script>
         $(document).ready(function(){
             $('#btn-whatsapp').floatingWhatsApp({
@@ -392,6 +393,10 @@
                 headerTitle: '{{ setting('empresa.title') ?? "FATCOM" }}',
                 zIndex: 1111111
             });
+        });
+
+        Echo.channel('home').listen('NewMessage', (e) => {
+            alert(e.message);
         });
     </script>
     {{-- Notificaciones --}}
