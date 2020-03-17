@@ -60895,10 +60895,11 @@ window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/d
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
   key: "ASDASD1212",
-  cluster: "mt1",
+  cluster: "eu",
   wsHost: window.location.hostname,
   wsPort: 6001,
-  disableStats: true // wssPort: 6001,
+  disableStats: true // encrypted : true,
+  // wssPort: 6001,
   // forceTLS: true,
   // enabledTransports: ['ws', 'wss']
 
@@ -61000,8 +61001,8 @@ if (document.getElementById('example')) {
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! C:\xampp\htdocs\fatcom\resources\js\app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! C:\xampp\htdocs\fatcom\resources\sass\app.scss */"./resources/sass/app.scss");
+__webpack_require__(/*! /Applications/MAMP/htdocs/fatcom/resources/js/app.js */"./resources/js/app.js");
+module.exports = __webpack_require__(/*! /Applications/MAMP/htdocs/fatcom/resources/sass/app.scss */"./resources/sass/app.scss");
 
 
 /***/ })
