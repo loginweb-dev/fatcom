@@ -60895,7 +60895,7 @@ window.Pusher = __webpack_require__(/*! pusher-js */ "./node_modules/pusher-js/d
 window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   broadcaster: 'pusher',
   key: "ASDASD1212",
-  cluster: "eu",
+  cluster: "mt1",
   wsHost: window.location.hostname,
   wsPort: 6001,
   disableStats: true // encrypted : true,
