@@ -22,7 +22,7 @@
         "mike42/escpos-php": "^2.1",
         "milon/barcode": "^6.0",
         "orangehill/iseed": "^2.6",
-        "pusher/pusher-php-server": "^4.1",
+        "pusher/pusher-php-server": "~3.0",
         "simplesoftwareio/simple-qrcode": "^2.0",
         "tcg/voyager": "^1.2",
         "villca/numeros-en-letras": "^1.2"

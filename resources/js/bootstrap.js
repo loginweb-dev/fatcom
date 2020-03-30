@@ -43,7 +43,7 @@ if (token) {
  * allows your team to easily build robust real-time web applications.
  */
 
-import Echo from 'laravel-echo'
+import Echo from "laravel-echo"
 
 window.Pusher = require('pusher-js');
 
@@ -54,8 +54,5 @@ window.Echo = new Echo({
     wsHost: window.location.hostname,
     wsPort: 6001,
     disableStats: true,
-    encrypted : true,
-    wssPort: 6001,
-    forceTLS: true,
-    enabledTransports: ['ws', 'wss']
+    encrypted : false,
 });
