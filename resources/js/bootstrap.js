@@ -54,5 +54,5 @@ window.Echo = new Echo({
     wsHost: window.location.hostname,
     wsPort: 6001,
     disableStats: true,
-    encrypted : true, // True from HTTPS
+    encrypted : true, //false para trabajar en entorno local sin https
 });
