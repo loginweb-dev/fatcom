@@ -317,8 +317,8 @@ Route::get('admin/productos/subcategoria/store/{categoria_id}/{value}', 'Product
 
 // Clear cache
 Route::get('/admin/clear-cache', function() {
-    Artisan::call('cache:clear');
-    Artisan::call('route:clear');
-    Artisan::call('view:clear');
+    Artisan::call('optimize:clear');
+    // Artisan::call('route:clear');
+    // Artisan::call('view:clear');
     return redirect('/admin')->with(['message' => 'Cache eliminada.', 'alert-type' => 'success']);
 });

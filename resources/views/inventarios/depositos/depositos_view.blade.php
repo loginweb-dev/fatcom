@@ -7,7 +7,7 @@
             <i class="voyager-archive"></i> {{ $deposito->nombre }}
         </h1>
         {{-- El permiso "add_producto_depositos" se usa tanto para agregar productos al almacen, como para agregar extras e insumos --}}
-        @if(auth()->user()->hasPermission('add_producto_depositos'))
+        @if(auth()->user()->hasPermission('add_producto_depositos') && setting('admin.modo_sistema') == 'restaurante')
         <div class="dropdown" style="display:inline">
             <button class="btn btn-dark dropdown-toggle" type="button" data-toggle="dropdown" style="margin-top:1px" title="Usar esta opción en caso estar realizando inventario."><i class="voyager-list-add"></i> Agregar
             <span class="caret"></span></button>
@@ -299,12 +299,14 @@
                                 <label class="radio-inline">
                                     <input class="radio-traspaso" type="radio" name="optradio" checked value="productos">Productos
                                 </label>
+                                @if (setting('admin.modo_sistema') == 'restaurante')
                                 <label class="radio-inline">
                                     <input class="radio-traspaso" type="radio" name="optradio" value="insumos">Insumos
                                 </label>
                                 <label class="radio-inline">
                                     <input class="radio-traspaso" type="radio" name="optradio" value="extras">Extras
                                 </label>
+                                @endif
                             </div>
                             <div class="form-group div-traspaso" id="div-select-productos">
                                 <select name="" class="form-control select-traspaso" id="select-productos">

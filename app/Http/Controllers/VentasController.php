@@ -913,11 +913,6 @@ class VentasController extends Controller
             DB::commit();
 
             $sucursal = $this->get_user_sucursal();
-            try {
-                event(new pedidoEntregado($sucursal));
-            } catch (\Throwable $th) {
-                //throw $th;
-            }
 
             // Emitir el evento al cliente dueño del pedido
             $pedido = DB::table('ventas as v')
@@ -926,7 +921,13 @@ class VentasController extends Controller
                             ->where('v.id', $id)
                             ->orderBy('v.id', 'DESC')
                             ->first();
-            event(new pedidoEstadoCliente($id, $pedido));
+
+            try {
+                event(new pedidoEntregado($sucursal));
+                event(new pedidoEstadoCliente($id, $pedido));
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
 
             return redirect()->route('delivery_index')->with(['message' => 'Pedido entregado exitosamente.', 'alert-type' => 'success']);
         } catch (\Exception $e) {
