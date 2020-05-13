@@ -1,18 +1,11 @@
 @extends('voyager::master')
 @section('page_title', 'Editar Producto')
 
-{{-- @php
-    $stock_edit = false;
-@endphp --}}
-
 @if(auth()->user()->hasPermission('edit_productos'))
     @section('page_header')
         <h1 class="page-title">
             <i class="voyager-harddrive"></i> editar producto
         </h1>
-        {{-- <a href="{{route('sucursales_index')}}" class="btn btn-success btn-small">
-            <i class="voyager-double-left"></i> <span>Atras</span>
-        </a> --}}
     @stop
 
     @section('content')
@@ -87,20 +80,6 @@
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                {{-- <div class="form-group col-md-6">
-                                                    <label for="">Stock total</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad de productos en stock. Este campo es obligatorio."></span> @endif
-                                                    <div class="input-group">
-                                                        <input type="number" name="stock" readonly class="form-control" value="{{$producto->stock}}" min="0" step="1" required>
-                                                        <span class="input-group-btn">
-                                                            <button class="btn btn-danger" @if(!$stock_edit) disabled title="Edición no disponible" @else title="Editar stock" @endif data-toggle="modal" data-target="#modal-edit_stock" style="margin-top:0px;padding:9px" type="button">
-                                                                <i class="voyager-edit"></i>
-                                                            </button>
-                                                        </span>
-                                                    </div>
-                                                    @error('stock')
-                                                    <strong class="text-danger">{{ $message }}</strong>
-                                                    @enderror
-                                                </div> --}}
                                                 <div class="form-group col-md-6">
                                                     <label for="">Stock mínimo</label> @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad mínima de productos en stock para mostrar notificación de escasez. Este campo no es obligatorio."></span> @endif
                                                     <input type="number" name="stock_minimo" class="form-control" value="{{$producto->stock_minimo}}" min="0" step="1">
@@ -120,63 +99,26 @@
                                             {{-- <div class="row">
                                                 
                                             </div> --}}
-                                            <div class="row">
-                                                <div class="form-group col-md-12">
-                                                    <label for="" id="label-descripcion"></label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Descripción breve del producto, no debe exceder los 255 caracteres. Este campo es obligatorio."></span> @endif
-                                                    <textarea name="descripcion_small" class="form-control" id="text-descripcion" maxlength="255" rows="5" placeholder="Descripción corta del producto" required>{{$producto->descripcion_small}}</textarea>
-                                                    @error('descripcion_small')
-                                                    <strong class="text-danger">{{ $message }}</strong>
-                                                    @enderror
-                                                </div>
-                                            </div>
                                         </div>
                                         <div class="col-md-6">
-                                            <article class="gallery-wrap">
-                                                <div class="img-big-wrap card-banner" style="text-align:center;height:370px">
-                                                    <article class="overlay top text-center">
-                                                        <h4 class="title mb-0">Imagen principal del producto</h4>
-                                                    </article>
-                                                    @php
-                                                        $img = ($producto->imagen!='') ? str_replace('.', '_medium.', $producto->imagen) : 'productos/default.png';
-                                                        $img_big = ($producto->imagen!='') ? $producto->imagen : 'productos/default.png';
-                                                    @endphp
-                                                    <a id="img-slider" href="{{url('storage').'/'.$img_big}}" data-fancybox="slider1">
-                                                        <img id="img-medium" class="img-thumbnail img-sm" src="{{url('storage').'/'.$img}}">
-                                                    </a>
-                                                </div>
-                                                <div class="img-small-wrap">
-                                                    @php
-                                                        $style = ($producto->imagen!='') ? 'border:3px solid #2ECC71' : '';
-                                                        $imagen_principal = 0;
-                                                    @endphp
-                                                    @foreach ($imagen as $item)
-                                                        @php
-                                                            $img = str_replace('.', '_small.', $item->imagen);
-                                                            $img_big = $item->imagen;
-                                                            if(!empty($style)){
-                                                                $imagen_principal = $item->id;
-                                                            }
-                                                        @endphp
-                                                        <div class="item-gallery" id="image-{{$item->id}}" style="{{ $style }}">
-                                                            <div style="position:absolute;z-index:1;">
-                                                                <label class="label label-danger btn-delete_img" data-toggle="modal" data-id="{{$item->id}}" data-target="#modal_delete" style="cursor:pointer;margin-left:30px;@if(!empty($style)) display:none @endif"><span class="voyager-x"></span></label>
-                                                            </div>
-                                                            <img src="{{url('storage').'/'.$img}}" class="img-thumbnail img-sm img-gallery" data-id="{{$item->id}}" data-img="{{url('storage').'/'.$img_big}}">
-                                                        </div>
-                                                        @php
-                                                            $style = '';
-                                                        @endphp
-                                                    @endforeach
-                                                </div>
-                                            </article>
                                             <div class="col-md-12" style="">
-                                                <div class="img-small-wrap" style="height:120px;overflow-y:auto;border:3px solid #096FA9;padding:5px">
-                                                    <div class="item-gallery" id="img-preview">
-                                                        <button type="button" class="btn" title="Agregar imagen(es)" onclick="add_img()">
-                                                            <h1 style="font-size:50px;margin:10px"><span class="voyager-plus"></span></h1>
-                                                        </button>
+                                                <div class="row">
+                                                    <div class="col-md-12" style="">
+                                                        <label for="">Imagen(es)</label> @if(setting('admin.tips')) <span class="voyager-question text-default" data-toggle="tooltip" data-placement="left" title="Imagen o imagenes que se mostrarán del producto. Este campo no es obligatorio."></span> @endif
+                                                        <div class="img-small-wrap" style="height:110px;overflow-y:auto;border:3px solid #096FA9;padding:5px">
+                                                            <div class="" id="img-preview"></div>
+                                                            {{-- <input type="file" name="imagen[]" style="display:none" accept="image/png, image/jpeg" multiple id="gallery-photo-add"> --}}
+                                                        </div>
                                                     </div>
-                                                    <input type="file" name="imagen[]" style="display:none" accept="image/png, image/jpeg" multiple id="gallery-photo-add">
+                                                </div>
+                                                <div class="row">
+                                                    <div class="form-group col-md-12">
+                                                        <label for="" id="label-descripcion"></label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Descripción breve del producto, no debe exceder los 255 caracteres. Este campo es obligatorio."></span> @endif
+                                                        <textarea name="descripcion_small" class="form-control" id="text-descripcion" maxlength="255" rows="6" placeholder="Descripción corta del producto" required>{{$producto->descripcion_small}}</textarea>
+                                                        @error('descripcion_small')
+                                                        <strong class="text-danger">{{ $message }}</strong>
+                                                        @enderror
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -298,68 +240,43 @@
             </form>
         </div>
         @include('partials.modal_load')
-        @include('inventarios.productos.partials.modales')
-
-        {{-- @if($stock_edit)
-            <form action="{{ route('productos_update_stock') }}" method="POST" >
-                <div class="modal modal-danger fade" tabindex="-1" id="modal-edit_stock" role="dialog">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                            aria-hidden="true">&times;</span></button>
-                                <h4 class="modal-title">
-                                    <i class="voyager-edit"></i> Estás seguro que quieres editar el stock del producto?
-                                </h4>
-                            </div>
-            
-                            <div class="modal-body">
-                                <div class="alert alert-warning">
-                                    <strong>Advertencia:</strong>
-                                    <p>Al editar el stock del producto de manera manual compromete la información de compras y ventas debido a que no coincidirán con sus registros en stock.</p>
-                                </div>
-                                @csrf
-                                <input type="hidden" name="id" value="{{$producto->id}}">
-                                <div class="form-group">
-                                    <label for="">Deposito</label>
-                                    <select name="deposito_id" class="form-control" id="" required>
-                                        @foreach ($productos_depositos as $item)
-                                        <option value="{{ $item->id }}">{{ $item->nombre }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="">Stok actual</label>
-                                    <input type="number" step="1" min="0" name="stock" class="form-control" required>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-danger pull-right">Editar</button>
-                                <button type="button" class="btn btn-default pull-right" data-dismiss="modal">
-                                    Cancelar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </form>
-        @endif --}}
+        @include('inventarios.productos.partials.modales', ['producto_id' => $producto->id])
     @stop
 
     @section('css')
-        <link href="{{url('ecommerce_public/plugins/fancybox/fancybox.min.css')}}" type="text/css" rel="stylesheet">
         <!-- custom style -->
         <link href="{{url('ecommerce_public/css/ui.css')}}" rel="stylesheet" type="text/css"/>
         <link href="{{url('ecommerce_public/css/responsive.css')}}" rel="stylesheet" media="only screen and (max-width: 1200px)" />
+        <link rel="stylesheet" type="text/css" href="{{asset('dropzone/dropzone.css')}}">
     @stop
 
     @section('javascript')
     <script src="{{url('image-preview/image-preview.js')}}"></script>
-    <script src="{{url('ecommerce_public/plugins/fancybox/fancybox.min.js')}}" type="text/javascript"></script>
     <script src="{{url('js/loginweb.js')}}"></script>
     <script src="{{url('js/inventarios/productos.js')}}"></script>
+    <script src="{{asset('dropzone/dropzone.js')}}" type="text/javascript"></script>
         <script>
+            Dropzone.autoDiscover = false;
+            // Dropzone
+            var myDropzone = new Dropzone(".dropzone",{ 
+                maxFilesize: 5,  // 3 mb
+                acceptedFiles: ".jpeg,.jpg,.png",
+            });
+            myDropzone.on("success", function(file, res) {
+                if(res.data === 'success'){
+                    toastr.success('Imagen agregada correctamente.', 'Bien hecho!');
+                    imagesList();
+                }else{
+                    toastr.error('Ocurrio un error al agragar la imagen.', 'Error!')
+                }
+            });
+            // ===================
+
             $(document).ready(function(){
+
+                // Obtener lista de imagenes
+                imagesList();
+
                 $('[data-toggle="popover"]').popover({ html : true });
                 $('[data-toggle="tooltip"]').tooltip();
 
@@ -377,11 +294,8 @@
                 $('#select-subcategoria_id').val('{{$producto->subcategoria_id}}');
                 $('#select-marca_id').val('{{$producto->marca_id}}');
                 $('#select-unidad_id').val('{{$producto->unidad_id}}');
-
-                // $('#select-categoria_id').select2();
-                // $('#select-subcategoria_id').select2();
-                // $('#select-marca_id').select2();
                 $('#select-moneda_id').select2();
+
                 inicializar_select2('categoria_id');
                 inicializar_select2('subcategoria_id');
                 inicializar_select2('marca_id');
@@ -421,6 +335,12 @@
                 // ================
 
             });
+
+            function imagesList(){
+                $.get('{{ url("admin/productos/lista_imagenes/".$producto->id) }}', function(data){
+                    $('#img-preview').html(data);
+                });
+            } 
         </script>
     @endsection
 

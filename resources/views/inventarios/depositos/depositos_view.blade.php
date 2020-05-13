@@ -92,8 +92,10 @@
                                 <div class="row">
                                     <ul class="nav nav-tabs">
                                         <li class="li-items_type active" data-value="productos"><a href="#"><b style="font-size:18px">Productos</b></a></li>
+                                        @if (setting('admin.modo_sistema') == 'restaurante')
                                         <li class="li-items_type" data-value="insumos"><a href="#"><b style="font-size:18px">Insumos</b></a></li>
                                         <li class="li-items_type" data-value="extras"><a href="#"><b style="font-size:18px">Extras</b></a></li>
+                                        @endif
                                     </ul>
                                 </div>
                                 <div class="row" id="lista-items"></div>

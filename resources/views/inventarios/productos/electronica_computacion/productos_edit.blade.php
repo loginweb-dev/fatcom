@@ -285,7 +285,7 @@
             </form>
         </div>
         @include('partials.modal_load')
-        @include('inventarios.productos.partials.modales')
+        {{-- @include('inventarios.productos.partials.modales', ['producto_id' => $producto->id]) --}}
     @stop
 
     @section('css')

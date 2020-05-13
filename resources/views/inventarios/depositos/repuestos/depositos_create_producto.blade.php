@@ -19,6 +19,11 @@
                         <div class="col-md-12">
                             <div class="panel panel-bordered">
                                 @csrf
+                                <input type="hidden" name="talla_id" value="1">
+                                <input type="hidden" name="color_id" value="1">
+                                <input type="hidden" name="uso_id" value="1">
+                                <input type="hidden" name="genero_id" value="1">
+                                {{-- ========================================= --}}
                                 <input type="hidden" name="deposito_id" value="{{$deposito_id}}">
                                 <input type="hidden" name="moneda_id" value="2">
                                 <input type="hidden" name="se_almacena" value="1">
@@ -234,10 +239,10 @@
                 inicializar_select2('categoria_id');
                 inicializar_select2('subcategoria_id');
                 inicializar_select2('marca_id');
-                inicializar_select2('talla_id');
-                inicializar_select2('color_id');
-                inicializar_select2('uso_id');
-                inicializar_select2('genero_id');
+                // inicializar_select2('talla_id');
+                // inicializar_select2('color_id');
+                // inicializar_select2('uso_id');
+                // inicializar_select2('genero_id');
                 inicializar_select2('unidad_id');
 
                 // agregar precios

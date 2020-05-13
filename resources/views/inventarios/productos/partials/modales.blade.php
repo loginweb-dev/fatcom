@@ -34,7 +34,7 @@
           <h4 class="modal-title" id="myModalLabel">Agregar imagenes</h4>
         </div>
         <div class="modal-body">
-            <form action="{{route('add_images_product', ['id'=>$producto_id])}}" class='dropzone' >
+            <form action="{{route('add_images_product', ['id'=> $producto_id])}}" class='dropzone' >
                 @csrf
                 <div class="dz-default dz-message" data-dz-message="">
                     <h3 class="text-muted">

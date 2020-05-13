@@ -329,21 +329,21 @@ class ProductosController extends Controller
         $categorias = DB::table('categorias')
                             ->select('*')
                             ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+                            // ->where('id', '>', 1)
                             ->get();
         $subcategorias = DB::table('subcategorias')
                             ->select('*')
                             ->where('deleted_at', NULL)
-                            ->where('id', '>', 1)
+                            // ->where('id', '>', 1)
                             ->get();
 
-        $marcas = Marca::where('deleted_at', NULL)->where('id', '>', 1)->get();
-        $tallas = Talla::where('deleted_at', NULL)->where('id', '>', 1)->get();
+        $marcas = Marca::where('deleted_at', NULL)->get();
+        $tallas = Talla::where('deleted_at', NULL)->get();
         $colores = Colore::where('deleted_at', NULL)->get();
-        $generos = Genero::where('deleted_at', NULL)->where('id', '>', 1)->get();
-        $usos = Uso::where('deleted_at', NULL)->where('id', '>', 1)->get();
-        $unidades = Unidade::where('deleted_at', NULL)->where('id', '>', 1)->get();
-        $monedas = Moneda::where('deleted_at', NULL)->where('id', '>', 1)->get();
+        $generos = Genero::where('deleted_at', NULL)->get();
+        $usos = Uso::where('deleted_at', NULL)->get();
+        $unidades = Unidade::where('deleted_at', NULL)->get();
+        $monedas = Moneda::where('deleted_at', NULL)->get();
         $extras = Extra::where('deleted_at', NULL)->where('estado', 1)->get();                      
 
         $insumos = DB::table('insumos as i')
@@ -495,7 +495,6 @@ class ProductosController extends Controller
                             'garantia' => $data->garantia,
                             'precio_venta' => $precio_venta,
                             'precio_minimo' => $precio_minimo,
-                            // 'stock' => $data->stock,
                             'stock_minimo' => $data->stock_minimo,
                             'subcategoria_id' => $data->subcategoria_id,
                             'marca_id' => $data->marca_id,
@@ -739,8 +738,9 @@ class ProductosController extends Controller
 
     public function crear_producto($data){
 
-        // Obtener valos si es un producto nuevo
+        // Set datos no requeridos
         $nuevo = (isset($data->nuevo)) ? 1: NULL;
+        $se_almacena = (isset($data->se_almacena)) ? 1: NULL;
 
         // Obtener primer precio ingresado
         $precio_venta = 0;
@@ -771,6 +771,7 @@ class ProductosController extends Controller
         $producto->uso_id = $data->uso_id;
         $producto->codigo_grupo = $data->codigo_grupo;
         $producto->nuevo = $nuevo;
+        $producto->se_almacena = $se_almacena;
         $producto->precio_venta = $precio_venta;
         $producto->precio_minimo = $precio_minimo;
         $producto->save();
