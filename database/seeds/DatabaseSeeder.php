@@ -14,5 +14,7 @@ class DatabaseSeeder extends Seeder
         $this->call(FatcomDatabaseSeeder::class);
         $this->call(FatcomPermissionsTableSeeder::class);
         $this->call(FatcomPermissionRoleTableSeeder::class);
+        $this->call(CustomizedMarcasTableSeeder::class);
+        $this->call(CustomizedDataRowsTableSeeder::class);
     }
 }

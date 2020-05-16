@@ -26,6 +26,8 @@ class UpdateSucursalesTable extends Migration
      */
     public function down()
     {
-        $table->dropColumn('delivery');
+        Schema::table('sucursales', function (Blueprint $table) {
+            $table->dropColumn(['delivery']);
+        });
     }
 }

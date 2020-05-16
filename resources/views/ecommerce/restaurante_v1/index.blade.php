@@ -327,9 +327,9 @@
                                                   </li>
                                                 </a>
                                                 @forelse ($categorias as $categoria)
-                                                  <a href="#" class="btn-search" data-tipo="categoria" data-id="{{ $categoria['id'] }}">
+                                                  <a href="#" class="btn-search" data-tipo="categoria" data-id="{{ $categoria->id }}">
                                                     <li class="list-item-title text-dark" style="margin-bottom:0px">
-                                                        <h4>{{ $categoria['nombre'] }}</h4>
+                                                        <h4>{{ $categoria->nombre }}</h4>
                                                     </li>
                                                   </a>
                                                 @empty

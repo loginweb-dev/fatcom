@@ -251,10 +251,10 @@
     @stop
 
     @section('javascript')
-    <script src="{{url('image-preview/image-preview.js')}}"></script>
+    <script src="{{url('js/image-preview/image-preview.js')}}"></script>
     <script src="{{url('js/loginweb.js')}}"></script>
     <script src="{{url('js/inventarios/productos.js')}}"></script>
-    <script src="{{asset('dropzone/dropzone.js')}}" type="text/javascript"></script>
+    <script src="{{asset('js/dropzone/dropzone.js')}}" type="text/javascript"></script>
         <script>
             Dropzone.autoDiscover = false;
             // Dropzone

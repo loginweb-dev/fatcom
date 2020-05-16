@@ -17,6 +17,7 @@ use App\PasarelaPago;
 use App\Venta;
 use App\Producto;
 use App\Oferta;
+use App\Categoria;
 use App\Subcategoria;
 use App\Sucursale;
 use App\Localidade;
@@ -26,36 +27,12 @@ use App\IeCaja;
 class LandingPageController extends Controller
 {
     public function index(){
-
-        $lista_categorias = DB::table('categorias as c')
-                            ->join('subcategorias as s', 's.categoria_id', 'c.id')
-                            ->join('productos as p', 'p.subcategoria_id', 's.id')
-                            ->join('ecommerce_productos as ec', 'ec.producto_id', 'p.id')
-                            ->select('c.*')
-                            ->where('c.deleted_at', NULL)
-                            ->distinct()
-                            // ->limit(10)
-                            ->get();
-        $categorias = collect();
-        // Recorrer las categorias
-        foreach ($lista_categorias as $item) {
-            $collect_aux = collect($item);
-            // Obetener las subcategorías de las categorías
-            $lista_subcategorias = DB::table('subcategorias')
-                                        ->select('*')
-                                        ->where('categoria_id', $item->id)->where('deleted_at', NULL)
-                                        ->get();
-            // Si exite al menos una la agrega a la colección
-            if(count($lista_subcategorias)){
-                $collect_aux->put('subcategorias',$lista_subcategorias);
-                $categorias->push($collect_aux);
-            }
-        }
+        $categorias = Categoria::with('subcategorias')->where('deleted_at', NULL)->where('id', '>', 1)->get();
 
         $marcas = DB::table('marcas as m')
                             ->join('productos as p', 'p.marca_id', 'm.id')
                             ->join('ecommerce_productos as ec', 'ec.producto_id', 'p.id')
-                            ->select(DB::raw('m.id, m.nombre, count(p.id) as productos'))
+                            ->select(DB::raw('m.id, m.nombre, count(p.id) as productos, m.logo'))
                             ->where('m.deleted_at', NULL)
                             ->groupBy('id', 'nombre')
                             ->orderBy('productos', 'DESC')
@@ -194,8 +171,6 @@ class LandingPageController extends Controller
             }
             $cont++;
         }
-
-
 
         return view('ecommerce.'.setting('admin.ecommerce').'busqueda', compact('productos', 'precio_min', 'precio_max'));
     }

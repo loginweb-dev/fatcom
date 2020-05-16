@@ -14,6 +14,10 @@ class Categoria extends Model
     protected $dates = ['deleted_at'];
     protected $fillable = ['nombre', 'descripcion'];
 
+    public function subcategorias(){
+        return $this->hasMany('App\Subcategoria', 'categoria_id');
+    }
+
     public function sluggable()
     {
         return [

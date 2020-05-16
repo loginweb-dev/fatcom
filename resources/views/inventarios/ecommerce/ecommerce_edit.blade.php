@@ -94,8 +94,8 @@
     @stop
 
     @section('css')
-        <link rel="stylesheet" href="{{url('input-multiple/bootstrap-tagsinput.css')}}">
-        <link rel="stylesheet" href="{{url('input-multiple/app.css')}}">
+        <link rel="stylesheet" href="{{url('js/input-multiple/bootstrap-tagsinput.css')}}">
+        <link rel="stylesheet" href="{{url('js/input-multiple/app.css')}}">
         <style>
             .popover{
                 width: 300px;
@@ -104,8 +104,8 @@
     @stop
 
     @section('javascript')
-        <script src="{{url('input-multiple/bootstrap-tagsinput.js')}}"></script>
-        <script src="{{url('input-multiple/app.js')}}"></script>
+        <script src="{{url('js/input-multiple/bootstrap-tagsinput.js')}}"></script>
+        <script src="{{url('js/input-multiple/app.js')}}"></script>
         <script src="{{url('js/loginweb.js')}}"></script>
         <script>
             $(document).ready(function(){

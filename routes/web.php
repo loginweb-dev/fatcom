@@ -318,7 +318,15 @@ Route::get('admin/productos/subcategoria/store/{categoria_id}/{value}', 'Product
 // Clear cache
 Route::get('/admin/clear-cache', function() {
     Artisan::call('optimize:clear');
-    // Artisan::call('route:clear');
-    // Artisan::call('view:clear');
     return redirect('/admin')->with(['message' => 'Cache eliminada.', 'alert-type' => 'success']);
 });
+
+// Administrador de plantillas
+Route::get('/admin/templates', 'TemplatesController@index');
+Route::post('/admin/templates/page/create', 'TemplatesController@page_create')->name('templates.page.create');
+Route::post('/admin/templates/page/section/create', 'TemplatesController@section_create')->name('templates.page.section.create');
+Route::post('/admin/templates/page/section/update', 'TemplatesController@section_update')->name('templates.page.section.update');
+Route::get('/admin/templates/page/section/delete/{id}/{template_id}', 'TemplatesController@section_delete');
+Route::post('/admin/templates/page/section/block/create', 'TemplatesController@create_block')->name('templates.page.section.block.create');
+Route::get('/admin/templates/page/section/block/{type}/{id}/{template_id}', 'TemplatesController@options_block');
+Route::post('/admin/templates/page/section/block/input/update', 'TemplatesController@update_block_input')->name('templates.page.section.block.input.update');

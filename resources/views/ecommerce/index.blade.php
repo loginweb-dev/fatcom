@@ -45,13 +45,13 @@
                             <ul class="list-unstyled list-lg">
                                 <li class="list-item-title text-secondary btn-search" data-tipo="subcategoria" data-id="" style="margin-bottom:0px" aria-expanded="true">Todas</li>
                                 @forelse ($categorias as $categoria)
-                                    <li class="list-item-title text-secondary" style="margin-bottom:0px" id="heading{{$categoria['id']}}" data-toggle="collapse" data-target="#collapse{{$categoria['id']}}" aria-expanded="true" aria-controls="collapse{{$categoria['id']}}">
-                                        {{$categoria['nombre']}}
+                                    <li class="list-item-title text-secondary" style="margin-bottom:0px" id="heading{{ $categoria->id }}" data-toggle="collapse" data-target="#collapse{{ $categoria->id }}" aria-expanded="true" aria-controls="collapse{{ $categoria->id }}">
+                                        {{ $categoria->nombre }}
                                     </li>
-                                    <div id="collapse{{$categoria['id']}}" class="collapse sublist-body" aria-labelledby="heading{{$categoria['id']}}" data-parent="#accordion">
+                                    <div id="collapse{{ $categoria->id }}" class="collapse sublist-body" aria-labelledby="heading{{ $categoria->id }}" data-parent="#accordion">
                                         <ul class="list-unstyled list-lg sublist">
-                                            @foreach ($categoria['subcategorias'] as $subcategoria)
-                                                <li><a href="#" class="btn-search" data-tipo="subcategoria" data-id="{{$subcategoria->id}}" > {{$subcategoria->nombre}} <span class="float-right badge badge-secondary round"></span></a></li>
+                                            @foreach ($categoria->subcategorias as $subcategoria)
+                                                <li><a href="#" class="btn-search" data-tipo="subcategoria" data-id="{{ $subcategoria->id }}" > {{ $subcategoria->nombre }} <span class="float-right badge badge-secondary round"></span></a></li>
                                             @endforeach
                                         </ul>
                                     </div>

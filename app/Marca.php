@@ -9,5 +9,5 @@ class Marca extends Model
 {
     use SoftDeletes;
     protected $dates = ['deleted_at'];
-    protected $fillable = ['nombre'];
+    protected $fillable = ['nombre', 'logo'];
 }

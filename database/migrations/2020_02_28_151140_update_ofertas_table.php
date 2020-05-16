@@ -27,6 +27,8 @@ class UpdateOfertasTable extends Migration
      */
     public function down()
     {
-        $table->dropColumn(['tipo_oferta', 'estado']);
+        Schema::table('ofertas', function (Blueprint $table) {
+            $table->dropColumn(['tipo_oferta', 'estado']);
+        });
     }
 }

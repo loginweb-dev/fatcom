@@ -132,12 +132,15 @@ class FatcomSettingsTableSeeder extends Seeder
                 'id' => 11,
                 'key' => 'admin.modo_sistema',
                 'display_name' => 'Modo del sistema',
-                'value' => 'restaurante',
+                'value' => 'repuestos',
                 'details' => '{
-"options":{
-"boutique":"Boutique","repuestos":"Tienda en gral.","electronica_computacion":"Electrónica y computación", "restaurante":"Restaurante"
-}
-}',
+                    "options":{
+                        "boutique":"Boutique",
+                        "repuestos":"Tienda en gral.",
+                        "electronica_computacion":"Electrónica y computación",
+                        "restaurante":"Restaurante"
+                    }
+                }',
                 'type' => 'select_dropdown',
                 'order' => 7,
                 'group' => 'Admin',
@@ -237,11 +240,11 @@ class FatcomSettingsTableSeeder extends Seeder
                 'display_name' => 'Tipo de actividad económica',
                 'value' => 'bienes',
                 'details' => '{
-"options":{
-"bienes":"Venta de bienes",
-"servicios":"Venta de servicios"
-}
-}',
+                    "options":{
+                    "bienes":"Venta de bienes",
+                    "servicios":"Venta de servicios"
+                    }
+                }',
                 'type' => 'select_dropdown',
                 'order' => 14,
                 'group' => 'Empresa',
@@ -308,12 +311,12 @@ class FatcomSettingsTableSeeder extends Seeder
                 'display_name' => 'Tamaño de la factura',
                 'value' => 'media_carta',
                 'details' => '{
-"options":{
-"media_carta" : "Media carta",
-"carta" : "Carta",
-"rollo" : "En rollo"
-}
-}',
+                    "options":{
+                        "media_carta" : "Media carta",
+                        "carta" : "Carta",
+                        "rollo" : "En rollo"
+                    }
+                }',
                 'type' => 'select_dropdown',
                 'order' => 20,
                 'group' => 'Empresa',
@@ -380,10 +383,11 @@ class FatcomSettingsTableSeeder extends Seeder
                 'display_name' => 'Ecommerce',
                 'value' => '',
                 'details' => '{
-"options":{
-"" : "Por defecto"
-}
-}',
+                    "options":{
+                        "" : "Por defecto",
+                        "ecommerce_v1." : "Ecommerce V1"
+                    }
+                }',
                 'type' => 'select_dropdown',
                 'order' => 7,
                 'group' => 'Admin',

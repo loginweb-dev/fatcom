@@ -28,6 +28,8 @@ class UpdateUsersTable extends Migration
      */
     public function down()
     {
-        $table->dropColumn(['cliente_id', 'localidad_id', 'tipo_login']);
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn(['cliente_id', 'localidad_id', 'tipo_login']);
+        });
     }
 }
