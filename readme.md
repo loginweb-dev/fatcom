@@ -14,7 +14,7 @@ Con el fin de desarrollar un software que pueda administrar de manera eficiente 
 - **Administración de caja.**
 - **Facturación computarizada con generación de libros de compras y ventas.**
 - **E-Commerce.**
-- **Administración de pedidos.**
+- **Administración de delivery.**
 
 
 ## Componentes
@@ -35,28 +35,48 @@ FATCOM está desarrollado bajo el lenguaje PHP, pero también utiliza libreréas
 
 ## Instalación
 
-- **run: git clone https://github.com/loginweb-dev/fatcom.git**
-- **run: cd fatcom**
-- **run: cp .env.example .env**
-- **Crear la base de datos fatcom**
-- **run: nano .env**
-- **Editar el usuario y contraseña de la conexión a la base de datos**
-- **run: composer install**
-- **run: php artisan key:generate**
-- **run: php artisan migrate --seed**
-- **run: php artisan storage:link**
-- **run: cp -r ./vendor/tcg/voyager/publishable/dummy_content/users ./storage/app/public**
-- **run: composer dump-autoload**
-- **run: npm install**
-- **run: npm run prod**
-- **run: php artisan websockets:serve**
-- **run: php artisan serve**
+Para la instalación de FATCOM se deben seguir algunos pasos que se describen a continuación.
 
+- *Clonar el proyecto desde le repositorio*
+```bash
+    git clone https://github.com/loginweb-dev/fatcom.git && cd fatcom
+```
+- *Crear la base de datos "fatcom"*
+- *Copiar el archivo .env y editar los datos de usuario del gestos de base de datos*
+```bash
+    cp .env.example .env && nano .env
+```
+- *Instalar dependencias de composer y npm*
+```bash
+    composer install && npm install && npm run prod
+```
+- *Instalar FATCOM*
+```bash
+    php artisan fatcom:install
+```
+- *Luego de instalar todas las dependias se recomienda ejecutar el siguiente comando*
+```bash
+    composer dump-autoload
+```
+
+## Uso
+
+Luego de realizar la instalación, para utilizar el sistema simplemente se debe inicializar el servidor HTTP y el servidor de websockets.
+
+- *Iniciar el servidor HTTP*
+```bash
+    php artisan serve
+```
+- *Iniciar el servidor websockets*
+```bash
+    php artisan websockets:serve
+```
+- *Una vez iniciado los servicios ingresa a http://127.0.0.1:8000/admin e iniciar sesión con los siguientes datos:*
 ```bash
 Usuario : admin@admin.com
 Password: password
 ```
 
-### Adicional
+## Adicional
 
 - **Para que funcione el login desde Facebook y Google debe agregar la clave publica y privada en la parte inferior del archivo .env**

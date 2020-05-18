@@ -323,10 +323,11 @@ Route::get('/admin/clear-cache', function() {
 
 // Administrador de plantillas
 Route::get('/admin/templates', 'TemplatesController@index');
-Route::post('/admin/templates/page/create', 'TemplatesController@page_create')->name('templates.page.create');
-Route::post('/admin/templates/page/section/create', 'TemplatesController@section_create')->name('templates.page.section.create');
-Route::post('/admin/templates/page/section/update', 'TemplatesController@section_update')->name('templates.page.section.update');
-Route::get('/admin/templates/page/section/delete/{id}/{template_id}', 'TemplatesController@section_delete');
-Route::post('/admin/templates/page/section/block/create', 'TemplatesController@create_block')->name('templates.page.section.block.create');
-Route::get('/admin/templates/page/section/block/{type}/{id}/{template_id}', 'TemplatesController@options_block');
-Route::post('/admin/templates/page/section/block/input/update', 'TemplatesController@update_block_input')->name('templates.page.section.block.input.update');
+Route::post('/admin/templates/create', 'TemplatesController@template_create')->name('templates.create');
+Route::post('/admin/templates/pages/create', 'TemplatesController@page_create')->name('templates.pages.create');
+Route::post('/admin/templates/pages/sections/create', 'TemplatesController@section_create')->name('templates.pages.sections.create');
+Route::post('/admin/templates/pages/sections/update', 'TemplatesController@section_update')->name('templates.pages.sections.update');
+Route::get('/admin/templates/pages/sections/delete/{id}/{template_id}/{page_id}', 'TemplatesController@section_delete');
+Route::post('/admin/templates/pages/sections/blocks/create', 'TemplatesController@create_block')->name('templates.pages.sections.blocks.create');
+Route::get('/admin/templates/pages/sections/blocks/{type}/{id}/{template_id}/{page_id}', 'TemplatesController@options_block');
+Route::post('/admin/templates/pages/sections/blocks/inputs/update', 'TemplatesController@update_block_input')->name('templates.pages.sections.blocks.inputs.update');

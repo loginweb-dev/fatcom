@@ -24,123 +24,171 @@
                 <div class="col-md-12">
                     <div class="row">
                         <div class="col-2">
-                          <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                            @foreach ($templates as $item)
-                            <a class="nav-link @if($item->id == \Session::get('template_id')) active @endif" id="v-pills-{{ $item->name }}-tab" data-id="{{ $item->id }}" data-toggle="pill" href="#v-pills-{{ $item->name }}" role="tab" aria-controls="v-pills-{{ $item->name }}" aria-selected="false">{{ ucfirst($item->name) }}</a>
-                            @endforeach
-                            <br>
-                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-new-template">Nuevo</button>
-                          </div>
-                        </div>
-                        <div class="col-10">
-                            <div class="tab-content" id="v-pills-tabContent">
-                            @foreach ($templates as $page)
-                            <div class="tab-pane fade @if($page->id == \Session::get('template_id')) show active @endif" id="v-pills-{{ $page->name }}" role="tabpanel" aria-labelledby="v-pills-{{ $page->name }}-tab">
-                                @foreach ($page->sections as $section)
-                                <div class="card mb-5">
-                                    <div class="card-header">
-                                        <div class="row">
-                                            <div class="col-md-10">
-                                                ID:{{ $section->id }} {{ ucfirst($section->name) }} <br> <small>{{ $section->description }}</small>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <div class="card-header bg-transparent text-right" style="padding: 0px; border:0px">
-                                                    <div class="dropdown">
-                                                        <a class="btn btn-link dropdown-toggle" href="#" role="button" id="dropdownMenuLink-{{ $section->id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
-                                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink-{{ $section->id }}">
-                                                            <a class="dropdown-item btn-update-section" href="#" data-toggle="modal" data-target="#modal-update-section" data-id="{{ $section->id }}" data-name="{{ $section->name }}" data-description="{{ $section->description }}">
-                                                                <i class="fa fa-edit"></i> Editar
-                                                            </a>
-                                                            <a class="dropdown-item text-danger" href="{{ url('admin/templates/page/section/delete/'.$section->id.'/'.$page->id) }}"><i class="fa fa-trash"></i> Borrar</a>
+                            <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                @foreach ($templates as $template)
+                                <a class="nav-link nav-template @if($template->id == \Session::get('template_id')) active @endif" id="v-pills-tab-{{ $template->id }}" data-id="{{ $template->id }}" data-toggle="pill" href="#v-pills-tab{{ $template->id }}" role="tab" aria-controls="v-pills-home1" aria-selected="true">{{ $template->name }}</a>
+                                @endforeach
+                                <br>
+                                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modal-create-template">Nuevo <i class="fa fa-plus"></i></button>
+                            </div>
+                            </div>
+                            <div class="col-10">
+                                <div class="tab-content" id="v-pills-tabContent">
+                                    @foreach ($templates as $template)
+                                    <div class="tab-pane fade @if($template->id == \Session::get('template_id')) show active @endif" id="v-pills-tab{{ $template->id }}" role="tabpanel" aria-labelledby="v-pills-tab-{{ $template->id }}">
+                                        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                                            @foreach ($template->pages as $page)
+                                            <li class="nav-item">
+                                                <a class="nav-link nav-page @if($page->id == \Session::get('page_id')) active @endif" data-id="{{ $page->id }}" id="pills-tab{{ $page->id }}-tab" data-toggle="pill" href="#pills-tab{{ $page->id }}" role="tab" aria-controls="pills-tab{{ $page->id }}" aria-selected="true">{{ $page->name }}</a>
+                                            </li>
+                                            @endforeach
+                                            <li class="nav-item" style="margin: 0px 10px">
+                                                <a class="nav-link btn btn-danger btn-sm" href="#" data-toggle="modal" data-target="#modal-create-page"><i class="fa fa-plus"></i></a>
+                                            </li>
+                                        </ul>
+                                        <div class="tab-content" id="pills-tabContent">
+                                            @foreach ($template->pages as $page)
+                                            <div class="tab-pane fade @if($page->id == \Session::get('page_id')) show active @endif" id="pills-tab{{ $page->id }}" role="tabpanel" aria-labelledby="pills-tab{{ $page->id }}-tab">
+                                                @foreach ($page->sections as $section)
+                                                <div class="card mb-5">
+                                                    <div class="card-header">
+                                                        <div class="row">
+                                                            <div class="col-md-10">
+                                                                ID:{{ $section->id }} {{ ucfirst($section->name) }} <br> <small>{{ $section->description }}</small>
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <div class="card-header bg-transparent text-right" style="padding: 0px; border:0px">
+                                                                    <div class="dropdown">
+                                                                        <a class="btn btn-link dropdown-toggle" href="#" role="button" id="dropdownMenuLink-{{ $section->id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
+                                                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink-{{ $section->id }}">
+                                                                            <a class="dropdown-item btn-update-section" href="#" data-toggle="modal" data-target="#modal-update-section" data-id="{{ $section->id }}" data-name="{{ $section->name }}" data-description="{{ $section->description }}">
+                                                                                <i class="fa fa-edit"></i> Editar
+                                                                            </a>
+                                                                            <a class="dropdown-item text-danger" href="{{ url('admin/templates/pages/sections/delete/'.$section->id.'/'.$template->id.'/'.$page->id) }}"><i class="fa fa-trash"></i> Borrar</a>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            @forelse ($section->blocks as $block)
+                                                            <div class="col-md-4">
+                                                                <div class="card mb-3">
+                                                                    <div class="card-header bg-transparent text-right" style="padding: 0px">
+                                                                        <div class="dropdown">
+                                                                            <a class="btn btn-link dropdown-toggle" href="#" role="button" id="dropdownMenuLink-{{ $block->id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
+                                                                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink-{{ $block->id }}">
+                                                                                <a class="dropdown-item" href="{{ url('admin/templates/pages/sections/blocks/duplicate/'.$block->id.'/'.$template->id.'/'.$page->id) }}"><i class="fa fa-clone"></i> Duplicar</a>
+                                                                                <a class="dropdown-item text-danger" href="{{ url('admin/templates/pages/sections/blocks/delete/'.$block->id.'/'.$template->id.'/'.$page->id) }}"><i class="fa fa-trash"></i> Borrar</a>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="card-body">
+                                                                        @foreach ($block->inputs as $input)
+                                                                            @switch($input->type)
+                                                                                @case('text')
+                                                                                    <div class="input-group mb-3">
+                                                                                        @include('templates.partials.inputs.text', ['id'=>$input->id,'type'=>$input->type,'value'=>"$input->value"])
+                                                                                    </div>
+                                                                                    @break
+                                                                                @case('long_text')
+                                                                                    <div class="input-group mb-3">
+                                                                                        @include('templates.partials.inputs.long_text', ['id'=>$input->id,'type'=>$input->type,'value'=>"$input->value"])
+                                                                                    </div>
+                                                                                    @break
+                                                                                @case('icon')
+                                                                                    <div class="input-group mb-3">
+                                                                                        @include('templates.partials.inputs.icon', ['id'=>$input->id,'type'=>$input->type,'value'=>"$input->value"])
+                                                                                    </div>
+                                                                                    @break
+                                                                                @case('image')
+                                                                                    <div class="input-group mb-3">
+                                                                                        @include('templates.partials.inputs.image', ['id'=>$input->id,'type'=>$input->type,'value'=>"$input->value"])
+                                                                                    </div>
+                                                                                    @break
+                                                                                @default
+                                        
+                                                                            @endswitch
+                                                                        @endforeach
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            @empty
+                                                            <div class="col-md-12 text-center">
+                                                                <h5>Aún no has creado ningún bloque</h5>
+                                                                <button type="button" data-section_id="{{ $section->id }}" data-toggle="modal" data-target="#modal-create-block" class="btn btn-warning btn-sm btn-create-block"><i class="fa fa-plus"></i> Crear bloque</button>
+                                                            </div>
+                                                            @endforelse
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            @forelse ($section->blocks as $block)
-                                            <div class="col-md-4">
-                                                <div class="card mb-3">
-                                                    <div class="card-header bg-transparent text-right" style="padding: 0px">
-                                                        <div class="dropdown">
-                                                            <a class="btn btn-link dropdown-toggle" href="#" role="button" id="dropdownMenuLink-{{ $block->id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
-                                                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink-{{ $block->id }}">
-                                                                <a class="dropdown-item" href="{{ url('admin/templates/page/section/block/duplicate/'.$block->id.'/'.$page->id) }}"><i class="fa fa-clone"></i> Duplicar</a>
-                                                                <a class="dropdown-item text-danger" href="{{ url('admin/templates/page/section/block/delete/'.$block->id.'/'.$page->id) }}"><i class="fa fa-trash"></i> Borrar</a>
-                                                            </div>
-                                                          </div>
-                                                    </div>
-                                                    <div class="card-body">
-                                                        @foreach ($block->inputs as $input)
-                                                            @switch($input->type)
-                                                                @case('text')
-                                                                    <div class="input-group mb-3">
-                                                                        @include('templates.partials.inputs.text', ['id'=>$input->id,'type'=>$input->type,'value'=>"$input->value"])
-                                                                      </div>
-                                                                    @break
-                                                                @case('long_text')
-                                                                    <div class="input-group mb-3">
-                                                                        @include('templates.partials.inputs.long_text', ['id'=>$input->id,'type'=>$input->type,'value'=>"$input->value"])
-                                                                      </div>
-                                                                    @break
-                                                                @case('icon')
-                                                                    <div class="input-group mb-3">
-                                                                        @include('templates.partials.inputs.icon', ['id'=>$input->id,'type'=>$input->type,'value'=>"$input->value"])
-                                                                      </div>
-                                                                    @break
-                                                                @case('image')
-                                                                    <div class="input-group mb-3">
-                                                                        @include('templates.partials.inputs.image', ['id'=>$input->id,'type'=>$input->type,'value'=>"$input->value"])
-                                                                      </div>
-                                                                    @break
-                                                                @default
-                        
-                                                            @endswitch
-                                                        @endforeach
+                                                @endforeach
+                                                <div class="row mt-5">
+                                                    <div class="col-md-12 text-center">
+                                                        @if (count($page->sections)==0)
+                                                        <h5>Aún no has creado ningún sección</h5>
+                                                        @endif
+                                                        <button type="button" data-template_id="{{ $template->id }}" data-toggle="modal" data-target="#modal-create-section" class="btn btn-info btn-sm btn-create-section"><i class="fa fa-plus"></i> Crear sección</button>
                                                     </div>
                                                 </div>
                                             </div>
-                                            @empty
-                                            <div class="col-md-12 text-center">
-                                                <h5>Aún no has creado ningún bloque</h5>
-                                                <button type="button" data-section_id="{{ $section->id }}" data-toggle="modal" data-target="#modal-new-block" class="btn btn-warning btn-sm btn-new-block"><i class="fa fa-plus"></i> Crear bloque</button>
-                                            </div>
-                                            @endforelse
+                                            @endforeach
                                         </div>
                                     </div>
+                                    @endforeach
                                 </div>
-                                @endforeach
-                                <div class="row mt-5">
-                                    <div class="col-md-12 text-center">
-                                        @if (count($page->sections)==0)
-                                        <h5>Aún no has creado ningún bloque</h5>
-                                        @endif
-                                        <button type="button" data-template_id="{{ $page->id }}" data-toggle="modal" data-target="#modal-new-section" class="btn btn-info btn-sm btn-new-section"><i class="fa fa-plus"></i> Crear sección</button>
-                                    </div>
-                                </div>
-                            </div>
-                            @endforeach
                             </div>
                         </div>
-                      </div>
+                    </div>  
                 </div>
             </div>
         </div>
         {{-- Modales --}}
-        <form action="{{ route('templates.page.create') }}" method="post">
-            <div class="modal fade" id="modal-new-template" tabindex="-1" role="dialog" aria-labelledby="modal-new-templateLabel" aria-hidden="true">
+        <form action="{{ route('templates.create') }}" method="post">
+            <div class="modal fade" id="modal-create-template" tabindex="-1" role="dialog" aria-labelledby="modal-create-templateLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="modal-new-templateLabel">Nueva página</h5>
+                            <h5 class="modal-title" id="modal-create-templateLabel">Nuevo template</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
                             @csrf
+                            <div class="form-group">
+                                <label>Nombre</label>
+                                <input type="text" name="name" class="form-control" placeholder="Nombre del template" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Descripción</label>
+                                <textarea name="description" class="form-control" placeholder="Descripción breve del template"></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                            <button type="submit" class="btn btn-primary">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <form action="{{ route('templates.pages.create') }}" method="post">
+            <div class="modal fade" id="modal-create-page" tabindex="-1" role="dialog" aria-labelledby="modal-page-createLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modal-create-createLabel">Nueva página</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            @csrf
+                            <input type="hidden" name="template_id" value="{{ \Session::get('template_id') }}">
                             <div class="form-group">
                                 <label>Nombre</label>
                                 <input type="text" name="name" class="form-control" placeholder="Nombre de la página" required>
@@ -159,19 +207,20 @@
             </div>
         </form>
 
-        <form action="{{ route('templates.page.section.create') }}" method="post">
-            <div class="modal fade" id="modal-new-section" tabindex="-1" role="dialog" aria-labelledby="modal-new-sectionLabel" aria-hidden="true">
+        <form action="{{ route('templates.pages.sections.create') }}" method="post">
+            <div class="modal fade" id="modal-create-section" tabindex="-1" role="dialog" aria-labelledby="modal-create-sectionLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="modal-new-sectionLabel">Nueva sección</h5>
+                            <h5 class="modal-title" id="modal-create-sectionLabel">Nueva sección</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
                             @csrf
-                            <input type="hidden" name="template_id">
+                            <input type="hidden" name="template_id" value="{{ \Session::get('template_id') }}">
+                            <input type="hidden" name="page_id" value="{{ \Session::get('page_id') }}">
                             <div class="form-group">
                                 <label>Nombre</label>
                                 <input type="text" name="name" class="form-control" placeholder="Nombre de la sección" required>
@@ -190,19 +239,20 @@
             </div>
         </form>
 
-        <form action="{{ route('templates.page.section.update') }}" method="post">
-            <div class="modal fade" id="modal-update-section" tabindex="-1" role="dialog" aria-labelledby="modal-new-sectionLabel" aria-hidden="true">
+        <form action="{{ route('templates.pages.sections.update') }}" method="post">
+            <div class="modal fade" id="modal-update-section" tabindex="-1" role="dialog" aria-labelledby="modal-update-sectionLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="modal-new-sectionLabel">Editar sección</h5>
+                            <h5 class="modal-title" id="modal-update-sectionLabel">Editar sección</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
                             @csrf
-                            <input type="hidden" name="template_id">
+                            <input type="hidden" name="template_id" value="{{ \Session::get('template_id') }}">
+                            <input type="hidden" name="page_id" value="{{ \Session::get('page_id') }}">
                             <input type="hidden" name="id">
                             <div class="form-group">
                                 <label>Nombre</label>
@@ -222,20 +272,21 @@
             </div>
         </form>
 
-        <form action="{{ route('templates.page.section.block.create') }}" method="post">
-            <div class="modal fade" id="modal-new-block" tabindex="-1" role="dialog" aria-labelledby="modal-new-templateLabel" aria-hidden="true">
+        <form action="{{ route('templates.pages.sections.blocks.create') }}" method="post">
+            <div class="modal fade" id="modal-create-block" tabindex="-1" role="dialog" aria-labelledby="modal-create-blockLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="modal-new-templateLabel">Nueva página</h5>
+                            <h5 class="modal-title" id="modal-create-blockLabel">Nueva página</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
                             @csrf
-                            <input type="hidden" name="section_id">
                             <input type="hidden" name="template_id" value="{{ \Session::get('template_id') }}">
+                            <input type="hidden" name="page_id" value="{{ \Session::get('page_id') }}">
+                            <input type="hidden" name="section_id">
                             <div class="form-group">
                                 <select name="input" id="select-input-add" class="form-control">
                                     <option data-color="primary" value="">Seleccione el tipo de dato</option>
@@ -260,7 +311,7 @@
             </div>
         </form>
 
-        <form id="form-edit" action="{{ route('templates.page.section.block.input.update') }}" method="post" enctype="multipart/form-data" >
+        <form id="form-edit" action="{{ route('templates.pages.sections.blocks.inputs.update') }}" method="post" enctype="multipart/form-data" >
             @csrf
             <input type="hidden" name="id">
             <input type="hidden" name="value">
@@ -384,17 +435,26 @@
                 });
 
                 // Pasar id del template al modal de creación de nuevo bloque
-                $('.nav-link').click(function(){
+                $('.nav-template').click(function(){
                     let template_id = $(this).data('id');
-                    $('#modal-new-section input[name="template_id"]').val(template_id);
+                    $('#modal-create-section input[name="template_id"]').val(template_id);
+                    $('#modal-create-page input[name="template_id"]').val(template_id);
                     $('#modal-update-section input[name="template_id"]').val(template_id);
-                    $('#modal-new-block input[name="template_id"]').val(template_id);
+                    $('#modal-create-block input[name="template_id"]').val(template_id);
+                });
+
+                // Pasar id del template al modal de creación de nuevo bloque
+                $('.nav-page').click(function(){
+                    let page_id = $(this).data('id');
+                    $('#modal-create-section input[name="page_id"]').val(page_id);
+                    $('#modal-update-section input[name="page_id"]').val(page_id);
+                    $('#modal-create-block input[name="page_id"]').val(page_id);
                 });
 
                 // Pasar id de la section al modal de creación de nuevo bloque
-                $('.btn-new-block').click(function(){
+                $('.btn-create-block').click(function(){
                     let section_id = $(this).data('section_id');
-                    $('#modal-new-block input[name="section_id"]').val(section_id);
+                    $('#modal-create-block input[name="section_id"]').val(section_id);
                 });
 
                 // Agregar input al seleccionar select de tipos

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateSectionsTable extends Migration
+class CreatePagesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,16 +13,15 @@ class CreateSectionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('t_sections', function (Blueprint $table) {
+        Schema::create('t_pages', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('t_page_id');
+            $table->unsignedBigInteger('t_template_id');
             $table->string('name')->nullable();
             $table->text('description')->nullable();
-            $table->integer('order')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('t_page_id')->references('id')->on('t_pages');
+            $table->foreign('t_template_id')->references('id')->on('t_templates');
         });
     }
 
@@ -33,6 +32,6 @@ class CreateSectionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('t_sections');
+        Schema::dropIfExists('t_pages');
     }
 }

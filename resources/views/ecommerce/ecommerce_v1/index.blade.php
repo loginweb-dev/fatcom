@@ -204,6 +204,37 @@
         </div>
     </section>
 
+    @if (count($mas_vendidos)>0)
+        <section class="section-content" style="margin-top: 50px">
+            <div class="container">
+                <header class="section-heading">
+                    <a href="#" class="btn btn-outline-primary float-right">Ver todos</a>
+                    <h3 class="section-title">Productos más vendidos</h3>
+                </header>
+                <div class="slider-items-slick row" data-slick='{"slidesToShow": 4, "slidesToScroll": 1}'>
+                    @forelse ($mas_vendidos as $item)
+                        <div class="item-slide p-2">
+                            <figure class="card card-product-grid mb-0">
+                                <div class="img-wrap"> 
+                                    @if ($item->nuevo)
+                                        <span class="badge badge-danger"> Nuevo </span>
+                                    @endif
+                                    <img src="{{ url('storage/'.$item->imagen) }}">
+                                </div>
+                                <figcaption class="info-wrap text-center">
+                                    <h6 class="title text-truncate"><a href="#">{{ $item->nombre }}</a></h6>
+                                </figcaption>
+                            </figure> 
+                        </div>
+                    @empty
+                        
+                    @endforelse
+                </div>
+            </div>
+    </section>
+    @endif
+    
+
     <section class="section-name bg padding-y-sm" style="margin-top: 100px">
         <div class="container">
             <header class="section-heading">

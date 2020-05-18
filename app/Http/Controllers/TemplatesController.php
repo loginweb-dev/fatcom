@@ -9,6 +9,7 @@ use Intervention\Image\ImageManagerStatic as Image;
 
 // Models
 use App\Template;
+use App\Page;
 use App\Section;
 use App\Block;
 use App\BlockInput;
@@ -20,12 +21,12 @@ class TemplatesController extends Controller
     }
 
     public function index(){
-        $templates = Template::with(['sections.blocks.inputs'])->get();
+        $templates = Template::with(['pages.sections.blocks.inputs'])->get();
         // return $templates;
         return view('templates.index', compact('templates'));
     }
 
-    public function page_create(Request $request){
+    public function template_create(Request $request){
         DB::beginTransaction();
         try {
             $template = Template::create([
@@ -41,10 +42,10 @@ class TemplatesController extends Controller
         }
     }
 
-    public function section_create(Request $request){
+    public function page_create(Request $request){
         DB::beginTransaction();
         try {
-            Section::create([
+            $template = Page::create([
                 't_template_id' => $request->template_id,
                 'name' => $request->name,
                 'description' => $request->description
@@ -58,24 +59,41 @@ class TemplatesController extends Controller
         }
     }
 
+    public function section_create(Request $request){
+        DB::beginTransaction();
+        try {
+            Section::create([
+                't_page_id' => $request->page_id,
+                'name' => $request->name,
+                'description' => $request->description
+            ]);
+
+            DB::commit();
+            return redirect('admin/templates')->with(['type' => 'success', 'message' => 'Registro agregado exitosamenete.', 'template_id' => $request->template_id, 'page_id' => $request->page_id]);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect('admin/templates')->with(['type' => 'error', 'message' => 'Ocurrio un error.', 'template_id' => $request->template_id, 'page_id' => $request->page_id]);
+        }
+    }
+
     public function section_update(Request $request){
         DB::beginTransaction();
         try {
             $section = Section::find($request->id);
-            $section->t_template_id = $request->template_id;
+            $section->t_page_id = $request->page_id;
             $section->name = $request->name;
             $section->description = $request->description;
             $section->save();
 
             DB::commit();
-            return redirect('admin/templates')->with(['type' => 'success', 'message' => 'Registro editado exitosamenete.', 'template_id' => $request->template_id]);
+            return redirect('admin/templates')->with(['type' => 'success', 'message' => 'Registro editado exitosamenete.', 'template_id' => $request->template_id, 'page_id' => $request->page_id]);
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect('admin/templates')->with(['type' => 'error', 'message' => 'Ocurrio un error.', 'template_id' => $request->template_id]);
+            return redirect('admin/templates')->with(['type' => 'error', 'message' => 'Ocurrio un error.', 'template_id' => $request->template_id, 'page_id' => $request->page_id]);
         }
     }
 
-    public function section_delete($id, $template_id){
+    public function section_delete($id, $template_id, $page_id){
         $section = Section::where('id', $id)->with(['blocks.inputs'])->first();
         DB::beginTransaction();
         try {
@@ -88,10 +106,10 @@ class TemplatesController extends Controller
             DB::table('t_sections')->where('id', $section->id)->delete();
 
             DB::commit();
-            return redirect('admin/templates')->with(['type' => 'success', 'message' => 'Registro eliminado exitosamenete.', 'template_id' => $template_id]);
+            return redirect('admin/templates')->with(['type' => 'success', 'message' => 'Registro eliminado exitosamenete.', 'template_id' => $template_id, 'page_id' => $page_id]);
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect('admin/templates')->with(['type' => 'error', 'message' => 'Ocurrio un error.', 'template_id' => $template_id]);
+            return redirect('admin/templates')->with(['type' => 'error', 'message' => 'Ocurrio un error.', 'template_id' => $template_id, 'page_id' => $page_id]);
         }
     }
 
@@ -108,14 +126,14 @@ class TemplatesController extends Controller
                 ]);
             }
             DB::commit();
-            return redirect('admin/templates')->with(['type' => 'success', 'message' => 'Registro agregado exitosamenete.', 'template_id' => $request->template_id]);
+            return redirect('admin/templates')->with(['type' => 'success', 'message' => 'Registro agregado exitosamenete.', 'template_id' => $request->template_id, 'page_id' => $request->page_id]);
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect('admin/templates')->with(['type' => 'error', 'message' => 'Ocurrio un error.', 'template_id' => $request->template_id]);
+            return redirect('admin/templates')->with(['type' => 'error', 'message' => 'Ocurrio un error.', 'template_id' => $request->template_id, 'page_id' => $request->page_id]);
         }
     }
 
-    public function options_block($type, $id, $template_id){
+    public function options_block($type, $id, $template_id, $page_id){
         $block = Block::where('id', $id)->with(['inputs'])->first();
         DB::beginTransaction();
         try {
@@ -132,7 +150,7 @@ class TemplatesController extends Controller
                         ]);
                     }
                     DB::commit();
-                    return redirect('admin/templates')->with(['type' => 'success', 'message' => 'Registro agregado exitosamenete.', 'template_id' => $template_id]);
+                    return redirect('admin/templates')->with(['type' => 'success', 'message' => 'Registro agregado exitosamenete.', 'template_id' => $template_id, 'page_id' => $page_id]);
                 case 'delete':
                         $block = Block::find($id);
                         foreach ($block->inputs as $input) {
@@ -140,7 +158,7 @@ class TemplatesController extends Controller
                         }
                         DB::table('t_blocks')->where('id', $block->id)->delete();
                         DB::commit();
-                        return redirect('admin/templates')->with(['type' => 'success', 'message' => 'Registro eliminado exitosamenete.', 'template_id' => $template_id]);
+                        return redirect('admin/templates')->with(['type' => 'success', 'message' => 'Registro eliminado exitosamenete.', 'template_id' => $template_id, 'page_id' => $page_id]);
                 
                 default:
                     # code...
@@ -148,7 +166,7 @@ class TemplatesController extends Controller
             }
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect('admin/templates')->with(['type' => 'error', 'message' => 'Ocurrio un error.', 'template_id' => $template_id]);
+            return redirect('admin/templates')->with(['type' => 'error', 'message' => 'Ocurrio un error.', 'template_id' => $template_id, 'page_id' => $page_id]);
         }
     }
 
