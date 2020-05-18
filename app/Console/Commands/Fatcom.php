@@ -39,7 +39,8 @@ class Fatcom extends Command
     public function handle()
     {
         $this->call('key:generate');
-        $this->call('migrate', ['--seed']);
+        $this->call('migrate');
+        $this->call('db:seed');
         $this->call('storage:link');
         if($this->option('with-registers')){
             // Agregar los seeder de datos de prueba
