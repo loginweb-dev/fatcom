@@ -17,8 +17,8 @@
                 </header>
                 <article class="card-body">
                     <p>
-                        <a href="{{url('login/google')}}" class="btn btn-block btn-danger btn-link-page"> <i class="fab fa-google"></i> &nbsp; Login via Google</a>
-                        <a href="{{url('login/facebook')}}" class="btn btn-block btn-facebook btn-link-page"> <i class="fab fa-facebook-f"></i> &nbsp; Login via facebook</a>
+                        <a href="{{ url('login/google') }}" class="btn btn-block btn-danger btn-link-page"> <i class="fab fa-google"></i> &nbsp; Login via Google</a>
+                        <a href="{{ url('login/facebook') }}" class="btn btn-block btn-facebook btn-link-page"> <i class="fab fa-facebook-f"></i> &nbsp; Login via facebook</a>
                     </p>
                     <hr>
                     <form>

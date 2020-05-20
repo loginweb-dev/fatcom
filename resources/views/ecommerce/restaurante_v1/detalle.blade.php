@@ -271,7 +271,7 @@
         
         $(document).ready(function(){
 
-            cantidad_carrito();
+            count_cart();
 
             // Cambiar la presentación
             $('.check-presentacion').click(function(){

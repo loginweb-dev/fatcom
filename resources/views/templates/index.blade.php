@@ -90,22 +90,22 @@
                                                                             @switch($input->type)
                                                                                 @case('text')
                                                                                     <div class="input-group mb-3">
-                                                                                        @include('templates.partials.inputs.text', ['id'=>$input->id,'type'=>$input->type,'value'=>"$input->value"])
+                                                                                        @include('templates.partials.inputs.text', ['id'=>$input->id,'type'=>$input->type,'value'=>"$input->value",'name'=>"$input->name"])
                                                                                     </div>
                                                                                     @break
                                                                                 @case('long_text')
                                                                                     <div class="input-group mb-3">
-                                                                                        @include('templates.partials.inputs.long_text', ['id'=>$input->id,'type'=>$input->type,'value'=>"$input->value"])
+                                                                                        @include('templates.partials.inputs.long_text', ['id'=>$input->id,'type'=>$input->type,'value'=>"$input->value",'name'=>"$input->name"])
                                                                                     </div>
                                                                                     @break
                                                                                 @case('icon')
                                                                                     <div class="input-group mb-3">
-                                                                                        @include('templates.partials.inputs.icon', ['id'=>$input->id,'type'=>$input->type,'value'=>"$input->value"])
+                                                                                        @include('templates.partials.inputs.icon', ['id'=>$input->id,'type'=>$input->type,'value'=>"$input->value",'name'=>"$input->name"])
                                                                                     </div>
                                                                                     @break
                                                                                 @case('image')
                                                                                     <div class="input-group mb-3">
-                                                                                        @include('templates.partials.inputs.image', ['id'=>$input->id,'type'=>$input->type,'value'=>"$input->value"])
+                                                                                        @include('templates.partials.inputs.image', ['id'=>$input->id,'type'=>$input->type,'value'=>"$input->value",'name'=>"$input->name"])
                                                                                     </div>
                                                                                     @break
                                                                                 @default
@@ -145,6 +145,7 @@
                 </div>
             </div>
         </div>
+        
         {{-- Modales --}}
         <form action="{{ route('templates.create') }}" method="post">
             <div class="modal fade" id="modal-create-template" tabindex="-1" role="dialog" aria-labelledby="modal-create-templateLabel" aria-hidden="true">
@@ -296,8 +297,7 @@
                                     <option data-color="dark" data-icon="fa fa-image fa-3x" value="image">Imagen</option>
                                 </select>
                             </div>
-                            <hr>
-                            <div class="form-group text-center" id="input-add-list"></div>
+                            <table class="table table-bordered" id="input-add-list"></table>
                             <div class="text-center">
                                 <button type="button" id="btn-clear" class="btn btn-link">Limpiar <i class="fa fa-close"></i></button>
                             </div>
@@ -465,10 +465,15 @@
                     let color = $('#select-input-add option:selected').data('color');
                     if(value){
                         $('#input-add-list').append(`
-                            <div>
-                                <input type="hidden" name="types[]" value="${value}" />
-                                ${icon ? `<i class="${icon} text-${color}"></i>` : `<span class="badge badge-${color}">${text}</span>`}
-                            </div>
+                            <tr>
+                                <td>
+                                    <input type="hidden" name="types[]" value="${value}" />
+                                    ${icon ? `<i class="${icon} text-${color}"></i>` : `<span class="badge badge-${color}">${text}</span>`}
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control" name="name[]" placeholder="Nombre" pattern="[a-z]{1,15}" title="El nombre debe tener solo letras Ej: titulo" required>
+                                </td>
+                            </tr>
                         `);
                         $(this).val('');
                     }

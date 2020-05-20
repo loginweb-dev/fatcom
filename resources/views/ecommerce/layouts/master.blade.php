@@ -65,18 +65,13 @@
     </style>
     @endif
 
+    <script src="{{ url('js/ecommerce.js') }}" type="text/javascript"></script>
     <script type="text/javascript">
         // jquery ready start
         $(document).ready(function() {
             toastr.options = {"positionClass": "toast-bottom-right",}
             @if(session('alerta'))
                 @switch(session('alerta'))
-                    @case('producto_puntuado')
-                        toastr.success('Gracias por calificar nuestro productos.', 'Bien hecho!');
-                        @break
-                    @case('producto_eliminado')
-                        toastr.info('Producto eliminado del carrito.', 'Información');
-                        @break
                     @case('carrito_vacio')
                         toastr.error('El carrito de compra esta vacío.', 'Error');
                         @break
@@ -112,18 +107,7 @@
                 $(`#form-search input[name="${tipo}_id"]`).val(id);
                 $(`#form-search input[name="tipo_busqueda"]`).val('click');
                 // document.form.submit();
-                buscar(1);
-            });
-
-            $('#btn-price').click(function(){
-                let min = $(`#form-search input[name="min"]`).val();
-                let max = $(`#form-search input[name="max"]`).val();
-                if(min!='' || max!=''){
-                    $(`#form-search input[name="tipo_busqueda"]`).val('click');
-                    buscar(1);
-                }else{
-                    toastr.error('Debe ingresar al menos un dato en el rango de precios.', 'Error');
-                }
+                search(1);
             });
 
             // Realizar busqueda mediante el panel superior
@@ -134,7 +118,7 @@
                 $(`#form-search input[name="tipo_busqueda"]`).val('text');
                 $(`#form-search input[name="tipo_dato"]`).val(tipo_dato);
                 $(`#form-search input[name="dato"]`).val(dato);
-                buscar(1);
+                search(1);
             });
 
             // actualizar rango de precios
@@ -157,7 +141,7 @@
                 success: function(data){
                     if(data==1){
                         toastr.info('Producto agregado al carrito.', 'Información');
-                        cantidad_carrito();
+                        count_cart();
                     }else{
                         toastr.error('Ocurrio un error al agregar el productos.', 'Error');
                     }
@@ -165,19 +149,9 @@
             });
         }
 
-        function cantidad_carrito(){
-            $.ajax({
-                url: `{{route('cantidad_carrito')}}`,
-                type: 'get',
-                success: function(data){
-                    $('#label-carrito').html(data)
-                }
-            });
-        }
-
         function cantidad_pedidos(){
             $.ajax({
-                url: `{{route('cantidad_pedidos')}}`,
+                url: "{{ route('cantidad_pedidos') }}",
                 type: 'get',
                 success: function(data){
                     if(data!=0){
@@ -185,33 +159,6 @@
                     }else{
                         $('#label-pedidos').html(`Mis pedidos`)
                     }
-                }
-            });
-        }
-
-        function buscar(page){
-            // document.form.submit()
-            $(`#form-search input[name="page"]`).val(page);
-            $('#contenido').html(`  <div class="text-center" style="margin-top:120px">
-                                        <img src="{{voyager_asset('images/load.gif')}}" width="100px" alt="load.gif">
-                                        <h6>Cargando resultados...</h6>
-                                    </div>`);
-            let min = $(`#form-search input[name="min"]`).val();
-            let max = $(`#form-search input[name="max"]`).val();
-            if(min!='' && max!=''){
-                if(min>max){
-                    toastr.error('El rango de precios está mal ingresado.', 'Error');
-                    return 0;
-                }
-            }
-            let datos = $('#form-search').serialize();
-            $("html,body").animate({scrollTop: $('#contenido').offset().top}, 500);
-            $.ajax({
-                url: "{{route('busqueda_ecommerce')}}",
-                type: 'post',
-                data: datos,
-                success: function(data){
-                    $('#contenido').html(data);
                 }
             });
         }
@@ -226,7 +173,7 @@
             });
         }
 
-        cantidad_carrito();
+        count_cart();
         @isset(Auth::user()->id)
         cantidad_pedidos();
         @endisset
@@ -244,6 +191,30 @@
             z-index: 10000;
             /* display: none; */
 		}
+        .main-loader{
+            position: fixed;
+            top:50%;
+            left:50%;
+            /*determinamos una anchura*/
+            width:200px;
+            /*indicamos que el margen izquierdo, es la mitad de la anchura*/
+            margin-left:-100px;
+            /*determinamos una altura*/
+            height:100px;
+            /*indicamos que el margen superior, es la mitad de la altura*/
+            margin-top:-50px;
+            padding:5px;
+            z-index: 10;
+            display: none;
+        }
+        .text-loader{
+            position: relative;
+            padding: 20px;
+            background-color:rgba(0, 0, 0, 0.6);
+            /* width:200px; */
+            color:white;
+            border-radius: 5px
+        }
     </style>
 
     <!-- Load Facebook SDK for JavaScript -->
@@ -285,6 +256,13 @@
 
 </head>
 <body>
+    <div class="main-loader">
+        <div class="d-flex justify-content-center text-loader">
+            <i class="fas fa-spinner fa-spin fa-2x"></i>
+            <div style="padding: 5px 10px"> Cargando...</div>
+        </div>
+    </div>
+
     <!-- ========================= SECTION INTRO ========================= -->
     <header class="section-header">
         <section class="header-main bg padding-y">
@@ -321,7 +299,7 @@
                     <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 text-right">
                         <a href="{{url('/carrito')}}" class="widget-header float-md-right link-page">
                             <div class="icontext">
-                                <div class="icon-wrap"><i class="fa fa-shopping-cart fa-2x"></i><span id="label-carrito" class="notify">0</span></div>
+                                <div class="icon-wrap"><i class="fa fa-shopping-cart fa-2x"></i><span id="label-count-cart" class="notify">0</span></div>
                             </div>
                         </a>
                     </div>
@@ -346,19 +324,9 @@
                 @yield('content')
             </div>
         </div>
-        <!-- ========================= BUSQUEDA ========================= -->
-        <form name="form" id="form-search" action="{{route('busqueda_ecommerce')}}" method="post">
-            @csrf
-            <input type="hidden" name="tipo_busqueda">
-            <input type="hidden" name="subcategoria_id">
-            <input type="hidden" name="marca_id">
-            <input type="hidden" name="min">
-            <input type="hidden" name="max">
-            <input type="hidden" name="tipo_dato">
-            <input type="hidden" name="dato">
-            <input type="hidden" name="page">
-        </form>
-        <!-- ========================= BUSQUEDA // ========================= -->
+
+        {{-- Formulario de busqueda --}}
+        @include('ecommerce.layouts.form-search')
     </section>
 
     <!-- ========================= FOOTER ========================= -->

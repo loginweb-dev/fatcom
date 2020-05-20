@@ -381,8 +381,8 @@
     <script src="{{ url('js/ecommerce.js') }}"></script>
     <script>
         var moneda = "{{ $moneda }}";
-        buscar(1);
-        cantidad_carrito();
+        search(1);
+        count_cart();
         $(document).ready(function(){
             $('[data-toggle="tooltip"]').tooltip();
 

@@ -109,7 +109,7 @@
           </li>
             <li class="nav-item ">
                 <a class="nav-link dark-grey-text font-weight-bold" href="{{ route('carrito_compra') }}">
-                    <span class="badge danger-color" id="label-carrito">0</span> <i class="fas fa-shopping-cart blue-text" aria-hidden="true"></i>
+                    <span class="badge danger-color" id="label-count-cart">0</span> <i class="fas fa-shopping-cart blue-text" aria-hidden="true"></i>
                     <span class="clearfix d-none d-sm-inline-block">Carrito</span>
                 </a>
             </li>

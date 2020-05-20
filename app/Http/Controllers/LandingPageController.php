@@ -131,7 +131,6 @@ class LandingPageController extends Controller
         }
         // Sentencia
         if($data->tipo_busqueda=='text'){
-            // dd($data);
             if($data->tipo_dato=='all'){
                 $sentencia = "( p.nombre like '%".$data->dato."%' or c.nombre like '%".$data->dato."%' or m.nombre like '%".$data->dato."%')";
             }else{
@@ -172,7 +171,7 @@ class LandingPageController extends Controller
             $cont++;
         }
 
-        return view('ecommerce.'.setting('admin.ecommerce').'busqueda', compact('productos', 'precio_min', 'precio_max'));
+        return view('ecommerce.'.setting('admin.ecommerce').'resultados', compact('productos', 'precio_min', 'precio_max'));
     }
 
     public function search_product($busqueda){
@@ -456,7 +455,7 @@ class LandingPageController extends Controller
             $envios = DB::table('ecommerce_productos as ep')
                             ->join('ecommerce_envios as ee', 'ee.ecommerce_producto_id', 'ep.id')
                             ->select('ep.producto_id as id', 'ee.precio as costo_envio', 'ee.localidad_id')
-                            ->where('ep.producto_id', $item->id)->where('ee.deleted_at', NULL)->first();
+                            ->where('ep.producto_id', $item->id)->where('ee.deleted_at', NULL)->get();
             if($envios){
                 array_push($disponibles, $envios);
             }

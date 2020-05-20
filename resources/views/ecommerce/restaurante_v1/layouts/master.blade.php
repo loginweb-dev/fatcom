@@ -131,6 +131,8 @@
     {{-- Alert ohsnap --}}
     <script src="{{ url('ecommerce_public/plugins/snap/ohsnap.js') }}"></script>
 
+    <script src="{{ url('js/ecommerce.js') }}"></script>
+
     <script type="text/javascript">
         /* WOW.js init */
         new WOW().init();
@@ -146,6 +148,8 @@
 
         // SideNav Initialization
         $(".button-collapse").sideNav();
+
+        count_cart();
 
     </script>
 

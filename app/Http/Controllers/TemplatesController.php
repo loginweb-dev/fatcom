@@ -122,6 +122,7 @@ class TemplatesController extends Controller
             for ($i=0; $i < count($request->types); $i++) { 
                 BlockInput::create([
                     't_block_id' => $block->id,
+                    'name' => $request->name[$i],
                     'type' => $request->types[$i]
                 ]);
             }
@@ -145,6 +146,7 @@ class TemplatesController extends Controller
                     foreach ($block->inputs as $input) {
                         BlockInput::create([
                             't_block_id' => $block_new->id,
+                            'name' => $input->name,
                             'type' => $input->type,
                             'value' => $input->value
                         ]);

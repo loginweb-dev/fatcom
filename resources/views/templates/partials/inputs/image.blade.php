@@ -1,4 +1,4 @@
-<div class="div-img-preview" id="div-img-preview-{{ $id }}" data-id="{{ $id }}" data-toggle="tooltip" title="Click para cambiar">
+<div class="div-img-preview" id="div-img-preview-{{ $id }}" data-id="{{ $id }}" data-toggle="tooltip" title="Click para cambiar {{ $name }}">
     <div id="div-img-current-{{ $id }}">
         @if (!empty($value))
             <img src="{{ url('storage/'.str_replace('.', '_small.', $value)) }}" alt="" height="65px">

@@ -692,17 +692,31 @@ class ProductosController extends Controller
     }
 
     public function puntuar(Request $data){
-        $slug = Producto::find($data->id)->slug;
-        $query = DB::table('productos_puntuaciones')
-                        ->insert([
-                            'producto_id' => $data->id,
-                            'user_id' => Auth::user()->id,
-                            'puntos' => ($data->puntos/20),
-                            'created_at' => Carbon::now(),
-                            'updated_at' => Carbon::now()
-                        ]);
-        $alerta = 'producto_puntuado';
-        return redirect()->route('detalle_producto_ecommerce', ['producto'=>$slug])->with(compact('alerta'));
+        DB::beginTransaction();
+
+        try {
+            $slug = Producto::find($data->id)->slug;
+            DB::table('productos_puntuaciones')
+                ->insert([
+                    'producto_id' => $data->id,
+                    'user_id' => Auth::user()->id,
+                    'puntos' => ($data->puntos/20),
+                    'created_at' => Carbon::now(),
+                    'updated_at' => Carbon::now()
+                ]);
+            DB::commit();
+            if($data->ajax){
+                $puntuacion = $this->obtener_puntos($data->id);
+                return ceil($puntuacion*20);
+            }
+            $alerta = 'producto_puntuado';
+            return redirect()->route('detalle_producto_ecommerce', ['producto'=>$slug])->with(compact('alerta'));
+        } catch (\Exception $e) {
+            DB::rollback();
+            if($data->ajax){
+                return 0;
+            }
+            return redirect()->route('detalle_producto_ecommerce', ['producto'=>$slug])->with(compact('alerta'));        }
     }
 
     // *************funciones adicionales*************

@@ -4,9 +4,9 @@
     <title>{{$producto->nombre}}</title>
     <meta property="og:url"           content="{{route('detalle_producto_ecommerce', ['producto' => $producto->slug])}}" />
     <meta property="og:type"          content="E-Commerce" />
-    <meta property="og:title"         content="{{$producto->nombre}}" />
-    <meta property="og:description"   content=" {{$producto->descripcion_small}}" />
-    <meta property="og:image"         content="{{url('storage').'/'.$producto->imagen}}" />
+    <meta property="og:title"         content="{{ $producto->nombre }}" />
+    <meta property="og:description"   content="{{ $producto->descripcion_small }}" />
+    <meta property="og:image"         content="{{ url('storage').'/'.$producto->imagen }}" />
 
     {{-- Script del evento --}}
     <script async defer crossorigin="anonymous" src="https://connect.facebook.net/es_LA/sdk.js#xfbml=1&version=v3.3&appId=302829090588863&autoLogAppEvents=1"></script>
@@ -68,7 +68,7 @@
                 <aside class="col-sm-6">
                     <article class="card-body">
                     <!-- short-info-wrap -->
-                        <h3 class="title mb-3">{{$producto->nombre}}</h3>
+                        <h3 class="title mb-3">{{ $producto->nombre }}</h3>
                         <div class="mb-3">
                             @php
                                 // Calcular precio de oferta si existe
@@ -125,20 +125,20 @@
                         @endif
                         <dl>
                             <dt>Descripción</dt>
-                            <dd><p>{{$producto->descripcion_small}} </p></dd>
+                            <dd><p>{{ $producto->descripcion_small }} </p></dd>
                         </dl>
                         {{-- Si el sistema está en modo "electronica_computacion" se muestran sus características --}}
                         @if (setting('admin.modo_sistema') == 'electronica_computacion')
                         <dl class="row">
                                 <dt class="col-sm-3">Marca</dt>
-                                <dd class="col-sm-9">{{$producto->marca}}</dd>
+                                <dd class="col-sm-9">{{ $producto->marca }}</dd>
     
                                 <dt class="col-sm-3">Modelo</dt>
-                                <dd class="col-sm-9">{{$producto->modelo}}</dd>
+                                <dd class="col-sm-9">{{ $producto->modelo }}</dd>
     
                                 @if(!empty($producto->garantia))
                                 <dt class="col-sm-3">Garantía</dt>
-                                <dd class="col-sm-9">{{$producto->garantia}}</dd>
+                                <dd class="col-sm-9">{{ $producto->garantia }}</dd>
                                 @endif
     
                                 @if(!empty($producto->catalogo))
@@ -153,7 +153,7 @@
                         @endphp
                         <div class="rating-wrap">
                             <ul class="rating-stars">
-                                <li style="width:{{$puntuacion*20}}%" class="stars-active">
+                                <li style="width:{{ $puntuacion*20 }}%" class="stars-active">
                                     <i class="fa fa-star"></i> <i class="fa fa-star"></i>
                                     <i class="fa fa-star"></i> <i class="fa fa-star"></i>
                                     <i class="fa fa-star"></i>
@@ -179,18 +179,18 @@
                                                 <input type="hidden" name="puntos" id="input-puntos" value="" required>
                                                 <ul class="rating-stars">
                                                     <li style="width:0%" id="puntuacion" class="stars-active">
-                                                        <i class="fa fa-star" onclick="puntuar(20)"></i>
-                                                        <i class="fa fa-star" onclick="puntuar(40)"></i>
-                                                        <i class="fa fa-star" onclick="puntuar(60)"></i>
-                                                        <i class="fa fa-star" onclick="puntuar(80)"></i>
-                                                        <i class="fa fa-star" onclick="puntuar(100)"></i>
+                                                        <i class="fa fa-star" onclick="set_rate(20)"></i>
+                                                        <i class="fa fa-star" onclick="set_rate(40)"></i>
+                                                        <i class="fa fa-star" onclick="set_rate(60)"></i>
+                                                        <i class="fa fa-star" onclick="set_rate(80)"></i>
+                                                        <i class="fa fa-star" onclick="set_rate(100)"></i>
                                                     </li>
                                                     <li>
-                                                        <i class="fa fa-star" onclick="puntuar(20)"></i>
-                                                        <i class="fa fa-star" onclick="puntuar(40)"></i>
-                                                        <i class="fa fa-star" onclick="puntuar(60)"></i>
-                                                        <i class="fa fa-star" onclick="puntuar(80)"></i>
-                                                        <i class="fa fa-star" onclick="puntuar(100)"></i>
+                                                        <i class="fa fa-star" onclick="set_rate(20)"></i>
+                                                        <i class="fa fa-star" onclick="set_rate(40)"></i>
+                                                        <i class="fa fa-star" onclick="set_rate(60)"></i>
+                                                        <i class="fa fa-star" onclick="set_rate(80)"></i>
+                                                        <i class="fa fa-star" onclick="set_rate(100)"></i>
                                                     </li>
                                                 </ul>
                                                 <hr>
@@ -203,7 +203,7 @@
                                     </button>
                                 </div>
                             @endif
-                            <div class="label-rating" title="Visto {{$producto->vistas}} veces"> <span class="fa fa-eye"></span> {{$producto->vistas}} </div>
+                            <div class="label-rating" title="Visto {{ $producto->vistas }} veces"> <span class="fa fa-eye"></span> {{ $producto->vistas }} </div>
                         </div>
 
                         {{-- Mostrar datos de costo de envío --}}
@@ -257,7 +257,7 @@
 
                         @if($disponible)
                         <hr>
-                        <button style="margin:5px" type="button" id="btn-add_carrito" data-id="{{$id}}" class="btn btn-warning" onclick="agregar({{$id}})"> <i class="fa fa-shopping-cart"></i> Agregar al carrito</button>
+                        <button style="margin:5px" type="button" id="btn-add_carrito" data-id="{{$id}}" class="btn btn-warning" onclick="agregar({{ $id }})"> <i class="fa fa-shopping-cart"></i> Agregar al carrito</button>
                         <a style="margin:5px" href="{{url('carrito/agregar/comprar').'/'.$id}}" class="btn  btn-outline-warning link-page"> Comprar ahora </a>
                         @endif
                         <hr>
@@ -356,9 +356,4 @@
             e.preventDefault();
         });
     });
-
-    function puntuar(puntos){
-        $('#puntuacion').css('width', puntos+'%');
-        $('#input-puntos').val(puntos);
-    }
 </script>

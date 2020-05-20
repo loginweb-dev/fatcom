@@ -29,6 +29,7 @@ Route::post('/profile/update', 'LandingPageController@profile_update')->name('pr
 
 // ================================Ecommerce===========================
 Route::get('/', 'LandingPageController@index')->name('ecommerce_home');
+Route::get('/filtro', 'LandingPageController@filter')->name('ecommerce_filter');
 Route::get('/detalle/{producto}', 'LandingPageController@detalle_producto')->name('detalle_producto_ecommerce');
 Route::get('/detalle/producto/get_producto/{id}', 'LandingPageController@get_producto');
 Route::post('/search', 'LandingPageController@search')->name('busqueda_ecommerce');

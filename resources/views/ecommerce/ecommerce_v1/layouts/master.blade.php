@@ -17,6 +17,9 @@
         {{-- metadatos para facebook --}}
         @yield('meta-datos')
 
+        {{-- Script del chat de facebook --}}
+        @yield('chat_facebook')
+
         {{-- PWA --}}
         @include('ecommerce.layouts.pwa-config')
 
@@ -36,8 +39,45 @@
 
         <!-- custom javascript -->
         <script src="{{ url('ecommerce_public/templates/ecommerce_v1/js/script.js') }}" type="text/javascript"></script>
+        <script src="{{ url('js/ecommerce.js') }}" type="text/javascript"></script>
+
+        {{-- SweetAlert --}}
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+
+        <script>
+            count_cart();
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                onOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            })
+        </script>
 
         @yield('plugins')
+
+        <style>
+            #loading-mask{
+                display:none;
+                position:absolute;
+                width:100%;
+                height:100%;
+                justify-content: center;
+                align-items: center;
+            }
+            .loader-text{
+                padding: 20px;
+                background-color:rgba(0, 0, 0, 0.6);
+                width:200px;
+                color:white;
+                border-radius: 5px
+            }
+        </style>
 
         @yield('css')
     </head>

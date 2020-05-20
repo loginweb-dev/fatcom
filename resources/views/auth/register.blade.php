@@ -34,12 +34,12 @@
                     <div class="form-group">
                         <label>Email</label>
                         <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email">
+                        <small class="form-text text-muted">Nunca compartiremos tu correo electrónico con nadie más.</small>
                         @error('email')
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $message }}</strong>
                             </span>
                         @enderror
-                        <small class="form-text text-muted">Nunca compartiremos tu correo electrónico con nadie más..</small>
                     </div>
                     <div class="form-group">
                         <label>Contraseña</label>
@@ -54,7 +54,7 @@
                         <label>Repetir contraseña</label>
                         <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password">
                     </div>
-                    <div class="form-group">
+                    {{-- <div class="form-group">
                         <label class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" name="gender" value="option1">
                         <span class="form-check-label"> Masculino </span>
@@ -63,14 +63,11 @@
                         <input class="form-check-input" type="radio" name="gender" value="option2">
                         <span class="form-check-label"> Femenino</span>
                         </label>
-                    </div>
-                    @php
-                        $localidades = \App\Localidade::where('deleted_at', NULL)->select('*')->get();
-                    @endphp
+                    </div> --}}
                     <div class="form-group">
-                        <label>Ubicación <small>(En caso de que tu ciudad no este en la lista agregar presione el boton <b>+</b> )</small></label>
+                        <label>Ubicación</label>
                         <select name="localidad_id" class="form-control" id="select-localidad_id" required>
-                            @foreach ($localidades as $item)
+                            @foreach (\App\Localidade::where('deleted_at', NULL)->select('*')->get() as $item)
                             <option value="{{$item->id}}">{{$item->departamento}} - {{$item->localidad}}</option>
                             @endforeach
                         </select>
@@ -86,13 +83,4 @@
     </div>
 
 </div>
-@endsection
-
-@section('script')
-    <script src="{{url('js/loginweb.js')}}"></script>
-    <script>
-        $(document).ready(function(){
-            $('#select-localidad_id').select2();
-        });
-    </script>
 @endsection

@@ -105,10 +105,3 @@
 @section('footer')
     @include('ecommerce.restaurante_v1.layouts.footer')
 @endsection
-
-@section('script')
-    <script src="{{ url('js/ecommerce.js') }}"></script>
-    <script>
-      cantidad_carrito();
-    </script>
-@endsection

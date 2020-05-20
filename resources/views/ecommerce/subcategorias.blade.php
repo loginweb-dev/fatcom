@@ -175,9 +175,4 @@
             return false;
         });
     });
-
-    function puntuar(puntos){
-        $('#puntuacion').css('width', puntos+'%');
-        $('#input-puntos').val(puntos);
-    }
 </script>

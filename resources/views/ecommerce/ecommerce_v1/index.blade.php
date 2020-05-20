@@ -132,9 +132,9 @@
                         @php
                             $active = 'active';
                         @endphp
-                        @foreach (\App\Section::where('id', 1)->with(['blocks.inputs'])->first()->blocks as $item)
+                        @foreach (sectionTemplate(1) as $item)
                         <div class="carousel-item {{ $active }}">
-                            <img class="d-block w-100" src="{{ url('storage/'.$item->inputs->first()->value) }}"> 
+                            <img class="d-block w-100" src="{{ url('storage/'.$item['image']) }}"> 
                         </div>
                         @php
                             $active = '';
@@ -160,13 +160,13 @@
         <div class="container">
             <article class="card card-body">
                 <div class="row">
-                    @foreach (\App\Section::where('id', 2)->with(['blocks.inputs'])->first()->blocks as $item)
+                    @foreach (sectionTemplate(2) as $item)
                     <div class="col-md-4">
                         <figure class="item-feature">
-                            <span class="text-primary"><i class="{{ $item->inputs[0]->value }} fa-2x"></i></span>
+                            <span class="text-primary"><i class="{{ $item['icon'] }} fa-2x"></i></span>
                             <figcaption class="pt-3">
-                                <h5 class="title">{{ $item->inputs[1]->value }}</h5>
-                                <p>{{ $item->inputs[2]->value }}</p>
+                                <h5 class="title">{{ $item['text'] }}</h5>
+                                <p>{{ $item['long_text'] }}</p>
                             </figcaption>
                         </figure>
                     </div>
@@ -185,6 +185,7 @@
             <div class="slider-items-slick row" data-slick='{"slidesToShow": 4, "slidesToScroll": 1}'>
                 @forelse ($populares as $item)
                     <div class="item-slide p-2">
+                        <a href="{{ route('detalle_producto_ecommerce', ['producto'=>$item->slug]) }}">
                         <figure class="card card-product-grid mb-0">
                             <div class="img-wrap"> 
                                 @if ($item->nuevo)
@@ -195,7 +196,8 @@
                             <figcaption class="info-wrap text-center">
                                 <h6 class="title text-truncate"><a href="#">{{ $item->nombre }}</a></h6>
                             </figcaption>
-                        </figure> 
+                        </figure>
+                        </a>
                     </div>
                 @empty
                     
@@ -213,7 +215,8 @@
                 </header>
                 <div class="slider-items-slick row" data-slick='{"slidesToShow": 4, "slidesToScroll": 1}'>
                     @forelse ($mas_vendidos as $item)
-                        <div class="item-slide p-2">
+                    <div class="item-slide p-2">
+                        <a href="{{ route('detalle_producto_ecommerce', ['producto'=>$item->slug]) }}">
                             <figure class="card card-product-grid mb-0">
                                 <div class="img-wrap"> 
                                     @if ($item->nuevo)
@@ -222,10 +225,11 @@
                                     <img src="{{ url('storage/'.$item->imagen) }}">
                                 </div>
                                 <figcaption class="info-wrap text-center">
-                                    <h6 class="title text-truncate"><a href="#">{{ $item->nombre }}</a></h6>
+                                    <h6 class="title text-truncate">{{ $item->nombre }}</h6>
                                 </figcaption>
-                            </figure> 
-                        </div>
+                            </figure>
+                        </a>
+                    </div>
                     @empty
                         
                     @endforelse

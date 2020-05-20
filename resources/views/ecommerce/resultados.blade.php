@@ -94,7 +94,7 @@
     // Paginador de busqueda
     $('.page-link').click(function(){
         let page = $(this).prop('href');
-        buscar(page.split('page=')[1]);
+        search(page.split('page=')[1]);
         return false;
     });
 </script>

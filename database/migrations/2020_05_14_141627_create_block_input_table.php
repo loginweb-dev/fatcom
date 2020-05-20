@@ -16,6 +16,7 @@ class CreateBlockInputTable extends Migration
         Schema::create('t_block_input', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('t_block_id');
+            $table->string('name')->nullable();
             $table->string('type')->nullable();
             $table->text('value')->nullable();
             $table->integer('order')->nullable();

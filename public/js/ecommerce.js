@@ -1,13 +1,13 @@
 $(document).ready(function(){
     // Realizar busqueda mediante el panel lateral
-    $('.btn-search').click(function(){
+    $('.btn-search').click(function(e){
         let tipo = $(this).data('tipo');
         let id = $(this).data('id');
         $(`#form-search input[name="${tipo}_id"]`).val(id);
         $(`#form-search input[name="tipo_busqueda"]`).val('click');
         // document.form.submit();
-        buscar(1);
-        return false;
+        search(1);
+        // return false;
     });
 
     // actualizar input de precios
@@ -36,11 +36,9 @@ $(document).ready(function(){
     });
 });
 
-function buscar(page){
+function search(page){
     $(`#form-search input[name="page"]`).val(page);
-    $('#contenido').html(`  <div class="text-center" style="margin-top:120px">
-                                <h6>Cargando resultados...</h6>
-                            </div>`);
+    $('.main-loader').css('display', 'block');
     let min = $(`#form-search input[name="min"]`).val();
     let max = $(`#form-search input[name="max"]`).val();
     if(min!='' && max!=''){
@@ -49,8 +47,9 @@ function buscar(page){
             return 0;
         }
     }
+    
     let datos = $('#form-search').serialize();
-    // $("html,body").animate({scrollTop: $('#contenido').offset().top - 100}, 500);
+    $("html,body").animate({scrollTop: $('#contenido').offset().top - 50}, 500);
     $.ajax({
         // Se utiliza la ruta absoluta ya que no se puede usar sintaxis blade en archivos .js
         url: "/search",
@@ -58,8 +57,15 @@ function buscar(page){
         data: datos,
         success: function(data){
             $('#contenido').html(data);
+            $('.main-loader').css('display', 'none');
         }
     });
+}
+
+// Agregar producto al carrito
+// se recibe el id del producto y el callback de la respuesta
+function addCart(producto_id, callback){
+    $.get(`/carrito/agregar/${producto_id}`, callback);
 }
 
 // Agregar a carrito
@@ -70,7 +76,7 @@ function cartAdd(id){
         success: function(data){
             if(data==1){
                 ohSnap('<span class="fa fa-check fa-2x"></span> Producto agregar al carrito.', {color: 'green'});
-                cantidad_carrito();
+                count_cart();
                 try {
                     toastr.info('Producto agregado al carrito.', 'Información');
                 } catch (error) {}
@@ -88,23 +94,19 @@ function cartRemove(id){
     $.get(`/carrito/borrar/${id}`, function(data){
         if(data==1){
             $(`#tr-${id}`).remove();
-            ohSnap('<span class="fa fa-check fa-2x"></span> Producto removido del carrito.', {color: 'green'});
             totalVenta();
-            cantidad_carrito();
-            try {
-                toastr.info('Producto eliminado del carrito.', 'Información');
-            } catch (error) {}
+            count_cart();
         }
     })
 }
 
 // Contador de productos en carrito
-function cantidad_carrito(){
+function count_cart(){
     $.ajax({
         url: `/carrito/cantidad_carrito`,
         type: 'get',
         success: function(data){
-            $('#label-carrito').html(data)
+            $('#label-count-cart').html(data)
         }
     });
 }
@@ -128,9 +130,9 @@ $('#btn-price').click(function(){
     let max = $(`#form-search input[name="max"]`).val();
     if(min!='' || max!=''){
         $(`#form-search input[name="tipo_busqueda"]`).val('click');
-        buscar(1);
+        search(1);
     }else{
-        // toastr.error('Debe ingresar al menos un dato en el rango de precios.', 'Error');
+        toastr.error('Debe ingresar al menos un dato en el rango de precios.', 'Error');
     }
 });
 
@@ -146,8 +148,10 @@ function totalVenta(){
 
 // Cambiar cantidad de producto
 function cambiarCantidad(tipo, id){
-    let cantidad = $(`#input-cantidad-${id}`).val();
-    let precio = $(`#input-precio-${id}`).val();
+    let cantidad = parseFloat($(`#input-cantidad-${id}`).val());
+    let precio = parseFloat($(`#input-precio-${id}`).val());
+    let precio_envio = parseFloat($(`#input-costo_envio${id}`).val());
+    
     if(tipo == 'sumar'){
         cantidad++;
         $(`#input-cantidad-${id}`).val(cantidad);
@@ -157,10 +161,40 @@ function cambiarCantidad(tipo, id){
             $(`#input-cantidad-${id}`).val(cantidad);
         }
     }
+    
+    let total = cantidad*(precio+precio_envio);
+
     $(`#label-cantidad-${id}`).text(` ${cantidad} `);
-    $(`#input-subtotal-${id}`).val(cantidad*precio);
-    $(`#label-subtotal-${id}`).text(`${moneda} ${parseFloat(cantidad*precio).toFixed(2)}`);
+    $(`#input-subtotal-${id}`).val(total);
+    $(`#label-subtotal-${id}`).text(`${moneda} ${parseFloat(total).toFixed(2)}`);
     totalVenta();
 
     $.get(`carrito/editar/${id}/${cantidad}`, function(data){});
+}
+
+function set_rate(rate){
+    $('#label-set-rate').css('width', rate+'%');
+    $('#input-puntos').val(rate);
+    $.post($('#form-rating').attr('action'), $('#form-rating').serialize(), (res)=>{
+        if(res){
+            console.log(res)
+            $('[data-toggle="popover"]').popover('hide');
+            $('#btn-rating').css('display', 'none');
+            try {
+                Toast.fire({
+                    icon: 'success',
+                    title: 'Gracias por su calificación'
+                })
+                $('#label-current-rate').css('width', rate+'%');
+            } catch (error) {}
+        }else{
+            try {
+                Toast.fire({
+                    icon: 'error',
+                    title: 'Ocurrió un error inesperado'
+                })
+            } catch (error) {}
+        }
+        
+    })
 }

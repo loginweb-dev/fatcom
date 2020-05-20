@@ -323,6 +323,6 @@
             });
         });
 
-      cantidad_carrito();
+        count_cart();
     </script>
 @endsection

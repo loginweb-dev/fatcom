@@ -41,6 +41,10 @@ class RegisterController extends Controller
         $this->middleware('guest');
     }
 
+    public function showRegistrationForm(){
+        return view('ecommerce.'.setting('admin.ecommerce').'.auth.register');
+    }
+
     /**
      * Get a validator for an incoming registration request.
      *

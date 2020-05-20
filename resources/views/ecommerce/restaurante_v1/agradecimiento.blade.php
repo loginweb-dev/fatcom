@@ -160,6 +160,6 @@
 @section('script')
     <script src="{{ url('js/ecommerce.js') }}"></script>
     <script>
-      cantidad_carrito();
+      count_cart();
     </script>
 @endsection

@@ -18,25 +18,25 @@
         <div class="row">
             <div class="col-sm-6 mx-auto">
                 <article class="white text-center mb-5">
-                    <h1 class="display-3">{{setting('admin.title')}}</h1>
-                    <p class="display-6">{{setting('admin.description')}}</p>
+                    <h1 class="display-3">{{ setting('admin.title') }}</h1>
+                    <p class="display-6">{{ setting('admin.description') }}</p>
                 </article>
             </div>
         </div>
         <div style="margin-bottom:-40px;margin-right:100px" class="text-right">
-            <div class="fb-like" data-href="{{url('')}}" data-width="" data-layout="button_count" data-action="like" data-size="large" data-show-faces="true" data-share="true"></div>
+            <div class="fb-like" data-href="{{ url('') }}" data-width="" data-layout="button_count" data-action="like" data-size="large" data-show-faces="true" data-share="true"></div>
         </div>
     </section>
 @endsection
 
 @section('content')
-    <aside class="col-lg-3 col-md-5 col-sm-12">
+    <aside class="col-lg-3 col-md-5 col-sm-12 mt-3">
         <div class="card card-filter">
             <article class="card-group-item">
                 <header class="card-header">
                     <a class="" aria-expanded="true" href="#" data-toggle="collapse" data-target="#collapse22">
                         <i class="icon-action fa fa-chevron-down"></i>
-                        <h6 class="title">Por Categoría</h6>
+                        <h6 class="title">Categoría</h6>
                     </a>
                 </header>
                 <div class="filter-content collapse show panel-aside" id="collapse22">
@@ -51,7 +51,7 @@
                                     <div id="collapse{{ $categoria->id }}" class="collapse sublist-body" aria-labelledby="heading{{ $categoria->id }}" data-parent="#accordion">
                                         <ul class="list-unstyled list-lg sublist">
                                             @foreach ($categoria->subcategorias as $subcategoria)
-                                                <li><a href="#" class="btn-search" data-tipo="subcategoria" data-id="{{ $subcategoria->id }}" > {{ $subcategoria->nombre }} <span class="float-right badge badge-secondary round"></span></a></li>
+                                                <li><button class="btn btn-link btn-search" data-tipo="subcategoria" data-id="{{ $subcategoria->id }}" > <b>{{ $subcategoria->nombre }}</b> <span class="float-right badge badge-secondary round"></span></button></li>
                                             @endforeach
                                         </ul>
                                     </div>
@@ -59,6 +59,31 @@
                                 @endforelse
                             </ul>
                         </div>
+                    </div>
+                </div>
+            </article>
+            <article class="card-group-item">
+                <header class="card-header">
+                    <a href="#" data-toggle="collapse" data-target="#collapse44">
+                        <i class="icon-action fa fa-chevron-down"></i>
+                        <h6 class="title">Marcas</h6>
+                    </a>
+                </header>
+                <div class="filter-content collapse show panel-aside" id="collapse44">
+                    <div class="card-body">
+                        <div class="custom-control custom-radio" style="margin:5px 0px">
+                            <input type="radio" checked name="marca" id="option" class="custom-control-input btn-search" data-tipo="marca">
+                            <label class="custom-control-label" for="option">Todas</label>
+                        </div>
+                        @forelse ($marcas as $marca)
+                        <div class="custom-control custom-radio" style="margin:5px 0px">
+                            <input type="radio" name="marca" id="option{{ $marca->id }}" class="custom-control-input btn-search" data-tipo="marca" data-id="{{$marca->id}}">
+                            <label class="custom-control-label" for="option{{ $marca->id }}">{{ $marca->nombre }}</label>
+                            <span class="float-right badge badge-secondary round">{{ $marca->productos }}</span>
+                        </div>
+                        @empty
+
+                        @endforelse
                     </div>
                 </div>
             </article>
@@ -85,35 +110,10 @@
                     </div>
                 </div>
             </article>
-            <article class="card-group-item">
-                <header class="card-header">
-                    <a href="#" data-toggle="collapse" data-target="#collapse44">
-                        <i class="icon-action fa fa-chevron-down"></i>
-                        <h6 class="title">Por Marca </h6>
-                    </a>
-                </header>
-                <div class="filter-content collapse show panel-aside" id="collapse44">
-                    <div class="card-body">
-                        <div class="custom-control custom-radio" style="margin:5px 0px">
-                            <input type="radio" checked name="marca" id="option" class="custom-control-input btn-search" data-tipo="marca" data-id="">
-                            <label class="custom-control-label" for="option">Todas</label>
-                        </div>
-                        @forelse ($marcas as $marca)
-                        <div class="custom-control custom-radio" style="margin:5px 0px">
-                            <input type="radio" name="marca" id="option{{$marca->id}}" class="custom-control-input btn-search" data-tipo="marca" data-id="{{$marca->id}}">
-                            <label class="custom-control-label" for="option{{$marca->id}}">{{$marca->nombre}}</label>
-                            <span class="float-right badge badge-secondary round">{{$marca->productos}}</span>
-                        </div>
-                        @empty
-
-                        @endforelse
-                    </div>
-                </div>
-            </article>
         </div>
     </aside>
 
-    <main id="contenido" class="col-lg-9 col-md-7 col-sm-12" style="margin-bottom:70px">
+    <main id="contenido" class="col-lg-9 col-md-7 col-sm-12 mt-3" style="margin-bottom:70px">
         @if(count($ofertas)>0)
             @php
                 $cantidad = count($ofertas)<4 ? count($ofertas) : 4;

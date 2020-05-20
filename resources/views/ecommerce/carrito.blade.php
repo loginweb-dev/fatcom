@@ -14,7 +14,7 @@
 
 @section('content')
     <main id="contenido" class="col-md-7">
-    <form id="form_carrito" name="form_carrito" action="{{route('pedidos_store')}}" method="post">
+    <form id="form_carrito" name="form_carrito" action="{{ route('pedidos_store') }}" method="post">
         <div class="card">
             <div class="table-responsive">
                 @csrf
@@ -72,15 +72,17 @@
                                             @php
                                                 $costo_envio = '';
                                                 foreach($disponibles as $envio){
-                                                    if($item->id == $envio->id){
-                                                        if(Auth::user()){
-                                                            if(Auth::user()->localidad_id == $envio->localidad_id){
-                                                                $costo_envio = $envio->costo_envio;
+                                                    foreach ($envio as $reg) {
+                                                        if($item->id == $reg->id){
+                                                            if(Auth::user()){
+                                                                if(Auth::user()->localidad_id == $reg->localidad_id){
+                                                                    $costo_envio = $reg->costo_envio;
+                                                                    $envio_disponible++;
+                                                                }
+                                                            }else{
+                                                                $costo_envio = $reg->costo_envio;
                                                                 $envio_disponible++;
                                                             }
-                                                        }else{
-                                                            $costo_envio = $envio->costo_envio;
-                                                            $envio_disponible++;
                                                         }
                                                     }
                                                 }
@@ -107,7 +109,7 @@
                                                     @if($costo_envio === '')
                                                     <label class="badge badge-danger">No disponible</label>
                                                     @else
-                                                    {{$costo_envio > 0 ? 'Bs. '.$costo_envio : 'Gratis'}}
+                                                    {{ $costo_envio > 0 ? 'Bs. '.$costo_envio : 'Gratis' }}
                                                     @endif
                                                 </b>
                                                 <input type="hidden" name="costo_envio[]" id="input-costo_envio{{$item->id}}" value="{{$costo_envio}}">
@@ -132,7 +134,7 @@
                                         @break
                                     @case('restaurante')
                                         <dl>
-                                            <dd><p style="font-size:13px">{{$item->descripcion_small}} </p></dd>
+                                            <dd><p style="font-size:13px">{{ $item->descripcion_small }} </p></dd>
                                         </dl>
                                         @break
                                     @default
@@ -147,7 +149,7 @@
                             @endphp
                             <td>
                                 <h5 class="text-dark" id="label-subtotal-{{ $item->id }}">Bs. {{ number_format($subtotal, 2, ',', '') }}</h5>
-                                <input type="hidden" class="input-subtotal" id="input-subtotal{{ $item->id }}" value="{{ $subtotal }}">
+                                <input type="hidden" class="input-subtotal" id="input-subtotal-{{ $item->id }}" value="{{ $subtotal }}">
                             </td>
                             <td class="text-right">
                                 {{-- <a href="{{url('carrito/borrar').'/'.$item->id}}" class="btn btn-outline-danger link-page"> <span class="fa fa-trash"></span></a> --}}
