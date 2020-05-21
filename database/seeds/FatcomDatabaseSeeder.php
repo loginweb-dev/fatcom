@@ -50,5 +50,7 @@ class FatcomDatabaseSeeder extends Seeder
         $this->seed('SectionsTableSeeder');
         $this->seed('BlocksTableSeeder');
         $this->seed('BlockInputTableSeeder');
+
+        $this->seed('PasarelaPagosTableSeeder');
     }
 }
