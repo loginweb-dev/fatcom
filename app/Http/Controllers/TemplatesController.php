@@ -232,7 +232,7 @@ class TemplatesController extends Controller
         }
     }
 
-    public function sectionTemplate($id){
+    public static function section($id){
         $section = Section::where('id', $id)->with(['blocks.inputs'])->first();
         $response = array();
         if($section && $section->blocks){

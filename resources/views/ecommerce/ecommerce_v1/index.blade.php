@@ -1,6 +1,6 @@
-@php
+{{-- @php
     use App\Http\Controllers\TemplatesController;
-@endphp
+@endphp --}}
 @extends('ecommerce.ecommerce_v1.layouts.master')
 
 @section('meta-datos')
@@ -135,7 +135,7 @@
                         @php
                             $active = 'active';
                         @endphp
-                        @foreach ((new TemplatesController)->sectionTemplate(1) as $item)
+                        @foreach (Templates::section(1) as $item)
                         <div class="carousel-item {{ $active }}">
                             <img class="d-block w-100" src="{{ url('storage/'.$item['image']) }}"> 
                         </div>
@@ -163,7 +163,7 @@
         <div class="container">
             <article class="card card-body">
                 <div class="row">
-                    @foreach ((new TemplatesController)->sectionTemplate(2) as $item)
+                    @foreach (Templates::section(2) as $item)
                     <div class="col-md-4">
                         <figure class="item-feature">
                             <span class="text-primary"><i class="{{ $item['icon'] }} fa-2x"></i></span>
