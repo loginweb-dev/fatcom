@@ -42,7 +42,8 @@ class RegisterController extends Controller
     }
 
     public function showRegistrationForm(){
-        return view('ecommerce.'.setting('admin.ecommerce').'.auth.register');
+        return setting('admin.ecommerce') ? view('ecommerce.'.setting('admin.ecommerce').'.auth.login') : view('auth.register');
+
     }
 
     /**

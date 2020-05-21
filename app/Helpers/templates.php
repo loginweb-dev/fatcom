@@ -15,3 +15,4 @@ function sectionTemplate($id){
     }
     return $response;
 }
+?>

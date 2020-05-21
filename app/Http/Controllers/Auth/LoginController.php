@@ -44,7 +44,7 @@ class LoginController extends Controller
     }
 
     public function showLoginForm(){
-        return view('ecommerce.'.setting('admin.ecommerce').'.auth.login');
+        return setting('admin.ecommerce') ? view('ecommerce.'.setting('admin.ecommerce').'.auth.login') : view('auth.login');
     }
 
     // Login mediante Facebook
