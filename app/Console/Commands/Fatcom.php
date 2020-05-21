@@ -12,7 +12,7 @@ class Fatcom extends Command
      *
      * @var string
      */
-    protected $signature = 'fatcom:install {--with-registers}';
+    protected $signature = 'fatcom:install {--with-registers} {--reset}';
 
     /**
      * The console command description.
@@ -38,23 +38,29 @@ class Fatcom extends Command
      */
     public function handle()
     {
-        $this->call('key:generate');
-        $this->call('migrate');
-        $this->call('db:seed');
-        $this->call('storage:link');
-        if($this->option('with-registers')){
-            // Agregar los seeder de datos de prueba
+        if($this->option('reset')){
+            $this->call('migrate:refresh');
+            $this->call('db:seed');
+            $this->info('La base de datos de FATCOM ha sido reiniciada.');
+        }else{
+            $this->call('key:generate');
+            $this->call('migrate');
+            $this->call('db:seed');
+            $this->call('storage:link');
+            if($this->option('with-registers')){
+                // Agregar los seeder de datos de prueba
+            }
+            $this->call('vendor:publish', ['--provider' => VoyagerServiceProvider::class, '--tag' => ['config', 'voyager_avatar']]);
+    
+            $this->info('
+                ███████╗░█████╗░████████╗░█████╗░░█████╗░███╗░░░███╗
+                ██╔════╝██╔══██╗╚══██╔══╝██╔══██╗██╔══██╗████╗░████║
+                █████╗░░███████║░░░██║░░░██║░░╚═╝██║░░██║██╔████╔██║
+                ██╔══╝░░██╔══██║░░░██║░░░██║░░██╗██║░░██║██║╚██╔╝██║
+                ██║░░░░░██║░░██║░░░██║░░░╚█████╔╝╚█████╔╝██║░╚═╝░██║
+                ╚═╝░░░░░╚═╝░░╚═╝░░░╚═╝░░░░╚════╝░░╚════╝░╚═╝░░░░░╚═╝
+            ');
+            $this->info('Gracias por instalar FATCOM.');
         }
-        $this->call('vendor:publish', ['--provider' => VoyagerServiceProvider::class, '--tag' => ['config', 'voyager_avatar']]);
-
-        $this->info('
-            ███████╗░█████╗░████████╗░█████╗░░█████╗░███╗░░░███╗
-            ██╔════╝██╔══██╗╚══██╔══╝██╔══██╗██╔══██╗████╗░████║
-            █████╗░░███████║░░░██║░░░██║░░╚═╝██║░░██║██╔████╔██║
-            ██╔══╝░░██╔══██║░░░██║░░░██║░░██╗██║░░██║██║╚██╔╝██║
-            ██║░░░░░██║░░██║░░░██║░░░╚█████╔╝╚█████╔╝██║░╚═╝░██║
-            ╚═╝░░░░░╚═╝░░╚═╝░░░╚═╝░░░░╚════╝░░╚════╝░╚═╝░░░░░╚═╝
-        ');
-        $this->info('Gracias por instalar FATCOM.');
     }
 }

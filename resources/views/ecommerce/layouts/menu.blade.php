@@ -25,7 +25,7 @@
                     @endif
                 @else
                     <li class="nav-item">
-                        <a class="nav-link link-page" href="{{route('pedidos_index', ['id'=>'last'])}}" title="Pedidos pendientes" id="label-pedidos">Mis pedidos</a>
+                        <a class="nav-link link-page" href="{{route('pedidos_index', ['id'=>'last'])}}" title="Pedidos pendientes" id="label-count-pedidos">Mis pedidos</a>
                     </li>
                     <li class="nav-item dropdown">
                         <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>

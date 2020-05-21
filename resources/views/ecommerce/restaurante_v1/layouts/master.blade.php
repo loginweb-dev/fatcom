@@ -128,9 +128,6 @@
     <!-- MDB core JavaScript -->
     <script type="text/javascript" src="{{ url('ecommerce_public/templates/restaurante_v1/js/mdb.min.js') }}"></script>
 
-    {{-- Alert ohsnap --}}
-    <script src="{{ url('ecommerce_public/plugins/snap/ohsnap.js') }}"></script>
-
     <script src="{{ url('js/ecommerce.js') }}"></script>
 
     <script type="text/javascript">
@@ -154,9 +151,6 @@
     </script>
 
     @yield('script')
-    
-    {{-- Notificaciones --}}
-    <div id="ohsnap"></div>
 </body>
 
 </html>

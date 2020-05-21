@@ -27,7 +27,7 @@
           <div class="col-lg-4 col-sm-6 col-12">
               <div class="widgets-wrap float-md-right">
                   <div class="widget-header  mr-3">
-                      <a href="{{ route('carrito_compra') }}" class="icon icon-sm rounded-circle border"><i class="fa fa-shopping-cart"></i></a>
+                      <a href="{{ route('carrito_compra') }}" class="icon icon-sm rounded-circle border" data-toggle="tooltip" title="Carrito"><i class="fa fa-shopping-cart"></i></a>
                       <span class="badge badge-pill badge-danger notify" id="label-count-cart">0</span>
                   </div>
                   <div class="widget-header icontext">
@@ -48,6 +48,7 @@
                               @if(Auth::user()->role_id != 2)
                               <a class="dropdown-item" target="_blank" href="{{ url('admin') }}">Administración</a>
                               @endif
+                              <a class="dropdown-item" href="{{ route('pedidos_index', ['id'=>'last']) }}" title="Pedidos pendientes" id="label-count-pedidos">Mis pedidos</a>
                               <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Salir</a>
                               <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                                 @csrf
@@ -76,7 +77,7 @@
             <a class="nav-link pl-0" data-toggle="dropdown" href="#">{{ $category->nombre }} <i class="fa fa-caret-down"></i></a>
             <div class="dropdown-menu">
               @forelse ($category->subcategorias as $subcategoria)
-              <a class="dropdown-item" href="#">{{ $subcategoria->nombre }}</a>
+              <a class="dropdown-item" href="{{ url('/filtro?subcategory='.$subcategoria->slug) }}">{{ $subcategoria->nombre }}</a>
               @empty
               <a class="dropdown-item" href="#">Ninguno</a>
               @endforelse

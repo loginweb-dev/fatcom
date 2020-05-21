@@ -47,7 +47,6 @@ const FILES_TO_CACHE = [
     'ecommerce_public/templates/restaurante_v1/js/popper.min.js',
     'ecommerce_public/templates/restaurante_v1/js/bootstrap.min.js',
     'ecommerce_public/templates/restaurante_v1/js/mdb.min.js',
-    'ecommerce_public/plugins/snap/ohsnap.js',
 ];
 
 

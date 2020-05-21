@@ -257,7 +257,7 @@
 
                         @if($disponible)
                         <hr>
-                        <button style="margin:5px" type="button" id="btn-add_carrito" data-id="{{$id}}" class="btn btn-warning" onclick="agregar({{ $id }})"> <i class="fa fa-shopping-cart"></i> Agregar al carrito</button>
+                        <button style="margin:5px" type="button" id="btn-add_carrito" data-id="{{$id}}" class="btn btn-warning" onclick="cartAdd({{ $id }})"> <i class="fa fa-shopping-cart"></i> Agregar al carrito</button>
                         <a style="margin:5px" href="{{url('carrito/agregar/comprar').'/'.$id}}" class="btn  btn-outline-warning link-page"> Comprar ahora </a>
                         @endif
                         <hr>
@@ -319,7 +319,7 @@
                         <div class="aside">	<img class="img-sm" width="80" src="{{url('storage').'/'.$img}}"> </div>
                         <figcaption class="text-wrap">
                             <p class="title b">{{$item['nombre']}}</p>
-                            <button class="btn btn-warning btn-sm" type="button" title="Agregar al carrito de compra" onclick="agregar({{$item['id']}})"> <i class="fa fa-shopping-cart"></i> </button>
+                            <button class="btn btn-warning btn-sm" type="button" title="Agregar al carrito de compra" onclick="cartAdd({{ $item['id'] }})"> <i class="fa fa-shopping-cart"></i> </button>
                             <a href="{{ route('detalle_producto_ecommerce', ['id'=>$item['slug']]) }}" title="Detalles" class="btn btn-primary btn-sm link-page"> <i class="fa fa-list"></i> </a>
                         </figcaption>
                     </figure>

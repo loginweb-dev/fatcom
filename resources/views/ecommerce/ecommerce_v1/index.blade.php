@@ -238,7 +238,6 @@
     </section>
     @endif
     
-
     <section class="section-name bg padding-y-sm" style="margin-top: 100px">
         <div class="container">
             <header class="section-heading">
@@ -249,7 +248,7 @@
                     @if ($item->logo != '')
                     <div class="item-slide p-2">
                         <figure class="box item-logo">
-                            <a href="#" title="{{ $item->nombre }}"><img src="{{ url('storage/'.$item->logo) }}"><br></a>
+                            <a href="{{ url('filtro?brand='.$item->nombre) }}" title="{{ $item->nombre }}"><img src="{{ url('storage/'.$item->logo) }}"><br></a>
                             <figcaption class="border-top pt-2">{{ $item->productos }} Productos</figcaption>
                         </figure>
                     </div>

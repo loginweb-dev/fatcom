@@ -127,11 +127,6 @@
                     </a>
                 </li>
             @else
-                {{-- <li class="nav-item">
-                    <a class="nav-link waves-effect waves-light dark-grey-text font-weight-bold" href="{{route('pedidos_index', ['id'=>'last'])}}" title="Pedidos pendientes" id="label-pedidos">
-                        <i class="fas fa-clipboard-list blue-text"></i> Mis pedidos
-                    </a>
-                </li> --}}
                 <li class="nav-item dropdown">
                     <a id="navbarDropdown" class="nav-link dropdown-toggle waves-effect waves-light dark-grey-text font-weight-bold" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                         <i class="far fa-address-card blue-text"></i> Cuenta <span class="caret"></span>

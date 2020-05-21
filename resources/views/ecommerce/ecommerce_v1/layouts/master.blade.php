@@ -77,6 +77,30 @@
                 color:white;
                 border-radius: 5px
             }
+            .main-loader{
+                position: fixed;
+                top:50%;
+                left:50%;
+                /*determinamos una anchura*/
+                width:200px;
+                /*indicamos que el margen izquierdo, es la mitad de la anchura*/
+                margin-left:-100px;
+                /*determinamos una altura*/
+                height:100px;
+                /*indicamos que el margen superior, es la mitad de la altura*/
+                margin-top:-50px;
+                padding:5px;
+                z-index: 10;
+                display: none;
+            }
+            .text-loader{
+                position: relative;
+                padding: 20px;
+                background-color:rgba(0, 0, 0, 0.6);
+                /* width:200px; */
+                color:white;
+                border-radius: 5px
+            }
         </style>
 
         @yield('css')
@@ -88,12 +112,21 @@
 
         @yield('content')
 
+        <div class="main-loader">
+            <div class="d-flex justify-content-center text-loader">
+                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                <div style="padding: 5px 10px"> Cargando...</div>
+            </div>
+        </div>
+
         <section class="section-name padding-y">
             <div class="container">
                 <h3 class="mb-3">Descarga nuestra App</h3>
                 <a href="#"><img src="{{ url('img/btn-google-play.png') }}" height="40"></a>
                 <a href="#"><img src="{{ url('img/btn-app-store.png') }}" height="40"></a>
             </div>
+            {{-- Formulario de busqueda --}}
+            @include('ecommerce.layouts.form-search')
         </section>
 
         {{-- Footer --}}

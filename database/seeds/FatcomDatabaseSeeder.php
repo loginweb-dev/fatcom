@@ -44,5 +44,11 @@ class FatcomDatabaseSeeder extends Seeder
         $this->seed('FatcomPermissionRoleTableSeeder');
         $this->seed('FatcomSettingsTableSeeder');
         $this->seed('UsersTableSeeder');
+
+        $this->seed('TemplatesTableSeeder');
+        $this->seed('PagesTableSeeder');
+        $this->seed('SectionsTableSeeder');
+        $this->seed('BlocksTableSeeder');
+        $this->seed('BlockInputTableSeeder');
     }
 }

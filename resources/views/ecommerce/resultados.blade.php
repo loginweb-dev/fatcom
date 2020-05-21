@@ -67,7 +67,7 @@
                         {{-- <p class="text-success">Free shipping</p> --}}
                         <br>
                         <p>
-                            <button style="margin:5px" type="button" id="btn-add_carrito" class="btn btn-warning" onclick="agregar({{$item->id}})"> <i class="fa fa-shopping-cart"></i> Agregar</button>
+                            <button style="margin:5px" type="button" id="btn-add_carrito" class="btn btn-warning" onclick="cartAdd({{ $item->id }})"> <i class="fa fa-shopping-cart"></i> Agregar</button>
                             <a style="margin:5px" href="{{ route('detalle_producto_ecommerce', ['producto'=>$item->slug]) }}" class="btn btn-primary link-page"> <i class="fa fa-list"></i> Detalles  </a>
                         </p>
                         {{-- <a href="#"><i class="fa fa-heart"></i> Add to wishlist</a> --}}

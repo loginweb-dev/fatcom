@@ -107,6 +107,20 @@ class LandingPageController extends Controller
         return view('ecommerce.'.setting('admin.ecommerce').'index', compact('categorias', 'marcas', 'ofertas', 'subcategoria_productos', 'mas_vendidos', 'populares', 'oferta_princial'));
     }
 
+    public function filter(){
+        $categorias = Categoria::with('subcategorias')->where('deleted_at', NULL)->where('id', '>', 1)->get();
+        $marcas = DB::table('marcas as m')
+                            ->join('productos as p', 'p.marca_id', 'm.id')
+                            ->join('ecommerce_productos as ec', 'ec.producto_id', 'p.id')
+                            ->select(DB::raw('m.id, m.nombre, count(p.id) as productos, m.logo'))
+                            ->where('m.deleted_at', NULL)
+                            ->groupBy('id', 'nombre')
+                            ->orderBy('productos', 'DESC')
+                            ->limit(5)
+                            ->get();
+        return view('ecommerce.'.setting('admin.ecommerce').'filter', compact('marcas', 'categorias'));
+    }
+
     public function search(Request $data){
         // dd($data);
         $sentencia = '1';
@@ -605,13 +619,10 @@ class LandingPageController extends Controller
                             ->get();
                 array_push($productos_pedidos, $aux);
             }
-        }
-
-        if($ultimo_pedido){
             return view('ecommerce.'.setting('admin.ecommerce').'pedidos', compact('ultimo_pedido', 'mi_ubicacion', 'detalle_pedido', 'pedidos', 'productos_pedidos'));
-        }else{
-            return view('ecommerce.pedidos_empty');
         }
+        
+        return view('ecommerce.'.setting('admin.ecommerce').'pedidos', compact('ultimo_pedido'));
     }
 
     public function ecommerce_policies(){

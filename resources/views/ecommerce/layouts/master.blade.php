@@ -51,9 +51,6 @@
     <link href="{{ url('ecommerce_public/plugins/owlcarousel/assets/owl.theme.default.css') }}" rel="stylesheet">
     <script src="{{ url('ecommerce_public/plugins/owlcarousel/owl.carousel.min.js') }}"></script>
 
-    {{-- Alert ohsnap --}}
-    <script src="{{ url('ecommerce_public/plugins/snap/ohsnap.js') }}"></script>
-
     <?php $admin_logo_bg = Voyager::setting('admin.bg_image', ''); ?>
     @if($admin_logo_bg == '')
     <style>
@@ -132,22 +129,6 @@
             });
 
         });
-        // jquery end
-
-        function agregar(id){
-            $.ajax({
-                url: `{{url('/carrito/agregar')}}/${id}`,
-                type: 'get',
-                success: function(data){
-                    if(data==1){
-                        toastr.info('Producto agregado al carrito.', 'Información');
-                        count_cart();
-                    }else{
-                        toastr.error('Ocurrio un error al agregar el productos.', 'Error');
-                    }
-                }
-            });
-        }
 
         function cantidad_pedidos(){
             $.ajax({
@@ -155,9 +136,9 @@
                 type: 'get',
                 success: function(data){
                     if(data!=0){
-                        $('#label-pedidos').html(`Mis pedidos <span class="badge badge-primary round">${data}</span>`)
+                        $('#label-count-pedidos').html(`Mis pedidos <span class="badge badge-primary round">${data}</span>`)
                     }else{
-                        $('#label-pedidos').html(`Mis pedidos`)
+                        $('#label-count-pedidos').html(`Mis pedidos`)
                     }
                 }
             });
@@ -165,7 +146,7 @@
 
         function categorias(page, id){
             $.ajax({
-                url: "{{route('ofertas_ecommerce', ['id'=>"+id+"])}}",
+                url: "{{ route('ofertas_ecommerce', ['id'=>"+id+"]) }}",
                 data: datos,
                 success: function(data){
                     $('#contenido').html(data);
@@ -367,7 +348,5 @@
             alert(e.message);
         });
     </script>
-    {{-- Notificaciones --}}
-    <div id="ohsnap"></div>
 </body>
 </html>

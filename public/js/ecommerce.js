@@ -75,13 +75,11 @@ function cartAdd(id){
         type: 'get',
         success: function(data){
             if(data==1){
-                ohSnap('<span class="fa fa-check fa-2x"></span> Producto agregar al carrito.', {color: 'green'});
                 count_cart();
                 try {
                     toastr.info('Producto agregado al carrito.', 'Información');
                 } catch (error) {}
             }else{
-                ohSnap('<span class="fa fa-remove"></span> Ocurrio un error inesperado', {color: 'red'});
                 // toastr.error('Ocurrio un error al agregar el productos.', 'Error');
             }
         }

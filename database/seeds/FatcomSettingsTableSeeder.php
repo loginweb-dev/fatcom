@@ -385,7 +385,8 @@ class FatcomSettingsTableSeeder extends Seeder
                 'details' => '{
                     "options":{
                         "" : "Por defecto",
-                        "ecommerce_v1." : "Ecommerce V1"
+                        "ecommerce_v1." : "Ecommerce Bootstrap",
+                        "restaurante_v1." : "Restaurante MDBoostrap"
                     }
                 }',
                 'type' => 'select_dropdown',
