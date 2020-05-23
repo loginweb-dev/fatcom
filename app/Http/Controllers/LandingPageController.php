@@ -19,6 +19,7 @@ use App\Producto;
 use App\Oferta;
 use App\Categoria;
 use App\Subcategoria;
+use App\Marca;
 use App\Sucursale;
 use App\Localidade;
 use App\Cliente;
@@ -32,7 +33,7 @@ class LandingPageController extends Controller
         $marcas = DB::table('marcas as m')
                             ->join('productos as p', 'p.marca_id', 'm.id')
                             ->join('ecommerce_productos as ec', 'ec.producto_id', 'p.id')
-                            ->select(DB::raw('m.id, m.nombre, count(p.id) as productos, m.logo'))
+                            ->select(DB::raw('m.id, m.nombre, count(p.id) as productos, m.logo, m.slug'))
                             ->where('m.deleted_at', NULL)
                             ->groupBy('id', 'nombre')
                             ->orderBy('productos', 'DESC')
@@ -108,6 +109,9 @@ class LandingPageController extends Controller
     }
 
     public function filter(){
+        $marca_filtro = \Request::query('brand') ? Marca::where('slug', \Request::query('brand'))->first() : null;
+        $subcategoria_filtro = \Request::query('subcategory') ? Subcategoria::where('slug', \Request::query('subcategory'))->first() : null;
+
         $categorias = Categoria::with('subcategorias')->where('deleted_at', NULL)->where('id', '>', 1)->get();
         $marcas = DB::table('marcas as m')
                             ->join('productos as p', 'p.marca_id', 'm.id')
@@ -118,7 +122,7 @@ class LandingPageController extends Controller
                             ->orderBy('productos', 'DESC')
                             ->limit(5)
                             ->get();
-        return view('ecommerce.'.setting('admin.ecommerce').'filter', compact('marcas', 'categorias'));
+        return view('ecommerce.'.setting('admin.ecommerce').'filter', compact('marcas', 'categorias', 'marca_filtro', 'subcategoria_filtro'));
     }
 
     public function search(Request $data){
@@ -164,7 +168,7 @@ class LandingPageController extends Controller
                             ->join('monedas as mn', 'mn.id', 'p.moneda_id')
                             ->select(DB::raw('p.id, p.nombre, p.precio_venta, p.imagen, p.modelo, p.garantia,
                                             p.descripcion_small, p.vistas, p.slug, s.nombre as subcategoria, m.nombre as marca,
-                                            mn.abreviacion as moneda, u.nombre as uso, co.nombre as color, g.nombre as genero, p.codigo_grupo,
+                                            mn.abreviacion as moneda, u.nombre as uso, co.nombre as color, g.nombre as genero, p.codigo_grupo, p.nuevo,
                                             (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos, p.deleted_at as monto_oferta, p.deleted_at as tipo_descuento, p.deleted_at as fin_descuento'))
                             // ->where('deleted_at', NULL)
                             ->whereRaw($sentencia)

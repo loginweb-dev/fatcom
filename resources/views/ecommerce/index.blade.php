@@ -77,7 +77,7 @@
                         </div>
                         @forelse ($marcas as $marca)
                         <div class="custom-control custom-radio" style="margin:5px 0px">
-                            <input type="radio" name="marca" id="option{{ $marca->id }}" class="custom-control-input btn-search" data-tipo="marca" data-id="{{$marca->id}}">
+                            <input type="radio" name="marca" id="option{{ $marca->id }}" class="custom-control-input btn-search" data-tipo="marca" data-id="{{ $marca->id }}">
                             <label class="custom-control-label" for="option{{ $marca->id }}">{{ $marca->nombre }}</label>
                             <span class="float-right badge badge-secondary round">{{ $marca->productos }}</span>
                         </div>

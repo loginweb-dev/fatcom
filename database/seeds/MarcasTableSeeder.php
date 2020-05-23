@@ -14,7 +14,8 @@ class MarcasTableSeeder extends Seeder
     {
         if (Marca::count() == 0) {
             Marca::create([
-                'nombre' => 'Por defecto'
+                'nombre' => 'Por defecto',
+                'slug' => 'por-defecto'
             ]);
         }
     }

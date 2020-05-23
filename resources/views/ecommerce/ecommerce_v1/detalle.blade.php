@@ -6,7 +6,7 @@
     <meta property="og:type"          content="E-Commerce" />
     <meta property="og:title"         content="{{ $producto->nombre }}" />
     <meta property="og:description"   content=" {{ $producto->descripcion_small }}" />
-    <meta property="og:image"         content="{{ ('storage').'/'.$producto->imagen }}" />
+    <meta property="og:image"         content="{{ url('storage').'/'.$producto->imagen }}" />
 
     {{-- Script del evento --}}
     <script async defer crossorigin="anonymous" src="https://connect.facebook.net/es_LA/sdk.js#xfbml=1&version=v3.3&appId=302829090588863&autoLogAppEvents=1"></script>

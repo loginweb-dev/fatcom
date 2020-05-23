@@ -3231,7 +3231,23 @@ class FatcomDataRowsTableSeeder extends Seeder
                 'add' => 1,
                 'delete' => 1,
                 'details' => '{"resize":{"width":"200","height":null},"quality":"70%","upsize":true}',
-                'order' => 6,
+                'order' => 3,
+            ),
+            201 => 
+            array (
+                'id' => 284,
+                'data_type_id' => 18,
+                'field' => 'slug',
+                'type' => 'text',
+                'display_name' => 'Slug',
+                'required' => 1,
+                'browse' => 0,
+                'read' => 0,
+                'edit' => 0,
+                'add' => 0,
+                'delete' => 0,
+                'details' => '{}',
+                'order' => 3,
             ),
         ));
         

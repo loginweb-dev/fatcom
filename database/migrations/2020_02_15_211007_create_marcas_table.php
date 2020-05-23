@@ -16,6 +16,7 @@ class CreateMarcasTable extends Migration {
 		{
 			$table->increments('id');
 			$table->string('nombre')->nullable();
+			$table->string('slug', 191)->unique('slug');
 			$table->string('logo')->nullable();
 			$table->timestamps();
 			$table->softDeletes();

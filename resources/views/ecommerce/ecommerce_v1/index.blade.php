@@ -250,8 +250,8 @@
                 @foreach ($marcas as $item)
                     @if ($item->logo != '')
                     <div class="item-slide p-2">
-                        <figure class="box item-logo">
-                            <a href="{{ url('filtro?brand='.$item->nombre) }}" title="{{ $item->nombre }}"><img src="{{ url('storage/'.$item->logo) }}"><br></a>
+                        <figure class="box">
+                            <a href="{{ url('filtro?brand='.$item->slug) }}" title="{{ $item->nombre }}"><img src="{{ url('storage/'.$item->logo) }}"><br></a>
                             <figcaption class="border-top pt-2">{{ $item->productos }} Productos</figcaption>
                         </figure>
                     </div>

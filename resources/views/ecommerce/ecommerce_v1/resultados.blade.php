@@ -13,6 +13,7 @@
         </div>
     </div>
 </header>
+{{ $productos }}
 @forelse ($productos as $item)
     @php
         $precio_venta = $item->precio_venta;
@@ -31,14 +32,16 @@
                 $img = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
             @endphp
             <aside class="col-md-3">
-                <a href="#" class="img-wrap">
-                    <span class="badge badge-danger"> NEW </span>
+                <a href="{{ route('detalle_producto_ecommerce', ['producto'=>$item->slug]) }}" class="img-wrap">
+                    @if ($item->nuevo)
+                        <span class="badge badge-danger"> Nuevo </span>
+                    @endif
                     <img src="{{ url('storage/'.$img) }}">
                 </a>
             </aside> <!-- col.// -->
             <div class="col-md-6">
                 <div class="info-main">
-                    <a href="#" class="h5 title"> {{ $item->nombre }}  </a>
+                    <a href="{{ route('detalle_producto_ecommerce', ['producto'=>$item->slug]) }}" class="h5 title"> {{ $item->nombre }}  </a>
                     <div class="rating-wrap mb-3">
                         <ul class="rating-stars">
                             <li style="width:{{ $item->puntos*20 }}%" class="stars-active"> 

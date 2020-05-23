@@ -12,7 +12,9 @@ class Fatcom extends Command
      *
      * @var string
      */
-    protected $signature = 'fatcom:install {--with-registers} {--reset}';
+    protected $signature = 'fatcom:install
+                            {--wr|with-registers : Register test products}
+                            {--r|reset : Reset database}';
 
     /**
      * The console command description.
