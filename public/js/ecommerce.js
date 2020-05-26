@@ -1,4 +1,35 @@
 $(document).ready(function(){
+
+    $('#select-main-search').select2({
+        placeholder: '<i class="fa fa-search"></i> Buscar...',
+        escapeMarkup : function(markup) {
+            return markup;
+        },
+        language: {
+            inputTooShort: function (data) {
+                return `Por favor ingrese ${data.minimum - data.input.length} o más caracteres`;
+            },
+            noResults: function () {
+                return `<i class="far fa-frown"></i> No hay resultados encontrados`;
+            }
+        },
+        quietMillis: 250,
+        minimumInputLength: 4,
+        ajax: {
+            url: function (params) {
+                return `/search/${escape(params.term)}`;
+            },        
+            processResults: function (data) {
+                return {
+                    results: data
+                };
+            },
+            cache: true
+        },
+        templateResult: formatResultLandingPage,
+        // templateSelection: (opt) => opt.slug
+    });
+
     // Realizar busqueda mediante el panel lateral
     $('.btn-search').click(function(e){
         let tipo = $(this).data('tipo');
@@ -35,6 +66,14 @@ $(document).ready(function(){
         }
     });
 });
+
+function list(page){
+    // $('.main-loader').css('display', 'block');
+    $.get(`list?page=${page}`, function(res){
+        $('#list-products').html(res);
+        // $('.main-loader').css('display', 'none');
+    });
+}
 
 function search(page){
     $(`#form-search input[name="page"]`).val(page);
@@ -76,9 +115,10 @@ function cartAdd(id){
         success: function(data){
             if(data==1){
                 count_cart();
-                try {
-                    toastr.info('Producto agregado al carrito.', 'Información');
-                } catch (error) {}
+                Toast.fire({
+                    icon: 'success',
+                    title: 'Producto agregado'
+                })
             }else{
                 // toastr.error('Ocurrio un error al agregar el productos.', 'Error');
             }

@@ -1,4 +1,4 @@
-<footer class="section-footer border-top bg">
+<footer class="section-footer border-top bg-dark text-muted">
 	<div class="container">
 		<section class="footer-top  padding-y">
 			<div class="row">

@@ -13,7 +13,7 @@
         </div>
     </div>
 </header>
-{{ $productos }}
+
 @forelse ($productos as $item)
     @php
         $precio_venta = $item->precio_venta;
@@ -56,8 +56,8 @@
                             </li>
                         </ul>
                         {{-- <div class="label-rating">7/10</div> --}}
-                        <div class="label-rating"> {{number_format($item->puntos, 1, ',', '')}}</div>
-                        <div class="label-rating" title="Visto {{$item->vistas}} veces"> <span class="fa fa-eye"></span> {{$item->vistas}} </div>
+                        <div class="label-rating"> {{ number_format($item->puntos, 1, ',', '') }}</div>
+                        <div class="label-rating" title="Visto {{ $item->vistas }} veces"> <span class="fa fa-eye"></span> {{$item->vistas}} </div>
                     </div> <!-- rating-wrap.// -->
                     
                     <p> {{$item->descripcion_small}} </p>

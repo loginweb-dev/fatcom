@@ -44,6 +44,12 @@
         {{-- SweetAlert --}}
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 
+        {{-- Select2 --}}
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+        {{-- Diseño de formatos de resultados   --}}
+        <script src="{{ url('js/rich_select.js') }}"></script>
+
         <script>
             count_cart();
             const Toast = Swal.mixin({
@@ -101,6 +107,18 @@
                 color:white;
                 border-radius: 5px
             }
+
+            /* Change style select2 */
+            .select2-selection__rendered {
+                line-height: 36px !important;
+            }
+            .select2-container .select2-selection--single {
+                height: 40px !important;
+            }
+            .select2-selection__arrow {
+                height: 39px !important;
+            }
+
         </style>
 
         @yield('css')

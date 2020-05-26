@@ -17,7 +17,7 @@ use App\BlockInput;
 class TemplatesController extends Controller
 {
     public function __construct(){
-        $this->middleware('auth');
+        // $this->middleware('auth');
     }
 
     public function index(){
@@ -62,10 +62,14 @@ class TemplatesController extends Controller
     public function section_create(Request $request){
         DB::beginTransaction();
         try {
+            $last_section = DB::table('t_sections')->where('t_page_id', $request->page_id)->select('*')->orderBy('order', 'DESC')->first();
+            $order = $last_section ? $last_section->order + 1  : 1;
             Section::create([
                 't_page_id' => $request->page_id,
                 'name' => $request->name,
-                'description' => $request->description
+                'description' => $request->description,
+                'order' => $order,
+                'visible' => 1
             ]);
 
             DB::commit();
@@ -83,6 +87,7 @@ class TemplatesController extends Controller
             $section->t_page_id = $request->page_id;
             $section->name = $request->name;
             $section->description = $request->description;
+            $section->visible = $request->visible ? 1 : 0;
             $section->save();
 
             DB::commit();
@@ -92,6 +97,9 @@ class TemplatesController extends Controller
             return redirect('admin/templates')->with(['type' => 'error', 'message' => 'Ocurrio un error.', 'template_id' => $request->template_id, 'page_id' => $request->page_id]);
         }
     }
+
+    public function section_sort($id, $order){
+        DB::table('t_sections')->where('id', $id)->update(['order' => $order]);    } 
 
     public function section_delete($id, $template_id, $page_id){
         $section = Section::where('id', $id)->with(['blocks.inputs'])->first();
@@ -197,11 +205,16 @@ class TemplatesController extends Controller
                     $input->save();
                 }
                 return $image ? response()->json(['id' => $request->id, 'image' => $image]) : response()->json(['error' => 'Error al guardar la imagen']);
+            case 'color':
+                $input = BlockInput::find($request->id);
+                $input->value = $request->value;
+                $input->save();
+                return response()->json(['id' => $request->id]);
             default:
                 # code...
                 break;
         }
-        return 1;
+        return 0;
     }
 
     // ==============================================
@@ -235,7 +248,7 @@ class TemplatesController extends Controller
     public static function section($id){
         $section = Section::where('id', $id)->with(['blocks.inputs'])->first();
         $response = array();
-        if($section && $section->blocks){
+        if($section && $section->blocks && $section->visible){
             foreach($section->blocks as $block){
                 $sections = collect();
                 if($block->inputs){
@@ -245,6 +258,8 @@ class TemplatesController extends Controller
                     array_push($response, $sections);
                 }
             }
+
+            $response = count($response) == 1 ? $response[0] : $response;
         }
         return $response;
     }

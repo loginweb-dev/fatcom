@@ -135,9 +135,14 @@
                         @php
                             $active = 'active';
                         @endphp
-                        @foreach (Templates::section(1) as $item)
+                        @foreach (Templates::section(3) as $item)
                         <div class="carousel-item {{ $active }}">
-                            <img class="d-block w-100" src="{{ url('storage/'.$item['image']) }}"> 
+                            <div class="dark-mask"></div>
+                            <img class="d-block w-100" src="{{ url('storage/'.$item['imagen']) }}">
+                            <article class="carousel-caption d-none d-md-block">
+                                <h4>{{ $item['titulo'] }}</h4>
+                                <p>{{ $item['descripcion'] }}</p>
+                            </article>
                         </div>
                         @php
                             $active = '';
@@ -163,13 +168,13 @@
         <div class="container">
             <article class="card card-body">
                 <div class="row">
-                    @foreach (Templates::section(2) as $item)
+                    @foreach (Templates::section(5) as $item)
                     <div class="col-md-4">
                         <figure class="item-feature">
-                            <span class="text-primary"><i class="{{ $item['icon'] }} fa-2x"></i></span>
+                            <span class="text-primary"><i class="{{ $item['icono'] }} fa-2x"></i></span>
                             <figcaption class="pt-3">
-                                <h5 class="title">{{ $item['text'] }}</h5>
-                                <p>{{ $item['long_text'] }}</p>
+                                <h5 class="title">{{ $item['titulo'] }}</h5>
+                                <p>{{ $item['descripcion'] }}</p>
                             </figcaption>
                         </figure>
                     </div>
@@ -179,13 +184,51 @@
         </div>
     </section>
 
-    <section class="section-content">
+    @if (count($ofertas)>0)
+        @php
+            $section = Templates::section(6);
+        @endphp
+        <section class="section-content padding-y" style="background-color: {{ $section ? $section['fondo']  : '#000' }}">
+            <div class="container">
+                <header class="section-heading">
+                    {{-- <a href="#" class="btn btn-outline-primary float-right">Ver todos</a> --}}
+                    <h3 class="section-title" style="color: {{ $section ? $section['color']  : '#fff' }}">{{ $section ? $section['titulo'] : 'Ofertas' }}</h3>
+                </header>
+                <div class="slider-items-slick row" data-slick='{"slidesToShow": 5, "slidesToScroll": 1}'>
+                    @forelse ($ofertas as $item)
+                    <div class="item-slide p-2">
+                        <a href="{{ route('detalle_producto_ecommerce', ['producto'=>$item->slug]) }}">
+                            <figure class="card card-product-grid mb-0">
+                                <div class="img-wrap"> 
+                                    @if ($item->nuevo)
+                                        <span class="badge badge-danger"> Nuevo </span>
+                                    @endif
+                                    <img src="{{ url('storage/'.$item->imagen) }}">
+                                </div>
+                                <figcaption class="info-wrap text-center">
+                                    <h6 class="title text-truncate">{{ $item->nombre }}</h6>
+                                </figcaption>
+                            </figure>
+                        </a>
+                    </div>
+                    @empty
+                        
+                    @endforelse
+                </div>
+            </div>
+        </section>
+    @endif
+
+    @php
+        $section = Templates::section(7);
+    @endphp
+    <section class="section-content padding-y" style="background-color: {{ $section ? $section['fondo'] : '#fff' }}">
         <div class="container">
             <header class="section-heading">
-                <a href="#" class="btn btn-outline-primary float-right">Ver todos</a>
-                <h3 class="section-title">Productos populares</h3>
+                <a href="{{ url('filtro') }}" class="btn btn-outline-primary float-right">Ver todo</a>
+                <h3 class="section-title" style="color: {{ $section ? $section['color']  : '#000' }}">{{ $section ? $section['titulo'] : 'Productos populares' }}</h3>
             </header>
-            <div class="slider-items-slick row" data-slick='{"slidesToShow": 4, "slidesToScroll": 1}'>
+            <div class="slider-items-slick row" data-slick='{"slidesToShow": 5, "slidesToScroll": 1}'>
                 @forelse ($populares as $item)
                     <div class="item-slide p-2">
                         <a href="{{ route('detalle_producto_ecommerce', ['producto'=>$item->slug]) }}">
@@ -209,14 +252,41 @@
         </div>
     </section>
 
+    @php
+        $section = Templates::section(8);
+    @endphp
+    @if ($section)
+    <section class="section-content padding-y-sm">
+        <div class="container">
+            <div class="card mb-3" style="background-color: {{ $section['fondo'] ?? '#fff' }}">
+                <div class="row no-gutters">
+                    <div class="col-md-5">
+                        <img src="{{ url('storage/'.$section['imagen']) }}" class="card-img" alt="...">
+                    </div>
+                    <div class="col-md-7">
+                        <div class="card-body m-5" style="color: {{ $section['color'] ?? '#000' }}">
+                            <h4 class="card-title text-white">{{ $section['titulo'] ?? 'Titulo' }}</h4>
+                            <p class="card-text text-white">{{ $section['descripcion'] ?? 'Detalles' }}</p>
+                            <p class="card-text"><small class="text-white">{{ $section['footer'] ?? 'Footer' }}</small></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    @endif
+
     @if (count($mas_vendidos)>0)
-        <section class="section-content" style="margin-top: 50px">
+        @php
+            $section = Templates::section(9);
+        @endphp
+        <section class="section-content padding-y" style="background-color: {{ $section ? $section['fondo'] : '#fff' }}">
             <div class="container">
-                <header class="section-heading">
-                    <a href="#" class="btn btn-outline-primary float-right">Ver todos</a>
-                    <h3 class="section-title">Productos más vendidos</h3>
+                <header class="section-heading" style="color: {{ $section ? $section['color'] : '#000' }}">
+                    {{-- <a href="#" class="btn btn-outline-primary float-right">Ver todos</a> --}}
+                    <h3 class="section-title">{{ $section ? $section['titulo'] : 'Productos más vendidos' }}</h3>
                 </header>
-                <div class="slider-items-slick row" data-slick='{"slidesToShow": 4, "slidesToScroll": 1}'>
+                <div class="slider-items-slick row" data-slick='{"slidesToShow": 5, "slidesToScroll": 1}'>
                     @forelse ($mas_vendidos as $item)
                     <div class="item-slide p-2">
                         <a href="{{ route('detalle_producto_ecommerce', ['producto'=>$item->slug]) }}">
@@ -240,19 +310,51 @@
             </div>
     </section>
     @endif
-    
-    <section class="section-name bg padding-y-sm" style="margin-top: 100px">
+
+    <section class="section-content padding-y-lg">
+        <div class="container" id="list-products"></div>
+    </section>
+
+    @php
+        $section = Templates::section(11);
+    @endphp
+    @if ($section)
+    <section class="section-content padding-y-sm">
         <div class="container">
-            <header class="section-heading">
-                <h3 class="section-title">Nuestras marcas</h3>
+            <div class="card mb-3" style="background-color: {{ $section['fondo'] ?? '#fff' }}">
+                <div class="row no-gutters">
+                
+                    <div class="col-md-7">
+                        <div class="card-body m-5" style="color: {{ $section['color'] ?? '#000' }}">
+                            <h4 class="card-title text-white">{{ $section['titulo'] ?? 'Titulo' }}</h4>
+                            <p class="card-text text-white">{{ $section['descripcion'] ?? 'Detalles' }}</p>
+                            <p class="card-text"><small class="text-white">{{ $section['footer'] ?? 'Footer' }}</small></p>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <img src="{{ url('storage/'.$section['imagen']) }}" class="card-img" alt="...">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    @endif
+
+    @php
+        $section = Templates::section(10);
+    @endphp
+    <section class="section-name bg padding-y" style="background-color: {{ $section ? $section['fondo'] : '#fff' }}">
+        <div class="container">
+            <header class="section-heading" style="color: {{ $section ? $section['color'] : '#000' }}">
+                <h3 class="section-title">{{ $section ? $section['titulo'] : 'Nuestras marcas' }}</h3>
             </header>
-            <div class="slider-items-slick row padding-y-sm" data-slick='{"slidesToShow": 5, "slidesToScroll": 1}'>
+            <div class="slider-items-slick row padding-y-sm" data-slick='{"slidesToShow": 6, "slidesToScroll": 1}'>
                 @foreach ($marcas as $item)
                     @if ($item->logo != '')
                     <div class="item-slide p-2">
                         <figure class="box">
                             <a href="{{ url('filtro?brand='.$item->slug) }}" title="{{ $item->nombre }}"><img src="{{ url('storage/'.$item->logo) }}"><br></a>
-                            <figcaption class="border-top pt-2">{{ $item->productos }} Productos</figcaption>
+                            <figcaption class="border-top pt-2 text-center">{{ $item->productos }} Productos</figcaption>
                         </figure>
                     </div>
                     @endif
@@ -260,4 +362,24 @@
             </div>
         </div>
     </section>
+@endsection
+
+@section('css')
+    <style>
+        .dark-mask {
+            content:"";
+            position:absolute;
+            top:0;
+            bottom:0;
+            left:0;
+            right:0;
+            background:rgba(0,0,0,0.5);
+        }
+    </style>
+@endsection
+
+@section('script')
+    <script>
+        list(1)
+    </script>
 @endsection

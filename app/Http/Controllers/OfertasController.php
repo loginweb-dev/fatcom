@@ -281,7 +281,7 @@ class OfertasController extends Controller
     }
 
 // Obtener datos varios
-    public function get_ofertas(){
+    public function get_productos_oferta(){
 
         $dia_semana = date('N');
         $dia_mes = date('j');
@@ -297,7 +297,7 @@ class OfertasController extends Controller
                     ->join('monedas as mn', 'mn.id', 'p.moneda_id')
                     ->join('ofertas_detalles as df', 'df.producto_id', 'p.id')
                     ->join('ofertas as o', 'o.id', 'df.oferta_id')
-                    ->select('p.id', 'p.nombre', 'p.imagen', 'p.modelo', 'p.garantia', 'p.descripcion_small', 'p.slug', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'u.nombre as uso', 'co.nombre as color', 'g.nombre as genero', 'df.monto as descuento', 'df.tipo_descuento', 'df.monto as monto_descuento')
+                    ->select('p.id', 'p.nombre', 'p.imagen', 'p.modelo', 'p.garantia', 'p.descripcion_small', 'p.slug', 's.nombre as subcategoria', 'm.nombre as marca', 'mn.abreviacion as moneda', 'u.nombre as uso', 'co.nombre as color', 'g.nombre as genero', 'df.monto as descuento', 'df.tipo_descuento', 'df.monto as monto_descuento', 'p.nuevo')
                     ->whereRaw("( (o.tipo_duracion = 'rango' and o.inicio < '".Carbon::now()."' and (o.fin is NULL or o.fin > '".Carbon::now()."')) or (o.tipo_duracion = 'semanal' and o.dia = $dia_semana) or (o.tipo_duracion = 'mensual' and o.dia = $dia_mes) )")
                     ->where('s.deleted_at', NULL)
                     ->where('m.deleted_at', NULL)
@@ -321,6 +321,12 @@ class OfertasController extends Controller
                     ->where('o.deleted_at', NULL)
                     ->where('o.estado', 1)->where('o.tipo_oferta', 1)
                     ->whereRaw("( (o.tipo_duracion = 'rango' and o.inicio < '".Carbon::now()."' and (o.fin is NULL or o.fin > '".Carbon::now()."')) or (o.tipo_duracion = 'semanal' and o.dia = $dia_semana) or (o.tipo_duracion = 'mensual' and o.dia = $dia_mes) )")
+                    ->first();
+    }
+
+    public function get_oferta_random(){
+        return  DB::table('ofertas')
+                    ->inRandomOrder()
                     ->first();
     }
 

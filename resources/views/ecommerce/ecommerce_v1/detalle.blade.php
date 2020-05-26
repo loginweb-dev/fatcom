@@ -86,7 +86,7 @@
                                     <i class="fa fa-star"></i> 
                                 </li>
                             </ul>
-                            @if((empty($habilitar_puntuar)))
+                            @if((empty($habilitar_puntuar)) && Auth::user())
                                 <div class="label-rating">
                                     <button class="btn btn-info btn-sm" id="btn-rating" data-toggle="popover" data-trigger="click" data-html="true" title="Califíca el producto" data-placement="bottom" data-content='
                                         <div class="text-center" style="width:200px">

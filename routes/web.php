@@ -29,11 +29,12 @@ Route::post('/profile/update', 'LandingPageController@profile_update')->name('pr
 
 // ================================Ecommerce===========================
 Route::get('/', 'LandingPageController@index')->name('ecommerce_home');
+Route::get('/list', 'LandingPageController@list');
 Route::get('/filtro', 'LandingPageController@filter')->name('ecommerce_filter');
-Route::get('/detalle/{producto}', 'LandingPageController@detalle_producto')->name('detalle_producto_ecommerce');
-Route::get('/detalle/producto/get_producto/{id}', 'LandingPageController@get_producto');
 Route::post('/search', 'LandingPageController@search')->name('busqueda_ecommerce');
 Route::get('/search/{value}', 'LandingPageController@search_product');
+Route::get('/detalle/{producto}', 'LandingPageController@detalle_producto')->name('detalle_producto_ecommerce');
+Route::get('/detalle/producto/get_producto/{id}', 'LandingPageController@get_producto');
 Route::get('/ofertas', 'LandingPageController@ofertas')->name('ofertas_ecommerce');
 Route::get('/subcategoria/{subcategoria}', 'LandingPageController@subcategorias')->name('subcategorias_ecommerce');
 Route::get('/carrito', 'LandingPageController@carrito_index')->name('carrito_compra');
@@ -323,12 +324,13 @@ Route::get('/admin/clear-cache', function() {
 });
 
 // Administrador de plantillas
-Route::get('/admin/templates', 'TemplatesController@index');
-Route::post('/admin/templates/create', 'TemplatesController@template_create')->name('templates.create');
-Route::post('/admin/templates/pages/create', 'TemplatesController@page_create')->name('templates.pages.create');
-Route::post('/admin/templates/pages/sections/create', 'TemplatesController@section_create')->name('templates.pages.sections.create');
-Route::post('/admin/templates/pages/sections/update', 'TemplatesController@section_update')->name('templates.pages.sections.update');
-Route::get('/admin/templates/pages/sections/delete/{id}/{template_id}/{page_id}', 'TemplatesController@section_delete');
-Route::post('/admin/templates/pages/sections/blocks/create', 'TemplatesController@create_block')->name('templates.pages.sections.blocks.create');
-Route::get('/admin/templates/pages/sections/blocks/{type}/{id}/{template_id}/{page_id}', 'TemplatesController@options_block');
-Route::post('/admin/templates/pages/sections/blocks/inputs/update', 'TemplatesController@update_block_input')->name('templates.pages.sections.blocks.inputs.update');
+Route::get('/admin/templates', 'TemplatesController@index')->middleware('auth');
+Route::post('/admin/templates/create', 'TemplatesController@template_create')->middleware('auth')->name('templates.create');
+Route::post('/admin/templates/pages/create', 'TemplatesController@page_create')->middleware('auth')->name('templates.pages.create');
+Route::post('/admin/templates/pages/sections/create', 'TemplatesController@section_create')->middleware('auth')->name('templates.pages.sections.create');
+Route::post('/admin/templates/pages/sections/update', 'TemplatesController@section_update')->middleware('auth')->name('templates.pages.sections.update');
+Route::get('/admin/templates/pages/sections/sort/{id}/{order}', 'TemplatesController@section_sort')->middleware('auth');
+Route::get('/admin/templates/pages/sections/delete/{id}/{template_id}/{page_id}', 'TemplatesController@section_delete')->middleware('auth');
+Route::post('/admin/templates/pages/sections/blocks/create', 'TemplatesController@create_block')->middleware('auth')->name('templates.pages.sections.blocks.create');
+Route::get('/admin/templates/pages/sections/blocks/{type}/{id}/{template_id}/{page_id}', 'TemplatesController@options_block')->middleware('auth');
+Route::post('/admin/templates/pages/sections/blocks/inputs/update', 'TemplatesController@update_block_input')->middleware('auth')->name('templates.pages.sections.blocks.inputs.update');

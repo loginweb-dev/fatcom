@@ -37,9 +37,10 @@ class LandingPageController extends Controller
                             ->where('m.deleted_at', NULL)
                             ->groupBy('id', 'nombre')
                             ->orderBy('productos', 'DESC')
-                            ->limit(5)
+                            ->limit(10)
                             ->get();
-        $ofertas = (new Ofertas)->get_ofertas();    
+        $oferta = (new Ofertas)->get_oferta_random();   
+        $ofertas = (new Ofertas)->get_productos_oferta();
             
         $lista_subcategorias = DB::table('subcategorias as s')
                                     ->join('productos as p', 'p.subcategoria_id', 's.id')
@@ -79,7 +80,7 @@ class LandingPageController extends Controller
 
         // SE USA EN LA VISTA DE RESTAURANTES V1
         // Mas vendidos
-        $mas_vendidos = $this->get_masVendidos();
+        $mas_vendidos = $this->get_masVendidos(9);
 
         $populares = DB::table('productos as p')
                                 ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
@@ -89,7 +90,7 @@ class LandingPageController extends Controller
                                                 mn.abreviacion as moneda, p.slug, p.deleted_at as monto_oferta, p.deleted_at as tipo_descuento, p.deleted_at as fin_descuento'))
                                 ->orderBy('vistas', 'DESC')
                                 ->where('e.deleted_at', NULL)
-                                ->limit(6)->get();
+                                ->limit(9)->get();
         $cont = 0;
         foreach ($populares as $item) {
             // Obtener si el producto está en oferta
@@ -105,7 +106,7 @@ class LandingPageController extends Controller
 
         $oferta_princial = Oferta::all()->where('deleted_at', NULL)->first();
 
-        return view('ecommerce.'.setting('admin.ecommerce').'index', compact('categorias', 'marcas', 'ofertas', 'subcategoria_productos', 'mas_vendidos', 'populares', 'oferta_princial'));
+        return view('ecommerce.'.setting('admin.ecommerce').'index', compact('categorias', 'marcas', 'oferta', 'ofertas', 'subcategoria_productos', 'mas_vendidos', 'populares', 'oferta_princial'));
     }
 
     public function filter(){
@@ -125,7 +126,17 @@ class LandingPageController extends Controller
         return view('ecommerce.'.setting('admin.ecommerce').'filter', compact('marcas', 'categorias', 'marca_filtro', 'subcategoria_filtro'));
     }
 
-    public function search(Request $data){
+    public function list($cantidad = 12){
+        $productos = DB::table('productos as p')
+                    ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
+                    ->select(DB::raw('p.id, p.nombre, p.precio_venta, p.nuevo, p.imagen, p.vistas, (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos, p.slug'))
+                    ->orderBy('vistas', 'DESC')
+                    ->where('e.deleted_at', NULL)
+                    ->paginate($cantidad);
+        return view('ecommerce.'.setting('admin.ecommerce').'lista', compact('productos'));
+    }
+
+    public function search(Request $data, $cantidad = 10){
         // dd($data);
         $sentencia = '1';
         $precio_min = $data->min;
@@ -176,7 +187,7 @@ class LandingPageController extends Controller
                             ->where('m.deleted_at', NULL)
                             ->where('e.deleted_at', NULL)
                             ->groupBy('p.id', 'p.nombre', 'p.precio_venta', 'p.imagen', 'p.modelo', 'p.garantia', 'p.descripcion_small', 'p.vistas', 'p.slug', 's.nombre', 'm.nombre', 'mn.abreviacion', 'u.nombre', 'co.nombre', 'g.nombre', 'p.codigo_grupo', 'p.deleted_at')
-                            ->paginate(10);
+                            ->paginate($cantidad);
         $cont = 0;
         foreach ($productos as $item) {
             // Obtener si el producto está en oferta
@@ -192,20 +203,22 @@ class LandingPageController extends Controller
         return view('ecommerce.'.setting('admin.ecommerce').'resultados', compact('productos', 'precio_min', 'precio_max'));
     }
 
-    public function search_product($busqueda){
-        return DB::table('productos as p')
+    public function search_product($busqueda, $cantidad = 10){
+        $busqueda = $busqueda == 'all' ? '' : $busqueda;
+        return  DB::table('productos as p')
                         ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
                         ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
                         ->join('categorias as c', 'c.id', 's.categoria_id')
-                        ->select('p.nombre', 'p.precio_venta', 'p.vistas', 's.nombre as subcategoria', 'p.slug')
+                        ->select(   'p.nombre', 'p.precio_venta', 'p.vistas', 's.nombre as subcategoria', 'p.slug', 'p.imagen', 'p.descripcion_small',
+                                    DB::raw('(select AVG(pp.puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos'))
                         ->where('p.deleted_at', NULL)->where('s.deleted_at', NULL)->where('s.deleted_at', NULL)
                         ->whereRaw("(p.nombre like '%$busqueda%' or s.nombre like '%$busqueda%' or c.nombre like '%$busqueda%')")
                         ->groupBy('p.nombre', 'p.precio_venta', 'p.vistas', 's.nombre', 'p.slug')
-                        ->orderBy('p.vistas', 'DESC')->orderBy('p.precio_venta', 'ASC')->limit(10)->get();
+                        ->orderBy('p.vistas', 'DESC')->orderBy('p.precio_venta', 'ASC')->limit($cantidad)->get();
     }
 
     public function ofertas(){
-        $productos = (new Ofertas)->get_ofertas();
+        $productos = (new Ofertas)->get_productos_oferta();
         $precios = [];
         $puntuaciones = [];
         foreach ($productos as $item) {
@@ -479,7 +492,7 @@ class LandingPageController extends Controller
             }
         }
 
-        $mas_vendidos = $this->get_masVendidos();
+        $mas_vendidos = $this->get_masVendidos(9);
 
         $pedido_pendiente = 0;
         if(Auth::user()){
@@ -723,7 +736,7 @@ class LandingPageController extends Controller
         }
     }
 
-    public function get_masVendidos(){
+    public function get_masVendidos($cantidad){
         $mas_vendidos = DB::table('productos as p')
                                 ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
                                 ->join('ventas_detalles as vd', 'vd.producto_id', 'p.id')
@@ -734,7 +747,7 @@ class LandingPageController extends Controller
                                 ->groupBy('p.id', 'p.nombre', 'subcategoria', 'precio_venta', 'nuevo', 'imagen', 'puntos', 'mn.abreviacion', 'slug', 'p.deleted_at')
                                 ->orderBy('cantidad', 'DESC')
                                 ->where('e.deleted_at', NULL)
-                                ->limit(6)->get();
+                                ->limit($cantidad)->get();
         $cont = 0;
         foreach ($mas_vendidos as $item) {
             // Obtener si el producto está en oferta

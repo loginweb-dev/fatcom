@@ -12,12 +12,12 @@ function rich_select(id){
         },
         quietMillis: 250,
         minimumInputLength: 2,
-        templateResult: formatResult,
+        templateResult: formatResultAdmin,
         templateSelection: (opt) => opt.text
     });
 }
 
-function formatResult (option) {
+function formatResultAdmin (option) {
     if (!option.id) {
         return option.text;
     }
@@ -43,4 +43,50 @@ function formatResult (option) {
                             </table>
                         </span>`);
     }
+}
+
+function formatResultLandingPage(option){
+    // Si está cargando mostrar texto de carga
+    if (option.loading) {
+        return '<span class="text-center"><i class="fas fa-spinner fa-spin"></i> Buscando...</span>';
+    }
+    
+    // Mostrar las opciones encontradas
+    return $(`<span>
+                <a href="/detalle/${option.slug}">
+                    <article class="card card-product-list mb-0 mt-0">
+                        <div class="card-body">
+                            <div class="row">
+                                <aside class="col-sm-2 p-0">
+                                    <img src="${option.imagen ? '/storage/'+option.imagen : '/img/default.png'}" width="100%" />
+                                </aside>
+                                <div class="col-sm-10">
+                                    <b class="text-dark">${option.nombre}</b>
+                                    <div class="d-flex">
+                                        <div class="price-wrap mr-4 text-dark">
+                                            <b>Bs. ${option.precio_venta}</b>	
+                                        </div>
+                                        <div class="rating-wrap">
+                                            <ul class="rating-stars">
+                                                <li style="width:${option.puntos*20}%" class="stars-active"> 
+                                                    <i class="fa fa-star"></i> <i class="fa fa-star"></i> 
+                                                    <i class="fa fa-star"></i> <i class="fa fa-star"></i> 
+                                                    <i class="fa fa-star"></i> 
+                                                </li>
+                                                <li>
+                                                    <i class="fa fa-star"></i> <i class="fa fa-star"></i> 
+                                                    <i class="fa fa-star"></i> <i class="fa fa-star"></i> 
+                                                    <i class="fa fa-star"></i> 
+                                                </li>
+                                            </ul>
+                                            <small class="label-rating text-muted">${option.vistas} Vistas</small>
+                                        </div>
+                                    </div>
+                                    <small class="text-dark">${option.descripcion_small.substr(0, 170)}...</small>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </a>
+            </span>`);
 }

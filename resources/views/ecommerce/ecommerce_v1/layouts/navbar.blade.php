@@ -1,30 +1,32 @@
+@php
+    $section = Templates::section(1);
+@endphp
+@if ($section)
+<nav class="navbar navbar-dark navbar-expand p-0" style="background-color: {{ $section['fondo'] }}; color: {{ $section['color'] }}">
+  <div class="container">
+      <div class="col-md-12 mt-3 mb-3 text-center">
+        <h6>{{ $section['titulo'] }}</h6>
+        <p>{{ $section['descripcion'] }}<br><small>{{ $section['footer'] }}</small></p>
+      </div>
+  </div>
+</nav>
+@endif
 <header class="section-header">
   <section class="header-main border-bottom">
     <div class="container">
       <div class="row align-items-center">
           <div class="col-lg-2 col-6">
+              @php
+                $section = Templates::section(2);
+              @endphp
               <a class="brand-wrap link-page" href="{{ url('/') }}">
-                  <?php $admin_logo_img = Voyager::setting('empresa.logo', ''); ?>
-                  @if($admin_logo_img == '')
-                  <img class="logo" src="{{ url('ecommerce_public/images/icon.png') }}" alt="loginWeb">
-                  @else
-                  <img class="logo" src="{{ url('storage/'.setting('empresa.logo')) }}" alt="loginWeb">
-                  @endif
+                <img class="logo" src="{{ url('storage/'.$section['logo']) }}" alt="{{ $section['nombre'] }}">
               </a>
           </div>
-          <div class="col-lg-6 col-12 col-sm-12">
-              <form action="#" class="search">
-                  <div class="input-group w-100">
-                      <input type="text" class="form-control" placeholder="Search">
-                      <div class="input-group-append">
-                        <button class="btn btn-primary" type="submit">
-                          <i class="fa fa-search"></i>
-                        </button>
-                      </div>
-                  </div>
-              </form>
+          <div class="col-lg-7 col-12 col-sm-12">
+              <select name="" id="select-main-search" class="form-control"></select>
           </div>
-          <div class="col-lg-4 col-sm-6 col-12">
+          <div class="col-lg-3 col-sm-6 col-12">
               <div class="widgets-wrap float-md-right">
                   <div class="widget-header  mr-3">
                       <a href="{{ route('carrito_compra') }}" class="icon icon-sm rounded-circle border" data-toggle="tooltip" title="Carrito"><i class="fa fa-shopping-cart"></i></a>
@@ -72,17 +74,25 @@
   
       <div class="collapse navbar-collapse" id="main_nav">
         <ul class="navbar-nav">
+          @php
+              $cont = 1; 
+          @endphp
           @foreach ($categorias as $category)
-          <li class="nav-item dropdown">
-            <a class="nav-link pl-0" data-toggle="dropdown" href="#">{{ $category->nombre }} <i class="fa fa-caret-down"></i></a>
-            <div class="dropdown-menu">
-              @forelse ($category->subcategorias as $subcategoria)
-              <a class="dropdown-item" href="{{ url('/filtro?subcategory='.$subcategoria->slug) }}">{{ $subcategoria->nombre }}</a>
-              @empty
-              <a class="dropdown-item" href="#">Ninguno</a>
-              @endforelse
-            </div>
-          </li>
+          @if ($cont <= 5)
+            <li class="nav-item dropdown">
+              <a class="nav-link pl-0" data-toggle="dropdown" href="#">{{ $category->nombre }}</a>
+              <div class="dropdown-menu">
+                @forelse ($category->subcategorias as $subcategoria)
+                <a class="dropdown-item" href="{{ url('/filtro?subcategory='.$subcategoria->slug) }}">{{ $subcategoria->nombre }}</a>
+                @empty
+                <a class="dropdown-item" href="#">Ninguno</a>
+                @endforelse
+              </div>
+            </li>
+          @endif
+          @php
+              $cont++; 
+          @endphp
           @endforeach
         </ul>
       </div>

@@ -1855,7 +1855,7 @@ class VentasController extends Controller
                         ->select('v.id')
                         ->where('u.id', Auth::user()->id)
                         ->orderBy('id', 'DESC')->first()->id;
-        $mas_vendidos = (new LandingPage)->get_masVendidos();
+        $mas_vendidos = (new LandingPage)->get_masVendidos(9);
 
         return view('ecommerce.'.setting('admin.ecommerce').'agradecimiento', compact('mas_vendidos', 'venta_id'));
     }
