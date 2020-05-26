@@ -265,9 +265,9 @@
                     </div>
                     <div class="col-md-7">
                         <div class="card-body m-5" style="color: {{ $section['color'] ?? '#000' }}">
-                            <h4 class="card-title text-white">{{ $section['titulo'] ?? 'Titulo' }}</h4>
-                            <p class="card-text text-white">{{ $section['descripcion'] ?? 'Detalles' }}</p>
-                            <p class="card-text"><small class="text-white">{{ $section['footer'] ?? 'Footer' }}</small></p>
+                            <h4 class="card-title">{{ $section['titulo'] ?? 'Titulo' }}</h4>
+                            <p class="card-text">{{ $section['descripcion'] ?? 'Detalles' }}</p>
+                            <p class="card-text"><small>{{ $section['footer'] ?? 'Footer' }}</small></p>
                         </div>
                     </div>
                 </div>
@@ -326,9 +326,9 @@
                 
                     <div class="col-md-7">
                         <div class="card-body m-5" style="color: {{ $section['color'] ?? '#000' }}">
-                            <h4 class="card-title text-white">{{ $section['titulo'] ?? 'Titulo' }}</h4>
-                            <p class="card-text text-white">{{ $section['descripcion'] ?? 'Detalles' }}</p>
-                            <p class="card-text"><small class="text-white">{{ $section['footer'] ?? 'Footer' }}</small></p>
+                            <h4 class="card-title">{{ $section['titulo'] ?? 'Titulo' }}</h4>
+                            <p class="card-text">{{ $section['descripcion'] ?? 'Detalles' }}</p>
+                            <p class="card-text"><small>{{ $section['footer'] ?? 'Footer' }}</small></p>
                         </div>
                     </div>
                     <div class="col-md-5">

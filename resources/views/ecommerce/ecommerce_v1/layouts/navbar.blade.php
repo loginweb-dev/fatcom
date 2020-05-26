@@ -20,7 +20,7 @@
                 $section = Templates::section(2);
               @endphp
               <a class="brand-wrap link-page" href="{{ url('/') }}">
-                <img class="logo" src="{{ url('storage/'.$section['logo']) }}" alt="{{ $section['nombre'] }}">
+                <img class="logo" src="{{ $section ? url('storage/'.$section['logo']) : '' }}" alt="{{ $section ? $section['nombre'] : '' }}">
               </a>
           </div>
           <div class="col-lg-7 col-12 col-sm-12">
