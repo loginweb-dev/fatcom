@@ -31,6 +31,16 @@
 @endsection
 
 @section('content')
+@php
+    $section = Templates::section(22);
+    $block = $section->blocks;
+@endphp
+<section class="section-pagetop bg" style="background-color: {{ $section ? $section->background : '#fff' }};">
+    <div class="container">
+        <h2 class="title-page" style="color: {{ $section ? $section->color : '#000' }}">{{ $block ? $block->titulo : 'Detalles de producto' }}</h2>
+        <p class="lead" style="color: {{ $section ? $section->color : '#000' }}">{{ $block ? $block->descripcion : '' }}</p>
+    </div>
+</section>
 <section class="section-content padding-y bg">
     <div class="container">
         <div class="card">
@@ -47,8 +57,8 @@
                     {{-- End loader de imagen --}}
                     <article class="gallery-wrap">
                         @php
-                            $img = ($producto->imagen!='') ? str_replace('.', '_medium.', $producto->imagen) : 'productos/default.png';
-                            $imagen = ($producto->imagen!='') ? $producto->imagen : 'productos/default.png';
+                            $img = ($producto->imagen!='') ? str_replace('.', '_medium.', $producto->imagen) : '../img/default.png';
+                            $imagen = ($producto->imagen!='') ? $producto->imagen : '../img/default.png';
                         @endphp
                         <div class="img-big-wrap">
                             <a id="img-slider" href="{{ url('storage/'.$imagen) }}" data-fancybox="slider1">
@@ -216,7 +226,7 @@
                                         <a href="#" id="btn-costo_envios"
                                             data-toggle="popover" data-trigger="focus" data-html="true" title="Ciudades disponibles" data-placement="bottom" data-content='
                                             <div style="width:250px">
-                                                @if($ciudades != '<table width="100%"></table>') {{$ciudades}} @else <h6 class="text-center">No disponible en ninguna ciudad.</h6> @endif
+                                                @if($ciudades != '<table width="100%"></table>') {{ $ciudades }} @else <h6 class="text-center">No disponible en ninguna ciudad.</h6> @endif
                                             </div>'><b>Aquí</b>
                                         </a>.
                                     </i>
@@ -260,7 +270,7 @@
                                     {{-- Compartir por Whatsapp --}}
                                     <a style="margin-top:0px;padding:6px" 
                                         @if($dispositivo=='pc') 
-                                            href="https://api.whatsapp.com/send?phone=&text={{route('detalle_producto_ecommerce', ['producto' => $producto->slug])}}&source=&data="}}
+                                            href="https://api.whatsapp.com/send?phone=&text={{ route('detalle_producto_ecommerce', ['producto' => $producto->slug]) }}&source=&data="}}
                                         @else 
                                             href="whatsapp://send?text={{route('detalle_producto_ecommerce', ['producto' => $producto->slug])}}"
                                         @endif 
@@ -315,11 +325,7 @@
 
         $('#btn-add_carrito').click(function(){
             let producto_id = $(this).data('id');
-            addCart(producto_id, response =>{
-                if(response==1){
-                    count_cart();
-                }
-            });
+            addCart(producto_id);
         });
 
         // Anular la acción predeterminada del link de costo de enviós

@@ -233,7 +233,7 @@
                                     <option selected disabled value="">Seleccione una opción</option>
                                     @foreach ($productos_faltantes as $item)
                                         @php
-                                            $imagen = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
+                                            $imagen = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : '../img/default.png';
                                         @endphp
                                         <option value="{{ $item->id }}"
                                                 data-imagen="{{ url('storage').'/'.$imagen }}"

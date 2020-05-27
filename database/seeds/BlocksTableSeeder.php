@@ -143,6 +143,87 @@ class BlocksTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 18:28:08',
                 'deleted_at' => NULL,
             ),
+            14 => 
+            array (
+                'id' => 17,
+                't_section_id' => 12,
+                'order' => NULL,
+                'created_at' => '2020-05-26 16:24:22',
+                'updated_at' => '2020-05-26 16:24:22',
+                'deleted_at' => NULL,
+            ),
+            15 => 
+            array (
+                'id' => 21,
+                't_section_id' => 16,
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:06:10',
+                'updated_at' => '2020-05-26 17:06:10',
+                'deleted_at' => NULL,
+            ),
+            16 => 
+            array (
+                'id' => 22,
+                't_section_id' => 18,
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:15:18',
+                'updated_at' => '2020-05-26 17:15:18',
+                'deleted_at' => NULL,
+            ),
+            17 => 
+            array (
+                'id' => 23,
+                't_section_id' => 19,
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:18:37',
+                'updated_at' => '2020-05-26 17:18:37',
+                'deleted_at' => NULL,
+            ),
+            18 => 
+            array (
+                'id' => 24,
+                't_section_id' => 17,
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:36:07',
+                'updated_at' => '2020-05-26 17:36:07',
+                'deleted_at' => NULL,
+            ),
+            19 => 
+            array (
+                'id' => 25,
+                't_section_id' => 17,
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:39:15',
+                'updated_at' => '2020-05-26 17:39:15',
+                'deleted_at' => NULL,
+            ),
+            20 => 
+            array (
+                'id' => 26,
+                't_section_id' => 17,
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:39:22',
+                'updated_at' => '2020-05-26 17:39:22',
+                'deleted_at' => NULL,
+            ),
+            21 => 
+            array (
+                'id' => 27,
+                't_section_id' => 21,
+                'order' => NULL,
+                'created_at' => '2020-05-27 15:42:53',
+                'updated_at' => '2020-05-27 15:42:53',
+                'deleted_at' => NULL,
+            ),
+            22 => 
+            array (
+                'id' => 28,
+                't_section_id' => 22,
+                'order' => NULL,
+                'created_at' => '2020-05-27 15:50:25',
+                'updated_at' => '2020-05-27 15:50:25',
+                'deleted_at' => NULL,
+            ),
         ));
         
         

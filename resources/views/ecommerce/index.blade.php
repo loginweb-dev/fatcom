@@ -124,7 +124,7 @@
             <div class="owl-carousel owl-init slide-items" data-items="{{ $cantidad }}" data-margin="20" data-dots="false" data-nav="false">
                 @foreach ($ofertas as $oferta)
                     @php
-                        $imagen = ($oferta->imagen!='') ? str_replace('.', $size_image, $oferta->imagen) : 'productos/default.png';
+                        $imagen = ($oferta->imagen!='') ? str_replace('.', $size_image, $oferta->imagen) : '../img/default.png';
                     @endphp
                     <div class="item-slide link-page" style="cursor:pointer" onclick="window.location='{{route('detalle_producto_ecommerce', ['producto'=>$oferta->slug])}}'">
                         <figure class="card card-product">
@@ -153,7 +153,7 @@
             <div class="owl-carousel owl-init slide-items" data-items="{{ $cantidad }}" data-margin="20" data-dots="false" data-nav="false">
                 @forelse ($subcategoria['productos'] as $producto)
                     @php
-                        $img = ($producto->imagen!='') ? str_replace('.', $size_image, $producto->imagen) : 'productos/default.png';
+                        $img = ($producto->imagen!='') ? str_replace('.', $size_image, $producto->imagen) : '../img/default.png';
                     @endphp
                     <div class="item-slide link-page" style="cursor:pointer" onclick="window.location='{{route('detalle_producto_ecommerce', ['producto'=>$producto->slug])}}'">
                         <figure class="card card-product">

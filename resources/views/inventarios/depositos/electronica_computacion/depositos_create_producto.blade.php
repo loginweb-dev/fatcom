@@ -114,7 +114,7 @@
                                         <div class="col-md-6" style="margin-bottom:0px">
                                             <label for="">Imagen(s)</label>  <label class="text-primary" @if(setting('admin.tips')) data-toggle="tooltip" data-placement="right" title="Este campo no necesita ser llenado" @endif>(Opcional)</label>
                                             <div class="content_uploader" style="height: 500px;">
-                                                <div class="box" style="background-image:url('{{url('storage/productos/default.png')}}')">
+                                                <div class="box" style="background-image:url('{{ url('/img/default.png') }}')">
                                                     <input class="filefield" style="display:none" accept="image/*" type="file" name="imagen[]" multiple>
                                                     <p class="select_bottom">Seleccionar imagen</p>
                                                     <div class="spinner"></div>

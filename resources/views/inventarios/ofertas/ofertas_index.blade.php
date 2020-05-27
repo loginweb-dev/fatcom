@@ -54,7 +54,7 @@
                                             @endphp
                                             @forelse ($registros as $item)
                                                 @php
-                                                    $img = ($item->imagen!='') ? $item->imagen : 'ofertas/default.png';
+                                                    $img = ($item->imagen!='') ? $item->imagen : '../img/default.png';
                                                 @endphp
                                                 <tr>
                                                     <td>{{ $item->nombre }} <br> <small>{{ $tipos_oferta[$item->tipo_oferta] }}</small> </td>

@@ -191,9 +191,9 @@ class ComprasController extends Controller
                             ->where('p.id', $item->producto_id)
                             ->first();
                 $compra_detalle[$cont]->producto_id = $aux->nombre.' - '.$aux->subcategoria;
-                $compra_detalle[$cont]->imagen = !empty($aux->imagen) ? $aux->imagen : 'productos/default.png';
+                $compra_detalle[$cont]->imagen = !empty($aux->imagen) ? $aux->imagen : 'img/default.png';
             }else{
-                $compra_detalle[$cont]->imagen = !empty($aux->imagen) ? $aux->imagen : 'productos/default.png';
+                $compra_detalle[$cont]->imagen = !empty($aux->imagen) ? $aux->imagen : 'img/default.png';
             }
             $cont++;
         }

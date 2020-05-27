@@ -40,7 +40,7 @@
                         @endphp
                         @forelse ($carrito as $item)
                         @php
-                            $imagen = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
+                            $imagen = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : '../img/default.png';
                         @endphp
                         <tr id="tr-{{ $item->id }}">
                             {{-- <td>{{$item->codigo}}</td> --}}

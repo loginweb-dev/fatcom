@@ -1,7 +1,7 @@
 @foreach ($productos as $item)
         @if (!$item->se_almacena || ($item->se_almacena && $item->stock > 0))
             @php
-                $imagen = (!empty($item->imagen)) ? url('storage').'/'.str_replace('.', '_small.', $item->imagen) : url('storage/productos/default.png');
+                $imagen = (!empty($item->imagen)) ? url('storage').'/'.str_replace('.', '_small.', $item->imagen) : url('../img/default.png');
             @endphp
             <div class="card col-md-3 col-sm-4 text-center" style="margin:5px 0px">
                 <img class="card-img-top img-producto" id="producto-{{$item->id}}" style="width:130px;height:100px;cursor:pointer" src="{{$imagen}}" alt="{{$item->nombre}}"

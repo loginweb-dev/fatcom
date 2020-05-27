@@ -57,7 +57,7 @@
                     <div class="card-body">
                         <div class="row">
                             @php
-                                $img = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
+                                $img = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : '../img/default.png';
                             @endphp
                             <aside class="col-sm-3">
                                 <div class="img-wrap"><img src="{{url('storage').'/'.$img}}"></div>
@@ -108,7 +108,7 @@
                                     {{-- <p class="text-success">Free shipping</p> --}}
                                     <br>
                                     <p>
-                                        <button type="button" id="btn-add_carrito" class="btn btn-warning" onclick="cartAdd({{ $item->id }})"> <i class="fa fa-shopping-cart"></i> Agregar</button>
+                                        <button type="button" id="btn-add_carrito" class="btn btn-warning" onclick="addCart({{ $item->id }})"> <i class="fa fa-shopping-cart"></i> Agregar</button>
                                         <a href="{{route('detalle_producto_ecommerce', ['producto'=>$item->slug])}}" class="btn btn-primary link-page"> <i class="fa fa-list"></i> Detalles  </a>
                                     </p>
                                     {{-- <a href="#"><i class="fa fa-heart"></i> Add to wishlist</a> --}}
@@ -140,12 +140,12 @@
                 @foreach ($recomendaciones as $item)
                     <figure class="itemside mb-3">
                         @php
-                            $img = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
+                            $img = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : '../img/default.png';
                         @endphp
                         <div class="aside">	<img class="img-sm" width="80" src="{{url('storage').'/'.$img}}"> </div>
                         <figcaption class="text-wrap">
                             <p class="title b">{{$item->nombre}}</p>
-                            <button class="btn btn-warning btn-sm" type="button" title="Agregar al carrito de compra" onclick="cartAdd({{ $item->id }})"> <i class="fa fa-shopping-cart"></i> </button>
+                            <button class="btn btn-warning btn-sm" type="button" title="Agregar al carrito de compra" onclick="addCart({{ $item->id }})"> <i class="fa fa-shopping-cart"></i> </button>
                             <a href="{{route('detalle_producto_ecommerce', ['producto'=>$item->slug])}}" title="Detalles" class="btn btn-primary btn-sm link-page"> <i class="fa fa-list"></i> </a>
                         </figcaption>
                     </figure>

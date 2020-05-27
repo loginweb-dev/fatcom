@@ -15,7 +15,7 @@
         <div class="row mb-4 hoverable align-items-center">
             <div class="col-6">
                 @php
-                    $img = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
+                    $img = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : '../img/default.png';
                 @endphp
             <a href="{{ route('detalle_producto_ecommerce', ['producto'=>$item->slug]) }}">
                 <img src="{{ url('storage/'.$img) }}" class="img-fluid" alt="{{ $item->nombre }}" width="100px">

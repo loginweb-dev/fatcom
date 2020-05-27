@@ -5,12 +5,22 @@
 @endsection
 
 @section('content')
+    @php
+        $section = Templates::section(19);
+        $block = $section->blocks;
+    @endphp
+    <section class="section-pagetop bg" style="background-color: {{ $section ? $section->background : '#fff' }};">
+    <div class="container">
+        <h2 class="title-page" style="color: {{ $section ? $section->color : '#000' }}">{{ $block ? $block->titulo : 'Carrito de compra' }}</h2>
+        <p class="lead" style="color: {{ $section ? $section->color : '#000' }}">{{ $block ? $block->descripcion : '' }}</p>
+    </div>
+    </section>
     <form id="form_carrito" name="form_carrito" action="{{ route('pedidos_store') }}" method="post">
         @csrf
         <input type="hidden" name="venta_tipo_id" value="3">
         <input type="hidden" name="cliente_id" value="{{ $cliente_id }}">
         <input type="hidden" name="sucursal_id" value="0">
-        <section class="section-content padding-y bg">
+        <section class="section-content padding-y">
             <div class="container">
                 <div class="row">
                     <aside class="col-lg-7">
@@ -128,11 +138,11 @@
                                 </tbody>
                             </table>
 
-                            <div class="card-body border-top">
+                            {{-- <div class="card-body border-top">
                                 <p class="icontext"><i class="icon text-success fa fa-truck"></i> Free Delivery within 1-2 weeks</p>
-                            </div> <!-- card-body.// -->
-                        </div> <!-- card.// -->
-                    </aside> <!-- col.// -->
+                            </div> --}}
+                        </div>
+                    </aside>
                     <aside class="col-lg-5">
 
                         <div class="card mb-3">

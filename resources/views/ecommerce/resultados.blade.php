@@ -14,7 +14,7 @@
         <div class="card-body">
             <div class="row">
                 @php
-                    $img = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
+                    $img = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : '../img/default.png';
                 @endphp
                 {{-- imagen --}}
                 <aside class="col-lg-3">
@@ -67,7 +67,7 @@
                         {{-- <p class="text-success">Free shipping</p> --}}
                         <br>
                         <p>
-                            <button style="margin:5px" type="button" id="btn-add_carrito" class="btn btn-warning" onclick="cartAdd({{ $item->id }})"> <i class="fa fa-shopping-cart"></i> Agregar</button>
+                            <button style="margin:5px" type="button" id="btn-add_carrito" class="btn btn-warning" onclick="addCart({{ $item->id }})"> <i class="fa fa-shopping-cart"></i> Agregar</button>
                             <a style="margin:5px" href="{{ route('detalle_producto_ecommerce', ['producto'=>$item->slug]) }}" class="btn btn-primary link-page"> <i class="fa fa-list"></i> Detalles  </a>
                         </p>
                         {{-- <a href="#"><i class="fa fa-heart"></i> Add to wishlist</a> --}}

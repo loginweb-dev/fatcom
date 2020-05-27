@@ -8,4 +8,5 @@
     <input type="hidden" name="tipo_dato">
     <input type="hidden" name="dato">
     <input type="hidden" name="page">
+    <input type="hidden" name="view_type">
 </form>

@@ -183,7 +183,7 @@
                                         </div>
                                     </div>
                                     <div class="row">
-                                        <div class="col-md-4">
+                                        {{-- <div class="col-md-4">
                                             <label for="">Producto</label>  @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Producto que se va agregar a la campaña. Este campo es obligatorio."></span> @endif
                                             <select class="form-control select2" id="select-producto_id">
                                                 @foreach($productos as $item)
@@ -204,6 +204,32 @@
                                         </div>
                                         <div class="col-md-2">
                                             <button style="margin-top:27px" id="btn-agregar" type="button" class="btn btn-success">Agregar <span class="voyager-plus"></span></button>
+                                        </div> --}}
+                                        <div class="col-md-12">
+                                            <label for="">Producto</label>  @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Producto que se agregará a la campaña. Este campo es obligatorio."></span> @endif
+                                            <select class="form-control" id="select-producto_id" onchange="add_producto()">
+                                                <option value="">Todos</option>
+                                                @foreach ($productos as $item)
+                                                    @php
+                                                        $imagen = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : '../img/default.png';
+                                                    @endphp
+                                                    <option value="{{ $item->id }}"
+                                                            data-imagen="{{ url('storage').'/'.$imagen }}"
+                                                            data-categoria="{{ $item->subcategoria }}"
+                                                            data-marca="{{ $item->marca }}"
+                                                            data-precio="{{ $item->moneda }} {{ $item->precio_venta }}"
+                                                            data-detalle="{{ $item->descripcion_small }}">
+                                                        @if(setting('admin.modo_sistema') != 'restaurante')
+                                                            @if($item->codigo_interno)
+                                                            #{{ $item->codigo_interno }}
+                                                            @else
+                                                            {{ $item->codigo }} - 
+                                                            @endif 
+                                                        @endif
+                                                        {{ $item->nombre }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="row">
@@ -222,19 +248,19 @@
                                                     @php
                                                         $cont = 0;
                                                     @endphp
-                                                    <tbody id="lista_productos">
+                                                    <tbody id="lista_descuento">
                                                         @foreach ($detalle_oferta as $item)
                                                         <tr id="tr-{{$cont}}">
                                                             <td><input type="hidden" class="input-producto_id" name="producto_id[]" value="{{$item->producto_id}}">{{$item->producto}}</td>
-                                                            <td><span id="precios-{{$cont}}">{{$precios[$cont]['precio']}} {{$precios[$cont]['moneda']}} mínimo {{$precios[$cont]['cantidad_minima']}}</span></td>
+                                                            <td><span id="precios-{{$cont}}">{{ $precios[$cont]['moneda'] }} {{ $precios[$cont]['precio'] }}</span></td>
                                                             <td><input type="number" min="1" step="1" class="form-control" name="monto[]" value="{{$item->monto}}" required></td>
                                                             <td>
-                                                                <select name="tipo[]" class="form-control" id="select-tipo{{$cont}}">
+                                                                <select name="tipo[]" class="form-control" id="select-tipo{{ $cont }}">
                                                                     <option @if($item->tipo_descuento=='porcentaje') selected @endif value="porcentaje">Porcentaje (%)</option>
                                                                     <option  @if($item->tipo_descuento=='monto') selected @endif value="monto">Monto fijo</option>
                                                                 </select>
                                                             </td>
-                                                            <td style="padding-top:15px"><span onclick="borrarTr({{$cont}})" class="voyager-x text-danger"></span></td>
+                                                            <td style="padding-top:15px"><span onclick="borrarTr({{ $cont }})" class="voyager-x text-danger"></span></td>
                                                         </tr>
                                                         @php
                                                             $cont++;
@@ -265,13 +291,17 @@
     @stop
 
     @section('javascript')
-        <script src="{{url('js/image-preview/image-preview.js')}}"></script>
-        <script src="{{url('js/loginweb.js')}}"></script>
-        <script src="{{url('js/inventarios/productos.js')}}"></script>
+        <script src="{{ url('js/image-preview/image-preview.js') }}"></script>
+        <script src="{{ url('js/loginweb.js') }}"></script>
+        <script src="{{ url('js/inventarios/productos.js') }}"></script>
+        <script src="{{ url('js/inventarios/ofertas.js') }}"></script>
+        <script src="{{ asset('js/rich_select.js') }}"></script>
         <script>
+            var tipo_oferta = 'descuento';
             $(document).ready(function(){
                 $('[data-toggle="popover"]').popover({ html : true });
                 $('[data-toggle="tooltip"]').tooltip();
+                rich_select('select-producto_id');
 
                 // Calcular longitud de textarea "descripció"
                 $('#text-descripcion').keyup(function(e){
@@ -304,12 +334,6 @@
                     }
                     
                     filtro('{{url("admin/ofertas/filtros/filtro_simple/ofertas_detalles")}}');
-                });
-
-                // agregar productos
-                let indice = {{$cantidad_productos}};
-                $('#btn-agregar').click(function(){
-                    add_producto(indice, '{{url("admin/productos/obtener/precios_venta")}}');
                 });
 
                 // Cambiar duración de oferta

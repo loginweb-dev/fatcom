@@ -5,6 +5,16 @@
 @endsection
 
 @section('content')
+	@php
+        $section = Templates::section(18);
+        $block = $section->blocks;
+    @endphp
+<section class="section-pagetop bg" style="background-color: {{ $section ? $section->background : '#fff' }};">
+    <div class="container">
+        <h2 class="title-page" style="color: {{ $section ? $section->color : '#000' }}">{{ $block ? $block->titulo : 'Busqueda' }}</h2>
+        <p class="lead" style="color: {{ $section ? $section->color : '#000' }}">{{ $block ? $block->descripcion : '' }}</p>
+    </div>
+</section>
 <section class="section-content padding-y">
 	<div class="container">
 
@@ -114,6 +124,7 @@
 
 @section('script')
     <script>
+		var currentPage = 1;
         $(document).ready(function() {
 			// Set de datos marca al form de filtros (si existe)
 			@if($marca_filtro)

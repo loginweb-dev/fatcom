@@ -47,8 +47,8 @@
                             {{-- End loader de imagen --}}
 
                             @php
-                                $img = ($producto->imagen!='') ? str_replace('.', '_medium.', $producto->imagen) : 'productos/default.png';
-                                $imagen = ($producto->imagen!='') ? $producto->imagen : 'productos/default.png';
+                                $img = ($producto->imagen!='') ? str_replace('.', '_medium.', $producto->imagen) : '../img/default.png';
+                                $imagen = ($producto->imagen!='') ? $producto->imagen : '../img/default.png';
                             @endphp
                             <a id="img-slider" href="{{ url('storage/'.$imagen) }}" data-fancybox="slider1">
                                 <img id="img-medium" class="img-thumbnail img-sm" src="{{url('storage').'/'.$img}}">
@@ -257,7 +257,7 @@
 
                         @if($disponible)
                         <hr>
-                        <button style="margin:5px" type="button" id="btn-add_carrito" data-id="{{$id}}" class="btn btn-warning" onclick="cartAdd({{ $id }})"> <i class="fa fa-shopping-cart"></i> Agregar al carrito</button>
+                        <button style="margin:5px" type="button" id="btn-add_carrito" data-id="{{$id}}" class="btn btn-warning" onclick="addCart({{ $id }})"> <i class="fa fa-shopping-cart"></i> Agregar al carrito</button>
                         <a style="margin:5px" href="{{url('carrito/agregar/comprar').'/'.$id}}" class="btn  btn-outline-warning link-page"> Comprar ahora </a>
                         @endif
                         <hr>
@@ -314,12 +314,12 @@
                 @foreach ($recomendaciones as $item)
                     <figure class="itemside mb-3">
                         @php
-                            $img = ($item['imagen']!='') ? str_replace('.', '_small.', $item['imagen']) : 'productos/default.png';
+                            $img = ($item['imagen']!='') ? str_replace('.', '_small.', $item['imagen']) : '../img/default.png';
                         @endphp
                         <div class="aside">	<img class="img-sm" width="80" src="{{url('storage').'/'.$img}}"> </div>
                         <figcaption class="text-wrap">
                             <p class="title b">{{$item['nombre']}}</p>
-                            <button class="btn btn-warning btn-sm" type="button" title="Agregar al carrito de compra" onclick="cartAdd({{ $item['id'] }})"> <i class="fa fa-shopping-cart"></i> </button>
+                            <button class="btn btn-warning btn-sm" type="button" title="Agregar al carrito de compra" onclick="addCart({{ $item['id'] }})"> <i class="fa fa-shopping-cart"></i> </button>
                             <a href="{{ route('detalle_producto_ecommerce', ['id'=>$item['slug']]) }}" title="Detalles" class="btn btn-primary btn-sm link-page"> <i class="fa fa-list"></i> </a>
                         </figcaption>
                     </figure>

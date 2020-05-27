@@ -65,7 +65,7 @@
                                                                         <div class="dropdown">
                                                                             <a class="btn btn-link dropdown-toggle" href="#" role="button" id="dropdownMenuLink-{{ $section->id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
                                                                             <div class="dropdown-menu" aria-labelledby="dropdownMenuLink-{{ $section->id }}">
-                                                                                <a class="dropdown-item btn-update-section" href="#" data-toggle="modal" data-target="#modal-update-section" data-id="{{ $section->id }}" data-name="{{ $section->name }}" data-description="{{ $section->description }}" data-visible="{{ $section->visible }}">
+                                                                                <a class="dropdown-item btn-update-section" href="#" data-toggle="modal" data-target="#modal-update-section" data-item="{{ $section }}">
                                                                                     <i class="fa fa-edit"></i> Editar
                                                                                 </a>
                                                                                 <a class="dropdown-item text-danger btn-delete" href="{{ url('admin/templates/pages/sections/delete/'.$section->id.'/'.$template->id.'/'.$page->id) }}"><i class="fa fa-trash"></i> Borrar</a>
@@ -75,7 +75,7 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <div class="card-body">
+                                                        <div class="card-body" style="background-color: {{ $section->background ?? '#fff' }}">
                                                             <div class="row">
                                                                 @forelse ($section->blocks as $block)
                                                                 <div class="col-md-4">
@@ -264,6 +264,16 @@
                                 <label>Descripción</label>
                                 <textarea name="description" class="form-control" placeholder="Descripción breve de la sección"></textarea>
                             </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label>Color de fondo</label>
+                                    <input type="color" name="background" class="form-control">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>Color de fuente</label>
+                                    <input type="color" name="color" class="form-control">
+                                </div>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -296,6 +306,16 @@
                             <div class="form-group">
                                 <label>Descripción</label>
                                 <textarea name="description" class="form-control" placeholder="Descripción breve de la sección"></textarea>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label>Color de fondo</label>
+                                    <input type="color" name="background" class="form-control">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label>Color de fuente</label>
+                                    <input type="color" name="color" class="form-control">
+                                </div>
                             </div>
                             <div class="form-group">
                                 <input type="checkbox" id="checkbox-visible" name="visible" data-toggle="toggle" data-on="<i class='fa fa-eye'></i> Visible" data-off="<i class='fa fa-eye-slash'></i> Oculto" data-width="120">
@@ -501,14 +521,13 @@
 
                 $('.btn-update-section').click(function(){
                     $('#checkbox-visible').bootstrapToggle('off');
-                    let id = $(this).data('id');
-                    let name = $(this).data('name');
-                    let description = $(this).data('description');
-                    let visible = $(this).data('visible');
-                    $('#modal-update-section input[name="id"]').val(id);
-                    $('#modal-update-section input[name="name"]').val(name);
-                    $('#modal-update-section textarea[name="description"]').val(description);
-                    if(visible){
+                    let data = $(this).data('item');
+                    $('#modal-update-section input[name="id"]').val(data.id);
+                    $('#modal-update-section input[name="name"]').val(data.name);
+                    $('#modal-update-section textarea[name="description"]').val(data.description);
+                    $('#modal-update-section input[name="background"]').val(data.background);
+                    $('#modal-update-section input[name="color"]').val(data.color);
+                    if(data.visible){
                         $('#checkbox-visible').bootstrapToggle('on');
                     }
                 });

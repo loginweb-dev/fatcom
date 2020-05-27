@@ -194,16 +194,18 @@ class OfertasController extends Controller
 
         $productos = DB::table('productos as p')
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
-                            ->select('p.id', 'p.nombre', 's.nombre as subcategoria')
+                            ->join('marcas as m', 'm.id', 'p.marca_id')
+                            ->join('monedas as mo', 'mo.id', 'p.moneda_id')
+                            ->select('p.*', 's.nombre as subcategoria', 'm.nombre as marca', 'mo.abreviacion as moneda')
                             // ->where('deleted_at', NULL)
                             ->whereNotIn('p.id', function($q){
-                                // $dia_semana = date('N');
-                                // $dia_mes = date('j');
+                                $dia_semana = date('N');
+                                $dia_mes = date('j');
                                 $q->from('productos as p')
                                     ->join('ofertas_detalles as df', 'df.producto_id', 'p.id')
                                     ->join('ofertas as o', 'o.id', 'df.oferta_id')
                                     ->select('p.id')
-                                    // ->whereRaw("( (o.tipo_duracion = 'rango' and o.inicio < '".Carbon::now()."' and (o.fin is NULL or o.fin > '".Carbon::now()."')) or (o.tipo_duracion = 'semanal' and o.dia = $dia_semana) or (o.tipo_duracion = 'mensual' and o.dia = $dia_mes) )")
+                                    ->whereRaw("( (o.tipo_duracion = 'rango' and o.inicio < '".Carbon::now()."' and (o.fin is NULL or o.fin > '".Carbon::now()."')) or (o.tipo_duracion = 'semanal' and o.dia = $dia_semana) or (o.tipo_duracion = 'mensual' and o.dia = $dia_mes) )")
                                     ->where('df.deleted_at', NULL)
                                     ->where('o.deleted_at', NULL)->get();
                             })

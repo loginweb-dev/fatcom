@@ -63,7 +63,7 @@
                                 if($contador>3) break;
                                 $contador++;
                             
-                                $img = ($item->imagen != '') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
+                                $img = ($item->imagen != '') ? str_replace('.', '_small.', $item->imagen) : '../img/default.png';
 
                                 // Obtener precio de oferta si existe
                                 $precio_venta = $item->precio_venta;
@@ -128,7 +128,7 @@
                                                 @endif
                                             </h5>
                                             {{-- <span class="float-right">
-                                                <a class="" onclick="cartAdd({{ $item->id }})" data-toggle="tooltip" data-placement="top" title="Add to Cart">
+                                                <a class="" onclick="addCart({{ $item->id }})" data-toggle="tooltip" data-placement="top" title="Add to Cart">
                                                     <i class="fas fa-shopping-cart ml-3"></i>
                                                 </a>
                                             </span> --}}

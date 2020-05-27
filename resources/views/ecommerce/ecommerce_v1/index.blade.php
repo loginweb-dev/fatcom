@@ -127,7 +127,10 @@
 @endsection
 
 @section('banner')
-    <section class="section-intro padding-y-sm">
+    @php
+        $section = Templates::section(3);
+    @endphp
+    <section class="section-intro padding-y-sm" style="display: {{ $section->visible }}">
         <div class="container">
             <aside class="col-md-12">
                 <div id="carousel1_indicator" class="carousel slide" data-ride="carousel">
@@ -135,13 +138,13 @@
                         @php
                             $active = 'active';
                         @endphp
-                        @foreach (Templates::section(3) as $item)
+                        @foreach ($section->blocks as $item)
                         <div class="carousel-item {{ $active }}">
                             <div class="dark-mask"></div>
-                            <img class="d-block w-100" src="{{ url('storage/'.$item['imagen']) }}">
+                            <img class="d-block w-100" src="{{ url('storage/'.$item->imagen) }}">
                             <article class="carousel-caption d-none d-md-block">
-                                <h4>{{ $item['titulo'] }}</h4>
-                                <p>{{ $item['descripcion'] }}</p>
+                                <h4>{{ $item->titulo }}</h4>
+                                <p>{{ $item->descripcion }}</p>
                             </article>
                         </div>
                         @php
@@ -164,17 +167,20 @@
 @endsection
 
 @section('content')
-    <section class="section-content padding-y-sm">
+    @php
+        $section = Templates::section(5);
+    @endphp
+    <section class="section-content padding-y-sm" style="display: {{ $section->visible }}">
         <div class="container">
             <article class="card card-body">
                 <div class="row">
-                    @foreach (Templates::section(5) as $item)
+                    @foreach ($section->blocks as $item)
                     <div class="col-md-4">
                         <figure class="item-feature">
-                            <span class="text-primary"><i class="{{ $item['icono'] }} fa-2x"></i></span>
+                            <span class="text-primary"><i class="{{ $item->icono }} fa-2x"></i></span>
                             <figcaption class="pt-3">
-                                <h5 class="title">{{ $item['titulo'] }}</h5>
-                                <p>{{ $item['descripcion'] }}</p>
+                                <h5 class="title">{{ $item->titulo }}</h5>
+                                <p>{{ $item->descripcion }}</p>
                             </figcaption>
                         </figure>
                     </div>
@@ -187,12 +193,13 @@
     @if (count($ofertas)>0)
         @php
             $section = Templates::section(6);
+            $block = $section->blocks;
         @endphp
-        <section class="section-content padding-y" style="background-color: {{ $section ? $section['fondo']  : '#000' }}">
+        <section class="section-content padding-y" style="background-color: {{ $section ? $section->background  : '#000' }}; display: {{ $section->visible }}">
             <div class="container">
                 <header class="section-heading">
                     {{-- <a href="#" class="btn btn-outline-primary float-right">Ver todos</a> --}}
-                    <h3 class="section-title" style="color: {{ $section ? $section['color']  : '#fff' }}">{{ $section ? $section['titulo'] : 'Ofertas' }}</h3>
+                    <h3 class="section-title" style="color: {{ $block ? $section->color  : '#fff' }}">{{ $block ? $block->titulo : 'Ofertas' }}</h3>
                 </header>
                 <div class="slider-items-slick row" data-slick='{"slidesToShow": 5, "slidesToScroll": 1}'>
                     @forelse ($ofertas as $item)
@@ -221,12 +228,13 @@
 
     @php
         $section = Templates::section(7);
+        $block = $section->blocks;
     @endphp
-    <section class="section-content padding-y" style="background-color: {{ $section ? $section['fondo'] : '#fff' }}">
-        <div class="container">
+        <section class="section-content padding-y" style="background-color: {{ $section ? $section->background  : '#000' }}; display: {{ $section->visible }}">
+            <div class="container">
             <header class="section-heading">
                 <a href="{{ url('filtro') }}" class="btn btn-outline-primary float-right">Ver todo</a>
-                <h3 class="section-title" style="color: {{ $section ? $section['color']  : '#000' }}">{{ $section ? $section['titulo'] : 'Productos populares' }}</h3>
+                <h3 class="section-title" style="color: {{ $block ? $section->color  : '#000' }}">{{ $block ? $block->titulo : 'Productos populares' }}</h3>
             </header>
             <div class="slider-items-slick row" data-slick='{"slidesToShow": 5, "slidesToScroll": 1}'>
                 @forelse ($populares as $item)
@@ -254,20 +262,21 @@
 
     @php
         $section = Templates::section(8);
+        $block = $section->blocks;
     @endphp
-    @if ($section)
-    <section class="section-content padding-y-sm">
+    @if ($block)
+    <section class="section-content padding-y-sm" style="display: {{ $section->visible }}">
         <div class="container">
-            <div class="card mb-3" style="background-color: {{ $section['fondo'] ?? '#fff' }}">
+            <div class="card mb-3" style="background-color: {{ $section->background ?? '#fff' }}">
                 <div class="row no-gutters">
                     <div class="col-md-5">
-                        <img src="{{ url('storage/'.$section['imagen']) }}" class="card-img" alt="...">
+                        <img src="{{ url('storage/'.$block->imagen) }}" class="card-img" alt="...">
                     </div>
                     <div class="col-md-7">
-                        <div class="card-body m-5" style="color: {{ $section['color'] ?? '#000' }}">
-                            <h4 class="card-title">{{ $section['titulo'] ?? 'Titulo' }}</h4>
-                            <p class="card-text">{{ $section['descripcion'] ?? 'Detalles' }}</p>
-                            <p class="card-text"><small>{{ $section['footer'] ?? 'Footer' }}</small></p>
+                        <div class="card-body m-5" style="color: {{ $section->color ?? '#000' }}">
+                            <h4 class="card-title">{{ $block->titulo ?? 'Titulo' }}</h4>
+                            <p class="card-text">{{ $block->descripcion ?? 'Detalles' }}</p>
+                            <p class="card-text"><small>{{ $block->footer ?? 'Footer' }}</small></p>
                         </div>
                     </div>
                 </div>
@@ -279,12 +288,13 @@
     @if (count($mas_vendidos)>0)
         @php
             $section = Templates::section(9);
+            $block = $section->blocks;
         @endphp
-        <section class="section-content padding-y" style="background-color: {{ $section ? $section['fondo'] : '#fff' }}">
+        <section class="section-content padding-y" style="background-color: {{ $section ? $section->background : '#fff' }}; display: {{ $section->visible }}">
             <div class="container">
-                <header class="section-heading" style="color: {{ $section ? $section['color'] : '#000' }}">
+                <header class="section-heading" style="color: {{ $section ? $section->color : '#000' }}">
                     {{-- <a href="#" class="btn btn-outline-primary float-right">Ver todos</a> --}}
-                    <h3 class="section-title">{{ $section ? $section['titulo'] : 'Productos más vendidos' }}</h3>
+                    <h3 class="section-title">{{ $block ? $block->titulo : 'Productos más vendidos' }}</h3>
                 </header>
                 <div class="slider-items-slick row" data-slick='{"slidesToShow": 5, "slidesToScroll": 1}'>
                     @forelse ($mas_vendidos as $item)
@@ -317,22 +327,23 @@
 
     @php
         $section = Templates::section(11);
+        $block = $section->blocks;
     @endphp
-    @if ($section)
+    @if ($block)
     <section class="section-content padding-y-sm">
         <div class="container">
-            <div class="card mb-3" style="background-color: {{ $section['fondo'] ?? '#fff' }}">
+            <div class="card mb-3" style="background-color: {{ $section->background ?? '#fff' }}; display: {{ $section->visible }}">
                 <div class="row no-gutters">
                 
                     <div class="col-md-7">
-                        <div class="card-body m-5" style="color: {{ $section['color'] ?? '#000' }}">
-                            <h4 class="card-title">{{ $section['titulo'] ?? 'Titulo' }}</h4>
-                            <p class="card-text">{{ $section['descripcion'] ?? 'Detalles' }}</p>
-                            <p class="card-text"><small>{{ $section['footer'] ?? 'Footer' }}</small></p>
+                        <div class="card-body m-5" style="color: {{ $section->color ?? '#000' }}">
+                            <h4 class="card-title">{{ $block->titulo ?? 'Titulo' }}</h4>
+                            <p class="card-text">{{ $block->descripcion ?? 'Detalles' }}</p>
+                            <p class="card-text"><small>{{ $block->footer ?? 'Footer' }}</small></p>
                         </div>
                     </div>
                     <div class="col-md-5">
-                        <img src="{{ url('storage/'.$section['imagen']) }}" class="card-img" alt="...">
+                        <img src="{{ url('storage/'.$block->imagen) }}" class="card-img" alt="...">
                     </div>
                 </div>
             </div>
@@ -342,11 +353,12 @@
 
     @php
         $section = Templates::section(10);
+        $block = $section->blocks;
     @endphp
-    <section class="section-name bg padding-y" style="background-color: {{ $section ? $section['fondo'] : '#fff' }}">
+    <section class="section-name bg padding-y" style="background-color: {{ $section ? $section->background : '#fff' }}; display: {{ $section->visible }}">
         <div class="container">
-            <header class="section-heading" style="color: {{ $section ? $section['color'] : '#000' }}">
-                <h3 class="section-title">{{ $section ? $section['titulo'] : 'Nuestras marcas' }}</h3>
+            <header class="section-heading" style="color: {{ $section ? $section->color : '#000' }}">
+                <h3 class="section-title">{{ $block ? $block->titulo : 'Nuestras marcas' }}</h3>
             </header>
             <div class="slider-items-slick row padding-y-sm" data-slick='{"slidesToShow": 6, "slidesToScroll": 1}'>
                 @foreach ($marcas as $item)

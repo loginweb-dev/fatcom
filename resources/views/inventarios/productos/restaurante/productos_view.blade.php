@@ -151,8 +151,8 @@
                                     <article class="gallery-wrap">
                                         <div class="img-big-wrap" style="text-align:center">
                                             @php
-                                                $img = ($producto->imagen!='') ? str_replace('.', '_medium.', $producto->imagen) : 'productos/default.png';
-                                                $img_big = ($producto->imagen!='') ? $producto->imagen : 'productos/default.png';
+                                                $img = ($producto->imagen!='') ? str_replace('.', '_medium.', $producto->imagen) : '../img/default.png';
+                                                $img_big = ($producto->imagen!='') ? $producto->imagen : '../img/default.png';
                                             @endphp
                                             <a id="img-slider" href="{{url('storage').'/'.$img_big}}" data-fancybox="slider1">
                                                 <img id="img-medium" class="img-thumbnail img-sm" src="{{url('storage').'/'.$img}}">

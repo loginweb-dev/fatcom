@@ -220,7 +220,7 @@ function filtro(url, modo_sistema){
             let datos = `<option selected disabled value="">Seleccione una opción</option>`;
             if(response.length>0){
                 response.forEach(item => {
-                    let imagen = item.imagen ? '../../storage/'+item.imagen : '../../storage/productos/default.png';
+                    let imagen = item.imagen ? '/storage/'+item.imagen : '/img/default.png';
                     let nombre = '';
                     if(modo_sistema != 'restaurante'){
                         nombre = item.codigo+' - ';

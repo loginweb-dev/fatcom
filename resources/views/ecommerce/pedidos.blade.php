@@ -30,7 +30,7 @@
                                 @endphp
                                 @forelse ($detalle_pedido as $item)
                                 @php
-                                    $imagen = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
+                                    $imagen = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : '../img/default.png';
                                 @endphp
                                 <tr>
                                     {{-- <td>{{$item->codigo}}</td> --}}

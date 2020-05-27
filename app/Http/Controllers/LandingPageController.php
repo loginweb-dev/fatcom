@@ -200,7 +200,10 @@ class LandingPageController extends Controller
             $cont++;
         }
 
-        return view('ecommerce.'.setting('admin.ecommerce').'resultados', compact('productos', 'precio_min', 'precio_max'));
+        // Obtener el tipo de vista
+        $view = $data->view_type ?? 'normal';
+
+        return view('ecommerce.'.setting('admin.ecommerce').'resultados', compact('productos', 'precio_min', 'precio_max', 'view'));
     }
 
     public function search_product($busqueda, $cantidad = 10){
@@ -559,7 +562,7 @@ class LandingPageController extends Controller
         if($oferta){
             $precio_venta = $producto->precio_venta;
             if($oferta->tipo_descuento=='porcentaje'){
-                $precio_venta -= ($precio_actual*($oferta->monto_oferta/100));
+                $precio_venta -= ($precio_venta*($oferta->monto/100));
             }else{
                 $precio_venta -= $oferta->monto;
             }
@@ -702,6 +705,10 @@ class LandingPageController extends Controller
 
         $alerta = 'cliente_editado';
         return redirect()->route('profile')->with(compact('alerta'));
+    }
+
+    public function payments_index(){
+        return view('ecommerce.'.setting('admin.ecommerce').'formas_pago');
     }
 
 

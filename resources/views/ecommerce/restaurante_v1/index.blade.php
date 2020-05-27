@@ -120,7 +120,7 @@
                       <div class="row">
                         @forelse ($mas_vendidos as $item)
                           @php
-                              $imagen = !empty($item->imagen) ? $item->imagen : 'productos/default.png';
+                              $imagen = !empty($item->imagen) ? $item->imagen : '../img/default.png';
 
                               // Obtener precio de oferta si existe
                               $precio_venta = $item->precio_venta;
@@ -179,7 +179,7 @@
                                           @endif
                                       </h5>
                                       <span class="float-right">
-                                        <a class="" onclick="cartAdd({{ $item->id }})" data-toggle="tooltip" data-placement="top" title="Agregar a carrito">
+                                        <a class="" onclick="addCart({{ $item->id }})" data-toggle="tooltip" data-placement="top" title="Agregar a carrito">
                                           <i class="fas fa-shopping-cart ml-3"></i>
                                         </a>
                                       </span>
@@ -207,7 +207,7 @@
     
                           @forelse ($populares as $item)
                           @php
-                              $imagen = !empty($item->imagen) ? $item->imagen : 'productos/default.png';
+                              $imagen = !empty($item->imagen) ? $item->imagen : '../img/default.png';
 
                               // Obtener precio de oferta si existe
                               $precio_venta = $item->precio_venta;
@@ -266,7 +266,7 @@
                                         @endif
                                     </h5>
                                     <span class="float-right">
-                                      <a class="" onclick="cartAdd({{ $item->id }})" data-toggle="tooltip" data-placement="top" title="Agregar a carrito">
+                                      <a class="" onclick="addCart({{ $item->id }})" data-toggle="tooltip" data-placement="top" title="Agregar a carrito">
                                         <i class="fas fa-shopping-cart ml-3"></i>
                                       </a>
                                     </span>

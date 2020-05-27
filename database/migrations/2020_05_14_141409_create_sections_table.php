@@ -20,6 +20,8 @@ class CreateSectionsTable extends Migration
             $table->text('description')->nullable();
             $table->integer('order')->nullable();
             $table->integer('visible')->nullable();
+            $table->string('background')->nullable();
+            $table->string('color')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

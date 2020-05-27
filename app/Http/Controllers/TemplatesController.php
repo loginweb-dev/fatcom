@@ -69,7 +69,9 @@ class TemplatesController extends Controller
                 'name' => $request->name,
                 'description' => $request->description,
                 'order' => $order,
-                'visible' => 1
+                'visible' => 1,
+                'background' => $request->background,
+                'color' => $request->color,
             ]);
 
             DB::commit();
@@ -88,6 +90,8 @@ class TemplatesController extends Controller
             $section->name = $request->name;
             $section->description = $request->description;
             $section->visible = $request->visible ? 1 : 0;
+            $section->background = $request->background;
+            $section->color = $request->color;
             $section->save();
 
             DB::commit();
@@ -247,20 +251,39 @@ class TemplatesController extends Controller
 
     public static function section($id){
         $section = Section::where('id', $id)->with(['blocks.inputs'])->first();
-        $response = array();
+        $response = collect();
+
+        $visible = 'none';
+        $count = 0;
+        $background = 'white';
+        $color = 'black';
+
         if($section && $section->blocks && $section->visible){
+            $visible = 'block';
+            $count = count($section->blocks);
+            $background = $section->background;
+            $color = $section->color;
+            
             foreach($section->blocks as $block){
                 $sections = collect();
                 if($block->inputs){
                     foreach($block->inputs as $input){
                         $sections->put($input->name, $input->value);
                     }
-                    array_push($response, $sections);
+                    $response->push($sections);
                 }
             }
 
-            $response = count($response) == 1 ? $response[0] : $response;
+            $response = count($response) == 1 ? json_decode(json_encode($response[0])) : $response;
         }
-        return $response;
+        return json_decode(
+            json_encode([
+                'count' => $count,
+                'visible' => $visible,
+                'background' => $background,
+                'color' => $color,
+                'blocks' => $response]
+            )
+        );
     }
 }

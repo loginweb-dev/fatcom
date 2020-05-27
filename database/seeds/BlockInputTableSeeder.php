@@ -187,30 +187,6 @@ class BlockInputTableSeeder extends Seeder
             ),
             14 => 
             array (
-                'id' => 20,
-                't_block_id' => 6,
-                'name' => 'fondo',
-                'type' => 'color',
-                'value' => '#527fd6',
-                'order' => NULL,
-                'created_at' => '2020-05-25 12:20:58',
-                'updated_at' => '2020-05-25 12:22:03',
-                'deleted_at' => NULL,
-            ),
-            15 => 
-            array (
-                'id' => 21,
-                't_block_id' => 6,
-                'name' => 'color',
-                'type' => 'color',
-                'value' => '#ffffff',
-                'order' => NULL,
-                'created_at' => '2020-05-25 12:20:58',
-                'updated_at' => '2020-05-25 12:22:16',
-                'deleted_at' => NULL,
-            ),
-            16 => 
-            array (
                 'id' => 25,
                 't_block_id' => 8,
                 'name' => 'icono',
@@ -221,7 +197,7 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 17:01:22',
                 'deleted_at' => NULL,
             ),
-            17 => 
+            15 => 
             array (
                 'id' => 26,
                 't_block_id' => 8,
@@ -233,7 +209,7 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 17:01:17',
                 'deleted_at' => NULL,
             ),
-            18 => 
+            16 => 
             array (
                 'id' => 27,
                 't_block_id' => 8,
@@ -245,7 +221,7 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 17:06:30',
                 'deleted_at' => NULL,
             ),
-            19 => 
+            17 => 
             array (
                 'id' => 28,
                 't_block_id' => 9,
@@ -257,7 +233,7 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 17:06:06',
                 'deleted_at' => NULL,
             ),
-            20 => 
+            18 => 
             array (
                 'id' => 29,
                 't_block_id' => 9,
@@ -269,7 +245,7 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 17:03:13',
                 'deleted_at' => NULL,
             ),
-            21 => 
+            19 => 
             array (
                 'id' => 30,
                 't_block_id' => 9,
@@ -281,7 +257,7 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 17:02:55',
                 'deleted_at' => NULL,
             ),
-            22 => 
+            20 => 
             array (
                 'id' => 31,
                 't_block_id' => 10,
@@ -293,7 +269,7 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 17:05:32',
                 'deleted_at' => NULL,
             ),
-            23 => 
+            21 => 
             array (
                 'id' => 32,
                 't_block_id' => 10,
@@ -305,7 +281,7 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 17:03:30',
                 'deleted_at' => NULL,
             ),
-            24 => 
+            22 => 
             array (
                 'id' => 33,
                 't_block_id' => 10,
@@ -317,7 +293,7 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 17:06:45',
                 'deleted_at' => NULL,
             ),
-            25 => 
+            23 => 
             array (
                 'id' => 34,
                 't_block_id' => 11,
@@ -329,7 +305,7 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 17:43:54',
                 'deleted_at' => NULL,
             ),
-            26 => 
+            24 => 
             array (
                 'id' => 35,
                 't_block_id' => 11,
@@ -341,31 +317,7 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 17:43:22',
                 'deleted_at' => NULL,
             ),
-            27 => 
-            array (
-                'id' => 36,
-                't_block_id' => 11,
-                'name' => 'fondo',
-                'type' => 'color',
-                'value' => '#ffffff',
-                'order' => NULL,
-                'created_at' => '2020-05-25 17:43:22',
-                'updated_at' => '2020-05-25 18:57:42',
-                'deleted_at' => NULL,
-            ),
-            28 => 
-            array (
-                'id' => 37,
-                't_block_id' => 11,
-                'name' => 'color',
-                'type' => 'color',
-                'value' => '#000000',
-                'order' => NULL,
-                'created_at' => '2020-05-25 17:43:22',
-                'updated_at' => '2020-05-25 18:57:56',
-                'deleted_at' => NULL,
-            ),
-            29 => 
+            25 => 
             array (
                 'id' => 38,
                 't_block_id' => 12,
@@ -377,7 +329,7 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 17:55:11',
                 'deleted_at' => NULL,
             ),
-            30 => 
+            26 => 
             array (
                 'id' => 39,
                 't_block_id' => 12,
@@ -389,31 +341,7 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 17:54:55',
                 'deleted_at' => NULL,
             ),
-            31 => 
-            array (
-                'id' => 40,
-                't_block_id' => 12,
-                'name' => 'fondo',
-                'type' => 'color',
-                'value' => '#ffffff',
-                'order' => NULL,
-                'created_at' => '2020-05-25 17:54:55',
-                'updated_at' => '2020-05-25 18:59:41',
-                'deleted_at' => NULL,
-            ),
-            32 => 
-            array (
-                'id' => 41,
-                't_block_id' => 12,
-                'name' => 'color',
-                'type' => 'color',
-                'value' => '#212529',
-                'order' => NULL,
-                'created_at' => '2020-05-25 17:54:55',
-                'updated_at' => '2020-05-25 18:59:54',
-                'deleted_at' => NULL,
-            ),
-            33 => 
+            27 => 
             array (
                 'id' => 42,
                 't_block_id' => 13,
@@ -425,7 +353,7 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 18:08:21',
                 'deleted_at' => NULL,
             ),
-            34 => 
+            28 => 
             array (
                 'id' => 43,
                 't_block_id' => 13,
@@ -437,7 +365,7 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 18:07:06',
                 'deleted_at' => NULL,
             ),
-            35 => 
+            29 => 
             array (
                 'id' => 44,
                 't_block_id' => 13,
@@ -449,7 +377,7 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 18:07:19',
                 'deleted_at' => NULL,
             ),
-            36 => 
+            30 => 
             array (
                 'id' => 45,
                 't_block_id' => 13,
@@ -461,31 +389,7 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 18:07:34',
                 'deleted_at' => NULL,
             ),
-            37 => 
-            array (
-                'id' => 46,
-                't_block_id' => 13,
-                'name' => 'fondo',
-                'type' => 'color',
-                'value' => '#5fb639',
-                'order' => NULL,
-                'created_at' => '2020-05-25 18:06:50',
-                'updated_at' => '2020-05-25 18:08:09',
-                'deleted_at' => NULL,
-            ),
-            38 => 
-            array (
-                'id' => 47,
-                't_block_id' => 13,
-                'name' => 'color',
-                'type' => 'color',
-                'value' => '#ffffff',
-                'order' => NULL,
-                'created_at' => '2020-05-25 18:06:50',
-                'updated_at' => '2020-05-25 18:07:49',
-                'deleted_at' => NULL,
-            ),
-            39 => 
+            31 => 
             array (
                 'id' => 48,
                 't_block_id' => 14,
@@ -497,7 +401,7 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 18:18:11',
                 'deleted_at' => NULL,
             ),
-            40 => 
+            32 => 
             array (
                 'id' => 49,
                 't_block_id' => 14,
@@ -509,31 +413,7 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 18:16:02',
                 'deleted_at' => NULL,
             ),
-            41 => 
-            array (
-                'id' => 50,
-                't_block_id' => 14,
-                'name' => 'fondo',
-                'type' => 'color',
-                'value' => '#eeeeee',
-                'order' => NULL,
-                'created_at' => '2020-05-25 18:16:02',
-                'updated_at' => '2020-05-25 18:53:04',
-                'deleted_at' => NULL,
-            ),
-            42 => 
-            array (
-                'id' => 51,
-                't_block_id' => 14,
-                'name' => 'color',
-                'type' => 'color',
-                'value' => '#ffffff',
-                'order' => NULL,
-                'created_at' => '2020-05-25 18:16:02',
-                'updated_at' => '2020-05-25 18:16:28',
-                'deleted_at' => NULL,
-            ),
-            43 => 
+            33 => 
             array (
                 'id' => 52,
                 't_block_id' => 15,
@@ -545,7 +425,7 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 18:24:24',
                 'deleted_at' => NULL,
             ),
-            44 => 
+            34 => 
             array (
                 'id' => 53,
                 't_block_id' => 15,
@@ -557,31 +437,7 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 18:21:32',
                 'deleted_at' => NULL,
             ),
-            45 => 
-            array (
-                'id' => 54,
-                't_block_id' => 15,
-                'name' => 'fondo',
-                'type' => 'color',
-                'value' => '#ffffff',
-                'order' => NULL,
-                'created_at' => '2020-05-25 18:21:32',
-                'updated_at' => '2020-05-25 18:22:38',
-                'deleted_at' => NULL,
-            ),
-            46 => 
-            array (
-                'id' => 55,
-                't_block_id' => 15,
-                'name' => 'color',
-                'type' => 'color',
-                'value' => '#000000',
-                'order' => NULL,
-                'created_at' => '2020-05-25 18:21:32',
-                'updated_at' => '2020-05-25 18:22:48',
-                'deleted_at' => NULL,
-            ),
-            47 => 
+            35 => 
             array (
                 'id' => 56,
                 't_block_id' => 16,
@@ -593,7 +449,7 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 18:28:18',
                 'deleted_at' => NULL,
             ),
-            48 => 
+            36 => 
             array (
                 'id' => 57,
                 't_block_id' => 16,
@@ -605,7 +461,7 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 18:28:25',
                 'deleted_at' => NULL,
             ),
-            49 => 
+            37 => 
             array (
                 'id' => 58,
                 't_block_id' => 16,
@@ -617,7 +473,7 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 18:28:35',
                 'deleted_at' => NULL,
             ),
-            50 => 
+            38 => 
             array (
                 'id' => 59,
                 't_block_id' => 16,
@@ -629,28 +485,376 @@ class BlockInputTableSeeder extends Seeder
                 'updated_at' => '2020-05-25 18:28:48',
                 'deleted_at' => NULL,
             ),
+            39 => 
+            array (
+                'id' => 80,
+                't_block_id' => 21,
+                'name' => 'titulo',
+                'type' => 'text',
+                'value' => 'Métodos de pago',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:06:10',
+                'updated_at' => '2020-05-26 17:06:54',
+                'deleted_at' => NULL,
+            ),
+            40 => 
+            array (
+                'id' => 81,
+                't_block_id' => 21,
+                'name' => 'descripcion',
+                'type' => 'long_text',
+                'value' => 'Life is easy why make it hard? Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod.',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:06:10',
+                'updated_at' => '2020-05-26 17:07:02',
+                'deleted_at' => NULL,
+            ),
+            41 => 
+            array (
+                'id' => 84,
+                't_block_id' => 22,
+                'name' => 'titulo',
+                'type' => 'text',
+                'value' => 'Búsqueda',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:15:18',
+                'updated_at' => '2020-05-26 17:15:46',
+                'deleted_at' => NULL,
+            ),
+            42 => 
+            array (
+                'id' => 85,
+                't_block_id' => 22,
+                'name' => 'descripcion',
+                'type' => 'long_text',
+                'value' => 'Life is easy why make it hard? Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod.',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:15:18',
+                'updated_at' => '2020-05-26 17:15:36',
+                'deleted_at' => NULL,
+            ),
+            43 => 
+            array (
+                'id' => 88,
+                't_block_id' => 23,
+                'name' => 'titulo',
+                'type' => 'text',
+                'value' => 'Carrito de compra',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:18:37',
+                'updated_at' => '2020-05-26 17:18:46',
+                'deleted_at' => NULL,
+            ),
+            44 => 
+            array (
+                'id' => 89,
+                't_block_id' => 23,
+                'name' => 'descripcion',
+                'type' => 'long_text',
+                'value' => 'Life is easy why make it hard? Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:18:37',
+                'updated_at' => '2020-05-26 17:19:00',
+                'deleted_at' => NULL,
+            ),
+            45 => 
+            array (
+                'id' => 92,
+                't_block_id' => 24,
+                'name' => 'titulo',
+                'type' => 'text',
+                'value' => 'Payment 1',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:36:07',
+                'updated_at' => '2020-05-26 17:36:50',
+                'deleted_at' => NULL,
+            ),
+            46 => 
+            array (
+                'id' => 93,
+                't_block_id' => 24,
+                'name' => 'imagen',
+                'type' => 'image',
+                'value' => '../ecommerce_public/templates/ecommerce_v1/images/banners/payment.jpg',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:36:07',
+                'updated_at' => '2020-05-26 17:43:35',
+                'deleted_at' => NULL,
+            ),
+            47 => 
+            array (
+                'id' => 94,
+                't_block_id' => 24,
+                'name' => 'titular',
+                'type' => 'text',
+                'value' => 'John Doe',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:36:07',
+                'updated_at' => '2020-05-26 17:37:07',
+                'deleted_at' => NULL,
+            ),
+            48 => 
+            array (
+                'id' => 95,
+                't_block_id' => 24,
+                'name' => 'numero',
+                'type' => 'text',
+                'value' => 'Nº 1000000543535',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:36:07',
+                'updated_at' => '2020-05-26 17:37:24',
+                'deleted_at' => NULL,
+            ),
+            49 => 
+            array (
+                'id' => 96,
+                't_block_id' => 24,
+                'name' => 'tipo',
+                'type' => 'text',
+                'value' => 'Caja de ahorro',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:36:07',
+                'updated_at' => '2020-05-26 17:37:40',
+                'deleted_at' => NULL,
+            ),
+            50 => 
+            array (
+                'id' => 97,
+                't_block_id' => 24,
+                'name' => 'cedula',
+                'type' => 'text',
+                'value' => 'CI : 1234567 - Bn',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:36:07',
+                'updated_at' => '2020-05-26 17:38:22',
+                'deleted_at' => NULL,
+            ),
             51 => 
             array (
-                'id' => 60,
-                't_block_id' => 16,
-                'name' => 'fondo',
-                'type' => 'color',
-                'value' => '#e93e2c',
+                'id' => 98,
+                't_block_id' => 24,
+                'name' => 'moneda',
+                'type' => 'text',
+                'value' => 'Moneda : Bolivianos',
                 'order' => NULL,
-                'created_at' => '2020-05-25 18:28:08',
-                'updated_at' => '2020-05-25 18:29:05',
+                'created_at' => '2020-05-26 17:36:07',
+                'updated_at' => '2020-05-26 17:38:07',
                 'deleted_at' => NULL,
             ),
             52 => 
             array (
-                'id' => 61,
-                't_block_id' => 16,
-                'name' => 'color',
-                'type' => 'color',
-                'value' => '#ffffff',
+                'id' => 99,
+                't_block_id' => 25,
+                'name' => 'titulo',
+                'type' => 'text',
+                'value' => 'Payment 2',
                 'order' => NULL,
-                'created_at' => '2020-05-25 18:28:08',
-                'updated_at' => '2020-05-25 18:29:11',
+                'created_at' => '2020-05-26 17:39:15',
+                'updated_at' => '2020-05-26 17:39:19',
+                'deleted_at' => NULL,
+            ),
+            53 => 
+            array (
+                'id' => 100,
+                't_block_id' => 25,
+                'name' => 'imagen',
+                'type' => 'image',
+                'value' => '../ecommerce_public/templates/ecommerce_v1/images/banners/payment.jpg',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:39:15',
+                'updated_at' => '2020-05-26 17:43:41',
+                'deleted_at' => NULL,
+            ),
+            54 => 
+            array (
+                'id' => 101,
+                't_block_id' => 25,
+                'name' => 'titular',
+                'type' => 'text',
+                'value' => 'John Doe',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:39:15',
+                'updated_at' => '2020-05-26 17:39:15',
+                'deleted_at' => NULL,
+            ),
+            55 => 
+            array (
+                'id' => 102,
+                't_block_id' => 25,
+                'name' => 'numero',
+                'type' => 'text',
+                'value' => 'Nº 1000000543535',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:39:15',
+                'updated_at' => '2020-05-26 17:39:15',
+                'deleted_at' => NULL,
+            ),
+            56 => 
+            array (
+                'id' => 103,
+                't_block_id' => 25,
+                'name' => 'tipo',
+                'type' => 'text',
+                'value' => 'Caja de ahorro',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:39:15',
+                'updated_at' => '2020-05-26 17:39:15',
+                'deleted_at' => NULL,
+            ),
+            57 => 
+            array (
+                'id' => 104,
+                't_block_id' => 25,
+                'name' => 'cedula',
+                'type' => 'text',
+                'value' => 'CI : 1234567 - Bn',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:39:15',
+                'updated_at' => '2020-05-26 17:39:15',
+                'deleted_at' => NULL,
+            ),
+            58 => 
+            array (
+                'id' => 105,
+                't_block_id' => 25,
+                'name' => 'moneda',
+                'type' => 'text',
+                'value' => 'Moneda : Bolivianos',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:39:15',
+                'updated_at' => '2020-05-26 17:39:15',
+                'deleted_at' => NULL,
+            ),
+            59 => 
+            array (
+                'id' => 106,
+                't_block_id' => 26,
+                'name' => 'titulo',
+                'type' => 'text',
+                'value' => 'Payment 3',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:39:22',
+                'updated_at' => '2020-05-26 17:39:27',
+                'deleted_at' => NULL,
+            ),
+            60 => 
+            array (
+                'id' => 107,
+                't_block_id' => 26,
+                'name' => 'imagen',
+                'type' => 'image',
+                'value' => '../ecommerce_public/templates/ecommerce_v1/images/banners/payment.jpg',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:39:22',
+                'updated_at' => '2020-05-26 17:43:45',
+                'deleted_at' => NULL,
+            ),
+            61 => 
+            array (
+                'id' => 108,
+                't_block_id' => 26,
+                'name' => 'titular',
+                'type' => 'text',
+                'value' => 'John Doe',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:39:22',
+                'updated_at' => '2020-05-26 17:39:22',
+                'deleted_at' => NULL,
+            ),
+            62 => 
+            array (
+                'id' => 109,
+                't_block_id' => 26,
+                'name' => 'numero',
+                'type' => 'text',
+                'value' => 'Nº 1000000543535',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:39:22',
+                'updated_at' => '2020-05-26 17:39:22',
+                'deleted_at' => NULL,
+            ),
+            63 => 
+            array (
+                'id' => 110,
+                't_block_id' => 26,
+                'name' => 'tipo',
+                'type' => 'text',
+                'value' => 'Caja de ahorro',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:39:22',
+                'updated_at' => '2020-05-26 17:39:22',
+                'deleted_at' => NULL,
+            ),
+            64 => 
+            array (
+                'id' => 111,
+                't_block_id' => 26,
+                'name' => 'cedula',
+                'type' => 'text',
+                'value' => 'CI : 1234567 - Bn',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:39:22',
+                'updated_at' => '2020-05-26 17:39:22',
+                'deleted_at' => NULL,
+            ),
+            65 => 
+            array (
+                'id' => 112,
+                't_block_id' => 26,
+                'name' => 'moneda',
+                'type' => 'text',
+                'value' => 'Moneda : Bolivianos',
+                'order' => NULL,
+                'created_at' => '2020-05-26 17:39:22',
+                'updated_at' => '2020-05-26 17:39:22',
+                'deleted_at' => NULL,
+            ),
+            66 => 
+            array (
+                'id' => 113,
+                't_block_id' => 27,
+                'name' => 'titulo',
+                'type' => 'text',
+                'value' => 'Mis pedidos',
+                'order' => NULL,
+                'created_at' => '2020-05-27 15:42:53',
+                'updated_at' => '2020-05-27 15:53:44',
+                'deleted_at' => NULL,
+            ),
+            67 => 
+            array (
+                'id' => 114,
+                't_block_id' => 27,
+                'name' => 'descripcion',
+                'type' => 'long_text',
+                'value' => 'Life is easy why make it hard? Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod',
+                'order' => NULL,
+                'created_at' => '2020-05-27 15:42:53',
+                'updated_at' => '2020-05-27 15:43:06',
+                'deleted_at' => NULL,
+            ),
+            68 => 
+            array (
+                'id' => 115,
+                't_block_id' => 28,
+                'name' => 'titulo',
+                'type' => 'text',
+                'value' => 'Detalles de producto',
+                'order' => NULL,
+                'created_at' => '2020-05-27 15:50:25',
+                'updated_at' => '2020-05-27 15:50:46',
+                'deleted_at' => NULL,
+            ),
+            69 => 
+            array (
+                'id' => 116,
+                't_block_id' => 28,
+                'name' => 'descripcion',
+                'type' => 'long_text',
+                'value' => 'Life is easy why make it hard? Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod',
+                'order' => NULL,
+                'created_at' => '2020-05-27 15:50:25',
+                'updated_at' => '2020-05-27 15:50:43',
                 'deleted_at' => NULL,
             ),
         ));

@@ -46,7 +46,7 @@
                             <div class="col-lg-6 mb-4">
                                 <div class="carousel-inner text-center text-md-left" role="listbox">
                                     @php
-                                        $imagen = ($producto->imagen!='') ? str_replace('.', '_medium.', $producto->imagen) : 'productos/default.png';
+                                        $imagen = ($producto->imagen!='') ? str_replace('.', '_medium.', $producto->imagen) : '../img/default.png';
                                     @endphp
                                     <div class="carousel-item active">
                                         <img id="producto-imagen" src="{{ url('storage/'.$imagen) }}" alt="{{ $producto->nombre }}" class="img-fluid">
@@ -180,7 +180,7 @@
                             <!-- Card -->
                             <div class="card card-ecommerce">
                             @php
-                                $img = ($item['imagen']!='') ? str_replace('.', '_small.', $item['imagen']) : 'productos/default.png';
+                                $img = ($item['imagen']!='') ? str_replace('.', '_small.', $item['imagen']) : '../img/default.png';
                             @endphp
                             <!-- Card image -->
                             <div class="view overlay" style="min-height:150px;max-height:150px">
@@ -278,7 +278,7 @@
                 let id = $(this).data('id');
                 $.get("{{ url('/detalle/producto/get_producto') }}/"+id, function(data){
 
-                    let imagen = (data.imagen) ? data.imagen.replace('.', '_medium.') : 'productos/default.png';
+                    let imagen = (data.imagen) ? data.imagen.replace('.', '_medium.') : '../img/default.png';
                     $('#producto-imagen').attr('src', "{{ url('storage') }}/"+imagen)
 
                     $('#producto-detalle').text(data.descripcion);
@@ -309,7 +309,7 @@
             // Agregar producto al carrito
             $('.btn-cart_add').click(function(){
                 let id = $('input:radio[name=check-presentacion]:checked').val()
-                cartAdd(id);
+                addCart(id);
             });
         });
     </script>

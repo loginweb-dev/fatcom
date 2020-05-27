@@ -2,7 +2,7 @@
     <div class="row">
         @foreach ($productos as $item)
         @php
-            $img = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
+            $img = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : '../img/default.png';
         @endphp
         <div class="col-md-3">
             <figure class="itemside mb-4">
@@ -27,7 +27,7 @@
                             </li>
                         </ul>
                     </div>
-                    <button onclick="cartAdd({{ $item->id }})" class="btn btn-light text-primary btn-sm"> Agregar <i class="fa fa-shopping-cart text-primary"></i> </button>
+                    <button onclick="addCart({{ $item->id }})" class="btn btn-light text-primary btn-sm"> Agregar <i class="fa fa-shopping-cart text-primary"></i> </button>
                 </figcaption>
             </figure>
         </div>
@@ -47,7 +47,7 @@
     // Paginador de busqueda
     $('.page-link').click(function(){
         let page = $(this).prop('href');
-        list(page.split('page=')[1]);
+        list(page.split('page=')[1], true);
         return false;
     });
 </script>

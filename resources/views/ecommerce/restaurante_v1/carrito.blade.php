@@ -53,7 +53,7 @@
                                     @endphp
                                     @forelse ($carrito as $item)
                                     @php
-                                        $imagen = !empty($item->imagen) ? $item->imagen : 'productos/default.png';
+                                        $imagen = !empty($item->imagen) ? $item->imagen : '../img/default.png';
                                         $subtotal = $item->precio_venta * $item->cantidad;
                                         $total += $subtotal;
                                         $moneda = $item->moneda;
@@ -140,7 +140,7 @@
                             if($contador>3) break;
                             $contador++;
                         
-                            $img = ($item->imagen != '') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
+                            $img = ($item->imagen != '') ? str_replace('.', '_small.', $item->imagen) : '../img/default.png';
 
                             // Obtener precio de oferta si existe
                             $precio_venta = $item->precio_venta;
@@ -204,11 +204,6 @@
                                                 <span class="grey-text"><small><s>{{ $item->moneda }} {{ number_format($precio_actual, 2, ',', '.') }}</s></small></span>
                                             @endif
                                         </h5>
-                                        {{-- <span class="float-right">
-                                            <a class="" onclick="cartAdd({{ $item->id }})" data-toggle="tooltip" data-placement="top" title="Add to Cart">
-                                                <i class="fas fa-shopping-cart ml-3"></i>
-                                            </a>
-                                        </span> --}}
                                     </div>
                                 </div>
     

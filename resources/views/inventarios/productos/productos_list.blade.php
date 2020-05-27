@@ -20,8 +20,8 @@
                 @endphp
                 @forelse ($registros as $item)
                     @php
-                        $img = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : 'productos/default.png';
-                        $imagen = ($item->imagen!='') ? $item->imagen : 'productos/default.png';
+                        $img = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : '../img/default.png';
+                        $imagen = ($item->imagen!='') ? $item->imagen : '../img/default.png';
                     @endphp
                     <tr>
                         <td><input type="checkbox" name="input_print[]" value="{{ $item->id }}"></td>

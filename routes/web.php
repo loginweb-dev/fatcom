@@ -46,6 +46,7 @@ Route::get('/carrito/editar/{id}/{cantidad}', 'LandingPageController@carrito_edi
 Route::get('/carrito/borrar/{id}', 'LandingPageController@carrito_borrar');
 Route::get('/carrito/cantidad_pedidos', 'LandingPageController@cantidad_pedidos')->name('cantidad_pedidos');
 Route::get('/carrito/pedidos/{id}', 'LandingPageController@pedidos_index')->name('pedidos_index');
+Route::get('/metodos-pago', 'LandingPageController@payments_index')->name('payments_index');
 
 Route::group(['prefix' => 'admin'], function () {
     Voyager::routes();
