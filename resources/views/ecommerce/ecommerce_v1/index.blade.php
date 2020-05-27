@@ -203,6 +203,9 @@
                 </header>
                 <div class="slider-items-slick row" data-slick='{"slidesToShow": 5, "slidesToScroll": 1}'>
                     @forelse ($ofertas as $item)
+                    @php
+                        $img = ($item->imagen!='') ? str_replace('.', '_medium.', $item->imagen) : '../img/default.png';
+                    @endphp
                     <div class="item-slide p-2">
                         <a href="{{ route('detalle_producto_ecommerce', ['producto'=>$item->slug]) }}">
                             <figure class="card card-product-grid mb-0">
@@ -210,7 +213,7 @@
                                     @if ($item->nuevo)
                                         <span class="badge badge-danger"> Nuevo </span>
                                     @endif
-                                    <img src="{{ url('storage/'.$item->imagen) }}">
+                                    <img src="{{ url('storage/'.$img) }}">
                                 </div>
                                 <figcaption class="info-wrap text-center">
                                     <h6 class="title text-truncate">{{ $item->nombre }}</h6>
@@ -238,6 +241,9 @@
             </header>
             <div class="slider-items-slick row" data-slick='{"slidesToShow": 5, "slidesToScroll": 1}'>
                 @forelse ($populares as $item)
+                    @php
+                        $img = ($item->imagen!='') ? str_replace('.', '_medium.', $item->imagen) : '../img/default.png';
+                    @endphp
                     <div class="item-slide p-2">
                         <a href="{{ route('detalle_producto_ecommerce', ['producto'=>$item->slug]) }}">
                         <figure class="card card-product-grid mb-0">
@@ -245,7 +251,7 @@
                                 @if ($item->nuevo)
                                     <span class="badge badge-danger"> Nuevo </span>
                                 @endif
-                                <img src="{{ url('storage/'.$item->imagen) }}">
+                                <img src="{{ url('storage/'.$img) }}">
                             </div>
                             <figcaption class="info-wrap text-center">
                                 <h6 class="title text-truncate"><a href="#">{{ $item->nombre }}</a></h6>
@@ -298,6 +304,9 @@
                 </header>
                 <div class="slider-items-slick row" data-slick='{"slidesToShow": 5, "slidesToScroll": 1}'>
                     @forelse ($mas_vendidos as $item)
+                    @php
+                        $img = ($item->imagen!='') ? str_replace('.', '_medium.', $item->imagen) : '../img/default.png';
+                    @endphp
                     <div class="item-slide p-2">
                         <a href="{{ route('detalle_producto_ecommerce', ['producto'=>$item->slug]) }}">
                             <figure class="card card-product-grid mb-0">
@@ -305,7 +314,7 @@
                                     @if ($item->nuevo)
                                         <span class="badge badge-danger"> Nuevo </span>
                                     @endif
-                                    <img src="{{ url('storage/'.$item->imagen) }}">
+                                    <img src="{{ url('storage/'.$img) }}">
                                 </div>
                                 <figcaption class="info-wrap text-center">
                                     <h6 class="title text-truncate">{{ $item->nombre }}</h6>
@@ -374,9 +383,14 @@
             </div>
         </div>
     </section>
+
+    <section class="section-name">
+        <div id="map"></div></div>
+    </section>
 @endsection
 
 @section('css')
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
     <style>
         .dark-mask {
             content:"";
@@ -387,11 +401,28 @@
             right:0;
             background:rgba(0,0,0,0.5);
         }
+        #map {
+            height: 400px;
+        }
     </style>
 @endsection
 
 @section('script')
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
     <script>
         list(1)
+        let sucursales = @json($sucursales);
+        let center = sucursales.length > 0 ? [sucursales[0].latitud, sucursales[0].longitud] : [-14.833232, -64.897004];
+        var map = L.map('map').setView(center, 14);
+        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+            maxZoom: 20,
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+                '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+                'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            id: 'mapbox.streets'
+        }).addTo(map);
+        sucursales.map(sucursal => {
+            L.marker([sucursal.latitud, sucursal.longitud]).addTo(map).bindPopup(`<h6>${sucursal.nombre}</h6><small>${sucursal.direccion ? sucursal.direccion : ''}</small>`).openPopup();
+        });
     </script>
 @endsection

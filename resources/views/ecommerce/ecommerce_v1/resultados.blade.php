@@ -27,7 +27,7 @@
                     $precio_actual -= $item->monto_oferta;
                 }
             }
-            $img = ($item->imagen!='') ? str_replace('.', '_small.', $item->imagen) : '../img/default.png';
+            $img = ($item->imagen!='') ? str_replace('.', '_medium.', $item->imagen) : '../img/default.png';
         @endphp
         @if ($view == 'normal')
             <article class="card card-product-list">
@@ -108,7 +108,7 @@
                         <figcaption class="info-wrap">
                             <div class="fix-height">
                                 {{-- <a href="#" class="title">Great item name goes here</a> --}}
-                                <a href="{{ route('detalle_producto_ecommerce', ['producto'=>$item->slug]) }}" class="h6 title"> {{ $item->nombre }}  </a>
+                                <a href="{{ route('detalle_producto_ecommerce', ['producto'=>$item->slug]) }}" class="h6 title text-truncate" style="max-width: 230px;"> {{ $item->nombre }}  </a>
                                 <div class="rating-wrap mb-1">
                                     <ul class="rating-stars">
                                         <li style="width:{{ $item->puntos*20 }}%" class="stars-active"> 

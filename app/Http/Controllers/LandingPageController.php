@@ -106,7 +106,9 @@ class LandingPageController extends Controller
 
         $oferta_princial = Oferta::all()->where('deleted_at', NULL)->first();
 
-        return view('ecommerce.'.setting('admin.ecommerce').'index', compact('categorias', 'marcas', 'oferta', 'ofertas', 'subcategoria_productos', 'mas_vendidos', 'populares', 'oferta_princial'));
+        $sucursales = Sucursale::where('deleted_at', null)->get();
+
+        return view('ecommerce.'.setting('admin.ecommerce').'index', compact('categorias', 'marcas', 'oferta', 'ofertas', 'subcategoria_productos', 'mas_vendidos', 'populares', 'oferta_princial', 'sucursales'));
     }
 
     public function filter(){
