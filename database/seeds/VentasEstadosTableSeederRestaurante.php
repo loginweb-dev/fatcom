@@ -3,7 +3,7 @@
 use Illuminate\Database\Seeder;
 use App\VentasEstado;
 
-class VentasEstadosTableSeeder extends Seeder
+class VentasEstadosTableSeederRestaurante extends Seeder
 {
     /**
      * Run the database seeds.
@@ -17,7 +17,7 @@ class VentasEstadosTableSeeder extends Seeder
                 ['nombre' => 'Pedido realizado', 'etiqueta' => 'warning', 'icono' => '']
             );
             VentasEstado::create(
-                ['nombre' => 'En proceso', 'etiqueta' => 'info', 'icono' => 'voyager-alarm-clock']
+                ['nombre' => 'En preparación', 'etiqueta' => 'info', 'icono' => 'voyager-alarm-clock']
             );
             VentasEstado::create(
                 ['nombre' => 'Listo', 'etiqueta' => 'success', 'icono' => 'voyager-check']

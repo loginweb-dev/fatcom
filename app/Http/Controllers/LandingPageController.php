@@ -344,7 +344,7 @@ class LandingPageController extends Controller
                                         ->where('producto_id', $id)->where('deleted_at', NULL)->first();
         }
 
-        // Recomendaciones
+        // Recomendaciones================
         $tags = explode(',', $producto->tags);
         $recomendaciones = [];
         foreach ($tags as $item) {

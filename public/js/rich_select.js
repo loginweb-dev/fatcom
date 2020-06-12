@@ -58,7 +58,7 @@ function formatResultLandingPage(option){
                         <div class="card-body">
                             <div class="row">
                                 <aside class="col-sm-2 p-0">
-                                    <img src="${option.imagen ? '/storage/'+option.imagen : '/img/default.png'}" width="100%" />
+                                    <img src="${option.imagen ? '/storage/'+option.imagen.replace('.', '_small.') : '/img/default.png'}" width="100%" />
                                 </aside>
                                 <div class="col-sm-10">
                                     <b class="text-dark">${option.nombre}</b>

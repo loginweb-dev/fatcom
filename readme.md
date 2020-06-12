@@ -50,6 +50,18 @@ Para la instalación de FATCOM se deben seguir algunos pasos que se describen a 
 ```bash
     composer install && npm install && npm run prod
 ```
+Nota: Antes de instalar las dependencias debes asegurarte que tu entorno cumple con los requerimientos necesarios en **[Requerimientos Laravel](https://laravel.com/docs/7.x#server-requirements)**.
+```bash
+    sudo apt install composer nodejs npm git
+    sudo apt-get install php -y
+    sudo apt-get install php7.2-mbstring
+    sudo apt-get install php7.2-curl
+    sudo apt-get install php-xml
+    sudo apt-get install php7.2-gd
+    sudo apt-get install php7.2-zip
+    sudo apt-get install -y php-pdo-mysql
+```
+
 - *Instalar FATCOM*
 ```bash
     php artisan fatcom:install

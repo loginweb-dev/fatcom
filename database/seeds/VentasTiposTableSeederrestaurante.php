@@ -3,7 +3,7 @@
 use Illuminate\Database\Seeder;
 use App\VentasTipo;
 
-class VentasTiposTableSeeder extends Seeder
+class VentasTiposTableSeederRestaurante extends Seeder
 {
     /**
      * Run the database seeds.
@@ -14,7 +14,7 @@ class VentasTiposTableSeeder extends Seeder
     {
         if (VentasTipo::count() == 0) {
             VentasTipo::create(
-                ['nombre' => 'Venta', 'etiqueta' => 'success', 'descripcion' => 'Venta normal']
+                ['nombre' => 'Mesa', 'etiqueta' => 'success', 'descripcion' => 'Venta normal']
             );
             VentasTipo::create(
                 ['nombre' => 'Para llevar', 'etiqueta' => 'primary', 'descripcion' => 'Venta para llevar']
