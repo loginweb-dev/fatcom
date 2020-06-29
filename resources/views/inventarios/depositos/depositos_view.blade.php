@@ -260,7 +260,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="">Stock</label>
-                                <input type="number" name="stock" class="form-control" min="0.1" step="1" required>
+                                <input type="number" name="stock" class="form-control" min="1" step="1" required>
                             </div>
                         </div>
                         <div class="modal-footer">

@@ -16,6 +16,7 @@ class CreateClientesCoordenadasTable extends Migration {
 		{
 			$table->increments('id');
 			$table->integer('cliente_id')->nullable();
+			$table->string('nombre')->nullable();
 			$table->string('lat')->nullable();
 			$table->string('lon')->nullable();
 			$table->text('descripcion', 65535)->nullable();

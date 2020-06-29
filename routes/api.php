@@ -61,8 +61,28 @@ Route::get('/pedidos/details/{id}','ApiController@pedidos_detalles');
 Route::get('/pedidos/tracking/{id}','ApiController@pedidos_seguimiento');
 
 
-// =====Delivery=====
+
+
+// ================================== Version 2 ==================================
+Route::group(['prefix' => 'v2'], function () {
+    Route::post('/login', 'ApiController@login_v2');
+    Route::post('/update_user_profile', 'ApiController@update_user_profile_v2');
+    Route::post('/update_user_avatar/{user_id}', 'ApiController@update_user_avatar_v2');
+    Route::get('/index', 'ApiController@index_v2');
+    Route::get('/index_alt', 'ApiController@index_alt_v2');
+    Route::post('/filter/products', 'ApiController@filter_products_v2');
+    Route::get('/category_products/{category_id}', 'ApiController@category_products_v2');
+    Route::get('/offer_products/{offer_id}', 'ApiController@offer_products_v2');
+    Route::post('/order_register', 'ApiController@order_register_v2');
+    Route::get('/orders_list/{user_id}', 'ApiController@orders_list_v2');
+    Route::get('/order_details/{order_id}', 'ApiController@order_details_v2');
+});
+// ===============================================================================
+
+
+// ================================== Delivery ==================================
 // Lista de pedidos asignados a un repartidor
 Route::get('/delivery/pedidos/lista/{user_id}','ApiController@pedidos_pendientes');
 // Lista de pedidos asignados a un repartidor
 Route::get('/delivery/pedidos/close/{id}','ApiController@delivery_close');
+// ===============================================================================

@@ -530,7 +530,7 @@ class VentasController extends Controller
                 DB::table('ie_cajas')->where('id', $data->caja_id)->decrement('monto_final', $data->importe);
             }
 
-            // Si la venta esta en preparación o un estado arriba los productos y los insumos vuelven a almacen
+            // Si la venta está en preparación o un estado arriba los productos y los insumos vuelven a almacen
             if($vd[0]->venta_estado_id >= 2){
                 foreach ($vd as $item) {
                     if($item->se_almacena){
@@ -693,7 +693,7 @@ class VentasController extends Controller
                 //throw $th;
             }
             
-            // Cuando el pedido se pone en estado "En preparación"
+            // Cuando el pedido se pone en estado "En proceso/preparación"
             if($valor == 2){
                 // Obtener detalle del pedido
                 $detalle_pedido = VentasDetalle::where('venta_id', $id)->get();
@@ -1855,7 +1855,7 @@ class VentasController extends Controller
                         ->select('v.id')
                         ->where('u.id', Auth::user()->id)
                         ->orderBy('id', 'DESC')->first()->id;
-        $mas_vendidos = (new LandingPage)->get_masVendidos(9);
+        $mas_vendidos = (new LandingPage)->get_mas_vendidos(9);
 
         return view('ecommerce.'.setting('admin.ecommerce').'agradecimiento', compact('mas_vendidos', 'venta_id'));
     }

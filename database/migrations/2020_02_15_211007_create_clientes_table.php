@@ -17,6 +17,7 @@ class CreateClientesTable extends Migration {
 			$table->increments('id');
 			$table->string('razon_social')->nullable();
 			$table->string('nit')->nullable();
+			$table->string('code_movil')->default('+591');
 			$table->string('movil')->nullable();
 			$table->string('direccion')->nullable();
 			$table->string('ubicacion')->nullable();

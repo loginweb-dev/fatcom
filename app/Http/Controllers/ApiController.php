@@ -15,6 +15,7 @@ use Intervention\Image\ImageManagerStatic as Image;
 
 use App\Http\Controllers\OfertasController as Ofertas;
 use App\Http\Controllers\LandingPageController as LandingPage;
+use App\Http\Controllers\ProductosController as Productos;
 use App\Http\Controllers\VentasController as Ventas;
 use App\Http\Controllers\DosificacionesController as Dosificacion;
 use App\Http\Controllers\FacturasController as Facturacion;
@@ -23,9 +24,11 @@ use App\Http\Controllers\SucursalesController as Sucursales;
 
 use App\User;
 use App\Cliente;
+use App\ClientesCoordenada;
 use App\Producto;
 use App\Venta;
 use App\VentasDetalle;
+use App\VentasDetallesExtra;
 use App\ProductosLike;
 use App\RepartidoresPedido;
 use App\VentasSeguimiento;
@@ -37,8 +40,7 @@ use App\Events\pedidoNuevo;
 
 class ApiController extends Controller
 {
-    public function login(Request $request)
-    {
+    public function login(Request $request){
         $mail = $this->getEmail($request->phone);
         if($mail){
             $credentials = ['email' => $mail->email, 'password' => $request->password];
@@ -55,9 +57,132 @@ class ApiController extends Controller
             return response()->json(['error' => 'El celular ingresado no está registrado']);
         }
     }
+
+    public function login_v2(Request $request){
+        DB::beginTransaction();
+        try {
+            $name = $request->name;
+            $email = $request->email;
+            $codePhone = $request->codePhone;
+            $phone = $request->numberPhone;
+            $nit = $request->nit;
+            $avatar = $request->avatar ?? 'users/default.png';
+            $type = $request->type;
+
+            $user = User::where('email', $email)->with('cliente')->first();
+            
+            // Si no existe el usuario se debe crear
+            if(!$user){
+                // Registrar datos de cliente
+                $cliente = Cliente::create([
+                    'razon_social' => $name,
+                    'nit' => $nit,
+                    'code_movil' => $codePhone,
+                    'movil' => $phone
+                ]);
+                // Crear usuario
+                $user = User::create([
+                    'role_id' => 2,
+                    'cliente_id' => $cliente->id,
+                    // Por defecto santísima trinidad
+                    'localidad_id' => 1,
+                    'name' => $name,
+                    'email' => $email,
+                    'password' => Hash::make(str_random(10)),
+                    'avatar' => $avatar,
+                    'tipo_login' => $type
+                ]);
+            }else{
+                // Si existe el ususario pero no está asociado a un cliente
+                if(!$user->cliente_id){
+                    $cliente = new Cliente;
+                    $cliente->razon_social = $user->name;
+                    $cliente->save();
+                    User::where('id', $user->id)->update(['cliente_id' => $cliente->id]);
+                    $user = User::where('email', $email)->with('cliente')->first();
+                }
+            }
+
+            // Definir formato de respuesta
+            $user_response = [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'codePhone' => $user->cliente->code_movil,
+                'numberPhone' => $user->cliente->movil,
+                'avatar' => $user->avatar,
+                'businessName' => $user->cliente->razon_social,
+                'nit' => $user->cliente->nit,
+            ];
+            DB::commit();
+            return response()->json(['user' => $user_response]);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['error' => 'Ocurrió un problema en nuestro servidor :(']);
+        }
+    }
+
+    public function update_user_profile_v2(Request $request){
+        DB::beginTransaction();
+        try {
+            $user = User::find($request->id);
+            if($request->name) {$user->name = $request->name;}
+            if($request->email) {$user->email = $request->email;}
+            $user->save();
+
+            $cliente = Cliente::find($user->cliente_id);
+            if($request->businessName) {$cliente->razon_social = $request->businessName;}
+            if($request->nit) {$cliente->nit = $request->nit;}
+            if($request->codePhone) {$cliente->code_movil = $request->codePhone;}
+            if($request->numberPhone) {$cliente->movil = $request->numberPhone;}
+            $cliente->save();
+
+            $user = User::where('id', $request->id)->with('cliente')->first();
+            $user_response = [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'codePhone' => $user->cliente->code_movil,
+                'numberPhone' => $user->cliente->movil,
+                'avatar' => $user->avatar,
+                'businessName' => $user->cliente->razon_social,
+                'nit' => $user->cliente->nit,
+            ];
+            DB::commit();
+            return response()->json(['user' => $user_response]);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['error' => 'Ocurrió un problema en nuestro servidor :(']);
+        }
+    }
+    public function update_user_avatar_v2(Request $request, $id){
+        DB::beginTransaction();
+        try {
+            Storage::makeDirectory('/public/users/'.date('F').date('Y'));
+            $file = $request->file('avatar');
+            $base_name = str_random(20);
+            $filename = $base_name.'.'.$file->getClientOriginalExtension();
+            $image_resize = Image::make($file->getRealPath())->orientate();
+            $image_resize->resize(256, null, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+            $image_resize->resizeCanvas(256, 256);
+            $path =  'users/'.date('F').date('Y').'/'.$filename;
+            $image_resize->save(public_path('../storage/app/public/'.$path));
+            $user = User::find($id);
+            $user->avatar = $path;
+            $user->save();
+            
+            DB::commit();
+            return response()->json(['avatar' => $path]);
+            
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['error' => 'Ocurrio un error al actualizar su imagen.']);
+        }
+    }
     
-    public function register(Request $request)
-    {
+    public function register(Request $request){
         $phone = $this->getEmail($request->phone);
         if(!$phone){
             DB::beginTransaction();
@@ -91,8 +216,7 @@ class ApiController extends Controller
         }
     }
     
-    public function update_profile(Request $request)
-    {
+    public function update_profile(Request $request){
         DB::beginTransaction();
         try {
             $user = User::find($request->id);
@@ -119,8 +243,7 @@ class ApiController extends Controller
         }
     }
     
-    public function confirm_profile(Request $request)
-    {
+    public function confirm_profile(Request $request){
         DB::beginTransaction();
         try {
             $cliente = Cliente::find($request->cliente_id);
@@ -140,8 +263,7 @@ class ApiController extends Controller
         }
     }
     
-    public function update_profile_delivery(Request $request)
-    {
+    public function update_profile_delivery(Request $request){
         DB::beginTransaction();
         try {
             $user = User::find($request->id);
@@ -165,8 +287,7 @@ class ApiController extends Controller
         }
     }
     
-    public function update_profile_delivery_avatar(Request $request, $id)
-    {
+    public function update_profile_delivery_avatar(Request $request, $id){
         DB::beginTransaction();
         try {
             Storage::makeDirectory('/public/users/'.date('F').date('Y'));
@@ -193,8 +314,7 @@ class ApiController extends Controller
         }
     }
     
-    public function login_social(Request $request)
-    {
+    public function login_social(Request $request){
         DB::beginTransaction();
         try {
             $email = $request->email ?? $request->id.'@pizzastatu.com';
@@ -236,8 +356,7 @@ class ApiController extends Controller
         }
     }
     
-    public function login_delivery(Request $request)
-    {
+    public function login_delivery(Request $request){
         $credentials = ['email' => $request->email, 'password' => $request->password];
         if (Auth::attempt($credentials)) {
             if(Auth::user()->role_id == 7){
@@ -264,6 +383,67 @@ class ApiController extends Controller
                             ->get();
 
         return response()->json($categorias);
+    }
+
+    public function index_v2(){
+        $categories_list = $this->categories_list_v2(10);
+        $current_offer = $this->current_offer_v2();
+        if($current_offer){
+            $offer = [
+                "id" => $current_offer->id,
+                "title" => $current_offer->nombre,
+                "subtitle" => $current_offer->descripcion,
+                "image" => $current_offer->imagen,
+                "type" => "offer"
+            ];
+            $categories_list->prepend($offer);
+        }
+        $products_list = (new LandingPage)->get_mas_vendidos(10);
+        return response()->json(['categoriesList' => $categories_list, 'productsList' => $this->format_products_list_v2($products_list)]);
+    }
+
+    public function index_alt_v2(){
+        $categories_list = $this->categories_list_v2(10);
+        $current_offer = $this->current_offer_v2();
+        if($current_offer){
+            $offer = [
+                "id" => $current_offer->id,
+                "title" => $current_offer->nombre,
+                "subtitle" => $current_offer->descripcion,
+                "image" => $current_offer->imagen,
+                "type" => "offer"
+            ];
+            $categories_list->prepend($offer);
+        }
+        return response()->json(['categoriesList' => $categories_list]);
+    }
+
+    public function filter_products_v2(Request $request){
+        $key = $request->key;
+        $offset = $request->offset ?? 0;
+        $limit = $request->limit ?? 10;
+
+        $products_list = DB::table('productos as p')
+                            ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                            ->join('marcas as m', 'm.id', 'p.marca_id')
+                            ->join('colores as c', 'c.id', 'p.color_id')
+                            ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
+                            ->select(DB::raw('p.id, p.codigo_grupo, p.nombre, s.nombre as subcategoria, m.nombre as marca, c.nombre as color, p.descripcion_small, p.precio_venta, p.precio_venta as precio_venta_antiguo, p.imagen, p.slug'))
+                            ->orderBy('precio_venta', 'ASC')
+                            ->where('e.deleted_at', NULL)
+                            ->whereRaw("(p.nombre like '%$key%' or s.nombre like '%$key%' or m.nombre like '%$key%' or c.nombre like '%$key%')")
+                            ->offset($offset)->limit($limit)->get();
+        return response()->json(['productsList' => $this->format_products_list_v2($products_list)]);
+    }
+
+    public function category_products_v2($category_id, $offset = 0, $limit = 10){
+        $products_list = $this->category_products_list_v2($category_id, $offset, $limit);
+        return response()->json(['productsList' => $this->format_products_list_v2($products_list)]);
+    }
+
+    public function offer_products_v2($offer_id, $offset = 0, $limit = 10){
+        $products_list = $this->offer_products_list_v2($offer_id, $offset, $limit);
+        return response()->json(['productsList' => $this->format_products_list_v2($products_list)]);
     }
     
     public function get_oferta_actual(){
@@ -512,6 +692,143 @@ class ApiController extends Controller
             return response()->json(["error" => 'error desconocido']);
         }
     }
+
+    public function order_register_v2(Request $request){
+        $user = User::find($request->id);
+
+        // Devolver todos los pedidos pendientes, validos y que no hayan sido elimiados
+        $pendiente = DB::table('ventas')
+                        ->select('id')
+                        ->where('cliente_id', $user->cliente_id)->where('estado', 'V')
+                        ->where('deleted_at', NULL)->where('venta_estado_id', '<', 5)
+                        ->where('venta_tipo_id', 3)->count();
+        if($pendiente>1){
+            return response()->json(['error' => 1]);
+        }
+
+        // Actualizar coordenada actual
+        ClientesCoordenada::where('cliente_id', $user->cliente_id)->update(['ultima_ubicacion' => NULL]);
+        $location_user = ClientesCoordenada::firstOrNew([
+            'cliente_id' => $user->cliente_id,
+            'nombre' =>  $request->location['name'],
+            'lat' => $request->location['coor']['lat'],
+            'lon' => $request->location['coor']['lon'],
+            'descripcion' => $request->location['description']
+        ]);
+        if (!$location_user->exists) {
+            $location_user->fill([
+                'concurrencia' => 1, 'ultima_ubicacion' => 1,
+            ])->save();
+        }else{
+            $location_user->concurrencia++;
+            $location_user->ultima_ubicacion = 1;
+            $location_user->save();
+        }
+        // =============================
+
+        // Obtener sucursales habilitadas para delivery y que hayan abierto caja
+        $sucursales = (new Sucursales)->get_sucursales_activas();
+
+        // Verificar si hay al menos una sucursal activa para el servicio de delivery
+        if(count($sucursales)==0){
+            return response()->json(['error' => 2]);
+        }
+
+        // Si existe mas de una sucursal activa para delivery se obtiene la más cercana, sino se elige la primera
+        if(count($sucursales)>1){
+            $sucursal_id = (new Sucursales)->get_sucursal_cercana($sucursales, $location_user->lat, $location_user->lon);
+        }else{
+            $sucursal_id = $sucursales[0]->id;
+        }
+
+        // Emitir evento de nuevo pedido
+        try {
+            event(new pedidoNuevo($sucursal_id));
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+
+        DB::beginTransaction();
+        try {
+            $cash = 1;
+            // Crear registro de venta
+            $order = Venta::create([
+                'cliente_id' => $user->cliente_id,
+                'importe' => $request->importe,
+                'estado' => 'V',
+                'subtotal' => $request->importe,
+                'importe_base' => $request->importe,
+                'fecha' => date('Y-m-d'),
+                'venta_tipo_id' => 3,
+                'venta_estado_id' => 1,
+                'efectivo' => $cash,
+                'sucursal_id' => $sucursal_id
+            ]);
+            
+            // Registrar detalle de pedido
+            $amountCart = 0;
+            foreach ($request->cart as $product) {
+                $order_detail = VentasDetalle::create([
+                    'venta_id' => $order->id,
+                    'producto_id' => $product['id'],
+                    'precio' => $product['price'],
+                    'cantidad' => $product['count']
+                ]);
+                $amountCart += $product['subtotal'];
+                
+                // Registrar extras si existen
+                foreach ($product['extras'] as $extra) {
+                    VentasDetallesExtra::create([
+                        'venta_detalle_id' => $order_detail->id,
+                        'extra_id' => $extra['id'],
+                        'cantidad' => $extra['count'],
+                        'precio' => $extra['price']
+                    ]);
+                }
+
+            }
+            // Actualizar monto total de venta
+            Venta::where('id', $order->id)
+                ->update([
+                    'nro_venta' => $order->id,
+                    'importe' => $amountCart,
+                    'subtotal' => $amountCart,
+                    'importe_base' => $amountCart,
+                ]);
+            
+            // registrar seguimiento del pedido
+            VentasSeguimiento::create([ 'venta_id' => $order->id, 'venta_estado_id' => 1]);
+                
+            // Facturación
+            if($request->billValue){
+                $dosificacion = (new Dosificacion)->get_dosificacion();
+                // si hay dosificaciones generamos codigo de control e incrementamos el numero de factura actual
+                if($dosificacion){
+                    $venta = Venta::find($order->id);
+                    $codigo_control = (new Facturacion)->generate($dosificacion->nro_autorizacion, $dosificacion->numero_actual, setting('empresa.nit'), date('Ymd'), $order->importe_base, $dosificacion->llave_dosificacion);
+                    DB::table('ventas')->where('id', $order->id)
+                                            ->update([
+                                                        'nro_factura'       => $dosificacion->numero_actual,
+                                                        'codigo_control'    => $codigo_control,
+                                                        'nro_autorizacion'  => $dosificacion->nro_autorizacion,
+                                                        'fecha_limite'      => $dosificacion->fecha_limite,
+                                                        'autorizacion_id'   => $dosificacion->id,
+                                                        'fecha'             => date('Y-m-d')
+                                                        ]);
+                    DB::table('dosificaciones')->where('id', $dosificacion->id)->increment('numero_actual', 1);
+                }
+            }
+
+            $newOrder = Venta::where('id', $order->id)->get();
+            $order_response = $this->format_order_list_v2($newOrder)->first();
+            
+            DB::commit();
+            return response()->json(['order' => $order_response]);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['error' => 3]);
+        }
+    }
     
     public function pedidos_list($id){
         $id = intval($id);
@@ -526,6 +843,23 @@ class ApiController extends Controller
                         ->get();
                             
         return response()->json($pedidos);
+    }
+
+    public function orders_list_v2($id){
+        $user = User::find($id);
+        $orders_list = [];
+        if($user){
+            $orders = Venta::where('cliente_id', $user->cliente_id)->get();
+            $orders_list = $this->format_order_list_v2($orders);
+        }
+       
+        return response()->json(['ordersList' => $orders_list]);
+    }
+
+    public function order_details_v2($order_id){
+        $data = Venta::where('id', $order_id)->get();
+        $orders = $this->format_order_list_v2($data);
+        return $orders->first();
     }
     
     public function pedidos_detalles($id){
@@ -549,6 +883,203 @@ class ApiController extends Controller
                             
         return response()->json($seguimiento);
     }
+
+    // ================= Funciones auxiliares =================
+    public function format_products_list_v2($list){
+        $products_list = collect();
+        foreach ($list as $product) {
+            $extras = collect();
+            $similar = $this->products_group($product->codigo_grupo);
+            foreach ((new Productos)->lista_extras_productos($product->id) as $extra) {
+                $extras->push([
+                    'id' => $extra->id,
+                    'name' => $extra->nombre,
+                    'price' => $extra->precio,
+                    'ckecked' => false
+                ]);
+            }
+
+            $products_list->push([
+                'id' => $product->id,
+                'name' => $product->nombre,
+                'category' => $product->subcategoria,
+                'color' => $product->color,
+                'brand' => $product->marca,
+                'details' => $product->descripcion_small,
+                'price' => $product->precio_venta,
+                'old_price' => $product->precio_venta_antiguo,
+                'image' => $product->imagen,
+                'similar' => $similar,
+                'extras' => $extras,
+                'slug' => $product->slug,
+            ]);
+        }
+        return $products_list;
+    }
+
+    public function categories_list_v2($quantity = null){
+        return $quantity ?
+            DB::table('productos as p')
+                    ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                    ->join('categorias as c', 'c.id', 's.categoria_id')
+                    ->select('c.id', 'c.nombre as title', 'c.descripcion as subtitle', 'c.imagen as image', DB::raw('"category" as type'))
+                    ->whereIn('p.id', function($q){
+                        $q->select('producto_id')->from('ecommerce_productos')->where('deleted_at', null);
+                    })
+                    ->groupBy('c.id', 'c.nombre', 'c.descripcion', 'c.imagen')
+                    ->limit($quantity)
+                    ->get() :
+            DB::table('productos as p')
+                    ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                    ->join('categorias as c', 'c.id', 's.categoria_id')
+                    ->select('c.id', 'c.nombre as title', 'c.descripcion as subtitle', 'c.imagen as image', DB::raw('"category" as type'))
+                    ->whereIn('p.id', function($q){
+                        $q->select('producto_id')->from('ecommerce_productos')->where('deleted_at', null);
+                    })
+                    ->groupBy('c.id', 'c.nombre', 'c.descripcion', 'c.imagen')
+                    ->get();
+    }
+
+    public function category_products_list_v2($category_id, $offset, $limit){
+        $products_list = DB::table('productos as p')
+                                ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
+                                ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                                ->join('categorias as c', 'c.id', 's.categoria_id')
+                                ->join('marcas as m', 'm.id', 'p.marca_id')
+                                ->join('colores as co', 'co.id', 'p.color_id')
+                                ->select(DB::raw('p.id, p.codigo_grupo, p.nombre, s.nombre as subcategoria, m.nombre as marca, co.nombre as color, p.descripcion_small, p.precio_venta, p.precio_venta as precio_venta_antiguo, p.imagen, p.slug'))
+                                ->where('s.deleted_at', NULL)
+                                ->where('e.deleted_at', NULL)
+                                ->where('c.id', $category_id)
+                                ->groupBy('codigo_grupo')
+                                ->offset($offset)->limit($limit)->get();
+        $cont = 0;
+        foreach ($products_list as $item) {
+            // Obtener si el producto está en oferta
+            $oferta = (new Ofertas)->obtener_oferta($item->id);
+            if($oferta){
+                $precio_venta = $item->precio_venta;
+                if($oferta->tipo_descuento=='porcentaje'){
+                    $precio_venta -= ($precio_venta*($oferta->monto/100));
+                }else{
+                    $precio_venta -= $oferta->monto;
+                }
+                $products_list[$cont]->precio_venta = number_format($precio_venta, 2, ',', '');
+            }
+            $cont++;
+        }
+        return $products_list;
+    }
+
+    public function products_group($codigo_grupo){
+        $similares = DB::table('productos as p')
+                                ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                                ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
+                                ->select(DB::raw('p.id, p.nombre as name, p.descripcion_small as details, precio_venta as price, precio_venta as old_price, p.imagen as image, p.slug'))
+                                ->orderBy('precio_venta', 'ASC')
+                                ->where('e.deleted_at', NULL)
+                                ->where('p.codigo_grupo', $codigo_grupo)
+                                ->get();
+        $cont = 0;
+        foreach ($similares as $item) {
+            $oferta = (new Ofertas)->obtener_oferta($item->id);
+            if($oferta){
+                $precio_venta = $item->price;
+                if($oferta->tipo_descuento=='porcentaje'){
+                    $precio_venta -= ($precio_venta*($oferta->monto/100));
+                }else{
+                    $precio_venta -= $oferta->monto;
+                }
+                $similares[$cont]->price = number_format($precio_venta, 2, ',', '');
+            }
+            $cont++;
+        }
+        return $similares;
+    }
+
+    public function format_order_list_v2($orders){
+        if(count($orders) > 0){
+            $orders_list = collect();
+            foreach ($orders as $order) {
+                $details = '';
+                foreach ($order->items as $product) {
+                    $details .= $product->producto->nombre.', ';
+                }
+                $order_item = [
+                    'id' => $order->id,
+                    'code' => str_pad($order->nro_venta, 6, "0", STR_PAD_LEFT),
+                    'details' => substr($details, 0, -2).'.',
+                    'amount' => $order->importe_base,
+                    'status' => $order->estado == 'V' ? 1 : 0,
+                    'statusName' => $order->estadoventa->nombre,
+                    'tracking' => [],
+                    'date' => Carbon::parse($order->created_at)->diffForHumans(),
+                ];
+
+                // Obtener el seguimiento del pedido
+                $tracking = collect();
+                foreach ($order->ventaseguimientos as $track) {
+                    $track_item = [
+                        'time' => date('H:i', strtotime($track->created_at)),
+                        'title' => $track->ventaestado->nombre,
+                        'description' => date('d M, Y', strtotime($track->created_at))
+                    ];
+                    $tracking->push($track_item);
+                }
+                $order_item['tracking'] = $tracking;
+                // ----------------------------------
+
+                $orders_list->push($order_item);
+            }
+        }else{
+            $orders_list = [];
+        }
+
+        return $orders_list;
+    }
+
+    public function current_offer_v2(){
+        $dia_semana = date('N');
+        $dia_mes = date('j');
+        return DB::table('ofertas as o')
+                    ->select('o.id', 'o.nombre', 'o.descripcion', 'o.imagen', 'tipo_oferta')
+                    ->whereRaw("( (o.tipo_duracion = 'rango' and o.inicio < '".Carbon::now()."' and (o.fin is NULL or o.fin > '".Carbon::now()."')) or (o.tipo_duracion = 'semanal' and o.dia = $dia_semana) or (o.tipo_duracion = 'mensual' and o.dia = $dia_mes) )")
+                    ->where('o.estado', 1)
+                    ->where('o.deleted_at', NULL)
+                    ->first();
+    }
+
+    public function offer_products_list_v2($offer_id, $offset, $limit){
+        $products = DB::table('productos as p')
+                                ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                                ->join('marcas as m', 'm.id', 'p.marca_id')
+                                ->join('colores as c', 'c.id', 'p.color_id')
+                                ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
+                                ->join('ofertas_detalles as o', 'o.producto_id', 'p.id')
+                                ->select(DB::raw('p.id, p.codigo_grupo, p.nombre, s.nombre as subcategoria, m.nombre as marca, c.nombre as color, p.descripcion_small, p.precio_venta, p.precio_venta as precio_venta_antiguo, p.imagen, p.slug'))
+                                ->orderBy('precio_venta', 'ASC')
+                                ->where('e.deleted_at', NULL)
+                                ->where('o.oferta_id', $offer_id)
+                                ->where('o.deleted_at', NULL)
+                                ->offset($offset)->limit($limit)->get();
+        $cont = 0;
+        foreach ($products as $item) {
+            // Obtener si el producto está en oferta
+            $oferta = (new Ofertas)->obtener_oferta($item->id);
+            if($oferta){
+                $precio_venta = $item->precio_venta;
+                if($oferta->tipo_descuento=='porcentaje'){
+                    $precio_venta -= ($precio_venta*($oferta->monto/100));
+                }else{
+                    $precio_venta -= $oferta->monto;
+                }
+                $products[$cont]->precio_venta = number_format($precio_venta, 2, ',', '');
+            }
+            $cont++;
+        }
+        return $products;
+    }
+    // =========================================================
     
     // ===============API de Delivery=================
     

@@ -121,17 +121,6 @@
                         @forelse ($mas_vendidos as $item)
                           @php
                               $imagen = !empty($item->imagen) ? $item->imagen : '../img/default.png';
-
-                              // Obtener precio de oferta si existe
-                              $precio_venta = $item->precio_venta;
-                              $precio_actual = $precio_venta;
-                              if($item->monto_oferta){
-                                  if($item->tipo_descuento=='porcentaje'){
-                                      $precio_venta -= ($precio_actual*($item->monto_oferta/100));
-                                  }else{
-                                      $precio_venta -= $item->monto_oferta;
-                                  }
-                              }
                           @endphp
                           <div class="col-lg-4 col-md-12 mb-4">
                             <!-- Card -->
@@ -173,9 +162,9 @@
                                 <div class="card-footer pb-0">
                                   <div class="row mb-0">
                                       <h5 class="mb-0 pb-0 mt-1 font-weight-bold">
-                                          <span class="red-text"><strong>{{ $item->moneda }} {{ number_format($precio_venta, 2, ',', '.') }}</strong></span>
-                                          @if($item->monto_oferta)
-                                              <span class="grey-text"><small><s>{{ $item->moneda }} {{ number_format($precio_actual, 2, ',', '.') }}</s></small></span>
+                                          <span class="red-text"><strong>{{ $item->moneda }} {{ number_format($item->precio_venta, 2, ',', '.') }}</strong></span>
+                                          @if($item->precio_venta != $item->precio_venta_antiguo)
+                                              <span class="grey-text"><small><s>{{ $item->moneda }} {{ number_format($item->precio_venta_antiguo, 2, ',', '.') }}</s></small></span>
                                           @endif
                                       </h5>
                                       <span class="float-right">
@@ -208,17 +197,6 @@
                           @forelse ($populares as $item)
                           @php
                               $imagen = !empty($item->imagen) ? $item->imagen : '../img/default.png';
-
-                              // Obtener precio de oferta si existe
-                              $precio_venta = $item->precio_venta;
-                              $precio_actual = $precio_venta;
-                              if($item->monto_oferta){
-                                  if($item->tipo_descuento=='porcentaje'){
-                                      $precio_venta -= ($precio_actual*($item->monto_oferta/100));
-                                  }else{
-                                      $precio_venta -= $item->monto_oferta;
-                                  }
-                              }
                           @endphp
                           <div class="col-lg-4 col-md-12 mb-4">
                             <!-- Card -->
@@ -260,10 +238,10 @@
                                 <div class="card-footer pb-0">
                                   <div class="row mb-0">
                                     <h5 class="mb-0 pb-0 mt-1 font-weight-bold">
-                                        <span class="red-text"><strong>{{ $item->moneda }} {{ number_format($precio_venta, 2, ',', '.') }}</strong></span>
-                                        @if($item->monto_oferta)
-                                            <span class="grey-text"><small><s>{{ $item->moneda }} {{ number_format($precio_actual, 2, ',', '.') }}</s></small></span>
-                                        @endif
+                                      <span class="red-text"><strong>{{ $item->moneda }} {{ number_format($item->precio_venta, 2, ',', '.') }}</strong></span>
+                                      @if($item->precio_venta != $item->precio_venta_antiguo)
+                                        <span class="grey-text"><small><s>{{ $item->moneda }} {{ number_format($item->precio_venta_antiguo, 2, ',', '.') }}</s></small></span>
+                                      @endif
                                     </h5>
                                     <span class="float-right">
                                       <a class="" onclick="addCart({{ $item->id }})" data-toggle="tooltip" data-placement="top" title="Agregar a carrito">

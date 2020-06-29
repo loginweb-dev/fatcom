@@ -79,30 +79,9 @@ class LandingPageController extends Controller
         }
 
         // SE USA EN LA VISTA DE RESTAURANTES V1
-        // Mas vendidos
-        $mas_vendidos = $this->get_masVendidos(9);
+        $mas_vendidos = $this->get_mas_vendidos(9);
 
-        $populares = DB::table('productos as p')
-                                ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
-                                ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
-                                ->join('monedas as mn', 'mn.id', 'p.moneda_id')
-                                ->select(DB::raw('p.id, p.nombre, s.nombre as subcategoria, p.precio_venta, p.nuevo, p.imagen, p.vistas, (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos,
-                                                mn.abreviacion as moneda, p.slug, p.deleted_at as monto_oferta, p.deleted_at as tipo_descuento, p.deleted_at as fin_descuento'))
-                                ->orderBy('vistas', 'DESC')
-                                ->where('e.deleted_at', NULL)
-                                ->limit(9)->get();
-        $cont = 0;
-        foreach ($populares as $item) {
-            // Obtener si el producto está en oferta
-            $oferta = (new Ofertas)->obtener_oferta($item->id);
-            if($oferta){
-                $populares[$cont]->monto_oferta = $oferta->monto;
-                $populares[$cont]->tipo_descuento = $oferta->tipo_descuento;
-                $populares[$cont]->fin = $oferta->fin;
-            }
-            $cont++;
-        }
-        // ============
+        $populares = $this->get_populares();
 
         $oferta_princial = Oferta::all()->where('deleted_at', NULL)->first();
 
@@ -497,7 +476,7 @@ class LandingPageController extends Controller
             }
         }
 
-        $mas_vendidos = $this->get_masVendidos(9);
+        $mas_vendidos = $this->get_mas_vendidos(9);
 
         $pedido_pendiente = 0;
         if(Auth::user()){
@@ -729,8 +708,8 @@ class LandingPageController extends Controller
         if($producto){
             // Obtener si el producto está en oferta
             $oferta = (new Ofertas)->obtener_oferta($producto->id);
-            $precio_venta = $producto->precio;
             if($oferta){
+                $precio_venta = $producto->precio;
                 if($oferta->tipo_descuento=='porcentaje'){
                     $precio_venta -= ($precio_venta*($oferta->monto/100));
                 }else{
@@ -745,15 +724,46 @@ class LandingPageController extends Controller
         }
     }
 
-    public function get_masVendidos($cantidad){
+    public function get_populares($cantidad = 9){
+        $populares = DB::table('productos as p')
+                                ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                                ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
+                                ->join('monedas as mn', 'mn.id', 'p.moneda_id')
+                                ->select(DB::raw('p.id, p.nombre, s.nombre as subcategoria, p.precio_venta, p.precio_venta as precio_venta_antiguo, p.nuevo, p.imagen, p.vistas, (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos,
+                                                mn.abreviacion as moneda, p.slug, p.deleted_at as monto_oferta, p.deleted_at as tipo_descuento, p.deleted_at as fin_descuento'))
+                                ->orderBy('vistas', 'DESC')
+                                ->where('e.deleted_at', NULL)
+                                ->limit($cantidad)->get();
+        $cont = 0;
+        foreach ($populares as $item) {
+            // Obtener si el producto está en oferta
+            $oferta = (new Ofertas)->obtener_oferta($item->id);
+            if($oferta){
+                $precio_venta = $item->precio_venta;
+                if($oferta->tipo_descuento=='porcentaje'){
+                    $precio_venta -= ($precio_venta*($oferta->monto/100));
+                }else{
+                    $precio_venta -= $oferta->monto;
+                }
+                $populares[$cont]->precio_venta = number_format($precio_venta, 2, '.', '');
+            }
+            $cont++;
+        }
+        return $populares;
+    }
+
+    public function get_mas_vendidos($cantidad){
         $mas_vendidos = DB::table('productos as p')
                                 ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                                ->join('marcas as m', 'm.id', 'p.marca_id')
+                                ->join('colores as c', 'c.id', 'p.color_id')
                                 ->join('ventas_detalles as vd', 'vd.producto_id', 'p.id')
                                 ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
                                 ->join('monedas as mn', 'mn.id', 'p.moneda_id')
-                                ->select(DB::raw('p.id, p.nombre, s.nombre as subcategoria, precio_venta, nuevo, imagen, count(vd.id) as cantidad, (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos,
+                                ->select(DB::raw('p.id, p.codigo_grupo, p.nombre, p.descripcion_small, s.nombre as subcategoria, p.precio_venta, p.precio_venta as precio_venta_antiguo, p.nuevo, p.imagen, count(vd.id) as cantidad,
+                                                    (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos, m.nombre as marca, c.nombre as color,
                                                     mn.abreviacion as moneda, p.slug, p.deleted_at as monto_oferta, p.deleted_at as tipo_descuento, p.deleted_at as fin_descuento'))
-                                ->groupBy('p.id', 'p.nombre', 'subcategoria', 'precio_venta', 'nuevo', 'imagen', 'puntos', 'mn.abreviacion', 'slug', 'p.deleted_at')
+                                ->groupBy('p.id', 'p.codigo_grupo', 'p.nombre', 'p.descripcion_small', 'subcategoria', 'precio_venta', 'precio_venta_antiguo', 'nuevo', 'imagen', 'puntos', 'mn.abreviacion', 'slug', 'p.deleted_at')
                                 ->orderBy('cantidad', 'DESC')
                                 ->where('e.deleted_at', NULL)
                                 ->limit($cantidad)->get();
@@ -762,9 +772,13 @@ class LandingPageController extends Controller
             // Obtener si el producto está en oferta
             $oferta = (new Ofertas)->obtener_oferta($item->id);
             if($oferta){
-                $mas_vendidos[$cont]->monto_oferta = $oferta->monto;
-                $mas_vendidos[$cont]->tipo_descuento = $oferta->tipo_descuento;
-                $mas_vendidos[$cont]->fin = $oferta->fin;
+                $precio_venta = $item->precio_venta;
+                if($oferta->tipo_descuento=='porcentaje'){
+                    $precio_venta -= ($precio_venta*($oferta->monto/100));
+                }else{
+                    $precio_venta -= $oferta->monto;
+                }
+                $mas_vendidos[$cont]->precio_venta = number_format($precio_venta, 2, '.', '');
             }
             $cont++;
         }

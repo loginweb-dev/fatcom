@@ -39,36 +39,36 @@ Para la instalación de FATCOM se deben seguir algunos pasos que se describen a 
 
 - *Clonar el proyecto desde le repositorio*
 ```bash
-    git clone https://github.com/loginweb-dev/fatcom.git && cd fatcom
+git clone https://github.com/loginweb-dev/fatcom.git && cd fatcom
 ```
 - *Crear la base de datos "fatcom"*
 - *Copiar el archivo .env y editar los datos de usuario del gestos de base de datos*
 ```bash
-    cp .env.example .env && nano .env
+cp .env.example .env && nano .env
 ```
 - *Instalar dependencias de composer y npm*
 ```bash
-    composer install && npm install && npm run prod
+composer install && npm install && npm run prod
 ```
 Nota: Antes de instalar las dependencias debes asegurarte que tu entorno cumple con los requerimientos necesarios en **[Requerimientos Laravel](https://laravel.com/docs/7.x#server-requirements)**.
 ```bash
-    sudo apt install composer nodejs npm git
-    sudo apt-get install php -y
-    sudo apt-get install php7.2-mbstring
-    sudo apt-get install php7.2-curl
-    sudo apt-get install php-xml
-    sudo apt-get install php7.2-gd
-    sudo apt-get install php7.2-zip
-    sudo apt-get install -y php-pdo-mysql
+sudo apt install composer nodejs npm git
+sudo apt-get install php -y
+sudo apt-get install php7.2-mbstring
+sudo apt-get install php7.2-curl
+sudo apt-get install php-xml
+sudo apt-get install php7.2-gd
+sudo apt-get install php7.2-zip
+sudo apt-get install -y php-pdo-mysql
 ```
 
 - *Instalar FATCOM*
 ```bash
-    php artisan fatcom:install
+php artisan fatcom:install
 ```
 - *Luego de instalar todas las dependias se recomienda ejecutar el siguiente comando*
 ```bash
-    composer dump-autoload
+composer dump-autoload
 ```
 
 ## Uso
@@ -77,11 +77,11 @@ Luego de realizar la instalación, para utilizar el sistema simplemente se debe 
 
 - *Iniciar el servidor HTTP*
 ```bash
-    php artisan serve
+php artisan serve
 ```
 - *Iniciar el servidor websockets*
 ```bash
-    php artisan websockets:serve
+php artisan websockets:serve
 ```
 - *Una vez iniciado los servicios ingresa a http://127.0.0.1:8000/admin e iniciar sesión con los siguientes datos:*
 ```bash
@@ -91,4 +91,4 @@ Password: password
 
 ## Adicional
 
-- **Para que funcione el login desde Facebook y Google debe agregar la clave publica y privada en la parte inferior del archivo .env**
+- *Para que funcione el login desde Facebook y Google debe agregar la clave publica y privada en la parte inferior del archivo .env*

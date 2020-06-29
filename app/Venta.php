@@ -20,4 +20,8 @@ class Venta extends Model
     public function estadoventa(){
         return $this->belongsTo(VentasEstado::class,'venta_estado_id');
     }
+
+    public function ventaseguimientos(){
+        return $this->hasMany(VentasSeguimiento::class,'venta_id');
+    }
 }
