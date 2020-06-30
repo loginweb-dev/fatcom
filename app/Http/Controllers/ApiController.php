@@ -694,62 +694,66 @@ class ApiController extends Controller
     }
 
     public function order_register_v2(Request $request){
-        $user = User::find($request->id);
-
-        // Devolver todos los pedidos pendientes, validos y que no hayan sido elimiados
-        $pendiente = DB::table('ventas')
-                        ->select('id')
-                        ->where('cliente_id', $user->cliente_id)->where('estado', 'V')
-                        ->where('deleted_at', NULL)->where('venta_estado_id', '<', 5)
-                        ->where('venta_tipo_id', 3)->count();
-        if($pendiente>1){
-            return response()->json(['error' => 1]);
-        }
-
-        // Actualizar coordenada actual
-        ClientesCoordenada::where('cliente_id', $user->cliente_id)->update(['ultima_ubicacion' => NULL]);
-        $location_user = ClientesCoordenada::firstOrNew([
-            'cliente_id' => $user->cliente_id,
-            'nombre' =>  $request->location['name'],
-            'lat' => $request->location['coor']['lat'],
-            'lon' => $request->location['coor']['lon'],
-            'descripcion' => $request->location['description']
-        ]);
-        if (!$location_user->exists) {
-            $location_user->fill([
-                'concurrencia' => 1, 'ultima_ubicacion' => 1,
-            ])->save();
-        }else{
-            $location_user->concurrencia++;
-            $location_user->ultima_ubicacion = 1;
-            $location_user->save();
-        }
-        // =============================
-
-        // Obtener sucursales habilitadas para delivery y que hayan abierto caja
-        $sucursales = (new Sucursales)->get_sucursales_activas();
-
-        // Verificar si hay al menos una sucursal activa para el servicio de delivery
-        if(count($sucursales)==0){
-            return response()->json(['error' => 2]);
-        }
-
-        // Si existe mas de una sucursal activa para delivery se obtiene la más cercana, sino se elige la primera
-        if(count($sucursales)>1){
-            $sucursal_id = (new Sucursales)->get_sucursal_cercana($sucursales, $location_user->lat, $location_user->lon);
-        }else{
-            $sucursal_id = $sucursales[0]->id;
-        }
-
-        // Emitir evento de nuevo pedido
-        try {
-            event(new pedidoNuevo($sucursal_id));
-        } catch (\Throwable $th) {
-            //throw $th;
-        }
-
         DB::beginTransaction();
         try {
+            $user = User::where('id', $request->id)->first();
+            
+            // Devolver todos los pedidos pendientes, validos y que no hayan sido elimiados
+            $pendiente = DB::table('ventas')
+                            ->select('id')
+                            ->where('cliente_id', $user->cliente_id)->where('estado', 'V')
+                            ->where('deleted_at', NULL)->where('venta_estado_id', '<', 5)
+                            ->where('venta_tipo_id', 3)->count();
+            if($pendiente>1){
+                return response()->json(['error' => 'Has llegado al límite de pedidos pendientes que puedes tener.']);
+            }
+
+            if(count($request->cart)==0){
+                return response()->json(["error" => 'Su carrito de compra está vacío.']);
+            }
+
+            // Actualizar coordenada actual
+            ClientesCoordenada::where('cliente_id', $user->cliente_id)->update(['ultima_ubicacion' => NULL]);
+            $location_user = ClientesCoordenada::firstOrNew([
+                'cliente_id' => $user->cliente_id,
+                'nombre' =>  $request->location['name'],
+                'lat' => $request->location['coor']['lat'],
+                'lon' => $request->location['coor']['lon'],
+                'descripcion' => $request->location['description']
+            ]);
+            if (!$location_user->exists) {
+                $location_user->fill([
+                    'concurrencia' => 1, 'ultima_ubicacion' => 1,
+                ])->save();
+            }else{
+                $location_user->concurrencia++;
+                $location_user->ultima_ubicacion = 1;
+                $location_user->save();
+            }
+            // =============================
+
+            // Obtener sucursales habilitadas para delivery y que hayan abierto caja
+            $sucursales = (new Sucursales)->get_sucursales_activas();
+
+            // Verificar si hay al menos una sucursal activa para el servicio de delivery
+            if(count($sucursales)==0){
+                return response()->json(['error' => 'Nuestro servicio de delivery está fuera de servicio en esté momento, se te notificará cuando esté activo.']);
+            }
+
+            // Si existe mas de una sucursal activa para delivery se obtiene la más cercana, sino se elige la primera
+            if(count($sucursales)>1){
+                $sucursal_id = (new Sucursales)->get_sucursal_cercana($sucursales, $location_user->lat, $location_user->lon);
+            }else{
+                $sucursal_id = $sucursales[0]->id;
+            }
+
+            // Emitir evento de nuevo pedido
+            try {
+                event(new pedidoNuevo($sucursal_id));
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
+
             $cash = 1;
             // Crear registro de venta
             $order = Venta::create([
@@ -826,7 +830,7 @@ class ApiController extends Controller
             return response()->json(['order' => $order_response]);
         } catch (\Exception $e) {
             DB::rollback();
-            return response()->json(['error' => 3]);
+            return response()->json(['error' => 'Ocurrió un error inesperado, por favor intenta nuevamente']);
         }
     }
     
