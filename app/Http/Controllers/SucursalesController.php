@@ -135,7 +135,12 @@ class SucursalesController extends Controller
 
     // Obtener sucursales habilitadas para delivery y que hayan habierto caja
     public function get_sucursales_activas(){
-        return DB::table('sucursales as s')
+        // Verificar si se puede hacer pedidos fuera de horario de atención
+        return setting('delivery.order_out_of_time') ?
+                DB::table('sucursales as s')
+                    ->select('s.*')
+                    ->where('s.deleted_at', NULL)->where('s.delivery', 1)->get() :
+                DB::table('sucursales as s')
                     ->join('ie_cajas as c', 'c.sucursal_id', 's.id')
                     ->select('s.*')
                     ->where('c.abierta', 1)->where('s.deleted_at', NULL)

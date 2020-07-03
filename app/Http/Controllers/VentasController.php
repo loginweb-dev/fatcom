@@ -764,13 +764,18 @@ class VentasController extends Controller
                 //throw $th;
             }
 
+            // Obtener token del dispositívo del cliente del pedido
+            $user = DB::table('ventas as v')
+                            ->join('users as u', 'u.cliente_id', 'v.cliente_id')
+                            ->select('u.firebase_token')
+                            ->where('v.id', $data->id)->first();
+            $token = $user ? $user->firebase_token : '';
+
             DB::commit();
-            return response()->json(['success' => 1]);
-            // return redirect()->route('ventas_index')->with(['message' => 'Pedido asignado exitosamente.', 'alert-type' => 'success']);
+            return response()->json(['success' => 1, 'token' => $token]);
         } catch (\Exception $e) {
             DB::rollback();
             return response()->json(['error' => 'Ocurrio un problema al asignar el pedido.']);
-            // return redirect()->route('ventas_index')->with(['message' => 'Ocurrio un problema al asignar el pedido.', 'alert-type' => 'error']);
         }
 
     }

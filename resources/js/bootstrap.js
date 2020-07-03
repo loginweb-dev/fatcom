@@ -52,11 +52,8 @@ window.Echo = new Echo({
     key: process.env.MIX_PUSHER_APP_KEY,
     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
     wsHost: window.location.hostname,
-    // Agregar el puerto de la variable LARAVEL_WEBSOCKETS_PORT
-    wsPort: 6001,
-    wssPort: 6001,
-    enabledTransports: ['ws', 'wss'],
-    // encrypted: true, // Descomentar cuando se use SSL
-    encrypted: false,
-    disableStats: false
+    wsPort: 6001, // Número de pueto
+    // wssPort: 6001, // Número de pueto y descomentar para correr en entorno de producción
+    disableStats: true,
+    encrypted : false, //true para correr en entorno de producción
 });

@@ -68,6 +68,7 @@ class ApiController extends Controller
             $nit = $request->nit;
             $avatar = $request->avatar ?? 'users/default.png';
             $type = $request->type;
+            $tokenDevice = $request->tokenDevice;
 
             $user = User::where('email', $email)->with('cliente')->first();
             
@@ -101,6 +102,13 @@ class ApiController extends Controller
                     User::where('id', $user->id)->update(['cliente_id' => $cliente->id]);
                     $user = User::where('email', $email)->with('cliente')->first();
                 }
+            }
+
+            // Actualizar token de firebase
+            if($request->tokenDevice){
+                $user_token = User::find($user->id);
+                $user_token->firebase_token = $request->tokenDevice;
+                $user_token->save();
             }
 
             // Definir formato de respuesta
@@ -433,6 +441,21 @@ class ApiController extends Controller
                             ->where('e.deleted_at', NULL)
                             ->whereRaw("(p.nombre like '%$key%' or s.nombre like '%$key%' or m.nombre like '%$key%' or c.nombre like '%$key%')")
                             ->offset($offset)->limit($limit)->get();
+        $cont = 0;
+        foreach ($products_list as $item) {
+            // Obtener si el producto está en oferta
+            $oferta = (new Ofertas)->obtener_oferta($item->id);
+            if($oferta){
+                $precio_venta = $item->precio_venta;
+                if($oferta->tipo_descuento=='porcentaje'){
+                    $precio_venta -= ($precio_venta*($oferta->monto/100));
+                }else{
+                    $precio_venta -= $oferta->monto;
+                }
+                $products_list[$cont]->precio_venta = number_format($precio_venta, 2, ',', '');
+            }
+            $cont++;
+        }
         return response()->json(['productsList' => $this->format_products_list_v2($products_list)]);
     }
 
@@ -747,13 +770,6 @@ class ApiController extends Controller
                 $sucursal_id = $sucursales[0]->id;
             }
 
-            // Emitir evento de nuevo pedido
-            try {
-                event(new pedidoNuevo($sucursal_id));
-            } catch (\Throwable $th) {
-                //throw $th;
-            }
-
             $cash = 1;
             // Crear registro de venta
             $order = Venta::create([
@@ -778,7 +794,8 @@ class ApiController extends Controller
                     'precio' => $product['price'],
                     'cantidad' => $product['count']
                 ]);
-                $amountCart += $product['subtotal'];
+
+                $amountCart += str_replace(',', '.', $product['subtotal']);
                 
                 // Registrar extras si existen
                 foreach ($product['extras'] as $extra) {
@@ -789,8 +806,8 @@ class ApiController extends Controller
                         'precio' => $extra['price']
                     ]);
                 }
-
             }
+
             // Actualizar monto total de venta
             Venta::where('id', $order->id)
                 ->update([
@@ -825,12 +842,30 @@ class ApiController extends Controller
 
             $newOrder = Venta::where('id', $order->id)->get();
             $order_response = $this->format_order_list_v2($newOrder)->first();
+
+            // Si se puede realizar pedidos fuera de horario de atención,
+            // verificar que la sucursal donde se hizo el pedido esté abierta
+            $sucursal_activa = DB::table('sucursales as s')
+                                    ->join('ie_cajas as c', 'c.sucursal_id', 's.id')
+                                    ->select('s.*')
+                                    ->where('c.abierta', 1)->where('s.deleted_at', NULL)
+                                    ->where('s.id', $sucursal_id)->where('s.delivery', 1)->first();
+            $abierta = $sucursal_activa ? true : false;
+            $mensaje = $abierta ? '' : 'Su pedido será enviado dentro del horario de atención. '.setting('delivery.message_company_closed');
             
             DB::commit();
-            return response()->json(['order' => $order_response]);
+            
+            // Emitir evento de nuevo pedido
+            try {
+                event(new pedidoNuevo($sucursal_id));
+            } catch (\Throwable $th) {
+                //throw $th;
+            }
+            return response()->json(['order' => $order_response, 'sucursal' => ['open' => $abierta, 'message' => $mensaje ]]);
+            // return response()->json(['order' => $order_response]);
         } catch (\Exception $e) {
             DB::rollback();
-            return response()->json(['error' => 'Ocurrió un error inesperado, por favor intenta nuevamente']);
+            return response()->json(['error' => 'Ocurrió un error inesperado, por favor intenta nuevamente', 'res' => $e]);
         }
     }
     
@@ -853,7 +888,7 @@ class ApiController extends Controller
         $user = User::find($id);
         $orders_list = [];
         if($user){
-            $orders = Venta::where('cliente_id', $user->cliente_id)->get();
+            $orders = Venta::where('cliente_id', $user->cliente_id)->orderBy('id', 'DESC')->limit(10)->get();
             $orders_list = $this->format_order_list_v2($orders);
         }
        
@@ -888,6 +923,21 @@ class ApiController extends Controller
         return response()->json($seguimiento);
     }
 
+    public function get_params_v2($param){
+        switch ($param) {
+            case 'sucursal_active':
+                $sucursales = (new Sucursales)->get_sucursales_activas();
+                $abierta = count($sucursales) > 0 ? true: false;
+                $mensaje = $abierta ? '' : 'No puede realizar pedidos en este momento. '.setting('delivery.message_company_closed');
+                return response()->json(['open' => $abierta, 'message' => $mensaje ]);
+                break;
+            
+            default:
+                return response()->json(['error' => 'Error desconocido.']);
+                break;
+        }
+    }
+
     // ================= Funciones auxiliares =================
     public function format_products_list_v2($list){
         $products_list = collect();
@@ -911,7 +961,7 @@ class ApiController extends Controller
                 'brand' => $product->marca,
                 'details' => $product->descripcion_small,
                 'price' => $product->precio_venta,
-                'old_price' => $product->precio_venta_antiguo,
+                'oldPrice' => $product->precio_venta_antiguo,
                 'image' => $product->imagen,
                 'similar' => $similar,
                 'extras' => $extras,
@@ -979,7 +1029,7 @@ class ApiController extends Controller
         $similares = DB::table('productos as p')
                                 ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
                                 ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
-                                ->select(DB::raw('p.id, p.nombre as name, p.descripcion_small as details, precio_venta as price, precio_venta as old_price, p.imagen as image, p.slug'))
+                                ->select(DB::raw('p.id, p.nombre as name, p.descripcion_small as details, precio_venta as price, precio_venta as oldPrice, p.imagen as image, p.slug'))
                                 ->orderBy('precio_venta', 'ASC')
                                 ->where('e.deleted_at', NULL)
                                 ->where('p.codigo_grupo', $codigo_grupo)

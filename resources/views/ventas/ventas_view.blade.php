@@ -186,9 +186,9 @@
     @stop
 
     @section('javascript')
-        <script src="{{url('ecommerce_public/plugins/fancybox/fancybox.min.js')}}" type="text/javascript"></script>
+        <script src="{{ url('ecommerce_public/plugins/fancybox/fancybox.min.js') }}" type="text/javascript"></script>
         <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
-        <script src="{{url('js/ubicacion_cliente.js')}}" type="text/javascript"></script>
+        <script src="{{ url('js/ubicacion_cliente.js') }}" type="text/javascript"></script>
         <script>
             $(document).ready(function(){
                 

@@ -76,6 +76,7 @@ Route::group(['prefix' => 'v2'], function () {
     Route::post('/order_register', 'ApiController@order_register_v2');
     Route::get('/orders_list/{user_id}', 'ApiController@orders_list_v2');
     Route::get('/order_details/{order_id}', 'ApiController@order_details_v2');
+    Route::get('/get_params/{param}', 'ApiController@get_params_v2');
 });
 // ===============================================================================
 

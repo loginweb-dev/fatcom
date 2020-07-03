@@ -437,6 +437,28 @@ class FatcomSettingsTableSeeder extends Seeder
                 'order' => 5,
                 'group' => 'Admin',
             ),
+            36 => 
+            array (
+                'id' => 37,
+                'key' => 'delivery.order_out_of_time',
+                'display_name' => 'Pedidos fuera de horario',
+                'value' => '',
+                'details' => NULL,
+                'type' => 'checkbox',
+                'order' => 26,
+                'group' => 'Delivery',
+            ),
+            37 => 
+            array (
+                'id' => 38,
+                'key' => 'delivery.message_company_closed',
+                'display_name' => 'Mensaje de tienda cerrada',
+                'value' => '',
+                'details' => NULL,
+                'type' => 'text_area',
+                'order' => 27,
+                'group' => 'Delivery',
+            ),
         ));
         
         

@@ -2593,22 +2593,6 @@ class FatcomDataRowsTableSeeder extends Seeder
                 'details' => '{"model":"App\\\\VentasEstado","table":"ventas_estados","type":"belongsTo","column":"venta_estado_id","key":"id","label":"nombre","pivot_table":"campanias","pivot":"0","taggable":"0"}',
                 'order' => 5,
             ),
-            161 => 
-            array (
-                'id' => 221,
-                'data_type_id' => 27,
-                'field' => 'cantidad',
-                'type' => 'number',
-                'display_name' => 'Cantidad',
-                'required' => 0,
-                'browse' => 1,
-                'read' => 1,
-                'edit' => 1,
-                'add' => 1,
-                'delete' => 1,
-                'details' => '{"default":0,"validation":{"rule":"required|max:5","messages":{"required":"El campo :attribute es requerido.","max":"El campo :attribute debe tener un maximo de :max caracteres."}}}',
-                'order' => 4,
-            ),
             162 => 
             array (
                 'id' => 232,
@@ -3248,6 +3232,22 @@ class FatcomDataRowsTableSeeder extends Seeder
                 'delete' => 0,
                 'details' => '{}',
                 'order' => 3,
+            ),
+            202 => 
+            array (
+                'id' => 285,
+                'data_type_id' => 1,
+                'field' => 'firebase_token',
+                'type' => 'text',
+                'display_name' => 'Firebase Token',
+                'required' => 0,
+                'browse' => 0,
+                'read' => 0,
+                'edit' => 0,
+                'add' => 0,
+                'delete' => 0,
+                'details' => '{}',
+                'order' => 11,
             ),
         ));
         

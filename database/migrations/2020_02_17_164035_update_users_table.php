@@ -18,6 +18,7 @@ class UpdateUsersTable extends Migration
             $table->integer('localidad_id')->nullable()->after('role_id');
 			$table->integer('cliente_id')->nullable()->after('role_id');
             $table->string('tipo_login')->nullable()->after('settings');
+            $table->string('firebase_token')->nullable()->after('remember_token');
 		});
     }
 

@@ -163,6 +163,7 @@
         </style>
     @stop
     @section('javascript')
+        <script src="{{ url('js/notification_app.js') }}" type="text/javascript"></script>
         <script>
             // Pedir autorización para mostrar notificaciones
             Notification.requestPermission();
@@ -252,6 +253,17 @@
                     if(data.success){
                         toastr.success('Pedido asignado exitosamente.', 'Bien hecho!');
                         get_data(sucursal_actual, search, page_actual);
+
+                        // Enviar notificación móvil
+                        if(data.token){
+                            let url = "{{ env('FIREBASE_CLOUD_MESSAGING_URL') }}";
+                            let FCMToken = "{{ env('FIREBASE_CLOUD_MESSAGING_TOKEN') }}";
+                            let notification = {
+                                title: "Pedido listo!",
+                                message: "Tu pedido está listo y en camino hacia tu ubicación.",
+                            }
+                            sendNotificationApp(url, FCMToken, data.token, notification);
+                        }
                     }else{
                         toastr.error(data.error, 'Error!');
                     }
