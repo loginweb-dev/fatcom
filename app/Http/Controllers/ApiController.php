@@ -1028,8 +1028,10 @@ class ApiController extends Controller
     public function products_group($codigo_grupo){
         $similares = DB::table('productos as p')
                                 ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                                ->join('marcas as m', 'm.id', 'p.marca_id')
+                                ->join('colores as c', 'c.id', 'p.color_id')
                                 ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
-                                ->select(DB::raw('p.id, p.nombre as name, p.descripcion_small as details, precio_venta as price, precio_venta as oldPrice, p.imagen as image, p.slug'))
+                                ->select(DB::raw('p.id, p.nombre as name, s.nombre as category, m.nombre as brand, c.nombre as color, p.descripcion_small as details, precio_venta as price, precio_venta as oldPrice, p.imagen as image, p.slug'))
                                 ->orderBy('precio_venta', 'ASC')
                                 ->where('e.deleted_at', NULL)
                                 ->where('p.codigo_grupo', $codigo_grupo)

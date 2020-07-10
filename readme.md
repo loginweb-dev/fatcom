@@ -71,6 +71,11 @@ Nota: Antes de instalar las dependencias debes asegurarte que tu entorno cumple 
     composer dump-autoload
 ```
 
+- *Dar permiso a los direccitorios públicos*
+```bash
+    chmod -R 777 storage && chmod -R 777 bootstrap && chmod -R 777 public
+```
+
 ### Configuración en entorno de producción
 #### Configuración de Laravel-websockets
 - *Habilitamos el puerto que escuchará la aplicación web en caso de usar linux.*
@@ -84,25 +89,13 @@ Nota: Antes de instalar las dependencias debes asegurarte que tu entorno cumple 
 ```bash
     sudo npm install pm2 -g
 ```
-- *Crear el archivo de ejecución en la raiz del proyecto*
+- *Hacer una copia del archivo de ejecución de tareas y en su contenido editar el nombre de la tarea y el puerto.*
 ```bash
-    sudo nano fatcom-worker.yml
-```
-- *Agregar el siguiente contenido*
-```bash
-    apps:
-    - name: fatcom-worker
-        script: artisan
-        exec_mode: fork
-        interpreter: php
-        instances: 1
-        args:
-        - websockets:serve
-        - --port=6002
+    sudo cp worker.example.yml worker.yml && nano worker.yml
 ```
 - *Iniciar el monitor con el siguiente comando desde la raiz del proyecto*
 ```bash
-    pm2 start fatcom-worker.yml
+    pm2 start worker.yml
 ```
 
 ## Uso

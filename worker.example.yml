@@ -1,5 +1,5 @@
 apps:
-  - name: name_rutine-worker
+  - name: project_name-worker
     script: artisan
     exec_mode: fork
     interpreter: php
