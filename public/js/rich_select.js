@@ -90,3 +90,20 @@ function formatResultLandingPage(option){
                 </a>
             </span>`);
 }
+
+function formatResultCustomers(option){
+    // Si está cargando mostrar texto de carga
+    if (option.loading) {
+        return '<span class="text-center"><i class="fas fa-spinner fa-spin"></i> Buscando...</span>';
+    }
+    
+    // Mostrar las opciones encontradas
+    return $(`<span>
+                    <div class="row">
+                        <div class="col-sm-10" style="margin:0px">
+                            <b class="text-dark">${option.razon_social}</b><br>
+                            ${option.nit ? option.nit : 'Sin NIT'}
+                        </div>
+                    </div>
+            </span>`);
+}

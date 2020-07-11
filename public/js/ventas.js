@@ -1,38 +1,44 @@
-// Obtener nit de cliente
-$('#select-cliente_id').change(function(){
-    let razon_social = $(this).val();
-    $.get(`../clientes/datos/id/${razon_social}`, function(data){
-        $('#input-nit').val(data.nit);
+// Inicializar buscador de clientes
+$('#select-cliente_id').select2({
+    placeholder: '<i class="fa fa-search"></i> Buscar cliente...',
+    escapeMarkup : function(markup) {
+        return markup;
+    },
+    language: {
+        inputTooShort: function (data) {
+            return `Por favor ingrese ${data.minimum - data.input.length} o más caracteres`;
+        },
+        noResults: function () {
+            return `<i class="far fa-frown"></i> No hay resultados encontrados`;
+        }
+    },
+    quietMillis: 250,
+    minimumInputLength: 4,
+    ajax: {
+        url: function (params) {
+            return `../clientes/datos/search/${escape(params.term)}`;
+        },        
+        processResults: function (data) {
+            return {
+                results: data
+            };
+        },
+        cache: true
+    },
+    templateResult: formatResultCustomers,
+    templateSelection: (opt) => opt.razon_social
+}).change(function(){
+    var id = $(this).val();
+    $.get(`../clientes/datos/id/${id}`, function(data){
+        $('#input-nit').val(data.nit)
+        data.nit ? $('#check-factura').prop('checked', true).change() : $('#check-factura').prop('checked', false).change();
     });
-
-    // Si se elige un cliente se debe desbloquear el modal del mapa
-    if (razon_social == 1) {
-        // $('#check-domicilio').attr('disabled', true);
-    }else{
-        $('#check-domicilio').removeAttr('disabled');
-    }
 });
 
-function getClienteNIT(e) {
-    tecla = (document.all) ? e.keyCode :e.which;
-    if(tecla==13){
-        var nit = $('#input-nit').val();
-        $.get(`../clientes/datos/nit/${nit}`, function(data){
-            if(data){
-                $('#select-cliente_id').select2('destroy')
-                $('#select-cliente_id').val(data.id);
-                inicializar_select2('cliente_id');
-                toastr.info('Cliente encontrado', 'Información');
-            }else{
-                $('#input-modal_nit').val(nit);
-                $('#input-modal_razon_social').val('');
-                $('#modal-nuevo_cliente').modal('show');
-                setTimeout(()=>$('#input-modal_razon_social').focus(), 700);
-            }
-        });
-        return false;
-    }
-}
+$('#input-nit').keyup(function(){
+    let nit = $(this).val();
+    nit ? $('#check-factura').prop('checked', true).change() : $('#check-factura').prop('checked', false).change();
+});
 
 // eliminar fila
 function borrarTr(num){

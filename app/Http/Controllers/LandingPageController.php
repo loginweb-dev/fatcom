@@ -113,6 +113,7 @@ class LandingPageController extends Controller
                     ->select(DB::raw('p.id, p.nombre, p.precio_venta, p.nuevo, p.imagen, p.vistas, (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos, p.slug'))
                     ->orderBy('vistas', 'DESC')
                     ->where('e.deleted_at', NULL)
+                    ->where('e.activo', 1)
                     ->paginate($cantidad);
         return view('ecommerce.'.setting('admin.ecommerce').'lista', compact('productos'));
     }
@@ -167,6 +168,7 @@ class LandingPageController extends Controller
                             ->where('s.deleted_at', NULL)
                             ->where('m.deleted_at', NULL)
                             ->where('e.deleted_at', NULL)
+                            ->where('e.activo', 1)
                             ->groupBy('p.id', 'p.nombre', 'p.precio_venta', 'p.imagen', 'p.modelo', 'p.garantia', 'p.descripcion_small', 'p.vistas', 'p.slug', 's.nombre', 'm.nombre', 'mn.abreviacion', 'u.nombre', 'co.nombre', 'g.nombre', 'p.codigo_grupo', 'p.deleted_at')
                             ->paginate($cantidad);
         $cont = 0;
@@ -249,6 +251,7 @@ class LandingPageController extends Controller
                             ->where('s.deleted_at', NULL)
                             ->where('m.deleted_at', NULL)
                             ->where('e.deleted_at', NULL)
+                            ->where('e.activo', 1)
                             ->where('p.subcategoria_id', $id)
                             ->paginate(5);
         $precios = [];
@@ -733,6 +736,7 @@ class LandingPageController extends Controller
                                                 mn.abreviacion as moneda, p.slug, p.deleted_at as monto_oferta, p.deleted_at as tipo_descuento, p.deleted_at as fin_descuento'))
                                 ->orderBy('vistas', 'DESC')
                                 ->where('e.deleted_at', NULL)
+                                ->where('e.activo', 1)
                                 ->limit($cantidad)->get();
         $cont = 0;
         foreach ($populares as $item) {
@@ -766,6 +770,7 @@ class LandingPageController extends Controller
                                 ->groupBy('p.id', 'p.codigo_grupo', 'p.nombre', 'p.descripcion_small', 'subcategoria', 'precio_venta', 'precio_venta_antiguo', 'nuevo', 'imagen', 'puntos', 'mn.abreviacion', 'slug', 'p.deleted_at')
                                 ->orderBy('cantidad', 'DESC')
                                 ->where('e.deleted_at', NULL)
+                                ->where('e.activo', 1)
                                 ->limit($cantidad)->get();
         $cont = 0;
         foreach ($mas_vendidos as $item) {

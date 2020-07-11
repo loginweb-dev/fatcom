@@ -438,7 +438,7 @@ class ApiController extends Controller
                             ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
                             ->select(DB::raw('p.id, p.codigo_grupo, p.nombre, s.nombre as subcategoria, m.nombre as marca, c.nombre as color, p.descripcion_small, p.precio_venta, p.precio_venta as precio_venta_antiguo, p.imagen, p.slug'))
                             ->orderBy('precio_venta', 'ASC')
-                            ->where('e.deleted_at', NULL)
+                            ->where('e.deleted_at', NULL)->where('e.activo', 1)
                             ->whereRaw("(p.nombre like '%$key%' or s.nombre like '%$key%' or m.nombre like '%$key%' or c.nombre like '%$key%')")
                             ->offset($offset)->limit($limit)->get();
         $cont = 0;
@@ -506,7 +506,7 @@ class ApiController extends Controller
                                             (select COUNT(pl.id) from productos_likes as pl where pl.producto_id = p.id and pl.user_id = $user_id and pl.deleted_at is null) as like_user,
                                             p.deleted_at as monto_oferta, p.deleted_at as tipo_descuento, p.deleted_at as fin_descuento"))
                             ->where('s.deleted_at', NULL)
-                            ->where('e.deleted_at', NULL)
+                            ->where('e.deleted_at', NULL)->where('e.activo', 1)
                             ->whereRaw($query_filter)
                             ->groupBy('codigo_grupo')
                             ->paginate(50) :
@@ -519,7 +519,7 @@ class ApiController extends Controller
                                             (select COUNT(pl.id) from productos_likes as pl where pl.producto_id = p.id and pl.user_id = $user_id and pl.deleted_at is null) as like_user,
                                             p.deleted_at as monto_oferta, p.deleted_at as tipo_descuento, p.deleted_at as fin_descuento"))
                             ->where('s.deleted_at', NULL)
-                            ->where('e.deleted_at', NULL)
+                            ->where('e.deleted_at', NULL)->where('e.activo', 1)
                             ->whereRaw($query_filter)
                             ->paginate(50);
         $cont = 0;
@@ -555,7 +555,7 @@ class ApiController extends Controller
                                             (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos,
                                             p.deleted_at as monto_oferta, p.deleted_at as tipo_descuento, p.deleted_at as fin_descuento'))
                             ->where('s.deleted_at', NULL)
-                            ->where('e.deleted_at', NULL)
+                            ->where('e.deleted_at', NULL)->where('e.activo', 1)
                             ->where('p.id', $id)
                             ->groupBy('p.id', 'p.nombre', 'p.precio_venta', 'p.imagen', 'p.descripcion_small', 'p.vistas', 's.nombre', 'p.codigo_grupo', 'p.deleted_at')
                             ->first();
@@ -978,7 +978,7 @@ class ApiController extends Controller
                     ->join('categorias as c', 'c.id', 's.categoria_id')
                     ->select('c.id', 'c.nombre as title', 'c.descripcion as subtitle', 'c.imagen as image', DB::raw('"category" as type'))
                     ->whereIn('p.id', function($q){
-                        $q->select('producto_id')->from('ecommerce_productos')->where('deleted_at', null);
+                        $q->select('producto_id')->from('ecommerce_productos')->where('deleted_at', null)->where('activo', 1);
                     })
                     ->groupBy('c.id', 'c.nombre', 'c.descripcion', 'c.imagen')
                     ->limit($quantity)
@@ -988,7 +988,7 @@ class ApiController extends Controller
                     ->join('categorias as c', 'c.id', 's.categoria_id')
                     ->select('c.id', 'c.nombre as title', 'c.descripcion as subtitle', 'c.imagen as image', DB::raw('"category" as type'))
                     ->whereIn('p.id', function($q){
-                        $q->select('producto_id')->from('ecommerce_productos')->where('deleted_at', null);
+                        $q->select('producto_id')->from('ecommerce_productos')->where('deleted_at', null)->where('activo', 1);
                     })
                     ->groupBy('c.id', 'c.nombre', 'c.descripcion', 'c.imagen')
                     ->get();
@@ -1004,6 +1004,7 @@ class ApiController extends Controller
                                 ->select(DB::raw('p.id, p.codigo_grupo, p.nombre, s.nombre as subcategoria, m.nombre as marca, co.nombre as color, p.descripcion_small, p.precio_venta, p.precio_venta as precio_venta_antiguo, p.imagen, p.slug'))
                                 ->where('s.deleted_at', NULL)
                                 ->where('e.deleted_at', NULL)
+                                ->where('e.activo', 1)
                                 ->where('c.id', $category_id)
                                 ->groupBy('codigo_grupo')
                                 ->offset($offset)->limit($limit)->get();
@@ -1033,7 +1034,7 @@ class ApiController extends Controller
                                 ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
                                 ->select(DB::raw('p.id, p.nombre as name, s.nombre as category, m.nombre as brand, c.nombre as color, p.descripcion_small as details, precio_venta as price, precio_venta as oldPrice, p.imagen as image, p.slug'))
                                 ->orderBy('precio_venta', 'ASC')
-                                ->where('e.deleted_at', NULL)
+                                ->where('e.deleted_at', NULL)->where('e.activo', 1)
                                 ->where('p.codigo_grupo', $codigo_grupo)
                                 ->get();
         $cont = 0;
@@ -1115,6 +1116,7 @@ class ApiController extends Controller
                                 ->select(DB::raw('p.id, p.codigo_grupo, p.nombre, s.nombre as subcategoria, m.nombre as marca, c.nombre as color, p.descripcion_small, p.precio_venta, p.precio_venta as precio_venta_antiguo, p.imagen, p.slug'))
                                 ->orderBy('precio_venta', 'ASC')
                                 ->where('e.deleted_at', NULL)
+                                ->where('e.activo', 1)
                                 ->where('o.oferta_id', $offer_id)
                                 ->where('o.deleted_at', NULL)
                                 ->offset($offset)->limit($limit)->get();

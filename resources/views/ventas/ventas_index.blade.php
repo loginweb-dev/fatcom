@@ -141,7 +141,7 @@
                             </select>
                         </div>
                         <div class="modal-footer">
-                            <input type="submit" class="btn btn-primary pull-right delete-confirm"value="Sí, elegir!">
+                            <input type="submit" class="btn btn-primary pull-right btn-elegir-repartidor"value="Sí, elegir!">
                             <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Cancelar</button>
                         </div>
                     </div>
@@ -248,6 +248,7 @@
 
             // Asiganr repartidor al pedido
             $('#form-delivery').on('submit', function(e){
+                $('.btn-elegir-repartidor').attr('disabled', 'disabled');
                 e.preventDefault();
                 $.post("{{ route('asignar_repartidor') }}", $('#form-delivery').serialize(), function(data){
                     if(data.success){
@@ -268,6 +269,7 @@
                         toastr.error(data.error, 'Error!');
                     }
                     $('#modal_delivery').modal('hide');
+                    $('.btn-elegir-repartidor').removeAttr('disabled');
                 });
             });
 

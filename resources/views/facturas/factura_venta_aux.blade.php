@@ -126,7 +126,7 @@
                         @foreach ($detalle_venta as $item)
                             <tr>
                                 <td align="center"><b>{{ $item->cantidad }}</b></td>
-                                <td> <b>{{ $item->subcategoria }}</b> - {{$item->producto}} {{$producto_adicional[$indice]['nombre']}} </td>
+                                <td>{{ $item->subcategoria }} - {{ $item->producto }}{{ $item->producto_adicional ? '/'.$item->producto_adicional : '' }}</td>
                                 {{-- <td align="center">{{number_format($item->precio, 2, ',', '.')}}</td> --}}
                                 <td align="right">{{number_format(($item->precio*$item->cantidad), 2, ',', '.')}}</td>
                             </tr>
@@ -231,7 +231,7 @@
                         @foreach ($detalle_venta as $item)
                             <tr>
                                 <td align="center"><b>{{ $item->cantidad }}</b></td>
-                                <td><b>{{ $item->subcategoria }}</b> - {{ $item->producto }}  {{$producto_adicional[$indice]['nombre']}}</td>
+                                <td>{{ $item->subcategoria }} - {{ $item->producto }}{{ $item->producto_adicional ? '/'.$item->producto_adicional : '' }}</td>
                                 <td>{{$item->observaciones}}</td>
                                 {{-- <td align="center">{{number_format($item->precio, 2, ',', '.')}}</td> --}}
                                 <td align="right">{{number_format(($item->precio*$item->cantidad), 2, ',', '.')}}</td>

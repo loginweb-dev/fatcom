@@ -152,6 +152,7 @@ Route::get('admin/ecommerce/ver/{id}', 'EcommerceController@view')->name('ecomme
 Route::get('admin/ecommerce/crear', 'EcommerceController@create')->name('ecommerce_create');
 Route::post('admin/ecommerce/guardar', 'EcommerceController@store')->name('ecommerce_store');
 Route::get('admin/ecommerce/editar/{id}', 'EcommerceController@edit')->name('ecommerce_edit');
+Route::get('admin/ecommerce/editar_estado/{id}/{status}', 'EcommerceController@change_status');
 Route::post('admin/ecommerce/actualizar', 'EcommerceController@update')->name('ecommerce_update');
 Route::post('admin/ecommerce/eliminar/', 'EcommerceController@delete')->name('ecommerce_delete');
 
@@ -289,7 +290,7 @@ Route::get('admin/clientes/editar/{id}', 'ClientesController@edit')->name('clien
 Route::post('admin/clientes/update', 'ClientesController@update')->name('clientes_update');
 
 Route::get('admin/clientes/lista', 'ClientesController@clientes_list')->name('clientes_list');
-Route::get('admin/clientes/datos/{type}/{id}', 'ClientesController@get_cliente')->name('get_cliente');
+Route::get('admin/clientes/datos/{type}/{data}', 'ClientesController@get_cliente')->name('get_cliente');
 Route::post('admin/clientes/ventas/create', 'ClientesController@createUserFromVentas');
 
 // ============================Empleados====================================

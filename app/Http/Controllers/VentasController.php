@@ -354,29 +354,14 @@ class VentasController extends Controller
             return null;
         }
 
-        // Verificar si el cliente está registrado
-        if(!is_numeric($data->cliente_id)){
-            $cliente = new Cliente;
-            $cliente->razon_social = $data->cliente_id;
-            $cliente->nit = $data->nit;
-            $cliente->save();
-            $data->cliente_id = Cliente::all()->last()->id;
-        }else{
+        // Actualizar nit del cliente si lo editó y si no es el cliente por defecto
+        if($data->cliente_id > 1){
             $cliente = Cliente::find($data->cliente_id);
             $cliente->nit = $data->nit;
             $cliente->save();
         }
 
-        // Validar si el cliente tiene un pedido o pedido pendiente
-        $pedido_pendiente = Venta::where('venta_tipo_id', 3)
-                                    ->where('venta_estado_id', '<', 5)
-                                    ->where('cliente_id', $data->cliente_id)
-                                    ->select()->first();
-        if($pedido_pendiente){
-            return 'error 1';
-        }
-
-        // Si la venta es adimicilio actualizar ultima ubicación del cliente
+        // Si la venta es a domicilio actualizar ultima ubicación del cliente
         if($data->venta_tipo_id == 4){
             $this->set_ultima_ubicacion($data->cliente_id, $data->coordenada_id, $data->latitud, $data->longitud, $data->descripcion);
         }
@@ -428,10 +413,14 @@ class VentasController extends Controller
             $efectivo = isset($data->efectivo) ? false : true;
             if($efectivo){
 
+                // Obtener la caja abierta de la sucursal
+                $caja_actual = IeCaja::where('sucursal_id', $data->sucursal_id)->where('abierta', 1)->where('deleted_at', NULL)->first();
+                $caja_id = $caja_actual ? $caja_actual->id : 0;
+
                 // Crear asiento de ingreso si no es un pedido a domicilio
                 if($data->venta_tipo_id != 4){
                     $monto_venta = $data->importe - $data->descuento;
-                    $this->crear_asiento_venta($venta_id, $monto_venta, $data->caja_id, 'Venta realizada');
+                    $this->crear_asiento_venta($venta_id, $monto_venta, $caja_id, 'Venta realizada');
                 }
 
                 // Obetner dosificacion
@@ -729,6 +718,13 @@ class VentasController extends Controller
             // Crear registro de seguimiento de la venta
             VentasSeguimiento::create(['venta_id' => $data->id, 'venta_estado_id' => 4]);
             // Asignar repartidor
+
+            // Evitar que el pedido se duplique
+            $pedido = DB::table('repartidores_pedidos')->select('id')->where('pedido_id', $data->id)->where('deleted_at', NULL)->first();
+            if($pedido){
+                return response()->json(['error' => 'El pedido ya se asigno a otro repartidor.']);
+            }
+
             $repartidores_pedidos = new RepartidoresPedido;
             $repartidores_pedidos->repartidor_id = $data->repartidor_id;
             $repartidores_pedidos->pedido_id = $data->id;
@@ -1912,26 +1908,20 @@ class VentasController extends Controller
                                 ->get();
         $cont = 0;
         foreach ($detalle_venta as $item) {
-            $aux = DB::table('extras as e')
+            // Obtener los extras incluidos
+            $extras = DB::table('extras as e')
                             ->join('ventas_detalles_extras as d', 'd.extra_id', 'e.id')
                             ->select('e.nombre', 'd.cantidad')
                             ->where('d.venta_detalle_id', $item->detalle_id)->where('d.deleted_at', NULL)->get();
-            $detalle_venta[$cont]->extras = $aux;
-            $cont++;
-        }
+            $detalle_venta[$cont]->extras = $extras;
 
-        // En caso de que el item de venta comprenda más de un producto
-        $producto_adicional = [];
-        foreach ($detalle_venta as $item) {
-            $producto = DB::table('productos as p')
-                                ->select('p.nombre')
-                                ->where('p.id', $item->producto_adicional)
-                                ->first();
+            // Obtener el nombre del producto adicional si lo tuviera
+            $producto = DB::table('productos as p')->select('p.nombre')->where('p.id', $item->producto_adicional)->first();
             if($producto){
-                array_push($producto_adicional, ['nombre'=>', '.$producto->nombre]);
-            }else{
-                array_push($producto_adicional, ['nombre'=>'']);
+                $detalle_venta[$cont]->producto_adicional = $producto->nombre;
             }
+
+            $cont++;
         }
 
         $monto_total = $detalle_venta[0]->importe_base;
@@ -1939,16 +1929,16 @@ class VentasController extends Controller
 
         if(!$detalle_venta[0]->nro_factura){
             if(setting('impresion.impresion_rapida')){
-                return view('facturas.recibo_venta_aux', compact('detalle_venta', 'producto_adicional', 'total_literal'));
+                return view('facturas.recibo_venta_aux', compact('detalle_venta', 'total_literal'));
             }else{
-                return view('facturas.recibo_venta', compact('detalle_venta', 'producto_adicional', 'total_literal'));
+                return view('facturas.recibo_venta', compact('detalle_venta', 'total_literal'));
             }
         }else{
             $original = true;
             if(setting('impresion.impresion_rapida')){
-                return view('facturas.factura_venta_aux', compact('detalle_venta', 'producto_adicional', 'total_literal', 'original'));
+                return view('facturas.factura_venta_aux', compact('detalle_venta', 'total_literal', 'original'));
             }else{
-                return view('facturas.factura_venta', compact('detalle_venta', 'producto_adicional', 'total_literal', 'original'));
+                return view('facturas.factura_venta', compact('detalle_venta', 'total_literal', 'original'));
             }            
         }
     }

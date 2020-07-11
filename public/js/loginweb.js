@@ -29,7 +29,7 @@ function inicializar_select2(id){
                 }
             });
         }
-    });;
+    });
 }
 
 // Cargar sub categorías de categoría

@@ -39,6 +39,7 @@
                                     <table id="dataTable" class="table table-bordered table-hover">
                                         <thead>
                                             <tr>
+                                                <th>Estado</th>
                                                 <th>Nombre</th>
                                                 <th>Subcategoria</th>
                                                 <th>Tags</th>
@@ -57,6 +58,9 @@
                                                     $imagen = ($item->imagen!='') ? $item->imagen : '../img/default.png';
                                                 @endphp
                                                 <tr>
+                                                    <td>
+                                                    <input type="checkbox" class="check-estado" @if($item->activo) checked @endif data-id="{{ $item->ecommerce_id }}" data-toggle="toggle" data-on="Activo" data-off="Inactivo">
+                                                    </td>
                                                     <td>{{$item->nombre}}</td>
                                                     <td>{{$item->subcategoria}}</td>
                                                     <td>@php echo str_replace(',', '<br>', $item->tags); @endphp</td>
@@ -161,6 +165,19 @@
                     let value = (escape($('#search_value').val())!='') ? escape($('#search_value').val()) : 'all';
                     window.location = '{{url("admin/ecommerce/buscar")}}/'+value;
                 });
+
+                // Cambiar estado del producto
+                $('.check-estado').change(function(){
+                    let id = $(this).data('id');
+                    let status = $(this).prop('checked') ? 1 : 0;
+                    $.get("{{ url('admin/ecommerce/editar_estado') }}/"+id+'/'+status, function(data){
+                        if(data.success){
+                            toastr.success(data.success, 'Bien hecho!');
+                        }else{
+                            toastr.error(data.error, 'Error!');
+                        }
+                    })
+                })
             });
         </script>
     @stop

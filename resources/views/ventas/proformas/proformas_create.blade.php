@@ -137,7 +137,7 @@
                             <div class="row" style="overflow-y: auto;height:280px">
                                 <div class="form-group">
                                     <label>NIT/CI</label>
-                                    <input type="number" name="nit" id="input-nit" class="form-control" onkeypress="return getClienteNIT(event)" placeholder="NIT/CI">
+                                    <input type="number" name="nit" id="input-nit" class="form-control" placeholder="NIT/CI">
                                 </div>
                                 <div class="form-group">
                                     <label>Nombre completo</label>

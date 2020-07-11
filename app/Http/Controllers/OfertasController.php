@@ -304,6 +304,7 @@ class OfertasController extends Controller
                     ->where('s.deleted_at', NULL)
                     ->where('m.deleted_at', NULL)
                     ->where('e.deleted_at', NULL)
+                    ->where('e.activo', 1)
                     ->where('df.deleted_at', NULL)
                     ->where('o.deleted_at', NULL)
                     ->where('o.estado', 1)->where('o.tipo_oferta', 1)

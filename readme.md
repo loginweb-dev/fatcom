@@ -83,7 +83,7 @@ Nota: Antes de instalar las dependencias debes asegurarte que tu entorno cumple 
     sudo ufw allow 6002
 ```
 - *En el archivo .env editar la variable PUSHER_SCHEME=https, la variable LARAVEL_WEBSOCKETS_PORT=6002 (o el puerto que se elija) y descomentar las claves de los certificados SSL con su respectivo dominio.*
-- *Seguir las instrucciones del archivo resources/js/bootstrap.js en la linea 56 y 58.*
+- *Seguir las instrucciones del archivo resources/js/bootstrap.js en la linea 55, 56 y 58.*
 - *Descomentar las lineas 44, 45, 46 y 47 del archivo config/broadcasting.php.*
 - *Instalar pm2 para ejecutar los script en segundo plano*
 ```bash

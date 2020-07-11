@@ -18,6 +18,7 @@ class CreateEcommerceProductosTable extends Migration {
 			$table->integer('producto_id')->nullable();
 			$table->integer('escasez')->nullable();
 			$table->text('tags', 65535)->nullable();
+			$table->integer('activo')->nullable();
 			$table->timestamps();
 			$table->softDeletes();
 		});

@@ -25,8 +25,9 @@ class EcommerceController extends Controller
         $registros = DB::table('productos as p')
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
                             ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
-                            ->select('p.id', 'p.nombre', 'p.imagen', 's.nombre as subcategoria', 'e.id as ecommerce_id', 'e.updated_at', 'e.escasez', 'e.tags')
+                            ->select('p.id', 'p.nombre', 'p.imagen', 's.nombre as subcategoria', 'e.id as ecommerce_id', 'e.updated_at', 'e.escasez', 'e.tags', 'e.activo')
                             ->where('e.deleted_at', NULL)
+                            // ->where('e.activo', 1)
                             ->orderBy('e.id', 'DESC')
                             ->paginate(10);
         $value = '';
@@ -40,11 +41,13 @@ class EcommerceController extends Controller
         $registros = DB::table('productos as p')
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
                             ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
-                            ->select('p.id', 'p.nombre', 'p.imagen', 's.nombre as subcategoria', 'e.id as ecommerce_id', 'e.updated_at', 'e.escasez', 'e.tags')
+                            ->select('p.id', 'p.nombre', 'p.imagen', 's.nombre as subcategoria', 'e.id as ecommerce_id', 'e.updated_at', 'e.escasez', 'e.tags', 'e.activo')
                             ->whereRaw("p.deleted_at is null and
                                             (p.codigo like '%".$value."%' or
                                             s.nombre like '%".$value."%')
                                         ")
+                            ->where('e.deleted_at', NULL)
+                            // ->where('e.activo', 1)
                             ->orderBy('e.id', 'DESC')
                             ->paginate(10);
         return view('inventarios/ecommerce/ecommerce_index', compact('registros', 'value'));
@@ -74,7 +77,7 @@ class EcommerceController extends Controller
                             ->select('p.*', 's.nombre as subcategoria', 'm.nombre as marca', 'mo.abreviacion as moneda')
                             // ->where('deleted_at', NULL)
                             ->whereNotIn('p.id', function($q){
-                                $q->select('producto_id')->from('ecommerce_productos')->where('deleted_at', null);
+                                $q->select('producto_id')->from('ecommerce_productos')->where('deleted_at', null)->where('activo', 1);
                             })
                             ->get();
         return view('inventarios/ecommerce/ecommerce_create', compact('productos', 'categorias', 'localidades'));
@@ -152,6 +155,19 @@ class EcommerceController extends Controller
             return redirect()->route('ecommerce_index')->with(['message' => 'Producto de E-Commerce eliminado exitosamenete.', 'alert-type' => 'success']);
         }else{
             return redirect()->route('ecommerce_index')->with(['message' => 'Ocurrio un problema al eliminar el producto del E-Commerce.', 'alert-type' => 'error']);
+        }
+    }
+
+    // Cambiar estado del producto en ecommerce
+    public function change_status($id, $estado){
+        DB::beginTransaction();
+        try {
+            DB::table('ecommerce_productos')->where('id', $id)->update(['activo' => $estado]);
+            DB::commit();
+            return response()->json(['success' => 'Se cambió el estado correctamente']);
+        } catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(['error' => 'Ocurrio un problema.']);
         }
     }
 

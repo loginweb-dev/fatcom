@@ -81,18 +81,18 @@
                                 </div>
                                 <div class="row">
                                     <div class="form-group col-md-12">
-                                        {{-- <label>NIT/CI</label> --}}
-                                        <input type="number" name="nit" id="input-nit" class="form-control" onkeypress="return getClienteNIT(event)" placeholder="NIT/CI">
-                                    </div>
-                                    <div class="form-group col-md-12">
                                         {{-- <label>Nombre completo</label> --}}
                                         <div class="input-group">
-                                            <select name="cliente_id" class="form-control select2" id="select-cliente_id">
+                                            <select name="cliente_id" class="form-control" id="select-cliente_id">
+                                                <option value="1">Sin nombre</option>
                                             </select>
                                             <span class="input-group-btn">
                                                 <button class="btn btn-primary" style="margin-top:0px;padding:8px" type="button" title="Crear nuevo" data-toggle="modal" data-target="#modal-nuevo_cliente" aria-expanded="true" aria-controls="collapseOne"><span class="voyager-person" aria-hidden="true"></span></button>
                                             </span>
                                         </div>
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                        <input type="number" name="nit" id="input-nit" class="form-control" placeholder="NIT/CI">
                                     </div>
                                 </div>
                                 <hr style="margin-bottom:10px;margin-top:0px">
@@ -275,6 +275,7 @@
     @stop
 
     @section('javascript')
+    <script src="{{ url('js/rich_select.js') }}"></script>
     <script src="{{url('js/ventas.js')}}"></script>
     <script src="{{url('js/loginweb.js')}}"></script>
     <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
@@ -292,11 +293,6 @@
             $('[data-toggle="tooltip"]').tooltip();
             // Deshabilitar el boton del mapa por defecto
             // $('#check-domicilio').attr('disabled', true);
-
-            // Obtener lista de clientes
-            $.get('{{route("clientes_list")}}', function(data){
-                select2_reload('cliente_id', data, false, 1)
-            });
 
             // Cambiar sucursal actual
             $('#select-sucursal_id').change(function(){
@@ -339,7 +335,6 @@
                     success: function(data){
                         let id = data.id;
                         $.get('{{route("clientes_list")}}', function(data){
-                            select2_reload('cliente_id', data, false, id);
                             $('#alert-cliente').html(``);
                             $('#modal-nuevo_cliente').modal('hide');
                             toastr.success('Cliente registrado correctamente.', 'Exito');
@@ -383,11 +378,9 @@
                                 $('#check-factura').bootstrapToggle('off');
                                 // inicializar_select2_simple('producto_id');
                                 rich_select('select-producto_id');
-
-                                // Obtener lista de clientes
-                                $.get('{{route("clientes_list")}}', function(data){
-                                    select2_reload('cliente_id', data, false, 1);
-                                });
+                                // Reset select de clientes
+                                $('#select-cliente_id').val('1');
+                                $('#select-cliente_id').trigger('change');
                             }
                         }else{
                             toastr.error('Ocurrio un error al ingresar la venta.', 'Error');

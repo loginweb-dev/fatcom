@@ -127,8 +127,7 @@
                             <tr>
                                 <td align="center"><b>{{ $item->cantidad }}</b></td>
                                 <td>
-                                    <b>{{ $item->subcategoria }}</b>
-                                    - {{ $item->producto }} {!! $producto_adicional[$indice]['nombre'] ? '/ '.$producto_adicional[$indice]['nombre']:'' !!}
+                                    {{ $item->subcategoria }} - {{ $item->producto }}{{ $item->producto_adicional ? '/'.$item->producto_adicional : '' }}
                                     @php
                                         $extras = '';
                                         for ($i=0; $i < count($item->extras); $i++) { 
@@ -224,8 +223,7 @@
                             <tr>
                                 <td align="center"><b>{{ $item->cantidad }}</b></td>
                                 <td>
-                                    <b>{{ $item->subcategoria }}</b>
-                                    - {{ $item->producto }} {!! $producto_adicional[$indice]['nombre'] ? '/ '.$producto_adicional[$indice]['nombre']:'' !!}
+                                    {{ $item->subcategoria }} - {{ $item->producto }}{{ $item->producto_adicional ? '/'.$item->producto_adicional : '' }}
                                     @php
                                         $extras = '';
                                         for ($i=0; $i < count($item->extras); $i++) { 

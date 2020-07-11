@@ -194,7 +194,7 @@ class ClientesController extends Controller
     }
 
     public function get_cliente($type, $dato){
-        return $type == 'id' ? Cliente::find($dato) : Cliente::where('nit', $dato)->first();
+        return $type == 'id' ? Cliente::where('id', $dato)->first() : DB::table('clientes as c')->select('c.*')->whereRaw("c.razon_social like '%$dato%' or c.nit like '%$dato%'")->get();
     }
 
     // Crear un usuario desde el formulario de nueva venta
