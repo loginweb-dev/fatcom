@@ -79,6 +79,12 @@
                                                 </div>
                                                 <input type="hidden" name="tipo_duracion" id="input-tipo_duracion" value="{{$oferta->tipo_duracion}}">
                                             </div>
+                                            <div class="row">
+                                                <div class="form-group col-md-12">
+                                                    <input type="hidden" name="tipo_oferta" value="1" id="input-tipo_oferta">
+                                                    <input type="checkbox" id="check-estado" name="estado" data-toggle="toggle" data-onstyle="success" data-on="Activa" data-off="Inactiva">
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="col-md-6">
                                             <div class="row">
@@ -132,7 +138,7 @@
                                                                     <select id="select-categoria_id" class="form-control select-filtro" data-tipo="subcategorias" data-destino="subcategoria_id">
                                                                         <option value="">Todas</option>
                                                                         @foreach($categorias as $item)
-                                                                        <option value="{{$item->id}}" >{{$item->nombre}}</option>
+                                                                        <option value="{{ $item->id }}" >{{ $item->nombre }}</option>
                                                                         @endforeach
                                                                     </select>
                                                                 </div>
@@ -302,6 +308,10 @@
                 $('[data-toggle="popover"]').popover({ html : true });
                 $('[data-toggle="tooltip"]').tooltip();
                 rich_select('select-producto_id');
+
+                if('{{ $oferta->estado }}'=='1'){
+                    $('#check-estado').bootstrapToggle('on')
+                }
 
                 // Calcular longitud de textarea "descripció"
                 $('#text-descripcion').keyup(function(e){

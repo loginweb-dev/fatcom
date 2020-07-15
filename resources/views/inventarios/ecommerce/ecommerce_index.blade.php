@@ -149,7 +149,7 @@
         </style>
     @stop
     @section('javascript')
-        <script src="{{url('ecommecommerce_publicrce/plugins/fancybox/fancybox.min.js')}}" type="text/javascript"></script>
+        <script src="{{url('ecommerce_public/plugins/fancybox/fancybox.min.js')}}" type="text/javascript"></script>
         <script>
             $(document).ready(function() {
                 $('[data-toggle="popover"]').popover({ html : true });

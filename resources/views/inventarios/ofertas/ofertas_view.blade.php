@@ -30,6 +30,7 @@
                                             </div>
                                             <div class="panel-body" style="padding-top:0;">
                                                 <p>{{$oferta->nombre}}</p>
+                                                {!! $oferta->estado=='1'?'<label class="label label-success">Activa</label>':'<label class="label label-danger">Inactiva</label>' !!}
                                             </div>
                                         </div>
                                         <div class="col-md-6" style="margin:0px">
@@ -157,17 +158,15 @@
                                 @php
                                     $img = ($oferta->imagen!='') ? $oferta->imagen : 'ofertas/default.png';
                                 @endphp
-                                <div class="col-md-6">
-                                    <article class="gallery-wrap">
-                                        <div class="img-big-wrap card-banner">
-                                            <article class="overlay top text-center">
-                                                <h4 class="title mb-0">Portada de la campaña</h4>
-                                            </article>
-                                            <a id="img-slider" href="{{url('storage').'/'.$img}}" data-fancybox="slider1">
-                                                <img id="img-medium" class="img-thumbnail img-sm" src="{{url('storage').'/'.$img}}">
-                                            </a>
+                                <div class="col-md-6 text-center">
+                                    <div class="card">
+                                        <div class="card-body" style="padding: 0px">
+                                          <h4 class="card-title">Portada de la oferta</h4>
                                         </div>
-                                    </article>
+                                        <a id="img-slider" href="{{url('storage').'/'.$img}}" data-fancybox="slider1">
+                                            <img src="{{ url('storage').'/'.$img }}" class="card-img-top" alt="img_portada">
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>

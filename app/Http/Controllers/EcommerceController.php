@@ -93,7 +93,8 @@ class EcommerceController extends Controller
             $query = EcommerceProducto::create([
                                         'producto_id' => $data->producto_id[$i],
                                         'escasez' => $data->escasez[$i],
-                                        'tags' => $data->tags[$i]
+                                        'tags' => $data->tags[$i],
+                                        'activo' => 1
                                     ]);
             for ($j=0; $j < count($data->localidad_id); $j++) {
                 if($data->precio[$j] != ''){

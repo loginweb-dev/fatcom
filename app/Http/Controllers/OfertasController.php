@@ -251,6 +251,7 @@ class OfertasController extends Controller
         if($path!=''){
             $oferta->imagen = $path;
         }
+        $oferta->estado = isset($data->estado) ? 1 : 0;
         $oferta->save();
         DB::table('ofertas_detalles')->where('oferta_id', $data->id)->update(['deleted_at' => Carbon::now()]);
         for ($i=0; $i < count($data->producto_id); $i++) {

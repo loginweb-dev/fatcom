@@ -15,7 +15,7 @@ return [
         'default_role'                 => 'user',
         'namespace'                    => null,
         'default_avatar'               => 'users/default.png',
-        'redirect'                     => '/admin',
+        'redirect'                     => '/admin/profile',
     ],
 
     /*
@@ -150,7 +150,7 @@ return [
         ],
 
         'widgets' => [
-            'TCG\\Voyager\\Widgets\\UserDimmer',
+            // 'TCG\\Voyager\\Widgets\\UserDimmer',
             // 'TCG\\Voyager\\Widgets\\PostDimmer',
             // 'TCG\\Voyager\\Widgets\\PageDimmer',
         ],
@@ -189,7 +189,8 @@ return [
     |
     */
 
-    'primary_color' => '#096FA9',
+    'primary_color' => env('APP_PRIMARY_COLOR'),
+    'primary_text_color' => env('APP_PRIMARY_TEXT_COLOR'),
 
     'show_dev_tips' => true, // Show development tip "How To Use:" in Menu and Settings
 
