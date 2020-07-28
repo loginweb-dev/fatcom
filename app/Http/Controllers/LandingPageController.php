@@ -630,7 +630,7 @@ class LandingPageController extends Controller
     }
 
     public function ecommerce_policies(){
-        return 'politicas';
+        return view('ecommerce.'.setting('admin.ecommerce').'policies');
     }
 
 

@@ -50,8 +50,8 @@
         <table width="100%">
                     <tr>
                         <td width="30%" align="center" style="font-size:7px">
-                            <img src="{{url('storage').'/'.setting('empresa.logo')}}" alt="loginweb" width="60px"><br>
-                            <b>{{setting('empresa.nombre')}}</b><br>
+                            <img src="{{url('storage').'/'.setting('empresa.logo')}}" alt="loginweb" width="100px"><br>
+                            {{-- <b>{{setting('empresa.title')}}</b><br> --}}
 
                             @if(setting('empresa.telefono')!='')
                             <b>Telf: {{setting('empresa.telefono')}}</b>

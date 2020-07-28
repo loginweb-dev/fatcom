@@ -50,8 +50,8 @@
         <table width="100%">
                     <tr>
                         <td width="33%" align="center" style="font-size:7px">
-                            <img src="{{url('storage').'/'.setting('empresa.logo')}}" alt="loginweb" width="80px"><br>
-                            <b style="font-size:14px">{{setting('empresa.title')}}</b><br>
+                            <img src="{{url('storage').'/'.setting('empresa.logo')}}" alt="loginweb" width="100px"><br>
+                            {{-- <b style="font-size:14px">{{setting('empresa.title')}}</b><br> --}}
                             <b style="font-size:10px"> De: {{ setting('empresa.propietario') }}</b><br>
 
                             @if(setting('empresa.telefono')!='')

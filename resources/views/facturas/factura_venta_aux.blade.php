@@ -60,8 +60,8 @@
                 <td colspan="2" align="center" style="font-size:10px">
                     {{-- <br> --}}
                     <!-- no se puede acceder a ruta del setting, hay q concatenar "../../storage/" -->
-                    <img src="{{ url('storage').'/'.setting('empresa.logo') }}" alt="loginweb" width="80px"><br>
-                    <h2>{{ setting('empresa.title') }}</h2>
+                    <img src="{{ url('storage').'/'.setting('empresa.logo') }}" alt="loginweb" width="100px"><br>
+                    {{-- <h2>{{ setting('empresa.title') }}</h2> --}}
                     <b>De: {{ setting('empresa.propietario') }}</b><br>
                     <b>{{ strtoupper($detalle_venta[0]->sucursal) }}</b><br>
                     <b>{{ setting('empresa.direccion') }}<b><br>

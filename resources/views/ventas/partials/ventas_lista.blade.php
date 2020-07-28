@@ -124,6 +124,7 @@
         // Set valor de asignar repartidor
         $('.btn-delivery').click(function(){
             $('#modal_delivery input[name="id"]').val($(this).data('id'));
+            $('.btn-elegir-repartidor').removeAttr('disabled');
         });
 
         // Cambiar estado al pedido

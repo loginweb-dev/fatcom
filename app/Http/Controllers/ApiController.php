@@ -459,12 +459,12 @@ class ApiController extends Controller
         return response()->json(['productsList' => $this->format_products_list_v2($products_list)]);
     }
 
-    public function category_products_v2($category_id, $offset = 0, $limit = 10){
+    public function category_products_v2($category_id, $offset = 0, $limit = 20){
         $products_list = $this->category_products_list_v2($category_id, $offset, $limit);
         return response()->json(['productsList' => $this->format_products_list_v2($products_list)]);
     }
 
-    public function offer_products_v2($offer_id, $offset = 0, $limit = 10){
+    public function offer_products_v2($offer_id, $offset = 0, $limit = 20){
         $products_list = $this->offer_products_list_v2($offer_id, $offset, $limit);
         return response()->json(['productsList' => $this->format_products_list_v2($products_list)]);
     }

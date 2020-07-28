@@ -73,7 +73,7 @@ Nota: Antes de instalar las dependencias debes asegurarte que tu entorno cumple 
 
 - *Dar permiso a los direccitorios públicos*
 ```bash
-    chmod -R 777 storage && chmod -R 777 bootstrap && chmod -R 777 public
+    chmod -R 777 storage/ && chmod -R 777 bootstrap/ && chmod -R 777 public/
 ```
 
 ### Configuración en entorno de producción
