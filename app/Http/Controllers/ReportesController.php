@@ -169,14 +169,14 @@ class ReportesController extends Controller
                 return response()->json($registros);
                 case 'anual':
                     $sentencia_sucursal = $data->sucursal_id_anual ? "v.sucursal_id=".$data->sucursal_id_anual : 1;
-                $registros  = DB::table('ventas as v')
-                                    ->select(DB::raw('SUM(v.importe_base) as monto, MONTH(v.fecha) as mes'))
-                                    ->whereYear('v.fecha', $data->anio_anual)
-                                    ->where('v.deleted_at', NULL)->where('v.estado', 'V')
-                                    ->whereRaw($sentencia_sucursal)
-                                    ->groupBy('mes')
-                                    ->get();
-                return response()->json($registros);
+                    $registros  = DB::table('ventas as v')
+                                        ->select(DB::raw('SUM(v.importe_base) as monto, MONTH(v.fecha) as mes'))
+                                        ->whereYear('v.fecha', $data->anio_anual)
+                                        ->where('v.deleted_at', NULL)->where('v.estado', 'V')
+                                        ->whereRaw($sentencia_sucursal)
+                                        ->groupBy('mes')
+                                        ->get();
+                    return response()->json($registros);
                 case 'productos':
                     
                     $sentencia_sucursal = $data->sucursal_id_productos ? "v.sucursal_id=".$data->sucursal_id_productos : 1;

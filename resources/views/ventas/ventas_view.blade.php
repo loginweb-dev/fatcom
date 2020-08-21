@@ -202,7 +202,7 @@
                 lon = {{$ubicacion->lon}};
                 @endif
                 $('.btn-mapa').click(function(){
-                    map.remove();
+                    // map.remove();
                         setTimeout(function(){
                             $('#contenedor_mapa').html('<div id="map"></div>');
                             map = L.map('map').setView([lat, lon], 13);
@@ -232,7 +232,7 @@
             @endif
 
             // Nota: si se edita esta función, tambien debe editarse en la vista ver producto
-            let marcador = {};
+            marcador = {};
             function get_ubicacion(id, map, iconDelivery){
                 $.ajax({
                         url: '{{url("admin/ventas/delivery/get_ubicacion")}}/'+id,

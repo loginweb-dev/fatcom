@@ -771,6 +771,7 @@ class LandingPageController extends Controller
                                 ->orderBy('cantidad', 'DESC')
                                 ->where('e.deleted_at', NULL)
                                 ->where('e.activo', 1)
+                                ->whereYear('vd.created_at', date('Y'))
                                 ->limit($cantidad)->get();
         $cont = 0;
         foreach ($mas_vendidos as $item) {

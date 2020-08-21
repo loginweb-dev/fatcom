@@ -31,14 +31,32 @@
                     </ul>
                 </td>
                 <td>
-                    <a href="{{ url('admin/ventas/lista/'.$item->id) }}" title="Listo" class="btn btn-success btn-lg" style="text-decoration:none">
+                    <button title="Listo" class="btn btn-success btn-lg btn-listo" data-id="{{ $item->id }}" style="text-decoration:none">
                         <i class="voyager-check"></i> <span class="hidden-xs hidden-sm">Listo</span>
-                    </a>
+                    </button>
                 </td>
             </tr>
             @empty
-                
+            <tr>
+                <td colspan="6" class="text-center">No hay pedidos pendientes <span class="voyager-frown"></span> </td>
+            </tr>
             @endforelse
         </tbody>
     </table>
 </div>
+
+<script>
+    $(document).ready(function(){
+        $('.btn-listo').click(function(){
+            id = $(this).data('id');
+            $(this).html('Enviando...');
+            $.get('{{ url("admin/ventas/lista") }}/'+id, function(res){
+                if(res == 1){
+                    get_pendientes();
+                }else{
+                    toastr.error('Ocurrión un problema insperado', 'Error');
+                }
+            });
+        });
+    });
+</script>

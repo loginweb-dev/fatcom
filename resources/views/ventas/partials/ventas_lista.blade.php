@@ -20,7 +20,12 @@
                     <td>#{{ $item->nro_venta }}</td>
                     <td><ins class="text-{{ $item->tipo_etiqueta }}" style="font-weight:bold">{{ $item->tipo_nombre }}</ins></td>
                     <td>{{ date('d-m-Y H:i', strtotime($item->created_at)) }} <br> <small>{{ \Carbon\Carbon::parse($item->created_at)->diffForHumans() }}</small> </td>
-                    <td>{{ $item->cliente }}</td>
+                    <td>
+                        {{ $item->cliente }} <br>
+                        @if ($item->cliente_movil)
+                            <a href="tel:{{ $item->cliente_movil }}"><small>{{ $item->cliente_movil }}</small></a>
+                        @endif
+                    </td>
                     <td class="text-center">
                         {{ $item->importe_base }}
                         @if(!$item->efectivo)

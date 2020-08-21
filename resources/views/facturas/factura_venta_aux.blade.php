@@ -126,8 +126,17 @@
                         @foreach ($detalle_venta as $item)
                             <tr>
                                 <td align="center"><b>{{ $item->cantidad }}</b></td>
-                                <td>{{ $item->subcategoria }} - {{ $item->producto }}{{ $item->producto_adicional ? '/'.$item->producto_adicional : '' }}</td>
-                                {{-- <td align="center">{{number_format($item->precio, 2, ',', '.')}}</td> --}}
+                                <td>
+                                    {{ $item->subcategoria }} - {{ $item->producto }}{{ $item->producto_adicional ? '/'.$item->producto_adicional : '' }}
+                                    @php
+                                        $extras = '';
+                                        for ($i=0; $i < count($item->extras); $i++) { 
+                                            $extras .= intval($item->extras[$i]->cantidad).' '.$item->extras[$i]->nombre.', ';
+                                        }
+                                        $extras = substr($extras, 0, -2);
+                                    @endphp
+                                    {!! $extras ? '<br>('.$extras.')' : '' !!}
+                                </td>
                                 <td align="right">{{number_format(($item->precio*$item->cantidad), 2, ',', '.')}}</td>
                             </tr>
                             @php
@@ -231,9 +240,18 @@
                         @foreach ($detalle_venta as $item)
                             <tr>
                                 <td align="center"><b>{{ $item->cantidad }}</b></td>
-                                <td>{{ $item->subcategoria }} - {{ $item->producto }}{{ $item->producto_adicional ? '/'.$item->producto_adicional : '' }}</td>
-                                <td>{{$item->observaciones}}</td>
-                                {{-- <td align="center">{{number_format($item->precio, 2, ',', '.')}}</td> --}}
+                                <td>
+                                    {{ $item->subcategoria }} - {{ $item->producto }}{{ $item->producto_adicional ? '/'.$item->producto_adicional : '' }}
+                                    @php
+                                        $extras = '';
+                                        for ($i=0; $i < count($item->extras); $i++) { 
+                                            $extras .= intval($item->extras[$i]->cantidad).' '.$item->extras[$i]->nombre.', ';
+                                        }
+                                        $extras = substr($extras, 0, -2);
+                                    @endphp
+                                    {!! $extras ? '<br>('.$extras.')' : '' !!}
+                                </td>
+                                <td>{{ $item->observaciones }}</td>
                                 <td align="right">{{number_format(($item->precio*$item->cantidad), 2, ',', '.')}}</td>
                             </tr>
                             @php

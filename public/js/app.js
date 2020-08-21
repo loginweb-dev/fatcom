@@ -57588,11 +57588,11 @@ window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   cluster: "mt1",
   wsHost: window.location.hostname,
   wsPort: 6001,
-  wssPort: 6001,
-  enabledTransports: ['ws', 'wss'],
-  // encrypted: true, // Descomentar cuando se use SSL
-  encrypted: false,
-  disableStats: false
+  // Número de pueto
+  // wssPort: 6001, // Número de pueto y descomentar para correr en entorno de producción
+  disableStats: true,
+  encrypted: false //true para correr en entorno de producción
+
 });
 
 /***/ }),

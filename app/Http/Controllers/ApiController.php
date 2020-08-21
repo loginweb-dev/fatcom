@@ -774,15 +774,16 @@ class ApiController extends Controller
             // Crear registro de venta
             $order = Venta::create([
                 'cliente_id' => $user->cliente_id,
-                'importe' => $request->importe,
+                'importe' => 0,
                 'estado' => 'V',
-                'subtotal' => $request->importe,
-                'importe_base' => $request->importe,
+                'subtotal' => 0,
+                'importe_base' => 0,
                 'fecha' => date('Y-m-d'),
                 'venta_tipo_id' => 3,
                 'venta_estado_id' => 1,
                 'efectivo' => $cash,
-                'sucursal_id' => $sucursal_id
+                'sucursal_id' => $sucursal_id,
+                'observaciones' => $request->cartObservations
             ]);
             
             // Registrar detalle de pedido
@@ -805,6 +806,11 @@ class ApiController extends Controller
                         'cantidad' => $extra['count'],
                         'precio' => $extra['price']
                     ]);
+
+                    // Actualizar el precio del producto añandiendo el precio de los extras
+                    $order_detail = VentasDetalle::find($order_detail->id);
+                    $order_detail->precio += ($extra['count'] * $extra['price']);
+                    $order_detail->save();
                 }
             }
 
@@ -826,8 +832,8 @@ class ApiController extends Controller
                 // si hay dosificaciones generamos codigo de control e incrementamos el numero de factura actual
                 if($dosificacion){
                     $venta = Venta::find($order->id);
-                    $codigo_control = (new Facturacion)->generate($dosificacion->nro_autorizacion, $dosificacion->numero_actual, setting('empresa.nit'), date('Ymd'), $order->importe_base, $dosificacion->llave_dosificacion);
-                    DB::table('ventas')->where('id', $order->id)
+                    $codigo_control = (new Facturacion)->generate($dosificacion->nro_autorizacion, $dosificacion->numero_actual, setting('empresa.nit'), date('Ymd'), $venta->importe_base, $dosificacion->llave_dosificacion);
+                    DB::table('ventas')->where('id', $venta->id)
                                             ->update([
                                                         'nro_factura'       => $dosificacion->numero_actual,
                                                         'codigo_control'    => $codigo_control,
@@ -1032,7 +1038,7 @@ class ApiController extends Controller
                                 ->join('marcas as m', 'm.id', 'p.marca_id')
                                 ->join('colores as c', 'c.id', 'p.color_id')
                                 ->join('ecommerce_productos as e', 'e.producto_id', 'p.id')
-                                ->select(DB::raw('p.id, p.nombre as name, s.nombre as category, m.nombre as brand, c.nombre as color, p.descripcion_small as details, precio_venta as price, precio_venta as oldPrice, p.imagen as image, p.slug'))
+                                ->select(DB::raw('p.id, p.nombre as name, s.nombre as category, m.nombre as brand, c.nombre as color, p.descripcion_small as details, precio_venta as price, precio_venta as oldPrice, p.imagen as image, p.slug, p.deleted_at as extras'))
                                 ->orderBy('precio_venta', 'ASC')
                                 ->where('e.deleted_at', NULL)->where('e.activo', 1)
                                 ->where('p.codigo_grupo', $codigo_grupo)
@@ -1049,6 +1055,19 @@ class ApiController extends Controller
                 }
                 $similares[$cont]->price = number_format($precio_venta, 2, ',', '');
             }
+
+            // Obtener los extras
+            $extras = collect();
+            foreach ((new Productos)->lista_extras_productos($item->id) as $extra) {
+                $extras->push([
+                    'id' => $extra->id,
+                    'name' => $extra->nombre,
+                    'price' => $extra->precio,
+                    'ckecked' => false
+                ]);
+            }
+            $similares[$cont]->extras = $extras;
+
             $cont++;
         }
         return $similares;
@@ -1119,6 +1138,7 @@ class ApiController extends Controller
                                 ->where('e.activo', 1)
                                 ->where('o.oferta_id', $offer_id)
                                 ->where('o.deleted_at', NULL)
+                                ->groupBy('p.codigo_grupo')
                                 ->offset($offset)->limit($limit)->get();
         $cont = 0;
         foreach ($products as $item) {

@@ -44,6 +44,7 @@ class EcommerceController extends Controller
                             ->select('p.id', 'p.nombre', 'p.imagen', 's.nombre as subcategoria', 'e.id as ecommerce_id', 'e.updated_at', 'e.escasez', 'e.tags', 'e.activo')
                             ->whereRaw("p.deleted_at is null and
                                             (p.codigo like '%".$value."%' or
+                                            p.nombre like '%".$value."%' or
                                             s.nombre like '%".$value."%')
                                         ")
                             ->where('e.deleted_at', NULL)

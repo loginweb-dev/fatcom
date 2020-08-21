@@ -113,7 +113,7 @@ class VentasController extends Controller
                             ->join('clientes as c', 'c.id', 'v.cliente_id')
                             ->join('ventas_estados as ve', 've.id', 'v.venta_estado_id')
                             ->join('ventas_tipos as vt', 'vt.id', 'v.venta_tipo_id')
-                            ->select('v.*', 'c.razon_social as cliente', 'vt.nombre as tipo_nombre', 'vt.etiqueta as tipo_etiqueta', 've.id as estado_id', 've.nombre as estado_nombre', 've.etiqueta as estado_etiqueta', 'v.deleted_at as siguiente_estado')
+                            ->select('v.*', 'c.razon_social as cliente', 'c.movil as cliente_movil', 'vt.nombre as tipo_nombre', 'vt.etiqueta as tipo_etiqueta', 've.id as estado_id', 've.nombre as estado_nombre', 've.etiqueta as estado_etiqueta', 'v.deleted_at as siguiente_estado')
                             ->whereRaw($filtro_tipo_venta)
                             ->whereRaw($filtro_sucursal)
                             ->whereRaw($filtro_search)
@@ -154,7 +154,9 @@ class VentasController extends Controller
                                     ->where('ventas.sucursal_id', $sucursal_id)
                                     ->orderBy('ventas.created_at', 'ASC')
                                     ->groupBy('ventas.id')
-                                    ->havingRaw("TIMESTAMPDIFF(DAY, ventas.fecha, NOW()) < ?", [1])
+                                    ->whereYear("ventas.fecha", date('Y'))
+                                    ->whereMonth("ventas.fecha", date('m'))
+                                    ->whereDay("ventas.fecha", date('d'))
                                     ->get();
         return view('ventas.partials.ventas_cocina_lista', compact('ventas'));  
     }
@@ -169,6 +171,7 @@ class VentasController extends Controller
         } catch (\Throwable $th) {
             //throw $th;
         }
+        return 1;
         return redirect()->route('cocina.index')->with(['message' => 'Pedido listo.', 'alert-type' => 'success']);    
     }
 
