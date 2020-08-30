@@ -53,11 +53,19 @@
                                 <input type="hidden" name="venta_tipo_id" id="input-venta_tipo_id" value="1">
                                 <input type="hidden" name="facturacion" value="{{setting('empresa.facturas')}}">
                                 <div class="row">
-                                    <div class="form-group col-md-12 @if(!$cambiar_sucursal) hidden @else hola @endif">
+                                    <div class="form-group col-md-12">
                                         {{-- <label for="">Sucursal actual</label> --}}
                                         <select name="sucursal_id" id="select-sucursal_id" class="form-control">
                                             @foreach ($sucursales as $item)
-                                            <option value="{{$item->id}}">{{$item->nombre}}</option>
+                                            <option
+                                                @if(!$cambiar_sucursal)
+                                                    @if ($sucursal_actual == $item->id)
+                                                        selected
+                                                    @else
+                                                        disabled
+                                                    @endif
+                                                @endif
+                                                value="{{ $item->id }}">{{ $item->nombre }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -146,7 +154,7 @@
                                                 <td colspan="4" class="text-right"><h5>Descuento</h5></td>
                                                 <td id="label-descuento" colspan="2">
                                                     <div class="input-group">
-                                                        <input type="number" name="descuento" class="form-control cero_default" style="width:80px" onchange="total()" onkeyup="total()" min="0" value="0" id="input-descuento">
+                                                        <input type="number" name="descuento" class="form-control cero_default" style="width:80px" onchange="total()" onkeyup="total()" min="0" value="0" step="0.1" id="input-descuento">
                                                         <span class="input-group-addon">Bs.</span>
                                                     </div>
                                                 </td>
@@ -155,7 +163,7 @@
                                                 <td colspan="4" class="text-right"><h5>Costo de envío</h5></td>
                                                 <td id="label-costo_envio" colspan="2">
                                                     <div class="input-group">
-                                                        <input type="number" readonly name="cobro_adicional" class="form-control cero_default" style="width:80px" onchange="total()" onkeyup="total()" min="0" value="0" id="input-costo_envio">
+                                                        <input type="number" readonly name="cobro_adicional" class="form-control cero_default" style="width:80px" onchange="total()" onkeyup="total()" min="0" value="0" step="0.1" id="input-costo_envio">
                                                         <span class="input-group-addon">
                                                             <input type="checkbox" disabled id="check-cobro_adicional_factura" name="cobro_adicional_factura" data-toggle="tooltip" data-placement="bottom" title="Incluir costo de envío en factura">
                                                         </span>
@@ -489,7 +497,7 @@
         function agregar_producto(id){
             $.get("{{ url('admin/productos/get_producto') }}/"+id, function(data){
                 let stock = data.se_almacena ? data.stock : 1000;
-                agregar_detalle_venta(data.id, data.nombre, data.precio, stock, '', '');
+                agregar_detalle_venta(data.id, data.nombre, data.precio, data.precio_minimo, stock, '', '');
             });
         }
 
@@ -509,7 +517,7 @@
                     $('#producto-'+adicional_id).css('border', 'none')
                     $.get("{{ url('admin/productos/get_producto') }}/"+id, function(data){
                         let stock = data.se_almacena ? data.stock : 1000;
-                        agregar_detalle_venta(data.id, data.nombre, data.precio, stock, adicional_id, adicional_nombre);
+                        agregar_detalle_venta(data.id, data.nombre, data.precio, data.precio_minimo, stock, adicional_id, adicional_nombre);
                         adicional_id = '';
                     });
                 }
@@ -517,7 +525,7 @@
         }
 
         // Agregar detalle de venta
-        function agregar_detalle_venta(id, nombre, precio, stock, adicional_id, adicional_nombre){
+        function agregar_detalle_venta(id, nombre, precio, precio_minimo, stock, adicional_id, adicional_nombre){
             if(stock<1){
                 toastr.warning('La cantidad de producto ingresada sobrepasa la existente.', 'Atención');
                 return false;
@@ -559,7 +567,7 @@
                                                 <td><input type="text" class="form-control" name="observacion[]"></td>
                                                 <td>
                                                     <div class="input-group">
-                                                        <input type="number" ${editar_precio} id="input-precio_${index_tr}" min="0.01" step="0.01" data-precio="${precio}" value="${precio}" name="precio[]" class="form-control" onchange="subtotal('${index_tr}');" onkeyup="subtotal('${index_tr}')" required />
+                                                        <input type="number" ${editar_precio} id="input-precio_${index_tr}" min="${precio_minimo}" step="0.1" data-precio="${precio}" value="${precio}" name="precio[]" class="form-control input-precio" onchange="subtotal('${index_tr}');" onkeyup="subtotal('${index_tr}')" required />
                                                         <span class="input-group-addon">Bs.</span>
                                                     </div>
                                                     <input type="hidden" id="input-extras_id_${index_tr}" name="extras_id[]" />
@@ -568,7 +576,7 @@
                                                     <input type="hidden" id="input-total_extras_${index_tr}" name="total_extras[]" value="0" />
                                                     <div class="text-center text-success"><small id="label-extras_${index_tr}"></small></div>
                                                 </td>
-                                                <td><input type="number" min="0.1" max="${stock}" step="0.1" class="form-control" id="input-cantidad_${index_tr}" value="1" name="cantidad[]" onchange="subtotal('${index_tr}')" onkeyup="subtotal('${index_tr}')" required></td>
+                                                <td><input type="number" min="0.1" max="${stock}" step="0.1" class="form-control" id="input-cantidad_${index_tr}" value="1" step="0.1" name="cantidad[]" onchange="subtotal('${index_tr}')" onkeyup="subtotal('${index_tr}')" required></td>
                                                 <td class="label-subtotal" id="subtotal-${index_tr}"><h4>${precio} Bs.</h4></td>
                                                 <td width="40px"><label onclick="borrarDetalle('${index_tr}')" class="text-danger" style="cursor:pointer;font-size:20px"><span class="voyager-trash"></span></label></td>
                                             <tr>`);

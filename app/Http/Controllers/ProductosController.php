@@ -940,7 +940,7 @@ class ProductosController extends Controller
                             ->join('producto_unidades as pu', 'pu.producto_id', 'p.id')
                             ->join('productos_depositos as pd', 'pd.producto_id', 'p.id')
                             ->join('depositos as d', 'd.id', 'pd.deposito_id')
-                            ->select(DB::raw('p.id, p.nombre, pu.precio, pu.precio as precio_antiguo, p.imagen, p.se_almacena, (pd.stock + pd.stock_compra) as stock, p.descripcion_small as descripcion, m.abreviacion as moneda,
+                            ->select(DB::raw('p.id, p.nombre, pu.precio, p.precio_minimo, pu.precio as precio_antiguo, p.imagen, p.se_almacena, (pd.stock + pd.stock_compra) as stock, p.descripcion_small as descripcion, m.abreviacion as moneda,
                                             (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos'))
                             ->where('p.id', $id)
                             ->where('p.se_almacena', 1)
@@ -953,7 +953,7 @@ class ProductosController extends Controller
         $producto = $producto ?? DB::table('productos as p')
                                         ->join('monedas as m', 'm.id', 'p.moneda_id')
                                         ->join('producto_unidades as pu', 'pu.producto_id', 'p.id')
-                                        ->select(DB::raw('p.id, p.nombre, pu.precio, pu.precio as precio_antiguo, p.imagen, p.se_almacena, p.stock, p.descripcion_small as descripcion, m.abreviacion as moneda,
+                                        ->select(DB::raw('p.id, p.nombre, pu.precio, p.precio_minimo, pu.precio as precio_antiguo, p.imagen, p.se_almacena, p.stock, p.descripcion_small as descripcion, m.abreviacion as moneda,
                                                         (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos'))
                                         ->where('p.id', $id)
                                         ->where('pu.deleted_at', NULL)

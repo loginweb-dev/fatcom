@@ -14,12 +14,20 @@
             </a>
             @endif
         </div>
-        <div class="form-group col-md-4 @if(!$cambiar_sucursal) hidden @else hola @endif" style="margin-top:50px">
+        <div class="form-group col-md-4" style="margin-top:50px">
             {{-- <label for="">Sucursal actual</label> --}}
             <select name="sucursal_id" id="select-sucursal_id" class="form-control">
-                <option value="">Todas</option>
+                <option @if(!$cambiar_sucursal) disabled @endif value="">Todas</option>
                 @foreach ($sucursales as $item)
-                <option value="{{$item->id}}">{{$item->nombre}}</option>
+                <option
+                    @if(!$cambiar_sucursal)
+                        @if ($sucursal_actual == $item->id)
+                            selected
+                        @else
+                            disabled
+                        @endif
+                    @endif
+                    value="{{$item->id}}">{{$item->nombre}}</option>
                 @endforeach
             </select>
         </div>

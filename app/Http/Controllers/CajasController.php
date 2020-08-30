@@ -262,7 +262,7 @@ class CajasController extends Controller
 
     function asientos_store(Request $data){
         if($data->tipo=='egreso'){
-            $caja = IeCaja::where('abierta', 1)->first();
+            $caja = IeCaja::where('abierta', 1)->where('id', $data->caja_id)->first();
             $monto_caja = $caja ? $caja->monto_final : 0;
             if($data->monto > $monto_caja){
                 return redirect()->route('asientos_create')->with(['message' => 'El monto ingresado supera al saldo actual en caja.', 'alert-type' => 'error']);
