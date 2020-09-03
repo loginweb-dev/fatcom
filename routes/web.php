@@ -338,3 +338,7 @@ Route::get('/admin/templates/pages/sections/delete/{id}/{template_id}/{page_id}'
 Route::post('/admin/templates/pages/sections/blocks/create', 'TemplatesController@create_block')->middleware('auth')->name('templates.pages.sections.blocks.create');
 Route::get('/admin/templates/pages/sections/blocks/{type}/{id}/{template_id}/{page_id}', 'TemplatesController@options_block')->middleware('auth');
 Route::post('/admin/templates/pages/sections/blocks/inputs/update', 'TemplatesController@update_block_input')->middleware('auth')->name('templates.pages.sections.blocks.inputs.update');
+
+// ================================Pedidos===========================
+Route::resource('admin/orders','PedidosController'); 
+Route::get('admin/orders/lista/{sucursal_id}/{search}', 'PedidosController@pedidos_list');

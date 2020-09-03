@@ -14,7 +14,7 @@ class CreateClientesTable extends Migration {
 	{
 		Schema::create('clientes', function(Blueprint $table)
 		{
-			$table->increments('id');
+			$table->bigIncrements('id');
 			$table->string('razon_social')->nullable();
 			$table->string('nit')->nullable();
 			$table->string('code_movil')->default('+591');
