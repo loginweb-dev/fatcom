@@ -1729,6 +1729,46 @@ class FatcomPermissionsTableSeeder extends Seeder
                 'created_at' => '2020-02-18 17:04:55',
                 'updated_at' => '2020-02-18 17:04:55',
             ),
+            214 => 
+            array (
+                'id' => 266,
+                'key' => 'browse_orders',
+                'table_name' => 'pedidos',
+                'created_at' => '2020-09-03 20:34:59',
+                'updated_at' => '2020-09-03 20:34:59',
+            ),
+            215 => 
+            array (
+                'id' => 267,
+                'key' => 'add_orders',
+                'table_name' => 'pedidos',
+                'created_at' => '2020-09-03 20:35:11',
+                'updated_at' => '2020-09-03 20:35:11',
+            ),
+            216 => 
+            array (
+                'id' => 268,
+                'key' => 'view_orders',
+                'table_name' => 'pedidos',
+                'created_at' => '2020-09-03 20:35:30',
+                'updated_at' => '2020-09-03 20:35:30',
+            ),
+            217 => 
+            array (
+                'id' => 269,
+                'key' => 'edit_orders',
+                'table_name' => 'pedidos',
+                'created_at' => '2020-09-03 20:35:40',
+                'updated_at' => '2020-09-03 20:35:40',
+            ),
+            218 => 
+            array (
+                'id' => 270,
+                'key' => 'delete_orders',
+                'table_name' => 'pedidos',
+                'created_at' => '2020-09-03 20:35:49',
+                'updated_at' => '2020-09-03 20:35:49',
+            ),
         ));
         
         
