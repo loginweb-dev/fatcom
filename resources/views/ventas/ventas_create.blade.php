@@ -639,6 +639,7 @@
         }
 
         function ubicacion_anterior(id, lat, lon, descripcion){
+            console.log(map)
             map.removeLayer(marcador);
             $('#latitud').val(lat);
             $('#longitud').val(lon);

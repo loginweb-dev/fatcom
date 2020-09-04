@@ -7,7 +7,7 @@
         </h1>
     </div> --}}
 @stop
-@if(auth()->user()->hasPermission('add_ventas'))
+@if(auth()->user()->hasPermission('add_orders'))
 @section('content')
     <form id="form" action="{{route('ventas_store')}}" method="post">
         <div class="page-content browse container-fluid">
@@ -135,7 +135,7 @@
                             <div class="col-md-12 text-right">
                                 {{-- <button type="reset" id="btn-reset" class="btn btn-default">Vaciar</button> --}}
                                 {{-- <input type="checkbox" id="check-factura" name="factura" data-toggle="toggle" data-on="Con factura" data-off="Sin factura" data-onstyle="success" data-offstyle="danger"> --}}
-                                <button type="submit" id="btn-vender" class="btn btn-primary" style="padding:20px">Vender <span class="voyager-basket"></span> </button>
+                                <button type="submit" id="btn-vender" class="btn btn-primary" style="padding:20px">Registrar <span class="voyager-basket"></span> </button>
                             </div>
                         </div>
                     </div>

@@ -1748,7 +1748,7 @@ class FatcomPermissionsTableSeeder extends Seeder
             216 => 
             array (
                 'id' => 268,
-                'key' => 'view_orders',
+                'key' => 'read_orders',
                 'table_name' => 'pedidos',
                 'created_at' => '2020-09-03 20:35:30',
                 'updated_at' => '2020-09-03 20:35:30',

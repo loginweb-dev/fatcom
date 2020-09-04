@@ -33,7 +33,7 @@
                         @endif
                     </td>
                     <td class="no-sort no-click text-right" id="bread-actions">
-                        @if(auth()->user()->hasPermission('read_ventas'))
+                        @if(auth()->user()->hasPermission('read_orders'))
                             @if(setting('empresa.facturas') && $order->estado == 'V' && !$order->nro_factura)
                             <a data-toggle="modal" data-target="#modal_change" data-id="{{ $order->id }}" title="Convertir a factura" class="btn btn-sm btn-dark btn-change">
                                 <i class="voyager-certificate"></i> <span class="hidden-xs hidden-sm"></span>
@@ -49,7 +49,7 @@
                             </a>
                             @endif
                         @endif
-                        @if(auth()->user()->hasPermission('delete_ventas') && $order->estado == 'V')
+                        @if(auth()->user()->hasPermission('delete_orders') && $order->estado == 'V')
                         <a href="#" title="Borrar" class="btn btn-sm btn-danger btn-delete" data-id="{{ $order->id }}" data-importe="{{$order->importe_base}}" data-caja_id="{{$order->caja_id}}" data-toggle="modal" data-target="#modal_delete">
                             <i class="voyager-trash"></i> <span class="hidden-xs hidden-sm">Borrar</span>
                         </a>

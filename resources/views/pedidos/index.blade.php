@@ -1,14 +1,14 @@
 @extends('voyager::master')
 @section('page_title', 'Pedidos')
 
-@if(auth()->user()->hasPermission('browse_ventas'))
+@if(auth()->user()->hasPermission('browse_orders'))
     @section('page_header')
     <div class="row">
         <div class="col-md-8">
             <h1 class="page-title">
                 <i class="voyager-basket"></i> Pedidos
             </h1>
-            @if(auth()->user()->hasPermission('add_ventas'))
+            @if(auth()->user()->hasPermission('add_orders'))
             <a href="{{route('orders.create')}}" class="btn btn-success btn-add-new">
                 <i class="voyager-plus"></i> <span>Añadir nuevo</span>
             </a>
