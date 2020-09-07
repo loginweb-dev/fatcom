@@ -1186,6 +1186,7 @@ class VentasController extends Controller
                     ProformasDetalle::create([
                         'proforma_id' => $proforma->id,
                         'producto_id' => $data->producto_id[$i],
+                        'precio' => $data->precio[$i],
                         'cantidad' => $data->cantidad[$i]
                     ]);
                 }
@@ -1244,7 +1245,7 @@ class VentasController extends Controller
                                 'c.razon_social as cliente',
                                 'c.nit',
                                 'p.nombre as producto',
-                                'p.precio_venta as precio',
+                                'd.precio',
                                 'd.producto_id',
                                 'd.cantidad',
                                 's.nombre as subcategoria'
