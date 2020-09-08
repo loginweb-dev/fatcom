@@ -14,7 +14,8 @@ class ClientesTableSeeder extends Seeder
     {
         if (Cliente::count() == 0) {
             Cliente::create([
-                'razon_social' => 'Sin nombre'
+                'razon_social' => 'Sin nombre',
+                'nit' => '0000'
             ]);
         }
     }

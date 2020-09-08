@@ -30,7 +30,7 @@
                                 <th>Descuentos y bonificaciones rebajasdas otorgadas</th>
                                 <th>Importe base para débito fiscal</th>
                                 <th>Débito fiscal</th>
-                                <th style="width:130px">Código de control</th>
+                                <th>Código de control</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -82,15 +82,15 @@
                             @endforelse
                             <tr>
                                 <td colspan="7">TOTAL</td>
-                                <td style="background-color:#EEEAEA">{{number_format($importe_venta, 2, ',', '')}}</td>
-                                <td style="background-color:#EEEAEA">{{number_format($importe_ice, 2, ',', '')}}</td>
-                                <td style="background-color:#EEEAEA">{{number_format($importe_exento, 2, ',', '')}}</td>
-                                <td style="background-color:#EEEAEA">{{number_format($tasa_cero, 2, ',', '')}}</td>
-                                <td style="background-color:#EEEAEA">{{number_format($sub_total, 2, ',', '')}}</td>
-                                <td style="background-color:#EEEAEA">{{number_format($descuento, 2, ',', '')}}</td>
-                                {{-- <td style="background-color:#EEEAEA">{{number_format($importe_base, 2, ',', '')}}</td>
-                                <td style="background-color:#EEEAEA">{{number_format($debito_fiscal, 2, ',', '')}}</td> --}}
-                                <td colspan="3"></td>
+                                <td style="background-color:#EEEAEA">{{number_format($importe_venta, 2, ',', '.')}}</td>
+                                <td style="background-color:#EEEAEA">{{number_format($importe_ice, 2, ',', '.')}}</td>
+                                <td style="background-color:#EEEAEA">{{number_format($importe_exento, 2, ',', '.')}}</td>
+                                <td style="background-color:#EEEAEA">{{number_format($tasa_cero, 2, ',', '.')}}</td>
+                                <td style="background-color:#EEEAEA">{{number_format($sub_total, 2, ',', '.')}}</td>
+                                <td style="background-color:#EEEAEA">{{number_format($descuento, 2, ',', '.')}}</td>
+                                <td style="background-color:#EEEAEA">{{number_format($importe_base, 2, ',', '.')}}</td>
+                                <td style="background-color:#EEEAEA">{{number_format($debito_fiscal, 2, ',', '.')}}</td>
+                                <td></td>
                             </tr>
                         </tbody>
                     </table>

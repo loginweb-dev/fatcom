@@ -134,7 +134,6 @@ class CajasController extends Controller
     }
 
     function cajas_store(Request $data){
-        // dd($datos);
         $query = IeCaja::create([
             'sucursal_id' => $data->sucursal_id,
             'nombre' => $data->nombre,
@@ -147,6 +146,11 @@ class CajasController extends Controller
             'abierta' => 1,
             'user_id' => Auth::user()->id
         ]);
+
+        // Redireccionar en caso de que se haya ingresado a la vista desde otro formulario
+        if($data->redirect){
+            return redirect()->route($data->redirect)->with(['message' => 'Caja aperturada exitosamente.', 'alert-type' => 'success']);
+        }
         
         if($query){
             return redirect()->route('cajas_index')->with(['message' => 'Caja aperturada exitosamente.', 'alert-type' => 'success']);

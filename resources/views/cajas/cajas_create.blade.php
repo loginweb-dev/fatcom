@@ -13,8 +13,9 @@
             <div class="page-content browse container-fluid">
                 <div class="row">
                     <div class="col-md-12">
-                        <form action="{{route('cajas_store')}}" method="post">
+                        <form action="{{ route('cajas_store') }}" method="post">
                             @csrf
+                            <input type="hidden" name="redirect" value="{{ request('redirect') }}">
                             <div class="panel panel-bordered">
                                 <div class="panel-body">
                                     <div class="col-md-12">

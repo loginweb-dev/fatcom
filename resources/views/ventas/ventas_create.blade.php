@@ -16,7 +16,7 @@
             <div class="alert alert-warning">
                 <strong>Atención:</strong>
                 <p>No puede realizar ventas debido a que no se ha aperturado la caja.</p>
-                <p>Para realizar la apertura de la caja preciona <a href="{{ route('cajas_create') }}"><b style="color:blue">Aquí</b></a></p>
+                <p>Para realizar la apertura de la caja preciona <a href="{{ url('admin/cajas/crear?redirect=ventas_create') }}"><b style="color:blue">Aquí</b></a></p>
             </div>
             @endif
             @include('voyager::alerts')
@@ -34,7 +34,7 @@
                                 </li>
                                 @foreach ($categorias as $item)
                                 <li class="li-item" id="li-{{$item->id}}" style="display:inline">
-                                    <a data-toggle="tab" href="#tab1" onclick="lista_categorias({{$item->id}})">{{$item->nombre}}</a>
+                                    <a data-toggle="tab" href="#tab1" onclick="lista_categorias({{ $item->id }})">{{ $item->nombre }}</a>
                                 </li>
                                 @endforeach
                             </ul>

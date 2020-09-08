@@ -17,8 +17,8 @@ class CreateProformasDetallesTable extends Migration {
 			$table->increments('id');
 			$table->integer('proforma_id')->nullable();
 			$table->integer('producto_id')->nullable();
-			$table->decimal('precio', 8,2)->nullable();
-			$table->integer('cantidad')->nullable();
+			$table->decimal('precio', 10)->nullable();
+			$table->decimal('cantidad', 10)->nullable();
 			$table->timestamps();
 		});
 	}

@@ -34,7 +34,7 @@ $(function(){
                                                 <td>${insumo}</td>
                                                 <td>
                                                     <input type="hidden" name="insumo_id[]" class="input-insumo" value="${insumo_id}">
-                                                    <input type="number" class="form-control" name="cantidad_insumo[]" min="0.1" step="0.1" required>
+                                                    <input type="number" class="form-control" name="cantidad_insumo[]" min="0.1" step="0.01" required>
                                                 </td>
                                                 <td>${unidad_insumo}</td>
                                                 <td><span class="voyager-x text-danger" onclick="borrarTr(${insumo_indice})"></span></td>
@@ -123,7 +123,7 @@ function delete_imagen(url, datos){
 function add_precio_compra(indice_compra){
     $('#tr-precioCompra').append(`<tr id="tr-precioCompra${indice_compra}">
                                     <td><input type="number" min="0.01" step="0.01" class="form-control" name="monto[]" required></td>
-                                    <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_compra[]" required></td>
+                                    <td><input type="number" min="1" step="0.01" class="form-control" name="cantidad_minima_compra[]" required></td>
                                     <td style="padding-top:15px"><span onclick="borrarTr(${indice_compra}, 'Compra')" class="voyager-x text-danger" title="Quitar"></span></td>
                                 </tr>`);
 }
@@ -131,9 +131,9 @@ function add_precio_compra(indice_compra){
 // Agregar precio de venta
 function add_precio_venta(indice_venta){
     $('#tr-precioVenta').append(`<tr id="tr-precioVenta${indice_venta}">
-                                    <td><input type="number" min="1" step="0.1" class="form-control" name="precio_venta[]" required></td>
-                                    <td><input type="number" min="0" step="0.1" class="form-control" name="precio_minimo[]"></td>
-                                    <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_venta[]" required></td>
+                                    <td><input type="number" min="1" step="0.01" class="form-control" name="precio_venta[]" required></td>
+                                    <td><input type="number" min="0" step="0.01" class="form-control" name="precio_minimo[]"></td>
+                                    <td><input type="number" min="1" step="0.01" class="form-control" name="cantidad_minima_venta[]" required></td>
                                     <td style="padding-top:15px"><span onclick="borrarTr(${indice_venta}, 'Venta')" class="voyager-x text-danger" title="Quitar"></span></td>
                                 </tr>`);
 }
