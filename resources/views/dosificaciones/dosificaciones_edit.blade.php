@@ -48,7 +48,7 @@
                                     <div class="row">
                                         <div class="form-group col-md-6">
                                             <label for="">Numero inicial</label>
-                                            <input type="number" min="1" step="1" readonly name="numero_inicial" value="{{ $dosificacion->numero_inicial }}" class="form-control" required>
+                                            <input type="number" min="1" step="0.01" readonly name="numero_inicial" value="{{ $dosificacion->numero_inicial }}" class="form-control" required>
                                             @error('numero_inicial')
                                             <strong class="text-danger">{{ $message }}</strong>
                                             @enderror

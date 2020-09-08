@@ -53,17 +53,17 @@
                                                 </div>
                                                 <div class="form-group col-md-6">
                                                     <label for="">Stock</label>
-                                                    <input type="number" min="1" step="1" name="stock" class="form-control" required>
+                                                    <input type="number" min="1" step="0.01" name="stock" class="form-control" required>
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="form-group col-md-6">
                                                     <label for="">Precio de venta</label>
-                                                    <input type="number" min="1" step="0.1" name="precio_venta" class="form-control" placeholder="Precio de venta" required>
+                                                    <input type="number" min="1" step="0.01" name="precio_venta" class="form-control" placeholder="Precio de venta" required>
                                                 </div>
                                                 <div class="form-group col-md-6">
                                                     <label for="">precio mínimo</label> <label class="text-primary" @if(setting('admin.tips')) data-toggle="tooltip" data-placement="top" title="Este campo no necesita ser llenado" @endif>(Opcional)</label>
-                                                    <input type="number" min="0" step="0.1" name="precio_minimo" class="form-control" placeholder="Precio mínimo de venta">
+                                                    <input type="number" min="0" step="0.01" name="precio_minimo" class="form-control" placeholder="Precio mínimo de venta">
                                                 </div>
                                             </div>
                                             <div class="row">

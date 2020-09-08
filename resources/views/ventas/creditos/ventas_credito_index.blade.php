@@ -129,7 +129,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="">Monto</label>
-                                <input type="number" min="1" step="1" name="monto" class="form-control" required>
+                                <input type="number" min="1" step="0.01" name="monto" class="form-control" required>
                             </div>
                             <div class="form-group">
                                 <label for="">Observaciones</label>

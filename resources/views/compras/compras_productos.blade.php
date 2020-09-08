@@ -166,7 +166,7 @@
     var cont = 1;
     function agregarTr(id, nombre, precio_venta){
         $('#tr-total').before(` <tr id="tr-${cont}" class="tr-detalle">
-                                    <td class="@if(setting('empresa.tipo_actividad')=='servicios') hidden @endif"><input style="width:80px" type="number" data-indice="${cont}" class="form-control" onchange="calcular_subtotal(${cont})" onkeyup="calcular_subtotal(${cont})" id="cantidad-${cont}" min="0.1" step="0.1" value="1" name="cantidad[]"></td>
+                                    <td class="@if(setting('empresa.tipo_actividad')=='servicios') hidden @endif"><input style="width:80px" type="number" data-indice="${cont}" class="form-control" onchange="calcular_subtotal(${cont})" onkeyup="calcular_subtotal(${cont})" id="cantidad-${cont}" min="0.1" step="0.01" value="1" name="cantidad[]"></td>
                                     <td>
                                         <input type="hidden" class="input-producto_id" data-cont="${cont}" name="producto[]" value="${id}">
                                         <button type="button" class="btn btn-link" title="Ver información" onclick="producto_info(${id})">${nombre}</button>

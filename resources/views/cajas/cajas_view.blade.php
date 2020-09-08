@@ -309,7 +309,7 @@
             cortes.map(function(value){
                 $('#lista_cortes').append(`<tr>
                                 <td><h4><img src="{{url('img/billetes/${value}.jpg')}}" alt="${value} Bs." width="80px"> ${value} Bs. </h4></td>
-                                <td><input type="number" min="0" step="1" style="width:100px" data-value="${value}" class="form-control input-corte" value="0" required></td>
+                                <td><input type="number" min="0" step="0.01" style="width:100px" data-value="${value}" class="form-control input-corte" value="0" required></td>
                                 <td><label id="label-${value.replace('.', '')}">0.00 Bs.</label><input type="hidden" class="input-subtotal" id="input-${value.replace('.', '')}"></td>
                             </tr>`)
             });

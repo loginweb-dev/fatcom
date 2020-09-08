@@ -227,6 +227,7 @@ Route::get('admin/proformas/crear', 'VentasController@proformas_create')->name('
 Route::post('admin/proformas/store', 'VentasController@proformas_store')->name('proformas_store');
 Route::get('admin/proformas/impresion/{tipo}/{id}/{pdf?}', 'VentasController@proformas_print');
 Route::get('admin/proformas/detalle/{id}', 'VentasController@proformas_detalle');
+Route::post('admin/proformas/delete', 'VentasController@proforma_delete')->name('proforma_delete');
 
 // Hojas de trabajo
 Route::get('admin/hojastrabajo', 'VentasController@hojas_trabajos_index')->name('hojas_trabajos_index');
@@ -338,3 +339,7 @@ Route::get('/admin/templates/pages/sections/delete/{id}/{template_id}/{page_id}'
 Route::post('/admin/templates/pages/sections/blocks/create', 'TemplatesController@create_block')->middleware('auth')->name('templates.pages.sections.blocks.create');
 Route::get('/admin/templates/pages/sections/blocks/{type}/{id}/{template_id}/{page_id}', 'TemplatesController@options_block')->middleware('auth');
 Route::post('/admin/templates/pages/sections/blocks/inputs/update', 'TemplatesController@update_block_input')->middleware('auth')->name('templates.pages.sections.blocks.inputs.update');
+
+// ================================Pedidos===========================
+Route::resource('admin/orders','PedidosController'); 
+Route::get('admin/orders/lista/{sucursal_id}/{search}', 'PedidosController@pedidos_list');

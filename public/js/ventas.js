@@ -56,7 +56,8 @@ function subtotal(id){
 
     let precio = ($(`#input-precio_${id}`).val()!='') ? parseFloat($(`#input-precio_${id}`).val()) : 0;
     let cantidad = ($(`#input-cantidad_${id}`).val()!='') ? parseFloat($(`#input-cantidad_${id}`).val()) : 0;
-    let extras = ($(`#input-total_extras_${id}`).val()!='') ? parseFloat($(`#input-total_extras_${id}`).val()) : 0;
+    let extras = ($(`#input-total_extras_${id}`).val()!='' && $(`#input-total_extras_${id}`).val()!=undefined) ? parseFloat($(`#input-total_extras_${id}`).val()) : 0;
+    console.log(precio, cantidad, $(`#input-total_extras_${id}`).val())
     $(`#subtotal-${id}`).html(`<h4>${((precio+extras)*cantidad).toFixed(2)} Bs.</h4>`);
     total();
 }

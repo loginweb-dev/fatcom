@@ -158,7 +158,7 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="">Cantidad de copias</label>
-                        <input type="number" name="cantidad" value="1" min="1" step="1" max="20" class="form-control" id="" required>
+                        <input type="number" name="cantidad" value="1" min="1" step="0.01" max="20" class="form-control" id="" required>
                     </div>
                 </div>
                 <div class="modal-footer">

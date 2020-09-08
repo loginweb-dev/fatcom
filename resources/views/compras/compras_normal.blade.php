@@ -11,11 +11,11 @@
             <td width="50px"></td>
         </thead>
         <tr id="tr-1">
-            <td class=""><input type="number" data-indice="1" class="form-control" onchange="calcular_subtotal(1)" onkeyup="calcular_subtotal(1)" id="cantidad-1" min="1" step="1" value="1" name="cantidad[]" required></td>
+            <td class=""><input type="number" data-indice="1" class="form-control" onchange="calcular_subtotal(1)" onkeyup="calcular_subtotal(1)" id="cantidad-1" min="1" step="0.01" value="1" name="cantidad[]" required></td>
             <td>
                 <input type="text" class="form-control" name="producto[]" required>
             </td>
-            <td><input type="number" data-indice="1" class="form-control" onchange="calcular_subtotal(1)" onkeyup="calcular_subtotal(1)" id="precio-1" value="0.00" step="0.1" style="width:150px;" name="precio[]" required></td>
+            <td><input type="number" data-indice="1" class="form-control" onchange="calcular_subtotal(1)" onkeyup="calcular_subtotal(1)" id="precio-1" value="0.00" step="0.01" style="width:150px;" name="precio[]" required></td>
             <td><b class="label-subtotal" id="label-subtotal-1" style="width:150px;">0.00</b></td>
             <td>
                 <button type="button" class="btn btn-danger"><span class="voyager-trash"></span></button>
@@ -36,7 +36,7 @@
         var cont = 2;
         function agregarTr(){
             $('#tr-total').before(`<tr id="tr-${cont}" class="tr-detalle">
-                                    <td class=""><input type="number" data-indice="${cont}" class="form-control" onchange="calcular_subtotal(${cont})" onkeyup="calcular_subtotal(${cont})" id="cantidad-${cont}" min="0.1" step="0.1" value="1" name="cantidad[]"></td>
+                                    <td class=""><input type="number" data-indice="${cont}" class="form-control" onchange="calcular_subtotal(${cont})" onkeyup="calcular_subtotal(${cont})" id="cantidad-${cont}" min="0.1" step="0.01" value="1" name="cantidad[]"></td>
                                     <td><input type="text" class="form-control" name="producto[]" required></td>
                                     <td><input type="number" data-indice="${cont}" class="form-control" onchange="calcular_subtotal(${cont})" onkeyup="calcular_subtotal(${cont})" id="precio-${cont}" value="0.00" step="0.01" name="precio[]" ></td>
                                     <td><b class="label-subtotal" id="label-subtotal-${cont}">0.00</b></td>

@@ -260,7 +260,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="">Stock</label>
-                                <input type="number" name="stock" class="form-control" min="1" step="0.1" required>
+                                <input type="number" name="stock" class="form-control" min="1" step="0.01" required>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -387,7 +387,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="">Stock actual</label>
-                                <input type="number" name="stock" class="form-control" min="1" step="0.1" required>
+                                <input type="number" name="stock" class="form-control" min="1" step="0.01" required>
                                 <input type="hidden" name="stock_actual">
                             </div>
                         </div>
@@ -480,9 +480,9 @@
                         let option = `
                             <tr class="li-extras" id="li-extras-${id}">
                                 <td>${nombre}<input type="hidden" name="extras_id[]" value="${id}" /></td>
-                                <td><input type="number" min="0.1" step="0.1" name="cantidad[]" class="form-control" required /></td>
-                                <td><input type="number" step="0.1" name="precio_compra[]" value="${ultimo_precio}" class="form-control" required /></td>
-                                <td><input type="number" min="0.1" step="0.1" name="precio_venta[]" value="${precio}" class="form-control" required /></td>
+                                <td><input type="number" min="0.1" step="0.01" name="cantidad[]" class="form-control" required /></td>
+                                <td><input type="number" step="0.01" name="precio_compra[]" value="${ultimo_precio}" class="form-control" required /></td>
+                                <td><input type="number" min="0.1" step="0.01" name="precio_venta[]" value="${precio}" class="form-control" required /></td>
                                 <td>
                                     <button type="button" class="btn btn-link btn-sm btn-danger" onclick="removeExtraTr(${id})">
                                         <i class="voyager-trash"></i>
@@ -513,8 +513,8 @@
                         let option = `
                             <tr class="li-insumos" id="li-insumos-${id}">
                                 <td>${nombre}<input type="hidden" name="insumo_id[]" value="${id}" /></td>
-                                <td><input type="number" min="0.1" step="0.1" name="cantidad[]" class="form-control" required /></td>
-                                <td><input type="number" min="0.1" step="0.1" name="precio_venta[]" value="${precio}" class="form-control" required /></td>
+                                <td><input type="number" min="0.1" step="0.01" name="cantidad[]" class="form-control" required /></td>
+                                <td><input type="number" min="0.1" step="0.01" name="precio_venta[]" value="${precio}" class="form-control" required /></td>
                                 <td>
                                     <button type="button" class="btn btn-link btn-sm btn-danger" onclick="removeInsumoTr(${id})">
                                         <i class="voyager-trash"></i>
@@ -548,7 +548,7 @@
                             <tr class="li-items" id="li-items-${id}">
                                 <td>${nombre}<br><small>${subtitle}</small><input type="hidden" name="item_id[]" value="${id}" /></td>
                                 <td>${stock}</td>
-                                <td><input type="number" min="0.1" step="0.1" max="${stock}" name="cantidad_envio[]" class="form-control" required /></td>
+                                <td><input type="number" min="0.1" step="0.01" max="${stock}" name="cantidad_envio[]" class="form-control" required /></td>
                                 <td>
                                     <button type="button" class="btn btn-link btn-sm btn-danger" onclick="removeItemTr(${id})">
                                         <i class="voyager-trash"></i>

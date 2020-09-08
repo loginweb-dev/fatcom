@@ -328,11 +328,11 @@
                                         <div class="form-row">
                                             <div class="form-group col-md-6">
                                                 <label>Min</label>
-                                                <input class="form-control input-price" id="input-min" placeholder="Bs. 0" type="number" min="0" step="1">
+                                                <input class="form-control input-price" id="input-min" placeholder="Bs. 0" type="number" min="0" step="0.01">
                                             </div>
                                             <div class="form-group text-right col-md-6">
                                                 <label>Max</label>
-                                                <input class="form-control input-price" id="input-max" placeholder="Bs. 2.000" type="number" min="0" step="1">
+                                                <input class="form-control input-price" id="input-max" placeholder="Bs. 2.000" type="number" min="0" step="0.01">
                                             </div>
                                         </div>
                                         <button id="btn-price" class="btn btn-block btn-outline-primary">Aplicar</button>

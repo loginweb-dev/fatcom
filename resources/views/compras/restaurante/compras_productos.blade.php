@@ -88,7 +88,7 @@
             let nombre = $('#select-producto_id option:selected').text()
 
             $('#tr-total').before(`<tr id="tr-${cont}" class="tr-detalle">
-                                    <td class="@if(setting('empresa.tipo_actividad')=='servicios') hidden @endif"><input type="number" data-indice="${cont}" class="form-control" onchange="calcular_subtotal(${cont})" onkeyup="calcular_subtotal(${cont})" id="cantidad-${cont}" min="1" step="1" value="1" name="cantidad[]"></td>
+                                    <td class="@if(setting('empresa.tipo_actividad')=='servicios') hidden @endif"><input type="number" data-indice="${cont}" class="form-control" onchange="calcular_subtotal(${cont})" onkeyup="calcular_subtotal(${cont})" id="cantidad-${cont}" min="1" step="0.01" value="1" name="cantidad[]"></td>
                                     <td>
                                         <input type="hidden" class="input-producto_id" data-cont="${cont}" name="producto[]" value="${id}">
                                         <label>${nombre}</label>

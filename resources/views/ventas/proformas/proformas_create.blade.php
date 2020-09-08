@@ -216,9 +216,9 @@
 
     @section('javascript')
         <script src="{{url('js/loginweb.js')}}"></script>
+        <script src="{{ asset('js/rich_select.js') }}"></script>
         <script src="{{url('js/ventas.js')}}"></script>
         <script src="{{url('js/inventarios/productos.js')}}"></script>
-        <script src="{{ asset('js/rich_select.js') }}"></script>
         <script>
             // cargar vista de detalle de compra según tipo
             $(document).ready(function(){
@@ -307,11 +307,11 @@
                                                     <td><input type="hidden" value="${id}" name="producto_id[]"><button type="button" class="btn btn-link" title="Ver información" onclick="producto_info(${id})">${nombre}</button></td>
                                                     <td>
                                                         <div class="input-group">
-                                                            <input type="number" id="input-precio_${id}" min="1" step="0.1" value="${precio}" name="precio[]" class="form-control" onchange="subtotal('${id}');calcular_cambio()" onkeyup="subtotal('${id}');calcular_cambio()" required />
+                                                            <input type="number" id="input-precio_${id}" min="1" step="0.01" value="${precio}" name="precio[]" class="form-control" onchange="subtotal('${id}');" onkeyup="subtotal('${id}');" required />
                                                             <span class="input-group-addon">Bs.</span>
                                                         </div>
                                                     </td>
-                                                    <td><input type="number" min="1" step="1" class="form-control" id="input-cantidad_${id}" value="1" name="cantidad[]" onchange="subtotal('${id}');calcular_cambio()" onkeyup="subtotal('${id}');calcular_cambio()" required></td>
+                                                    <td><input type="number" min="1" step="0.01" class="form-control" id="input-cantidad_${id}" value="1" name="cantidad[]" onchange="subtotal('${id}');" onkeyup="subtotal('${id}');" required></td>
                                                     <td class="label-subtotal" id="subtotal-${id}"><h4>${precio} Bs.</h4></td>
                                                     <td width="40px"><label onclick="borrarProducto('${id}')" class="text-danger" style="cursor:pointer;font-size:20px"><span class="voyager-trash"></span></label></td>
                                                 <tr>`);
@@ -320,7 +320,6 @@
                 }
                 $('#input_cantidad-'+id).val('1');
                 total();
-                calcular_cambio();
             }
 
             function producto_info(id){

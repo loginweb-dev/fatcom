@@ -200,7 +200,7 @@
         
         $.get("{{ url('admin/productos/get_producto') }}/"+id, function(data){
             let stock = data.se_almacena ? data.stock : 1000;
-            agregar_detalle_venta(data.id, data.nombre, data.precio, stock, '', '');
+            agregar_detalle_venta(data.id, data.nombre, data.precio, data.precio_minimo, stock, '', '');
             $('#select-producto_id').select2('destroy');
             $('#select-producto_id').val('');
             // $('#select-producto_id').select2();

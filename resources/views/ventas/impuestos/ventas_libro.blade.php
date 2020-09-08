@@ -39,7 +39,7 @@
                                 <div class="col-md-2" style="padding:0px">
                                     <label>Año</label>
                                     <div class="input-group">
-                                        <input type="number" min="2010" step="1" class="form-control" value="{{date('Y')}}" name="anio" required>
+                                        <input type="number" min="2010" step="0.01" class="form-control" value="{{date('Y')}}" name="anio" required>
                                         <span class="input-group-btn">
                                             <button class="btn btn-primary" style="margin-top:0px;padding:9px">
                                                 <span class="voyager-search"></span>

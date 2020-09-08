@@ -53,7 +53,7 @@
                                                 <td>{{ $item->producto }} <input type="hidden" name="producto_id[]" value="{{ $item->producto_id }}"></td>
                                                 <td><input type="number" @if(!$estado) disabled @endif name="precio[]" id="input-precio{{ $item->detalle_id }}" class="form-control input-change" data-id="{{ $item->detalle_id }}" min="0" step="0.01" name="precio" value="{{ $item->precio }}" required></td>
                                                 <td id="label-catidad{{ $item->detalle_id }}">{{ $item->cantidad }}</td>
-                                                <td><input type="number" @if(!$estado) disabled @endif id="input-cantidad_devuelta{{ $item->detalle_id }}" class="form-control input-change" data-id="{{ $item->detalle_id }}" min="0" step="1" max="{{ $item->cantidad }}" value="0" required></td>
+                                                <td><input type="number" @if(!$estado) disabled @endif id="input-cantidad_devuelta{{ $item->detalle_id }}" class="form-control input-change" data-id="{{ $item->detalle_id }}" min="0" step="0.01" max="{{ $item->cantidad }}" value="0" required></td>
                                                 <td><span id="label-vendido{{ $item->detalle_id }}">{{ $item->cantidad }}</span><input type="hidden" id="input-cantidad{{ $item->detalle_id }}" name="cantidad[]" value="{{ $item->cantidad }}"></td>
                                                 <td class="label-importe" id="label-importe{{ $item->detalle_id }}">{{ $item->cantidad * $item->precio }} Bs.</td>
                                             </tr>  

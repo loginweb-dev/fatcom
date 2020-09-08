@@ -3,22 +3,14 @@
 @section('page_header')
     {{-- <div class="container-fluid">
         <h1 class="page-title">
-            <i class="voyager-basket"></i> Nueva venta
+            <i class="voyager-basket"></i> Nuevo Pedido
         </h1>
     </div> --}}
 @stop
-@if(auth()->user()->hasPermission('add_ventas'))
+@if(auth()->user()->hasPermission('add_orders'))
 @section('content')
     <form id="form" action="{{route('ventas_store')}}" method="post">
         <div class="page-content browse container-fluid">
-            <br>
-            @if(!$abierta)
-            <div class="alert alert-warning">
-                <strong>Atención:</strong>
-                <p>No puede realizar ventas debido a que no se ha aperturado la caja.</p>
-                <p>Para realizar la apertura de la caja preciona <a href="{{ route('cajas_create') }}"><b style="color:blue">Aquí</b></a></p>
-            </div>
-            @endif
             @include('voyager::alerts')
             <div class="row">
                 <div class="col-md-8">
@@ -70,23 +62,6 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div style="@if(!setting('delivery.activo')) display:none @endif">
-                                    <div class="row">
-                                        <div class="form-group col-md-4 col-xs-4 text-center">
-                                            <label>¿Para llevar?</label><br>
-                                            <input type="checkbox" id="check-llevar" name="llevar" data-toggle="toggle" data-on="Sí" data-off="No">
-                                            <input type="hidden" name="fecha" class="form-control" value="{{date('Y-m-d')}}" required>
-                                        </div>
-                                        {{-- Div auxiliar para mantener el estilo --}}
-                                        <div class="form-group col-md-4 col-xs-4 text-center">
-                                            <input type="hidden" min="1" step="0.01" name="nro_mesa" id="input-nro_mesa" class="form-control" value="" required>
-                                        </div>
-                                        <div class="form-group col-md-4 col-xs-4 text-center">
-                                            <label>A domicilio</label><br>
-                                            <input type="checkbox" id="check-domicilio" name="domicilio" data-toggle="toggle" data-onstyle="success" data-on="Sí" data-off="No">
-                                        </div>
-                                    </div>
-                                </div>
                                 <div class="row">
                                     <div class="form-group col-md-12">
                                         {{-- <label>Nombre completo</label> --}}
@@ -101,30 +76,6 @@
                                     </div>
                                     <div class="form-group col-md-12">
                                         <input type="number" name="nit" id="input-nit" class="form-control" placeholder="NIT/CI">
-                                    </div>
-                                </div>
-                                <hr style="margin-bottom:10px;margin-top:0px">
-                                <div class="row">
-                                    <div class="form-group col-md-6 col-xs-6">
-                                        <label>Monto entregado</label>
-                                        <input type="number" id="input-entregado" value="0" min="0" step="0.01" onchange="calcular_cambio()" onkeyup="calcular_cambio()" style="font-size:18px" name="monto_recibido" class="form-control cero_default" required>
-                                    </div>
-                                    <div class="form-group col-md-6 col-xs-6">
-                                        <label>Cambio</label>
-                                        <input type="number" id="input-cambio" value="0" step="0.01" readonly style="font-size:18px" name="cambio" class="form-control" required>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="form-group col-md-4 col-xs-4 text-center">
-                                        <input type="checkbox" id="check-efectivo" name="efectivo" data-toggle="toggle" data-on="Tarjeta" data-off="Efectivo">
-                                    </div>
-                                    <div class="form-group col-md-4 col-xs-4 text-center">
-                                        @if(setting('ventas.ventas_credito'))
-                                        <input type="checkbox" id="check-credito" name="credito" data-toggle="toggle" data-on="Crédito" data-off="Contado">
-                                        @endif
-                                    </div>
-                                    <div class="form-group col-md-4 col-xs-4 text-center">
-                                        <input type="checkbox" id="check-factura" name="factura" data-toggle="toggle" data-on="Factura" data-off="Recibo">
                                     </div>
                                 </div>
                             </div>
@@ -178,13 +129,13 @@
                                     </table>
                                 </div>
                                 
-                                <textarea name="observaciones" id="" class="form-control" rows="3" placeholder="Observaciones de la venta..."></textarea>
+                                <textarea name="observacion" id="" class="form-control" rows="3" placeholder="Observacion de la venta..."></textarea>
                                 <input type="hidden" name="importe" value="0" id="input-total">
                             </div>
                             <div class="col-md-12 text-right">
                                 {{-- <button type="reset" id="btn-reset" class="btn btn-default">Vaciar</button> --}}
                                 {{-- <input type="checkbox" id="check-factura" name="factura" data-toggle="toggle" data-on="Con factura" data-off="Sin factura" data-onstyle="success" data-offstyle="danger"> --}}
-                                <button type="submit" id="btn-vender" @if(!$abierta) disabled @endif class="btn btn-primary" style="padding:20px">Vender <span class="voyager-basket"></span> </button>
+                                <button type="submit" id="btn-vender" class="btn btn-primary" style="padding:20px">Registrar <span class="voyager-basket"></span> </button>
                             </div>
                         </div>
                     </div>
@@ -325,12 +276,6 @@
                 }
             });
 
-            // si hay facturacion se habilita el boton de facturas
-            @if(!$facturacion || !setting('empresa.facturas'))
-                $('#check-factura').prop('checked', false).change()
-                $('#check-factura').attr('disabled', true);
-            @endif
-
             // formulario de nuevo cliente
             $('#form-nuevo_cliente').on('submit', function(e){
                 e.preventDefault();
@@ -360,22 +305,17 @@
                 // return 0;
                 let datos = $(this).serialize();
                 $.ajax({
-                    url: "{{route('ventas_store')}}",
+                    url: "{{route('orders.store')}}",
                     type: 'post',
                     data: datos,
                     success: function(data){
                         if(data){
+                            console.log(data)
                             if(data=='error 1'){
                                 toastr.error('Venta no realizada, el cliente seleccionado tiene un pedido pendiente.', 'Error');
                             }else{
                                 let id = data;
-                                toastr.success('Venta registrada correctamente.', 'Exito');
-                                // Factura
-                                @if($tamanio=='rollo')
-                                    $.get("{{url('admin/venta/impresion/rollo')}}/"+id, function(){});
-                                @else
-                                    window.open("{{url('admin/venta/impresion/normal')}}/"+id, "Factura", `width=700, height=400`)
-                                @endif
+                                toastr.success('Pedido registrado correctamente.', 'Exito');
                                 
                                 $('#form')[0].reset();
                                 $('.tr-detalle').remove();
@@ -391,7 +331,7 @@
                                 $('#select-cliente_id').trigger('change');
                             }
                         }else{
-                            toastr.error('Ocurrio un error al ingresar la venta.', 'Error');
+                            toastr.error('Ocurrio un error al ingresar el pedido.', 'Error');
                         }
                         $('#modal_load').modal('hide');
                         $('#btn-vender').removeAttr('disabled');
@@ -526,6 +466,7 @@
 
         // Agregar detalle de venta
         function agregar_detalle_venta(id, nombre, precio, precio_minimo, stock, adicional_id, adicional_nombre){
+            console.log(stock)
             if(stock<1){
                 toastr.warning('La cantidad de producto ingresada sobrepasa la existente.', 'Atención');
                 return false;
@@ -595,7 +536,7 @@
                                 </div>`;
 
         // mostrar Buscador de productos
-        function productos_buscar(id){
+        function productos_buscar(){
             if(tab_active!='search'){
                 if(!sessionStorage.getItem(`SearchTab`)){
                     $('#tab1').html(loader_request);
@@ -639,7 +580,6 @@
         }
 
         function ubicacion_anterior(id, lat, lon, descripcion){
-            console.log(map)
             map.removeLayer(marcador);
             $('#latitud').val(lat);
             $('#longitud').val(lon);

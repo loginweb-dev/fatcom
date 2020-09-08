@@ -54,12 +54,15 @@
                                                             <i class="voyager-basket"></i> <span class="hidden-xs hidden-sm">Vender</span>
                                                         </a>
                                                         <div class="dropdown" style="display:inline">
-                                                            <button class="btn btn-sm btn-danger dropdown-toggle" type="button" data-toggle="dropdown" title="Exportar"><i class="voyager-polaroid"></i> Generar
+                                                            <button class="btn btn-sm btn-primary dropdown-toggle" type="button" data-toggle="dropdown" title="Exportar"><i class="voyager-polaroid"></i> Generar
                                                             <span class="caret"></span></button>
                                                             <ul class="dropdown-menu">
                                                                 <li><a href="#" title="Imprimir" data-id="{{ $item->id }}" class="btn-print" >Impresión</a></li>
                                                                 <li><a href="{{ url('admin/proformas/impresion/normal/'.$item->id.'/true') }}" target="_blank">PDF</a></li>
                                                             </ul>
+                                                            <a href="#" title="Anular" class="btn btn-sm btn-danger btn-delete" data-id="{{ $item->id }}"  data-toggle="modal" data-target="#modal_delete">
+                                                                   <i class="voyager-trash"></i> <span class="hidden-xs hidden-sm">Anular</span>
+                                                            </a>
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -89,6 +92,34 @@
                 </div>
             </div>
         </div>
+        {{-- modal delete --}}
+        <form id="form-delete" action="{{route('proforma_delete')}}" method="POST">
+            <div class="modal modal-danger fade" tabindex="-1" id="modal_delete" role="dialog">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                        aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">
+                                <i class="voyager-trash"></i> Estás seguro que quieres anular la proforma?
+                            </h4>
+                        </div>
+                        <div class="modal-body">
+                            <p>Si anula una proforma ya no podra cambiar el estado de la misma.</p>
+                            
+                        </div>
+                        <div class="modal-footer">
+                            {{ csrf_field() }}
+                            <input type="hidden" name="id" value="">
+                            <input type="submit" class="btn btn-danger pull-right delete-confirm"value="Sí, anular!">
+                            <button type="button" class="btn btn-default pull-right" data-dismiss="modal">
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
     @stop
     @section('css')
         <style>
@@ -121,6 +152,11 @@
                 @else
                     window.open("{{url('admin/proformas/impresion/normal')}}/"+id, "Factura", `width=700, height=400`)
                 @endif
+            });
+
+            $('.btn-delete').click(function(){
+                let id = $(this).data('id');
+                $('#form-delete input[name="id"]').val(id);
             });
         </script>
     @stop

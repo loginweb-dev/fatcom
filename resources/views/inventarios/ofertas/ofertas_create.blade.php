@@ -71,7 +71,7 @@
                                                         <div class="row">
                                                             <div class="form-group col-md-12">
                                                                 <label for="">Día del mes</label>  @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Día de la semana en que se realizará la camáña periódicamente. Este campo es obligatorio."></span> @endif
-                                                                <input type="number" id="input-dia" min="1" max="31" step="1" class="form-control" name="dia_mes" value="1">
+                                                                <input type="number" id="input-dia" min="1" max="31" step="0.01" class="form-control" name="dia_mes" value="1">
                                                             </div>
                                                         </div>
                                                     </div>

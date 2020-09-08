@@ -73,7 +73,7 @@
                                                 <div class="form-group col-md-12">
                                                     <label for="">Precio de venta</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Precio de venta del producto. Este campo es obligatorio."></span> @endif
                                                     <div class="input-group">
-                                                        <input type="number" name="precio_venta[]" value="{{$precio_venta[0]->precio}}" class="form-control" min="1" step="0.1" required>
+                                                        <input type="number" name="precio_venta[]" value="{{$precio_venta[0]->precio}}" class="form-control" min="1" step="0.01" required>
 
                                                         <span class="input-group-addon">Bs.</span>
                                                     </div>

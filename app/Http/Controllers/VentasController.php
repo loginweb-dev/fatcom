@@ -423,8 +423,17 @@ class VentasController extends Controller
 
                 // Crear asiento de ingreso si no es un pedido a domicilio
                 if($data->venta_tipo_id != 4){
-                    $monto_venta = $data->importe - $data->descuento;
-                    $this->crear_asiento_venta($venta_id, $monto_venta, $caja_id, 'Venta realizada');
+                    //crear un asiento dependiendo si es venta a credito o a contado
+                    if($data->credito && ($data->monto_recibido < ($data->importe - $data->descuento))){
+                       if ($data->monto_recibido > 0) {
+                        $monto_venta = $data->monto_recibido;
+                        $this->crear_asiento_venta($venta_id, $monto_venta, $caja_id, 'Anticipo de venta realizada'); 
+                       }
+                    }else {
+                        $monto_venta = ($data->importe - $data->descuento);
+                        $this->crear_asiento_venta($venta_id, $monto_venta, $caja_id, 'Venta realizada');
+                    }
+                    
                 }
 
                 // Obetner dosificacion
@@ -1092,7 +1101,7 @@ class VentasController extends Controller
                                 ->select('vp.*', 'v.importe', 'v.monto_recibido', 'u.name')
                                 ->where('vp.venta_id', $id)
                                 ->get();
-
+       // dd($detalle);
         return view('ventas.creditos.ventas_credito_details', compact('detalle'));
     }
 
@@ -1186,6 +1195,7 @@ class VentasController extends Controller
                     ProformasDetalle::create([
                         'proforma_id' => $proforma->id,
                         'producto_id' => $data->producto_id[$i],
+                        'precio' => $data->precio[$i],
                         'cantidad' => $data->cantidad[$i]
                     ]);
                 }
@@ -1244,13 +1254,18 @@ class VentasController extends Controller
                                 'c.razon_social as cliente',
                                 'c.nit',
                                 'p.nombre as producto',
-                                'p.precio_venta as precio',
+                                'd.precio',
                                 'd.producto_id',
                                 'd.cantidad',
                                 's.nombre as subcategoria'
                             )
                     ->where('pr.id', $id)
                     ->get();
+    }
+
+    public function proforma_delete(Request $request){
+        Proforma::find($request->id)->delete();
+        return redirect()->route('proformas_index')->with(['message' => 'Proforma eliminada correctamente.', 'alert-type' => 'success']);
     }
     // =====================================
 

@@ -24,7 +24,7 @@
         @endforeach
         <tr>
             <td colspan="4" align="right"><b>TOTAL Bs.</b></td>
-            <td><b>{{number_format($detalle[0]->monto_recibido, 2, ',', '.')}}</b></td>
+            <td><b>{{number_format(count($detalle) ? $detalle[0]->monto_recibido : 0, 2, ',', '.')}}</b></td>
         </tr>
     </table>
 </div>
