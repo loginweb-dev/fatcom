@@ -89,7 +89,7 @@
                                             @endphp
                                             <dt>Cantidad</dt>
                                             <dd>
-                                                {{-- <input type="number" @if($costo_envio === '') disabled @endif style="width:75px;padding:0px 10px" class="form-control" onchange="calcular_total({{$item->id}})" onkeyup="calcular_total({{$item->id}})" name="cantidad[]" id="input-cantidad{{$item->id}}" value="1" min="1" step="1"> --}}
+                                                {{-- <input type="number" @if($costo_envio === '') disabled @endif style="width:75px;padding:0px 10px" class="form-control" onchange="calcular_total({{$item->id}})" onkeyup="calcular_total({{$item->id}})" name="cantidad[]" id="input-cantidad{{$item->id}}" value="1" min="1" step="0.01"> --}}
                                                 <div class="row">
                                                     <span class="qty" id="label-cantidad-{{ $item->id }}" style="font-size:15;font-weight:bold;padding:5px 0px"> {{ $item->cantidad }} </span>
                                                     <input type="hidden" value="{{ $item->cantidad }}" id="input-cantidad-{{ $item->id }}">

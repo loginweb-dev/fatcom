@@ -51,7 +51,7 @@
                                                             <select name="mes" class="form-control" class="form-control" style="width:150px">
                                                                 {!! $meses !!}
                                                             </select>
-                                                            <input type="number" min="2019" step="1" style="width:80px" name="anio_mes" value="{{date('Y')}}" class="form-control" required>
+                                                            <input type="number" min="2019" step="0.01" style="width:80px" name="anio_mes" value="{{date('Y')}}" class="form-control" required>
                                                             <button class="btn btn-primary" type="submit" style="margin:0px;padding:9px">
                                                                 <span class="hidden-xs hidden-sm">Generar</span> <span class="voyager-bulb" aria-hidden="true"></span>
                                                             </button>
@@ -69,7 +69,7 @@
                                                                     <option value="{{$item->id}}">{{$item->nombre}}</option>
                                                                     @endforeach
                                                                 </select>
-                                                                <input type="number" min="2019" step="1" name="anio_anual" value="{{date('Y')}}" class="form-control" style="width:150px">
+                                                                <input type="number" min="2019" step="0.01" name="anio_anual" value="{{date('Y')}}" class="form-control" style="width:150px">
                                                                 <button class="btn btn-primary" type="submit" style="margin:0px;padding:9px">
                                                                     <span class="hidden-xs hidden-sm">Generar</span> <span class="voyager-bulb" aria-hidden="true"></span>
                                                                 </button>
@@ -96,7 +96,7 @@
                                                                 <option value="categorias">Agrupado por categorías</option>
                                                                 <option value="subcategorias">Agrupado por subcategorías</option>
                                                             </select>
-                                                            <input type="number" min="2019" step="1" style="width:100px" name="anio_productos" value="{{date('Y')}}" class="form-control" required>
+                                                            <input type="number" min="2019" step="0.01" style="width:100px" name="anio_productos" value="{{date('Y')}}" class="form-control" required>
                                                             <button class="btn btn-primary" type="submit" style="margin:0px;padding:9px">
                                                                 <span class="hidden-xs hidden-sm">Generar</span> <span class="voyager-bulb" aria-hidden="true"></span>
                                                             </button>

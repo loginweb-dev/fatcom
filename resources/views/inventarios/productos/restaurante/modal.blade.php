@@ -35,7 +35,7 @@
                                     <td>{{$item->nombre}}</td>
                                     <td>
                                         <input type="hidden" name="insumo_id[]" class="input-insumo" value="{{$item->id}}">
-                                        <input type="number" class="form-control" name="cantidad_insumo[]" value="{{$item->cantidad}}" min="0.1" step="0.1" required>
+                                        <input type="number" class="form-control" name="cantidad_insumo[]" value="{{$item->cantidad}}" min="0.1" step="0.01" required>
                                     </td>
                                     <td>{{$item->unidad}}</td>
                                     <td><span class="voyager-x text-danger" onclick="borrarTr({{$cont_insumos}})"></span></td>

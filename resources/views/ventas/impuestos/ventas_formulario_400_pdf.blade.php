@@ -217,7 +217,7 @@
             <td>5</td>
             <td colspan="9">IUE pagado a compensar (1ra. Instancia o  saldo IUE a compensar del form. 400, C619 del periodo anterior)</td>
             <td>664</td>
-            <td colspan="2"><input type="number" min="0" step="0.1" value="{{$celda5}}" class="calculable celdaA" id="celda5"></td>
+            <td colspan="2"><input type="number" min="0" step="0.01" value="{{$celda5}}" class="calculable celdaA" id="celda5"></td>
         </tr>
         <tr class="celdaB">
             <td>6</td>
@@ -229,13 +229,13 @@
             <td>7</td>
             <td colspan="9">Pagos a cuenta realizados en DD.JJ. y/o boleta de pago correspondientes al periodo que se declare</td>
             <td>622</td>
-            <td colspan="2"><input type="number" min="0" step="0.1" value="{{$celda7}}" class="calculable celdaB" id="celda7"></td>
+            <td colspan="2"><input type="number" min="0" step="0.01" value="{{$celda7}}" class="calculable celdaB" id="celda7"></td>
         </tr>
         <tr class="celdaB">
             <td>8</td>
             <td colspan="9">Saldo de pago a cuenta del periodo anterior a compensar (C747 del form. 400 del periodo anterior)</td>
             <td>640</td>
-            <td colspan="2"><input type="number" min="0" step="0.1" value="{{$celda8}}" class="calculable celdaA" id="celda8"></td>
+            <td colspan="2"><input type="number" min="0" step="0.01" value="{{$celda8}}" class="calculable celdaA" id="celda8"></td>
         </tr>
         <tr class="celdaA">
             <td>9</td>
@@ -262,25 +262,25 @@
             <td>12</td>
             <td colspan="9">Actualizacion del valor sobre tributo omitido</td>
             <td>925</td>
-            <td colspan="2"><input type="number" min="0" step="0.1" value="{{$celda12}}" class="calculable celdaB" id="celda12"></td>
+            <td colspan="2"><input type="number" min="0" step="0.01" value="{{$celda12}}" class="calculable celdaB" id="celda12"></td>
         </tr>
         <tr class="celdaA">
             <td>13</td>
             <td colspan="9">Intereses sobre tributos omitidos actualizado</td>
             <td>938</td>
-            <td colspan="2"><input type="number" min="0" step="0.1" value="{{$celda13}}" class="calculable celdaA" id="celda13"></td>
+            <td colspan="2"><input type="number" min="0" step="0.01" value="{{$celda13}}" class="calculable celdaA" id="celda13"></td>
         </tr>
         <tr class="celdaB">
             <td>14</td>
             <td colspan="9">Multa por incumplimiento al deber formal ( IDF ) por presentacion fuera de plazo</td>
             <td>954</td>
-            <td colspan="2"><input type="number" min="0" step="0.1" value="{{$celda14}}" class="calculable celdaB" id="celda14"></td>
+            <td colspan="2"><input type="number" min="0" step="0.01" value="{{$celda14}}" class="calculable celdaB" id="celda14"></td>
         </tr>
         <tr class="celdaA">
             <td>15</td>
             <td colspan="9">Multa por IDF por incremento del impuesto determinado en DD.JJ rectificatoria presentada fuera de plazo</td>
             <td>967</td>
-            <td colspan="2"><input type="number" min="0" step="0.1" value="{{$celda15}}" class="calculable celdaA" id="celda15"></td>
+            <td colspan="2"><input type="number" min="0" step="0.01" value="{{$celda15}}" class="calculable celdaA" id="celda15"></td>
         </tr>
         <tr class="celdaB">
             <td>16</td>
@@ -316,7 +316,7 @@
             <td>20</td>
             <td colspan="9">Pagos en valores ( sujeto a verificacion y confirmacion por el SIN )</td>
             <td>677</td>
-            <td colspan="2"><input type="number" min="0" step="0.1" value="{{$celda20}}" class="calculable celdaB" id="celda20"></td>
+            <td colspan="2"><input type="number" min="0" step="0.01" value="{{$celda20}}" class="calculable celdaB" id="celda20"></td>
         </tr>
         <tr class="celdaA">
             <td>21</td>

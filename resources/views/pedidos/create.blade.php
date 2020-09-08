@@ -105,7 +105,7 @@
                                                 <td colspan="4" class="text-right"><h5>Descuento</h5></td>
                                                 <td id="label-descuento" colspan="2">
                                                     <div class="input-group">
-                                                        <input type="number" name="descuento" class="form-control cero_default" style="width:80px" onchange="total()" onkeyup="total()" min="0" value="0" step="0.1" id="input-descuento">
+                                                        <input type="number" name="descuento" class="form-control cero_default" style="width:80px" onchange="total()" onkeyup="total()" min="0" value="0" step="0.01" id="input-descuento">
                                                         <span class="input-group-addon">Bs.</span>
                                                     </div>
                                                 </td>
@@ -114,7 +114,7 @@
                                                 <td colspan="4" class="text-right"><h5>Costo de envío</h5></td>
                                                 <td id="label-costo_envio" colspan="2">
                                                     <div class="input-group">
-                                                        <input type="number" readonly name="cobro_adicional" class="form-control cero_default" style="width:80px" onchange="total()" onkeyup="total()" min="0" value="0" step="0.1" id="input-costo_envio">
+                                                        <input type="number" readonly name="cobro_adicional" class="form-control cero_default" style="width:80px" onchange="total()" onkeyup="total()" min="0" value="0" step="0.01" id="input-costo_envio">
                                                         <span class="input-group-addon">
                                                             <input type="checkbox" disabled id="check-cobro_adicional_factura" name="cobro_adicional_factura" data-toggle="tooltip" data-placement="bottom" title="Incluir costo de envío en factura">
                                                         </span>
@@ -508,7 +508,7 @@
                                                 <td><input type="text" class="form-control" name="observacion[]"></td>
                                                 <td>
                                                     <div class="input-group">
-                                                        <input type="number" ${editar_precio} id="input-precio_${index_tr}" min="${precio_minimo}" step="0.1" data-precio="${precio}" value="${precio}" name="precio[]" class="form-control input-precio" onchange="subtotal('${index_tr}');" onkeyup="subtotal('${index_tr}')" required />
+                                                        <input type="number" ${editar_precio} id="input-precio_${index_tr}" min="${precio_minimo}" step="0.01" data-precio="${precio}" value="${precio}" name="precio[]" class="form-control input-precio" onchange="subtotal('${index_tr}');" onkeyup="subtotal('${index_tr}')" required />
                                                         <span class="input-group-addon">Bs.</span>
                                                     </div>
                                                     <input type="hidden" id="input-extras_id_${index_tr}" name="extras_id[]" />
@@ -517,7 +517,7 @@
                                                     <input type="hidden" id="input-total_extras_${index_tr}" name="total_extras[]" value="0" />
                                                     <div class="text-center text-success"><small id="label-extras_${index_tr}"></small></div>
                                                 </td>
-                                                <td><input type="number" min="0.1" max="${stock}" step="0.1" class="form-control" id="input-cantidad_${index_tr}" value="1" step="0.1" name="cantidad[]" onchange="subtotal('${index_tr}')" onkeyup="subtotal('${index_tr}')" required></td>
+                                                <td><input type="number" min="0.1" max="${stock}" step="0.01" class="form-control" id="input-cantidad_${index_tr}" value="1" step="0.01" name="cantidad[]" onchange="subtotal('${index_tr}')" onkeyup="subtotal('${index_tr}')" required></td>
                                                 <td class="label-subtotal" id="subtotal-${index_tr}"><h4>${precio} Bs.</h4></td>
                                                 <td width="40px"><label onclick="borrarDetalle('${index_tr}')" class="text-danger" style="cursor:pointer;font-size:20px"><span class="voyager-trash"></span></label></td>
                                             <tr>`);

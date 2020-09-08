@@ -52,7 +52,7 @@
                                                 </div>
                                                 <div class="form-group col-md-6">
                                                     <label for="">Stock</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad de productos en stock. Este campo es obligatorio."></span> @endif
-                                                    <input type="number" name="stock" class="form-control"  min="1" step="1" required>
+                                                    <input type="number" name="stock" class="form-control"  min="1" step="0.01" required>
                                                 </div>
                                             </div>
                                             <div class="row">
@@ -187,8 +187,8 @@
                                         </thead>
                                         <tbody id="tr-precioCompra">
                                             <tr>
-                                                <td><input type="number" min="1" step="0.1" class="form-control" name="monto[]" ></td>
-                                                <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_compra[]" ></td>
+                                                <td><input type="number" min="1" step="0.01" class="form-control" name="monto[]" ></td>
+                                                <td><input type="number" min="1" step="0.01" class="form-control" name="cantidad_minima_compra[]" ></td>
                                                 <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
                                             </tr>
                                         </tbody>
@@ -214,9 +214,9 @@
                                         </thead>
                                         <tbody id="tr-precioVenta">
                                             <tr>
-                                                <td><input type="number" min="1" step="0.1" class="form-control" name="precio_venta[]" required></td>
-                                                <td><input type="number" min="0" step="0.1" class="form-control" name="precio_minimo[]"></td>
-                                                <td><input type="number" min="1" step="1" class="form-control" name="cantidad_minima_venta[]" value="1" required></td>
+                                                <td><input type="number" min="1" step="0.01" class="form-control" name="precio_venta[]" required></td>
+                                                <td><input type="number" min="0" step="0.01" class="form-control" name="precio_minimo[]"></td>
+                                                <td><input type="number" min="1" step="0.01" class="form-control" name="cantidad_minima_venta[]" value="1" required></td>
                                                 <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
                                             </tr>
                                         </tbody>

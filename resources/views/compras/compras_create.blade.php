@@ -70,14 +70,14 @@
                             <div class="row">
                                 <div class="form-group col-md-6" style="margin-bottom:10px">
                                     <label>Monto exento</label>
-                                    <input type="number" min="0" step="0.1" name="monto_exento" value="0" class="form-control calculable con_factura" id="input-exento" data-toggle="popover" data-trigger="focus" data-html="true" title="Información" data-placement="top" data-content="Monto que no está sujeto al IVA o que está exento (ICE, IEHD, Tasas, IPJ y Contribuciones e Importes Exentos). También se consignará el importe de las compras
+                                    <input type="number" min="0" step="0.01" name="monto_exento" value="0" class="form-control calculable con_factura" id="input-exento" data-toggle="popover" data-trigger="focus" data-html="true" title="Información" data-placement="top" data-content="Monto que no está sujeto al IVA o que está exento (ICE, IEHD, Tasas, IPJ y Contribuciones e Importes Exentos). También se consignará el importe de las compras
                                     gravadas a Tasa Cero. Ejemplos:<br>
                                     En el caso de compras de Gasolina o Diésel a estaciones de servicio debe registrar el 30% del importe total.<br>
                                     Para el caso de Actividades gravadas a Tasa Cero también se registra el 100% del Importe Total de la compra." required>
                                 </div>
                                 <div class="form-group col-md-6" style="margin-bottom:10px">
                                     <label>Descuento</label>
-                                    <input type="number" min="0" step="0.1" name="descuento" value="0" class="form-control calculable con_factura" id="input-descuento" required>
+                                    <input type="number" min="0" step="0.01" name="descuento" value="0" class="form-control calculable con_factura" id="input-descuento" required>
                                 </div>
                             </div>
                             <div class="form-group">

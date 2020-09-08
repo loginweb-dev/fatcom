@@ -227,6 +227,7 @@ Route::get('admin/proformas/crear', 'VentasController@proformas_create')->name('
 Route::post('admin/proformas/store', 'VentasController@proformas_store')->name('proformas_store');
 Route::get('admin/proformas/impresion/{tipo}/{id}/{pdf?}', 'VentasController@proformas_print');
 Route::get('admin/proformas/detalle/{id}', 'VentasController@proformas_detalle');
+Route::post('admin/proformas/delete', 'VentasController@proforma_delete')->name('proforma_delete');
 
 // Hojas de trabajo
 Route::get('admin/hojastrabajo', 'VentasController@hojas_trabajos_index')->name('hojas_trabajos_index');

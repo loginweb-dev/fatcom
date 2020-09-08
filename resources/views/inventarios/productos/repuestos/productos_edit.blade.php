@@ -82,7 +82,7 @@
                                             <div class="row">
                                                 <div class="form-group col-md-6">
                                                     <label for="">Stock mínimo</label> @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad mínima de productos en stock para mostrar notificación de escasez. Este campo no es obligatorio."></span> @endif
-                                                    <input type="number" name="stock_minimo" class="form-control" value="{{$producto->stock_minimo}}" min="0" step="1">
+                                                    <input type="number" name="stock_minimo" class="form-control" value="{{$producto->stock_minimo}}" min="0" step="0.01">
                                                     @error('stock')
                                                     <strong class="text-danger">{{ $message }}</strong>
                                                     @enderror
@@ -151,13 +151,13 @@
                                                 @if ($i==0)
                                                 <tr>
                                                     <td><input type="number" min="0.01" step="0.01" class="form-control" value="{{$precio_compra[$i]->monto}}" name="monto[]"></td>
-                                                    <td><input type="number" min="1" step="1" class="form-control" value="{{$precio_compra[$i]->cantidad_minima}}" name="cantidad_minima_compra[]"></td>
+                                                    <td><input type="number" min="1" step="0.01" class="form-control" value="{{$precio_compra[$i]->cantidad_minima}}" name="cantidad_minima_compra[]"></td>
                                                     <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
                                                 </tr>
                                                 @else
                                                     <tr id="tr-precioCompra{{$indiceCompra}}">
                                                         <td><input type="number" min="0.01" step="0.01" class="form-control" value="{{$precio_compra[$i]->monto}}" name="monto[]" required></td>
-                                                        <td><input type="number" min="1" step="1" class="form-control" value="{{$precio_compra[$i]->cantidad_minima}}" name="cantidad_minima_compra[]" required></td>
+                                                        <td><input type="number" min="1" step="0.01" class="form-control" value="{{$precio_compra[$i]->cantidad_minima}}" name="cantidad_minima_compra[]" required></td>
                                                         <td style="padding-top:15px"><span onclick="borrarTr({{$indiceCompra}}, 'Compra')" class="voyager-x text-danger"></span></td>
                                                     </tr>
                                                 @endif
@@ -195,14 +195,14 @@
                                                 <tr>
                                                     <td><input type="number" min="0.01" step="0.01" class="form-control" value="{{$precio_venta[$i]->precio}}" name="precio_venta[]" required></td>
                                                     <td><input type="number" min="0" step="0.01" class="form-control" value="{{$precio_venta[$i]->precio_minimo}}" name="precio_minimo[]"></td>
-                                                    <td><input type="number" min="1" step="1" class="form-control" value="{{$precio_venta[$i]->cantidad_minima}}" name="cantidad_minima_venta[]" required></td>
+                                                    <td><input type="number" min="1" step="0.01" class="form-control" value="{{$precio_venta[$i]->cantidad_minima}}" name="cantidad_minima_venta[]" required></td>
                                                     <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
                                                 </tr>
                                                 @else
                                                     <tr id="tr-precioVenta{{$indiceVenta}}">
                                                         <td><input type="number" min="0.01" step="0.01" class="form-control" value="{{$precio_venta[$i]->precio}}" name="precio_venta[]" required></td>
                                                         <td><input type="number" min="0" step="0.01" class="form-control" value="{{$precio_venta[$i]->precio_minimo}}" name="precio_minimo[]"></td>
-                                                        <td><input type="number" min="1" step="1" class="form-control" value="{{$precio_venta[$i]->cantidad_minima}}" name="cantidad_minima_venta[]" required></td>
+                                                        <td><input type="number" min="1" step="0.01" class="form-control" value="{{$precio_venta[$i]->cantidad_minima}}" name="cantidad_minima_venta[]" required></td>
                                                         <td style="padding-top:15px"><span onclick="borrarTr({{$indiceVenta}}, 'Venta')" class="voyager-x text-danger"></span></td>
                                                     </tr>
                                                 @endif
