@@ -91,7 +91,7 @@ Route::post('admin/depositos/producto/delete', 'DepositosController@delete_produ
 
 // ================================Productos===========================
 Route::get('admin/productos', 'ProductosController@index')->name('productos_index');
-Route::get('admin/productos/lista/{categoria}/{subcategoria}/{marca}/{talla}/{genero}/{color}/{search}', 'ProductosController@productos_list');
+Route::get('admin/productos/lista/{categoria}/{subcategoria}/{marca}/{talla}/{genero}/{color}/{search}/{cantpaginada?}', 'ProductosController@productos_list');
 Route::get('admin/productos/buscar/{value}', 'ProductosController@search');
 Route::get('admin/productos/ver/{id}', 'ProductosController@view')->name('productos_view');
 Route::get('admin/productos/ver/informacion/{id}', 'ProductosController@view_simple');

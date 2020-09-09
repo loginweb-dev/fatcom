@@ -343,7 +343,7 @@
                         obtener_lista(tipo, '{{url("admin/productos/list")}}', destino);
                     }
                     
-                    filtro('{{url("admin/ofertas/filtros/filtro_simple/ofertas_detalles")}}');
+                    filtro('{{url("admin/ofertas/filtros/filtro_simple/ofertas_detalles")}}', '{{ setting('admin.modo_sistema') }}');
                 });
 
                 // Cambiar duración de oferta

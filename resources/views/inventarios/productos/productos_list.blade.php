@@ -197,7 +197,7 @@
             let link = $(this).attr('href');
             if(link){
                 page = link.split('=')[1];
-                filtro('{{url("admin/productos/lista")}}', page);
+                filtro_productos('{{url("admin/productos/lista")}}', page);
             }
         });
     });

@@ -108,7 +108,23 @@
                                     </div>
                                     <div class="row">
                                     <div class="col-md-12">
-                                        <div class="col-md-7"></div>
+                                        <div class="col-md-7">
+                                          <div class="dataTables_length">
+                                            <label>
+                                             Mostrar
+                                             <select 
+                                               name="selectcantidad" 
+                                               class="form-control input-sm selectcantidad"
+                                            >
+                                               <option value="10">10</option>
+                                               <option value="25">25</option>
+                                               <option value="50">50</option>
+                                               <option value="100">100</option>
+                                             </select>
+                                             Entradas
+                                            </label>
+                                          </div>
+                                        </div>
                                         <div class="col-md-5">
                                             <form id="form-search" class="form-search">
                                                 <div class="input-group">
@@ -180,7 +196,7 @@
         <script>
             $(document).ready(function() {
 
-                filtro('{{url("admin/productos/lista")}}', 1);
+                filtro_productos('{{url("admin/productos/lista")}}', 1);
 
                  // Cuando se abre el acordeon se inizializan los select2 que tiene dentro
                 $('#accordion').on('show.bs.collapse', function () {
@@ -203,16 +219,16 @@
                         obtener_lista(tipo, '{{url("admin/productos/list")}}', destino);
                     }
                     
-                    filtro('{{url("admin/productos/lista")}}', 1);
+                    filtro_productos('{{url("admin/productos/lista")}}', 1);
                 });
 
                 $('#form-search').on('submit', function(e){
                     e.preventDefault();
-                    filtro('{{url("admin/productos/lista")}}', 1);
+                    filtro_productos('{{url("admin/productos/lista")}}', 1);
                 });
             });
 
-            function filtro(url, page){
+            function filtro_productos(url, cantpaginada ,page ){
                 $('#load-modal').css('display', 'flex');
                 $('#lista-productos').html('');
                 let categoria = $('#select-categoria_id').val() ? $('#select-categoria_id').val() : 'all';
@@ -224,7 +240,7 @@
                 let search = $('#search_value').val() ? $('#search_value').val() : 'all';
 
                 $.ajax({
-                    url: url+'/'+categoria+'/'+subcategoria+'/'+marca+'/'+talla+'/'+genero+'/'+color+'/'+search+'?page='+page,
+                    url: url+'/'+categoria+'/'+subcategoria+'/'+marca+'/'+talla+'/'+genero+'/'+color+'/'+search+'/'+cantpaginada+'?page='+page,
                     type: 'get',
                     success: function(response){
                         $('#lista-productos').html(response);
@@ -232,6 +248,12 @@
                     }
                 });
             }
+            const selectCant = document.querySelector('.selectcantidad');
+            selectCant.addEventListener('change', (event) => {
+                cantpaginate = event.target.value;
+                filtro_productos('{{url("admin/productos/lista")}}',cantpaginate, 1);
+                console.log(`Estas mostrando ${cantpaginate}`);
+            });
         </script>
     @stop
 
