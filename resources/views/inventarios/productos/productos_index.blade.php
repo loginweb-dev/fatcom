@@ -106,24 +106,32 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="row">
                                     <div class="col-md-12">
                                         <div class="col-md-7">
-                                          <div class="dataTables_length">
-                                            <label>
-                                             Mostrar
-                                             <select 
-                                               name="selectcantidad" 
-                                               class="form-control input-sm selectcantidad"
-                                            >
-                                               <option value="10">10</option>
-                                               <option value="25">25</option>
-                                               <option value="50">50</option>
-                                               <option value="100">100</option>
-                                             </select>
-                                             Entradas
-                                            </label>
-                                          </div>
+                                            <div class="dataTables_length form-inline" id="contenedor">
+                                                <label>
+                                                Mostrar
+                                                <select 
+                                                name="selectcantidad" 
+                                                class="form-control input-sm selectcantidad"
+                                                >
+                                                <option value="10">10</option>
+                                                <option value="25">25</option>
+                                                <option value="50">50</option>
+                                                <option value="100">100</option>
+                                                </select>
+                                                </label>
+                                                <select class="form-control input-sm selectorder">
+                                                    <option value="codigo">ID</option>
+                                                    <option value="nombre">Nombre</option>
+                                                </select>
+                                                <div class="radio" style="margin-left:10px; margin-right:10px">
+                                                    <label><input type="radio" name="typeorder" checked value="desc"> DESC</label>
+                                                </div>
+                                                <div class="radio">
+                                                    <label><input type="radio" name="typeorder" value="asc"> ASC</label>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="col-md-5">
                                             <form id="form-search" class="form-search">
@@ -137,8 +145,7 @@
                                                 </div>
                                             </form>
                                             <small class="text-muted">Para volver a ver todos los productos realizar busqueda vacía.</small>
-                                        </div>
-                                        
+                                        </div>                               
                                     </div>
                                 </div>
                                 </div>
@@ -194,6 +201,7 @@
         <script src="{{url('js/loginweb.js')}}"></script>
         <script src="{{url('js/inventarios/productos.js')}}"></script>
         <script>
+            var countPage = 10, order = 'id', typeOrder = 'desc';
             $(document).ready(function() {
 
                 filtro_productos('{{url("admin/productos/lista")}}', 1);
@@ -228,7 +236,7 @@
                 });
             });
 
-            function filtro_productos(url, cantpaginada ,page ){
+            function filtro_productos(url ,page ){
                 $('#load-modal').css('display', 'flex');
                 $('#lista-productos').html('');
                 let categoria = $('#select-categoria_id').val() ? $('#select-categoria_id').val() : 'all';
@@ -240,7 +248,7 @@
                 let search = $('#search_value').val() ? $('#search_value').val() : 'all';
 
                 $.ajax({
-                    url: url+'/'+categoria+'/'+subcategoria+'/'+marca+'/'+talla+'/'+genero+'/'+color+'/'+search+'/'+cantpaginada+'?page='+page,
+                    url: url+'/'+categoria+'/'+subcategoria+'/'+marca+'/'+talla+'/'+genero+'/'+color+'/'+search+'/'+order+'/'+typeOrder+'/'+countPage+'?page='+page,
                     type: 'get',
                     success: function(response){
                         $('#lista-productos').html(response);
@@ -248,11 +256,20 @@
                     }
                 });
             }
-            const selectCant = document.querySelector('.selectcantidad');
-            selectCant.addEventListener('change', (event) => {
-                cantpaginate = event.target.value;
-                filtro_productos('{{url("admin/productos/lista")}}',cantpaginate, 1);
-                console.log(`Estas mostrando ${cantpaginate}`);
+         
+            $('.selectcantidad').change(function(){
+                countPage = $(this).val();
+                filtro_productos('{{url("admin/productos/lista")}}', 1);
+            });
+            $('.selectorder').change(function(){
+                order = $(this).val();
+            });
+            $("input[name=typeorder]").click(function () {  
+                  
+                if (typeOrder != $(this).val()) {
+                    typeOrder = $(this).val();
+                    filtro_productos('{{url("admin/productos/lista")}}', 1);
+                }
             });
         </script>
     @stop

@@ -59,7 +59,7 @@ class ProductosController extends Controller
         return view('inventarios/productos/productos_index', compact('value', 'categorias', 'count_productos'));
     }
 
-    public function productos_list($categoria, $subcategoria, $marca, $talla, $genero, $color, $search, $cantpaginada = 10){
+    public function productos_list($categoria, $subcategoria, $marca, $talla, $genero, $color, $search,$order="id",$typeOrder="desc", $cantpaginada = 10){
         $filtro_categoria = ($categoria != 'all') ? " s.categoria_id = $categoria " : ' 1 ';
         $filtro_subcategoria = ($subcategoria != 'all') ? " and  p.subcategoria_id = $subcategoria " : ' and 1';
         $filtro_marca = ($marca != 'all') ? " and p.marca_id = $marca " : ' and 1';
@@ -88,7 +88,7 @@ class ProductosController extends Controller
                                 ->whereRaw($filtro_categoria.$filtro_subcategoria.$filtro_marca.$filtro_talla.$filtro_genero.$filtro_color)
                                 ->whereRaw($filtro_search)
                                 ->where('p.deleted_at', NULL)
-                                ->orderBy('p.id', 'DESC')
+                                ->orderBy('p.'.$order, $typeOrder)
                                 ->paginate($cantpaginada);
 
         return view('inventarios/productos/productos_list', compact('registros'));
