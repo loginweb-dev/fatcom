@@ -38,8 +38,11 @@
                                         <thead>
                                             <tr>
                                                 <th>Código</th>
+                                                <th>Usuario</th>
                                                 <th>Cliente</th>
                                                 <th>Fecha</th>
+                                                <th>Total</th>
+                                                <th>Productos</th>
                                                 <th class="actions text-right">Acciones</th>
                                             </tr>
                                         </thead>
@@ -47,8 +50,15 @@
                                             @forelse ($registros as $item)
                                                 <tr>
                                                     <td>{{$item->codigo}}</td>
-                                                    <td>{{$item->razon_social}}</td>
+                                                    <td>{{$item->user->name}}</td>
+                                                    <td>{{$item->cliente->razon_social}}</td>
                                                     <td>{{date('d-m-Y', strtotime($item->created_at))}} <br> <small>{{\Carbon\Carbon::parse($item->created_at)->diffForHumans()}}</small> </td>
+                                                    <td>{{$item->detalle->sum(('subtotal'))}}</td>
+                                                    <td>
+                                                        @foreach($item->detalle as $detail)
+                                                          * {{$detail->producto->text}} <br>
+                                                        @endforeach
+                                                    </td>
                                                     <td class="no-sort no-click text-right" id="bread-actions">
                                                         <a title="Realizar venta" href="{{url('admin/ventas/crear').'?proforma='.$item->id}}" class="btn btn-sm btn-success">
                                                             <i class="voyager-basket"></i> <span class="hidden-xs hidden-sm">Vender</span>

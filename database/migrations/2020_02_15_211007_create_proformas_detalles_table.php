@@ -19,6 +19,7 @@ class CreateProformasDetallesTable extends Migration {
 			$table->integer('producto_id')->nullable();
 			$table->decimal('precio', 8,2)->nullable();
 			$table->integer('cantidad')->nullable();
+			$table->decimal('subtotal', 8,2)->nullable();
 			$table->timestamps();
 		});
 	}

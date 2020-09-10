@@ -18,6 +18,7 @@ class CreateComprasDetallesTable extends Migration {
 			$table->integer('compra_id')->unsigned()->nullable()->index();
 			$table->string('producto_id')->nullable();
 			$table->decimal('precio', 10)->nullable();
+			$table->decimal('precio_envio', 8,2)->nullable();
 			$table->decimal('cantidad', 10)->nullable();
 			$table->timestamps();
 		});

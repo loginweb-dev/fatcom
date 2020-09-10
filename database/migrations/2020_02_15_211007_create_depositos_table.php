@@ -14,7 +14,7 @@ class CreateDepositosTable extends Migration {
 	{
 		Schema::create('depositos', function(Blueprint $table)
 		{
-			$table->increments('id');
+			$table->bigIncrements('id');
 			$table->string('nombre')->nullable();
 			$table->text('direccion', 65535)->nullable();
 			$table->integer('sucursal_id')->nullable();

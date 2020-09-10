@@ -6,9 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-
+use App\ProductosAnulado;
 use App\Deposito;
-use App\ProductosDeposito;
 use App\ProductosTraspaso;
 use App\ProductosTraspasosDetalle;
 use App\Extra;
@@ -634,30 +633,40 @@ class DepositosController extends Controller
     }
 
     public function delete_producto(Request $request){
+       
+        if ($request->cantidad > $request->stockActual) {
+            return redirect()
+                        ->back()
+                        ->with([
+                            'message' => "Cantidad excede al stock.",
+                            'alert-type' => 'error'
+                        ]);
+        }
+        DB::beginTransaction();
         try {
-            // Eliminar productos del deposito
-            DB::table('productos_depositos')
-                    ->where('deposito_id', $request->deposito_id)->where('producto_id', $request->producto_id)
-                    ->update(['deleted_at' => Carbon::now()]);
+            \App\ProductosDeposito::find($request->producto_id)->decrement('stock',$request->cantidad);
+            \App\Producto::find($request->producto_id)->decrement('stock',$request->cantidad);
 
-            // Editar stock global del producto
-            DB::table('productos')->where('id', $request->producto_id)->decrement('stock', $request->stock_actual);
-
-            // Obtener los depositos en los que existe el producto
-            $producto_depositos = DB::table('productos_depositos')
-                                        ->select('id')
-                                        ->where('deposito_id', $request->deposito_id)->where('producto_id', $request->producto_id)->where('deleted_at', NULL)
-                                        ->first();
-            // Si el producto no existe en ningún otro deposito se actualiza como NO ALMACENABLE
-            if(!$producto_depositos){
-                DB::table('productos')->where('id', $request->producto_id)->update(['se_almacena' => 0]);
-            }
-
+            $producto_anulado = new ProductosAnulado;
+            $producto_anulado->motivo = $request->motivo;
+            $producto_anulado->cantidad = $request->cantidad;
+            $producto_anulado->producto_id = $request->producto_id;
+            $producto_anulado->deposito_id = $request->deposito_id;
+            $producto_anulado->user_id = auth()->user()->id;
+            $producto_anulado->save();
+        
             DB::commit();
-            return redirect()->route('depositos_view', ['id' => $request->deposito_id])->with(['message' => 'Producto de almacen eliminado exitosamenete.', 'alert-type' => 'success']);
+            return redirect()
+                        ->back()
+                        ->with([
+                            'message' => "Producto Anulado Correctamente.",
+                            'alert-type' => 'info'
+                        ]);
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect()->route('depositos_view', ['id' => $request->deposito_id])->with(['message' => 'Ocurrió un error al eliminar el producto del almacen.', 'alert-type' => 'error']);
+            return redirect()
+                    ->back()
+                    ->with(['message' => 'Ocurrió un error al eliminar el producto del almacen.', 'alert-type' => 'error']);
         }
     }
 

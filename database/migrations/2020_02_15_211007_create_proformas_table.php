@@ -17,6 +17,8 @@ class CreateProformasTable extends Migration {
 			$table->increments('id');
 			$table->string('codigo')->nullable();
 			$table->integer('cliente_id')->nullable();
+			$table->unsignedBigInteger('user_id');
+			$table->foreign('user_id')->references('id')->on('users');
 			$table->timestamps();
 			$table->softDeletes();
 		});

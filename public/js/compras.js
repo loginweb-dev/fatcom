@@ -43,6 +43,13 @@ function total(){
     });
     $('#label-total').text(total.toFixed(2)+' Bs.');
     $('#input-importe_compra').val(total)
+
+    let totalcantidad = 0;
+    $("input[name='cantidad[]']").each(function(){
+        totalcantidad += parseFloat($(this).val());
+    });
+    $('#input-totalcantidad').val(totalcantidad);
+   
 }
 
 // cargar vista de detalle de compra según tipo

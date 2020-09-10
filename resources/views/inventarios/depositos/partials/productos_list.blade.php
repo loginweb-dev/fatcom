@@ -34,8 +34,8 @@
                             <a data-toggle="modal" data-target="#modal_edit_producto" data-id="{{ $item->id }}" data-cantidad="{{ $item->cantidad }}" title="Editar" class="btn btn-sm btn-primary btn-edit">
                                 <i class="voyager-edit"></i> <span class="hidden-xs hidden-sm">Editar</span>
                             </a>
-                            <a data-toggle="modal" data-target="#modal_delete_producto" data-id="{{ $item->id }}" data-cantidad="{{ $item->cantidad }}" title="Eliminar" class="btn btn-sm btn-danger btn-delete">
-                                <i class="voyager-trash"></i> <span class="hidden-xs hidden-sm">Borrar</span>
+                            <a data-toggle="modal" data-target="#modal_delete_producto" data-id="{{ $item->id }}" data-cantidad="{{ $item->cantidad }}" title="Anular" class="btn btn-sm btn-danger btn-delete">
+                                <i class="voyager-trash"></i> <span class="hidden-xs hidden-sm">Anular</span>
                             </a>
                             @endif
                         </td>
@@ -76,6 +76,12 @@
                 page = link.split('=')[1];
                 listItems(list_items, page);
             }
+        });
+         // set valor de delete
+         $('.btn-delete').click(function(){
+            $('#modal_delete_producto input[name="producto_id"]').val($(this).data('id'));
+            $('#modal_delete_producto input[name="stockActual"]').val($(this).data('cantidad'));
+           
         });
     });
 </script>

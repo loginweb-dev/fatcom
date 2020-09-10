@@ -409,18 +409,31 @@
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                                         aria-hidden="true">&times;</span></button>
                             <h4 class="modal-title">
-                                <i class="voyager-list-add"></i> Eliminar producto de almacen
+                                <i class="voyager-list-add"></i> Anulacion de producto de almacen
                             </h4>
                         </div>
                         <div class="modal-body">
                             {{ csrf_field() }}
                             <input type="hidden" name="deposito_id" value="{{ $id }}">
                             <input type="hidden" name="producto_id">
-                            <div class="alert alert-danger">
+                            
+                            <div class="alert alert-warning">
                                 <strong>Atención:</strong>
                                 <p>Tenga en cuenta que al eliminar el stock del producto de este almacen de forma manual, no coincidirá con el sus datos de compra y ventas del mismo.</p>
                             </div>
-                            <input type="hidden" name="stock_actual">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="cantidad">Stock Actual</label>
+                                    <input class="form-control" type="text" name="stockActual" readOnly> 
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="cantidad">Cantidad Anular</label>
+                                    <input class="form-control" type="number" name="cantidad" required> 
+                                </div>
+                                 <div class="col-md-12">
+                                    <textarea class="form-control" name="motivo" cols="30" rows="5" placeholder="Motivo..." required></textarea>    
+                                 </div>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <input type="submit" class="btn btn-danger pull-right"value="Eliminar">

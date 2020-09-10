@@ -105,8 +105,15 @@
     </thead>
     <tbody>
         <tr id="tr-total">
-            <td colspan="6" class="text-right"><b>TOTAL</b></td>
+            <td colspan="5" class="text-right"><b>Costo Envío</b></td>
+            <td colspan="2">
+                <input type="text" placeholder="Costo envío" class="form-control">
+            </td> 
+        </tr>
+        <tr>
+            <td colspan="5" class="text-right"><b>TOTAL</b></td>
             <td><b id="label-total">0.00 Bs.</b></td>
+            <td></td>
         </tr>
     </tbody>
 </table>

@@ -115,6 +115,7 @@
                                     </div>
                                 </div>
                             </div>
+                            <input type="text" id="input-totalcantidad">
                             {{--  --}}
                             <div class="row" id="table-datos_calculados">
                                 <br>
@@ -134,6 +135,7 @@
                                         </tr>
                                     </tbody>
                                 </table>
+                               
                             </div>
                         </div>
                         <div class="panel-footer">
