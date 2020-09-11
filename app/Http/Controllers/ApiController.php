@@ -34,6 +34,7 @@ use App\RepartidoresPedido;
 use App\VentasSeguimiento;
 use App\Empleado;
 use App\Sucursale;
+use App\IeCaja;
 
 // Eventos
 use App\Events\pedidoNuevo;
@@ -717,6 +718,7 @@ class ApiController extends Controller
     }
 
     public function order_register_v2(Request $request){
+        $brachOffice_id = $request->brachOffice_id ?? false;
         DB::beginTransaction();
         try {
             $user = User::where('id', $request->id)->first();
@@ -735,39 +737,46 @@ class ApiController extends Controller
                 return response()->json(["error" => 'Su carrito de compra está vacío.']);
             }
 
-            // Actualizar coordenada actual
-            ClientesCoordenada::where('cliente_id', $user->cliente_id)->update(['ultima_ubicacion' => NULL]);
-            $location_user = ClientesCoordenada::firstOrNew([
-                'cliente_id' => $user->cliente_id,
-                'nombre' =>  $request->location['name'],
-                'lat' => $request->location['coor']['lat'],
-                'lon' => $request->location['coor']['lon'],
-                'descripcion' => $request->location['description']
-            ]);
-            if (!$location_user->exists) {
-                $location_user->fill([
-                    'concurrencia' => 1, 'ultima_ubicacion' => 1,
-                ])->save();
+            // Si el cliente no va a recoger su pedido en tienda
+            if(!$brachOffice_id){
+                // Actualizar coordenada actual
+            
+                ClientesCoordenada::where('cliente_id', $user->cliente_id)->update(['ultima_ubicacion' => NULL]);
+                $location_user = ClientesCoordenada::firstOrNew([
+                    'cliente_id' => $user->cliente_id,
+                    'nombre' =>  $request->location['name'],
+                    'lat' => $request->location['coor']['lat'],
+                    'lon' => $request->location['coor']['lon'],
+                    'descripcion' => $request->location['description']
+                ]);
+                if (!$location_user->exists) {
+                    $location_user->fill([
+                        'concurrencia' => 1, 'ultima_ubicacion' => 1,
+                    ])->save();
+                }else{
+                    $location_user->concurrencia++;
+                    $location_user->ultima_ubicacion = 1;
+                    $location_user->save();
+                }
+            
+                // =============================
+
+                // Obtener sucursales habilitadas para delivery y que hayan abierto caja
+                $sucursales = (new Sucursales)->get_sucursales_activas();
+
+                // Verificar si hay al menos una sucursal activa para el servicio de delivery
+                if(count($sucursales)==0){
+                    return response()->json(['error' => 'Nuestro servicio de delivery está fuera de servicio en esté momento, se te notificará cuando esté activo.']);
+                }
+
+                // Si existe mas de una sucursal activa para delivery se obtiene la más cercana, sino se elige la primera
+                if(count($sucursales)>1){
+                    $sucursal_id = (new Sucursales)->get_sucursal_cercana($sucursales, $location_user->lat, $location_user->lon);
+                }else{
+                    $sucursal_id = $sucursales[0]->id;
+                }
             }else{
-                $location_user->concurrencia++;
-                $location_user->ultima_ubicacion = 1;
-                $location_user->save();
-            }
-            // =============================
-
-            // Obtener sucursales habilitadas para delivery y que hayan abierto caja
-            $sucursales = (new Sucursales)->get_sucursales_activas();
-
-            // Verificar si hay al menos una sucursal activa para el servicio de delivery
-            if(count($sucursales)==0){
-                return response()->json(['error' => 'Nuestro servicio de delivery está fuera de servicio en esté momento, se te notificará cuando esté activo.']);
-            }
-
-            // Si existe mas de una sucursal activa para delivery se obtiene la más cercana, sino se elige la primera
-            if(count($sucursales)>1){
-                $sucursal_id = (new Sucursales)->get_sucursal_cercana($sucursales, $location_user->lat, $location_user->lon);
-            }else{
-                $sucursal_id = $sucursales[0]->id;
+                $sucursal_id = $brachOffice_id;
             }
 
             $cash = 1;
@@ -779,7 +788,7 @@ class ApiController extends Controller
                 'subtotal' => 0,
                 'importe_base' => 0,
                 'fecha' => date('Y-m-d'),
-                'venta_tipo_id' => 3,
+                'venta_tipo_id' => $brachOffice_id ? 2 : 3,
                 'venta_estado_id' => 1,
                 'efectivo' => $cash,
                 'sucursal_id' => $sucursal_id,
@@ -814,14 +823,31 @@ class ApiController extends Controller
                 }
             }
 
+            // Obtener costo de envío si el cliente no recogherá el pedido en tienda
+            $costo_envio = $brachOffice_id ? 0 : setting('delivery.costo_envio');
+            
             // Actualizar monto total de venta
             Venta::where('id', $order->id)
                 ->update([
                     'nro_venta' => $order->id,
-                    'importe' => $amountCart,
-                    'subtotal' => $amountCart,
-                    'importe_base' => $amountCart,
+                    'importe' => $amountCart + $costo_envio,
+                    'subtotal' => $amountCart + $costo_envio,
+                    'importe_base' => $amountCart + $costo_envio,
+                    'cobro_adicional' => $costo_envio
                 ]);
+
+            // Si el pedido se recogerá en tienda se debe crear un registro de ingreso tal como se hace en un pedido para llevar
+            if($brachOffice_id){
+                // Obtener la caja abierta de la sucursal
+                $caja_actual = IeCaja::where('sucursal_id', $brachOffice_id)->where('abierta', 1)->where('deleted_at', NULL)->first();
+                $caja_id = $caja_actual ? $caja_actual->id : 0;
+
+                // Actualizar caja_id de la venta
+                Venta::where('id', $order->id)->update(['caja_id' => $caja_id]);
+
+                // Crear registro de ingreso
+                (new Ventas)->crear_asiento_venta($order->id, $amountCart, $caja_id, 'Venta realizada desde la App');
+            }
             
             // registrar seguimiento del pedido
             VentasSeguimiento::create([ 'venta_id' => $order->id, 'venta_estado_id' => 1]);
@@ -931,15 +957,29 @@ class ApiController extends Controller
 
     public function get_params_v2($param){
         switch ($param) {
+            // Borrar case 'sucursal_active' cuando todas las intalaciones se hayan actualizado
             case 'sucursal_active':
                 $sucursales = (new Sucursales)->get_sucursales_activas();
                 $abierta = count($sucursales) > 0 ? true: false;
                 $mensaje = $abierta ? '' : 'No puede realizar pedidos en este momento. '.setting('delivery.message_company_closed');
                 return response()->json(['open' => $abierta, 'message' => $mensaje ]);
                 break;
-            
+            case 'brach_office_active':
+                    $sucursales = (new Sucursales)->get_sucursales_activas();
+                    $abierta = count($sucursales) > 0 ? true: false;
+                    $mensaje = $abierta ? '' : 'No puede realizar pedidos en este momento. '.setting('delivery.message_company_closed');
+                    return response()->json(['open' => $abierta, 'message' => $mensaje ]);
+                    break;
+            case 'brach_office_availables':
+                    $sucursales = DB::table('sucursales as s')
+                                        ->join('ie_cajas as c', 'c.sucursal_id', 's.id')
+                                        ->select('s.id', 's.nombre as name', 's.direccion as description', 's.latitud as latitude', 's.longitud as longitude')
+                                        ->where('s.deleted_at', NULL)->where('c.abierta', 1)->where('s.delivery', 1)
+                                        ->get();
+                    return response()->json(['brach_offices' => $sucursales ]);
+                    break;
             default:
-                return response()->json(['error' => 'Error desconocido.']);
+                return response()->json(['value' => setting($param)]);
                 break;
         }
     }

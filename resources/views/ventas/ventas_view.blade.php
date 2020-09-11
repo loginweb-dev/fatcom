@@ -136,6 +136,10 @@
                                                     <td><h5>{{number_format($venta->descuento, 2, ',', '.')}}</h5></td>
                                                 </tr>
                                                 <tr>
+                                                    <td colspan="4">Costo de envío</td>
+                                                    <td><h5>{{number_format($venta->cobro_adicional, 2, ',', '.')}}</h5></td>
+                                                </tr>
+                                                <tr>
                                                     <td colspan="4"><h4>TOTAL</h4></td>
                                                     <td><h4>{{number_format($venta->importe_base, 2, ',', '.')}} Bs.</h4></td>
                                                 </tr>
