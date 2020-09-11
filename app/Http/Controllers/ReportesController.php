@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-
+use App\ProductosAnulado;
 use App\Sucursale;
 
 // Exportación a Excel
@@ -229,5 +229,17 @@ class ReportesController extends Controller
                             ->where('p.stock_minimo', '>', 0)
                             ->get();
         return view('reportes.tablas.producto_escasez_reporte', compact('productos'));
+    }
+
+    public function productscanceled () {
+         return view('reportes.tablas.productos.products_canceled');     
+    }
+
+    public function generate_report_prodcancelled (Request $request) {
+        $productos = ProductosAnulado::with(['user:id,name','producto:id,nombre,codigo','deposito:id,nombre'])
+                                       ->whereBetween('created_at', [$request->inicio, $request->fin])
+                                       ->orderBy('id')
+                                       ->get();
+       return view('reportes.tablas.productos.list_products_canceled', compact('productos'));
     }
 }

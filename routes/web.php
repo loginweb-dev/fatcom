@@ -313,6 +313,9 @@ Route::post('admin/reportes/graficos/generar', 'ReportesController@graficos_gene
 Route::get('admin/reportes/ventas', 'ReportesController@ventas_reporte')->name('ventas_reporte');
 Route::post('admin/reportes/ventas/generar', 'ReportesController@ventas_reporte_generar')->name('ventas_reporte_generar');
 
+Route::get('admin/reportes/productscanceled','ReportesController@productscanceled')->name('productscanceled');
+Route::post('admin/reportes/generate-productscanceled','ReportesController@generate_report_prodcancelled')->name('generate_report_prodcancelled');
+
 Route::get('admin/reportes/ganancia_producto', 'ReportesController@ganancia_producto_reporte')->name('ganancia_producto_reporte');
 Route::post('admin/reportes/ganancia_producto/generar', 'ReportesController@ganancia_producto_reporte_generar')->name('ganancia_producto_reporte_generar');
 Route::get('admin/reportes/productos/escasez', 'ReportesController@productos_escasez')->name('productos_escasez');
