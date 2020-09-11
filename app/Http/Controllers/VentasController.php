@@ -1107,13 +1107,9 @@ class VentasController extends Controller
 
     // Manejo de proformas
     public function proformas_index(){
-        $registros = DB::table('proformas as p')
-                ->join('clientes as c', 'c.id', 'p.cliente_id')
-                ->select('p.*', 'c.razon_social')
-                ->where('p.deleted_at', NULL)
-                ->orderBy('p.id', 'DESC')
-                ->paginate(20);
-
+        $registros = Proforma::with(['user','cliente','detalle'])
+                               ->orderBy('id','desc')
+                               ->paginate(20);
         // Obetener el tamaño de la factura o recibo
         $tamanio = DB::table('settings')
         ->select('value')
@@ -1187,7 +1183,11 @@ class VentasController extends Controller
 
     public function proformas_store(Request $data){
         // dd($data);
-        $proforma = Proforma::create(['cliente_id' => $data->cliente_id, 'sucursal_id' => $data->sucursal_id]);
+        $proforma = Proforma::create(
+            ['cliente_id' => $data->cliente_id, 
+            'sucursal_id' => $data->sucursal_id,
+            'user_id' => auth()->user()->id
+            ]);
         // insertar detalle de la proforma
         if($proforma){
             for ($i=0; $i < count($data->producto_id); $i++) {
@@ -1196,7 +1196,8 @@ class VentasController extends Controller
                         'proforma_id' => $proforma->id,
                         'producto_id' => $data->producto_id[$i],
                         'precio' => $data->precio[$i],
-                        'cantidad' => $data->cantidad[$i]
+                        'cantidad' => $data->cantidad[$i],
+                        'subtotal' => $data->precio[$i] * $data->cantidad[$i]
                     ]);
                 }
             }

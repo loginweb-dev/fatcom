@@ -254,7 +254,7 @@
                         obtener_lista(tipo, '{{url("admin/productos/list")}}', destino);
                     }
                     
-                    filtro('{{url("admin/ofertas/filtros/filtro_simple/all")}}');
+                    filtro('{{url("admin/ofertas/filtros/filtro_simple/all")}}', '{{ setting('admin.modo_sistema') }}');
                 });
 
                 // formulario de nuevo cliente
