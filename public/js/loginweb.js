@@ -25,7 +25,7 @@ function inicializar_select2(id){
                     var newOption = new Option(data.nombre, data.id, false, false);
                     $(`#select-${id}`).append(newOption);
                     $(`#select-${id}`).val(data.id);
-                    toastr.info(`Se agregó el producto ${data.nombre}`, 'Información');
+                    toastr.info(`Se agregó la ${id.replace('_id', '')} ${data.nombre}`, 'Información');
                 }
             });
         }
@@ -56,7 +56,7 @@ $('#select-subcategoria_id').change(function(){
             var newOption = new Option(data.nombre, data.id, false, false);
             $(`#select-subcategoria_id`).append(newOption);
             $(`#select-subcategoria_id`).val(data.id);
-            toastr.info(`Se agregó el producto ${data.nombre}`, 'Información');
+            toastr.info(`Se agregó sub categoría ${data.nombre}`, 'Información');
         });
     }
 });

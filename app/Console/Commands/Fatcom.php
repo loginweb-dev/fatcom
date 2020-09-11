@@ -41,12 +41,12 @@ class Fatcom extends Command
     public function handle()
     {
         if($this->option('reset')){
-            $this->call('migrate:refresh');
+            $this->call('migrate:fresh');
             $this->call('db:seed');
             $this->info('La base de datos de FATCOM ha sido reiniciada.');
         }else{
             $this->call('key:generate');
-            $this->call('migrate');
+            $this->call('migrate:refresh');
             $this->call('db:seed');
             $this->call('storage:link');
             if($this->option('with-registers')){

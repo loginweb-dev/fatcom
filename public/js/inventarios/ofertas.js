@@ -32,7 +32,7 @@ function add_producto(){
                 <tr id="tr-${id}">
                     <td><input type="hidden" class="input-producto_id" name="producto_id[]" value="${id}">${nombre}</td>
                     <td><span id="precios-${id}">${precio}</span></td>
-                    <td><input type="number" min="1" step="1" class="form-control" name="monto[]" value="" required></td>
+                    <td><input type="number" min="1" step="0.01" class="form-control" name="monto[]" value="" required></td>
                     <td>
                         <select name="tipo[]" class="form-control">
                             <option value="porcentaje">Porcentaje (%)</option>
