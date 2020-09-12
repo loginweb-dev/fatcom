@@ -609,6 +609,7 @@ class DepositosController extends Controller
     }
 
     public function update_producto(Request $request){
+       
         // Obtener datos del producto en almacen
         $producto_deposito = DB::table('productos_depositos')
                                 ->where('deposito_id', $request->deposito_id)->where('producto_id', $request->producto_id)->where('deleted_at', NULL)

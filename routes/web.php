@@ -318,6 +318,8 @@ Route::post('admin/reportes/generate-productscanceled','ReportesController@gener
 
 Route::get('admin/reportes/ganancia_producto', 'ReportesController@ganancia_producto_reporte')->name('ganancia_producto_reporte');
 Route::post('admin/reportes/ganancia_producto/generar', 'ReportesController@ganancia_producto_reporte_generar')->name('ganancia_producto_reporte_generar');
+
+//reportes para productos en escazes
 Route::get('admin/reportes/productos/escasez', 'ReportesController@productos_escasez')->name('productos_escasez');
 
 // Creación de parametros

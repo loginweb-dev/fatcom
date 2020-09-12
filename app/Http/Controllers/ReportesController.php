@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\ProductosAnulado;
 use App\Sucursale;
-
+use App\Producto;
 // Exportación a Excel
 use App\Exports\ReporteVentaExport;
 use Maatwebsite\Excel\Facades\Excel;

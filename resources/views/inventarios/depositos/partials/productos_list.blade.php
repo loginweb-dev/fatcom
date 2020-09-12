@@ -81,7 +81,11 @@
          $('.btn-delete').click(function(){
             $('#modal_delete_producto input[name="producto_id"]').val($(this).data('id'));
             $('#modal_delete_producto input[name="stockActual"]').val($(this).data('cantidad'));
-           
+        });
+        // set valor de edit
+        $('.btn-edit').click(function(){
+            $('#modal_edit_producto input[name="producto_id"]').val($(this).data('id'));
+            $('#modal_edit_producto input[name="stock_actual"]').val($(this).data('cantidad'));
         });
     });
 </script>

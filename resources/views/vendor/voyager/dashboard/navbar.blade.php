@@ -36,7 +36,10 @@
             <li class="dropdown profile">
                 <a href="#" class="dropdown-toggle text-right dropdown-option-menu" data-toggle="dropdown" role="button" aria-expanded="false">
                     <img src="{{ $user_avatar }}" class="profile-img">
-                    {{-- <label class="label label-danger" style="position: relative; top: 10px; left: -10px; cursor: pointer">1</label> --}}
+                    @if($cant_productos_escaz['producto'] > 0)
+                    <label class="label label-danger" style="position: relative; top: 10px; left: -10px; cursor: pointer">{{$cant_productos_escaz['producto']}}</label>
+                    @endif
+                   
                     <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-animated">
@@ -47,10 +50,12 @@
                             <h6>{{ Auth::user()->email }}</h6>
                         </div>
                     </li>
-                    {{-- <li class="divider"></li>
+                    @if($cant_productos_escaz['producto'] > 0)
+                     <li class="divider"></li>
                     <li>
-                        <a href="#"><label class="label label-danger"><i class="voyager-bell"></i></label> </i> Notificación de prueba...</a>
-                    </li> --}}
+                        <a href="{{$cant_productos_escaz['url']}}"><label class="label label-danger"><i class="voyager-bell"></i></label> </i> {{$cant_productos_escaz['description']}}</a>
+                    </li> 
+                    @endif
                     <li class="divider"></li>
                     <?php $nav_items = config('voyager.dashboard.navbar_items'); ?>
                     @if(is_array($nav_items) && !empty($nav_items))
