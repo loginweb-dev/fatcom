@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-
 use App\Producto;
 use App\Proveedore;
 use App\Compra;
@@ -47,72 +46,69 @@ class ComprasController extends Controller
     }
 
     public function store(Request $data){
-        // Si se envió un NIT crear nuevo proveedor
-        if(!empty($data->nit)){
-            $proveedor = (new Proveedores)->get_proveedor($data->nit);
-            if(!$proveedor){
-                $proveedor = new Proveedore;
-                $proveedor->nombre = $data->razon_social;
-                $proveedor->nit = $data->nit;
-                $proveedor->save();
+        DB::beginTransaction();
+
+        try {
+             // Si se envió un NIT crear nuevo proveedor
+            if(!empty($data->nit)){
+                $proveedor = (new Proveedores)->get_proveedor($data->nit);
+                if(!$proveedor){
+                    $proveedor = new Proveedore;
+                    $proveedor->nombre = $data->razon_social;
+                    $proveedor->nit = $data->nit;
+                    $proveedor->save();
+                }
             }
-        }
-
-        // Agregar nueva compra
-        $compra = new Compra;
-        $compra->fecha = $data->fecha;
-        $compra->nit = $data->nit;
-        $compra->razon_social = $data->razon_social;
-        $compra->importe_compra = $data->importe_compra;
-        $compra->monto_exento = $data->monto_exento;
-        $compra->sub_total = $data->importe_compra - $data->monto_exento;
-        $compra->importe_base = $data->importe_base;
-        $compra->credito_fiscal = $data->credito_fiscal;
-
-        // Si existe facturación se agregan datos de facturación necesarios
-        if(isset($data->nro_factura)){
-            $compra->nro_factura = $data->nro_factura;
-            $compra->nro_dui = $data->nro_dui;
-            $compra->nro_autorizacion = $data->nro_autorizacion;
+            // Agregar nueva compra
+            $compra = new Compra;
+            $compra->fecha = $data->fecha;
+            $compra->nit = $data->nit;
+            $compra->razon_social = $data->razon_social;
+            $compra->importe_compra = $data->importe_compra;
             $compra->monto_exento = $data->monto_exento;
-            $compra->descuento = $data->descuento;
+            $compra->sub_total = $data->importe_compra - $data->monto_exento;
+            $compra->importe_base = $data->importe_base;
             $compra->credito_fiscal = $data->credito_fiscal;
-            $compra->tipo_compra = $data->tipo_compra;
-            $compra->codigo_control = $data->codigo_control;
-        }
-
-        $compra->save();
-        $compra_id = Compra::all()->last()->id;
-
-        $asiento_creado = null;
-        if($data->crear_asiento){
-            $monto_caja = IeCaja::find($data->crear_asiento)->monto_final;
-            if($data->importe_base <= $monto_caja){
-                // Crear asiento
-                $asiento = new IeAsiento;
-                $asiento->concepto = 'Compra realizada';
-                $asiento->monto = $data->importe_base;
-                $asiento->tipo = 'egreso';
-                $asiento->fecha = date('Y-m-d');
-                $asiento->hora = date('H:i:s');
-                $asiento->user_id =  Auth::user()->id;
-                $asiento->caja_id = $data->crear_asiento;
-                $asiento->compra_id = $compra_id;
-                $asiento->save();
-
-                // Actualizar datos de egresos en la caja
-                DB::table('ie_cajas')->where('id', $data->crear_asiento)->decrement('monto_final', $data->importe_base);
-                DB::table('ie_cajas')->where('id', $data->crear_asiento)->increment('total_egresos', $data->importe_base);
-                
-                $asiento_creado = 'success';
-            }else{
-                $asiento_creado = 'error';
+            $compra->deposito_id = $data->deposito_id;
+            // Si existe facturación se agregan datos de facturación necesarios
+            if(isset($data->nro_factura)){
+                $compra->nro_factura = $data->nro_factura;
+                $compra->nro_dui = $data->nro_dui;
+                $compra->nro_autorizacion = $data->nro_autorizacion;
+                $compra->monto_exento = $data->monto_exento;
+                $compra->descuento = $data->descuento;
+                $compra->credito_fiscal = $data->credito_fiscal;
+                $compra->tipo_compra = $data->tipo_compra;
+                $compra->codigo_control = $data->codigo_control;
             }
-        }
-        // dd($data);
+            $compra->save();
+            $compra_id = Compra::all()->last()->id;
+            $asiento_creado = null;
+            if($data->crear_asiento){
+                $monto_caja = IeCaja::find($data->crear_asiento)->monto_final;
+                if($data->importe_base <= $monto_caja){
+                    // Crear asiento
+                    $asiento = new IeAsiento;
+                    $asiento->concepto = 'Compra realizada';
+                    $asiento->monto = $data->importe_base;
+                    $asiento->tipo = 'egreso';
+                    $asiento->fecha = date('Y-m-d');
+                    $asiento->hora = date('H:i:s');
+                    $asiento->user_id =  Auth::user()->id;
+                    $asiento->caja_id = $data->crear_asiento;
+                    $asiento->compra_id = $compra_id;
+                    $asiento->save();
 
-        // Ingresar detalle de compra
-        if($compra_id!=''){
+                    // Actualizar datos de egresos en la caja
+                    DB::table('ie_cajas')->where('id', $data->crear_asiento)->decrement('monto_final', $data->importe_base);
+                    DB::table('ie_cajas')->where('id', $data->crear_asiento)->increment('total_egresos', $data->importe_base);
+                    
+                    $asiento_creado = 'success';
+                }else{
+                    $asiento_creado = 'error';
+                }
+            }
+            // Ingresar detalle de compra
             for ($i=0; $i < count($data->producto); $i++) {
                 if(!is_null($data->producto[$i])){
                     DB::table('compras_detalles')
@@ -163,6 +159,8 @@ class ComprasController extends Controller
                     }
                 }
             }
+
+            DB::commit();
             if($asiento_creado){
                 if($asiento_creado == 'success'){
                     return redirect()->route('compras_index')->with(['message' => 'Compra y asiento de compra registrado exitosamente.', 'alert-type' => 'success']);
@@ -172,9 +170,11 @@ class ComprasController extends Controller
             }else{
                 return redirect()->route('compras_index')->with(['message' => 'Compra registrada exitosamente.', 'alert-type' => 'success']);
             }
-        }else{
+        } catch (\Exception $e) {
+            DB::rollback();
             return redirect()->route('compras_index')->with(['message' => 'Ocurrio un error al registrar la compra.', 'alert-type' => 'error']);
         }
+
     }
 
     public function read($id){

@@ -1975,113 +1975,108 @@ class VentasController extends Controller
                                     ->where('v.id', $id)
                                     ->get();
         // dd($venta);
-        $connector = new FilePrintConnector("php://stdout");
-        $printer = new Printer($connector);
-        $printer -> text("Hello World!\n");
-        $printer -> cut();
-        $printer -> close();
 
-        // try {
-        //     $connector = new WindowsPrintConnector("php://stdout");
-        //     $printer = new Printer($connector);
+        try {
+            $connector = new FilePrintConnector("php://stdout");
+            $printer = new Printer($connector);
 
-        //     // TICKET PARA EL CLIENTE
-        //     // Datos de la empresa
-        //     $printer->setJustification(Printer::JUSTIFY_CENTER);
-        //     if(!empty(setting('empresa.title'))){
-        //         $printer->text(setting('empresa.title')."\n");
-        //     }
-        //     if(!empty(setting('empresa.telefono'))){
-        //         $printer->text(setting('empresa.telefono'));
-        //     }
-        //     if(!empty(setting('empresa.telefono')) && !empty(setting('empresa.celular'))){
-        //         $printer->text(setting(' - '));
-        //     }
-        //     if(!empty(setting('empresa.celular'))){
-        //         $printer->text(setting('empresa.celular'));
-        //     }
-        //     $printer->text("\n");
-        //     $printer->text("\n");
-        //     // ======================
+            // TICKET PARA EL CLIENTE
+            // Datos de la empresa
+            $printer->setJustification(Printer::JUSTIFY_CENTER);
+            if(!empty(setting('empresa.title'))){
+                $printer->text(setting('empresa.title')."\n");
+            }
+            if(!empty(setting('empresa.telefono'))){
+                $printer->text(setting('empresa.telefono'));
+            }
+            if(!empty(setting('empresa.telefono')) && !empty(setting('empresa.celular'))){
+                $printer->text(setting(' - '));
+            }
+            if(!empty(setting('empresa.celular'))){
+                $printer->text(setting('empresa.celular'));
+            }
+            $printer->text("\n");
+            $printer->text("\n");
+            // ======================
 
-        //     // Datos de la venta
-        //     $printer->selectPrintMode(Printer::MODE_DOUBLE_WIDTH);
-        //     $printer->text("TICKET DE VENTA #".$venta[0]->id."\n");
-        //     $printer->selectPrintMode();
-        //     $printer->text("ATENDIDO POR ".Auth::user()->name."\n");
-        //     $printer->text(date("d-m-Y H:i:s") . "\n");
-        //     $printer->text($venta[0]->tipo_nombre."\n");
-        //     $printer->text("\n");
-        //     // =====================
+            // Datos de la venta
+            $printer->selectPrintMode(Printer::MODE_DOUBLE_WIDTH);
+            $printer->text("TICKET DE VENTA #".$venta[0]->id."\n");
+            $printer->selectPrintMode();
+            $printer->text("ATENDIDO POR ".Auth::user()->name."\n");
+            $printer->text(date("d-m-Y H:i:s") . "\n");
+            $printer->text($venta[0]->tipo_nombre."\n");
+            $printer->text("\n");
+            // =====================
             
             
-        //     // Detalle de productos de la venta
-        //     $printer->text("Detalle\n-------------------------\n");
-        //     $total = 0;
-        //     foreach ($venta as $item) {
-        //         $total += $item->precio*$item->cantidad;
+            // Detalle de productos de la venta
+            $printer->text("Detalle\n-------------------------\n");
+            $total = 0;
+            foreach ($venta as $item) {
+                $total += $item->precio*$item->cantidad;
             
-        //         /*Alinear a la izquierda para la cantidad y el nombre*/
-        //         $printer->setJustification(Printer::JUSTIFY_LEFT);
-        //         $printer->text(intval($item->cantidad). "  " .$item->producto);
+                /*Alinear a la izquierda para la cantidad y el nombre*/
+                $printer->setJustification(Printer::JUSTIFY_LEFT);
+                $printer->text(intval($item->cantidad). "  " .$item->producto);
             
-        //         /*Y a la derecha para el importe*/
-        //         $printer->setJustification(Printer::JUSTIFY_RIGHT);
-        //         $printer->text(' '.$item->precio . "\n");
-        //     }
-        //     // ========================
-        //     $printer->setJustification(Printer::JUSTIFY_RIGHT);
-        //     $printer->text("TOTAL: Bs ".number_format($total, 2, '.', '')."\n");
+                /*Y a la derecha para el importe*/
+                $printer->setJustification(Printer::JUSTIFY_RIGHT);
+                $printer->text(' '.$item->precio . "\n");
+            }
+            // ========================
+            $printer->setJustification(Printer::JUSTIFY_RIGHT);
+            $printer->text("TOTAL: Bs ".number_format($total, 2, '.', '')."\n");
 
-        //     // Footer
-        //     $printer->setJustification(Printer::JUSTIFY_CENTER);
-        //     $printer->text("-------------------------\n\n");
-        //     $printer->text("Muchas gracias por su compra\n\n");
-        //     // ========================
+            // Footer
+            $printer->setJustification(Printer::JUSTIFY_CENTER);
+            $printer->text("-------------------------\n\n");
+            $printer->text("Muchas gracias por su compra\n\n");
+            // ========================
 
-        //     $printer->cut();
+            $printer->cut();
 
-        //     // =========================================================
+            // =========================================================
 
-        //     // TICKET PARA LA COCINA
-        //     // Datos de la venta
-        //     $printer->selectPrintMode(Printer::MODE_DOUBLE_WIDTH);
-        //     $printer->text("TICKET DE VENTA #".$venta[0]->id."\n");
-        //     $printer->selectPrintMode();
-        //     $printer->text(date("d-m-Y H:i:s") . "\n");
-        //     $printer->text($venta[0]->tipo_nombre."\n");
-        //     $printer->text("\n");
-        //     // ======================
+            // TICKET PARA LA COCINA
+            // Datos de la venta
+            $printer->selectPrintMode(Printer::MODE_DOUBLE_WIDTH);
+            $printer->text("TICKET DE VENTA #".$venta[0]->id."\n");
+            $printer->selectPrintMode();
+            $printer->text(date("d-m-Y H:i:s") . "\n");
+            $printer->text($venta[0]->tipo_nombre."\n");
+            $printer->text("\n");
+            // ======================
 
-        //     // Detalle de productos de la venta
-        //     $printer->text("Detalle\n-------------------------\n");
-        //     $total = 0;
-        //     foreach ($venta as $item) {
-        //         $total += $item->precio*$item->cantidad;
+            // Detalle de productos de la venta
+            $printer->text("Detalle\n-------------------------\n");
+            $total = 0;
+            foreach ($venta as $item) {
+                $total += $item->precio*$item->cantidad;
             
-        //         /*Alinear a la izquierda para la cantidad y el nombre*/
-        //         $printer->setJustification(Printer::JUSTIFY_LEFT);
-        //         $printer->text(intval($item->cantidad). "  " .$item->producto);
+                /*Alinear a la izquierda para la cantidad y el nombre*/
+                $printer->setJustification(Printer::JUSTIFY_LEFT);
+                $printer->text(intval($item->cantidad). "  " .$item->producto);
             
-        //         /*Y a la derecha para el importe*/
-        //         $printer->setJustification(Printer::JUSTIFY_RIGHT);
-        //         $printer->text(' '.$item->precio . "\n");
-        //     }
-        //     // ========================
+                /*Y a la derecha para el importe*/
+                $printer->setJustification(Printer::JUSTIFY_RIGHT);
+                $printer->text(' '.$item->precio . "\n");
+            }
+            // ========================
 
-        //     // Footer
-        //     $printer->setJustification(Printer::JUSTIFY_CENTER);
-        //     $printer->text("-------------------------\n\n");
-        //     $printer->text("Cliente: ".$venta[0]->cliente."\n\n");
-        //     // =========================
+            // Footer
+            $printer->setJustification(Printer::JUSTIFY_CENTER);
+            $printer->text("-------------------------\n\n");
+            $printer->text("Cliente: ".$venta[0]->cliente."\n\n");
+            // =========================
 
-        //     $printer->cut();
+            $printer->cut();
 
-        //     $printer->pulse();
-        //     $printer-> close();
-        // } catch (Exception $e) {
-        //     echo "Couldn't print to this printer: " . $e -> getMessage() . "\n";
-        // }
+            $printer->pulse();
+            $printer-> close();
+        } catch (Exception $e) {
+            echo "Couldn't print to this printer: " . $e -> getMessage() . "\n";
+        }
     }
 
     // Obtener todos los productos de disponibles para la venta

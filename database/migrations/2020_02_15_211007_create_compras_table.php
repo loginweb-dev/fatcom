@@ -30,6 +30,8 @@ class CreateComprasTable extends Migration {
 			$table->string('codigo_control', 20)->nullable();
 			$table->string('tipo_compra', 10)->nullable();
 			$table->integer('compra_producto')->nullable();
+			$table->unsignedBigInteger('deposito_id')->affter('compra_producto');
+            $table->foreign('deposito_id')->references('id')->on('depositos');
 			$table->timestamps();
 			$table->softDeletes();
 		});

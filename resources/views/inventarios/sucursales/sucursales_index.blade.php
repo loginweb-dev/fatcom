@@ -23,16 +23,19 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="col-md-8"></div>
-                                        <form id="form-search" class="form-search">
-                                            <div class="input-group col-md-4">
-                                                <input type="text" id="search_value" class="form-control" name="s" value="{{$value}}" placeholder="Nombre, telefono, celular o dirección">
-                                                <span class="input-group-btn">
-                                                    <button class="btn btn-default" style="margin-top:0px;padding:5px 10px" type="submit">
-                                                        <i class="voyager-search"></i>
-                                                    </button>
-                                                </span>
-                                            </div>
-                                        </form>
+                                        <div class="col-md-4">
+                                            <form id="form-search" class="form-search">
+                                                <div class="input-group">
+                                                    <input type="text" id="search_value" class="form-control" name="s" value="{{$value}}" placeholder="Nombre, telefono, celular o dirección">
+                                                    <span class="input-group-btn">
+                                                        <button class="btn btn-default" style="margin-top:0px;padding:5px 10px" type="submit">
+                                                            <i class="voyager-search"></i>
+                                                        </button>
+                                                    </span>                   
+                                                </div>
+                                            </form>
+                                            <small class="text-muted">Para volver a ver todas las sucursalez realizar busqueda vacía.</small>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="table-responsive">
