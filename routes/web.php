@@ -11,7 +11,7 @@
 |
 */
 
-// Route::get('/test/{id}', 'VentasController@imprimir_rollo');
+Route::get('/test/{id}', 'VentasController@imprimir_rollo');
 
 # Socialite facebook
 Route::get('/login/facebook', 'Auth\LoginController@redirectToFacebookProvider');

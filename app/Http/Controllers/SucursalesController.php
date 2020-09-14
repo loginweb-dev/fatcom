@@ -33,7 +33,8 @@ class SucursalesController extends Controller
     {
         $value = ($value != 'all') ? $value : '';
         $registros = DB::table('sucursales as s')
-                            ->select('*')
+                            ->join('depositos as d', 'd.sucursal_id', 's.id')
+                            ->select('s.*', 'd.id as deposito_id')
                             ->whereRaw("s.deleted_at is null and
                                         (
                                             s.nombre like '%".$value."%' or
