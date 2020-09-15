@@ -263,6 +263,7 @@
             });
             $('.selectorder').change(function(){
                 order = $(this).val();
+                filtro_productos('{{url("admin/productos/lista")}}', 1);
             });
             $("input[name=typeorder]").click(function () {  
                   
