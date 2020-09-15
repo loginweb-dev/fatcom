@@ -20,7 +20,7 @@
                 $limite_render = 500;
             @endphp
             @if ($count_productos<$limite_render)
-            <a href="{{ route('generar_catalogo', ['inicio'=>0, 'cantidad'=>50]) }}" target="_blank" class="btn btn-warning btn-add-new" title="Generar catálogo">
+            <a href="{{ route('generar_catalogo', ['inicio'=>0, 'cantidad'=>$limite_render]) }}" target="_blank" class="btn btn-warning btn-add-new" title="Generar catálogo">
                 <i class="voyager-cloud-download"></i> <span>Generar catálogo</span>
             </a>
             @else
