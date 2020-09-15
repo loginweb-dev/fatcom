@@ -26,13 +26,10 @@ class ComprasController extends Controller
 
     public function index()
     {
-        $registros = DB::table('compras')
-                        ->select('*')
-                        ->where('deleted_at', NULL)
-                        ->orderBy('id', 'DESC')
-                        ->paginate(10);
+       $compras = Compra::with('user','detalle.producto:id,codigo,nombre')
+                           ->orderBy('id')->paginate(10);
         $value = '';
-        return view('compras.compras_index', compact('registros', 'value'));
+        return view('compras.compras_index', compact('compras', 'value'));
     }
 
     public function create(){
@@ -70,6 +67,7 @@ class ComprasController extends Controller
             $compra->importe_base = $data->importe_base;
             $compra->credito_fiscal = $data->credito_fiscal;
             $compra->deposito_id = $data->deposito_id;
+            $compra->user_id = auth()->user()->id;
             // Si existe facturación se agregan datos de facturación necesarios
             if(isset($data->nro_factura)){
                 $compra->nro_factura = $data->nro_factura;

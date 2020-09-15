@@ -40,11 +40,13 @@
                                         <thead>
                                             <tr>
                                                 <th>Nro</th>
+                                                <th>Usuario</th>
                                                 <th>Fecha de compra</th>
                                                 <th>Razón social</th>
                                                 <th>N&deg; de factura</th>
                                                 <th>Código de control</th>
                                                 <th>Total</th>
+                                                <th>Productos</th>
                                                 <th class="actions text-right">Acciones</th>
                                             </tr>
                                         </thead>
@@ -53,14 +55,20 @@
                                                 $cont = 0;
                                                 setlocale(LC_ALL, "es_ES");
                                             @endphp
-                                            @forelse ($registros as $item)
+                                            @forelse ($compras as $item)
                                                 <tr>
                                                     <td>{{ str_pad($item->id, 4, "0", STR_PAD_LEFT) }}</td>
+                                                    <td> {{$item->user->name}}</td>
                                                     <td>{{ strftime("%d de %B de %Y", strtotime($item->fecha)) }} <br> <small>Registrado {{ \Carbon\Carbon::parse($item->created_at)->diffForHumans() }}</small></td>
                                                     <td>{{ $item->razon_social }} <br> <small>{{ $item->nit }}</small></td>
                                                     <td>{{ $item->nro_factura }}</td>
                                                     <td>{{ $item->codigo_control }}</td>
                                                     <td>{{ $item->importe_base }}</td>
+                                                    <td>
+                                                        @foreach($item->detalle as $detail)
+                                                          * {{$detail->producto->text}} <br>
+                                                        @endforeach
+                                                    </td>
                                                     <td class="no-sort no-click text-right" id="bread-actions">
                                                         @if(auth()->user()->hasPermission('read_compras'))
                                                         <a href="{{ route('compras_read', ['id' => $item->id]) }}" title="Ver" class="btn btn-sm btn-warning view">
@@ -92,13 +100,13 @@
                                 </div>
                                 <div class="col-md-12">
                                     <div class="col-md-4" style="overflow-x:auto">
-                                        @if(count($registros)>0)
-                                            <p class="text-muted">Mostrando del {{ $registros->firstItem() }} al {{ $registros->lastItem() }} de {{ $registros->total() }} registros.</p>
+                                        @if(count($compras)>0)
+                                            <p class="text-muted">Mostrando del {{ $compras->firstItem() }} al {{ $compras->lastItem() }} de {{ $compras->total() }} compras.</p>
                                         @endif
                                     </div>
                                     <div class="col-md-8" style="overflow-x:auto">
                                         <nav class="text-right">
-                                            {{ $registros->links() }}
+                                            {{ $compras->links() }}
                                         </nav>
                                     </div>
                                 </div>
