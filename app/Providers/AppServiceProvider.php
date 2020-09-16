@@ -35,11 +35,14 @@ class AppServiceProvider extends ServiceProvider
              $cant_productos_escaz = [
                  'url' => route('productos_escasez'),
                  'description' => 'productos en escazes',
-                 'producto' => \App\Producto::whereColumn('stock', '<', 'stock_minimo')
+                 'producto' => \App\Producto::join('subcategorias', 'subcategorias.id', '=', 'productos.subcategoria_id')
+                                              ->where('se_almacena', 1)
+                                              ->whereColumn('stock', '<', 'stock_minimo')
                                               ->count()
              ];
              $view->with('cant_productos_escaz',$cant_productos_escaz);
             
         });
+       
     }
 }

@@ -1,7 +1,7 @@
 @extends('voyager::master')
 @section('page_title', 'Nueva proforma o pedidos')
 
-@if(auth()->user()->hasPermission('add_compras'))
+@if(auth()->user()->hasPermission('browse_proformas'))
     @section('page_header')
         <div class="container-fluid">
             <h1 class="page-title">

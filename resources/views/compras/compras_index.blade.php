@@ -58,7 +58,11 @@
                                             @forelse ($compras as $item)
                                                 <tr>
                                                     <td>{{ str_pad($item->id, 4, "0", STR_PAD_LEFT) }}</td>
-                                                    <td> {{$item->user->name}}</td>
+                                                    @if(isset($tomo->user_id))
+                                                      <td>{{$tomo->user->name}}</td>
+                                                    @else
+                                                      <td>Sin usuario</td>
+                                                    @endif
                                                     <td>{{ strftime("%d de %B de %Y", strtotime($item->fecha)) }} <br> <small>Registrado {{ \Carbon\Carbon::parse($item->created_at)->diffForHumans() }}</small></td>
                                                     <td>{{ $item->razon_social }} <br> <small>{{ $item->nit }}</small></td>
                                                     <td>{{ $item->nro_factura }}</td>
