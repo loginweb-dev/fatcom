@@ -318,7 +318,7 @@ class ProductosController extends Controller
                 'cantidad_minima' => $item->cantidad_minima,
                 'unidad_id' => $item->unidad_id,
                 'producto_id' => $producto->id,
-                'cantidad_pieza' => $item->cantidad_pieza
+                'cantidad_unidad' => $item->cantidad_unidad
             ]);
         }
 
@@ -521,7 +521,7 @@ class ProductosController extends Controller
                                         'precio' => $data->precio_venta[$i],
                                         'precio_minimo' => $data->precio_minimo[$i],
                                         'cantidad_minima' => $data->cantidad_minima_venta[$i],
-                                        'cantidad_pieza' => 1,
+                                        'cantidad_unidad' => 1,
                                         'created_at' => Carbon::now(),
                                         'updated_at' => Carbon::now()
                                     ]);
@@ -780,7 +780,7 @@ class ProductosController extends Controller
         $producto->color_id = $data->color_id;
         $producto->genero_id = $data->genero_id;
         $producto->moneda_id = $data->moneda_id;
-        $producto->unidad_id = $data->unidad_id;
+        $producto->unidad_id = $data->unidad_id[0];
         $producto->modelo = $data->modelo;
         $producto->uso_id = $data->uso_id;
         $producto->codigo_grupo = $data->codigo_grupo;
@@ -808,12 +808,12 @@ class ProductosController extends Controller
             for ($i=0; $i < count($data->precio_venta); $i++) {
                 DB::table('producto_unidades')
                         ->insert([
-                            'unidad_id' => $data->unidad_id,
+                            'unidad_id' => $data->unidad_id[$i],
                             'producto_id' => $producto_id,
                             'precio' => $data->precio_venta[$i],
                             'precio_minimo' => $data->precio_minimo[$i],
-                            'cantidad_minima' => $data->cantidad_minima_venta[$i],
-                            'cantidad_pieza' => 1,
+                            'cantidad_minima' => 1,
+                            'cantidad_unidad' => $data->cantidad_unidad[$i],
                             'created_at' => Carbon::now(),
                             'updated_at' => Carbon::now()
                         ]);
@@ -822,16 +822,14 @@ class ProductosController extends Controller
 
         // Guardar precios de compra (si existen)
         if(isset($data->monto)){
-            for ($i=0; $i < count($data->monto); $i++) {
-                DB::table('precios_compras')
-                        ->insert([
-                            'producto_id' => $producto_id,
-                            'monto' => $data->monto[$i],
-                            'cantidad_minima' => $data->cantidad_minima_compra[$i],
-                            'created_at' => Carbon::now(),
-                            'updated_at' => Carbon::now()
-                        ]);
-            }
+            DB::table('precios_compras')
+                    ->insert([
+                        'producto_id' => $producto_id,
+                        'monto' => $data->monto,
+                        'cantidad_minima' => 1,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => Carbon::now()
+                    ]);
         }
 
         // Guardar insumos si existen
@@ -935,6 +933,11 @@ class ProductosController extends Controller
     public function get_producto($id){
         $sucursal_id = (new Ventas)->get_user_sucursal();
         // Verificar que el producto se almacena en stock
+         $product = Producto::with('unidades')
+                           // ->join('producto_unidades as pu', 'pu.producto_id', 'productos.id')
+                            //->join('productos_depositos as pd', 'pd.producto_id', 'productos.id')
+                            ->find($id);
+         return $product;
         $producto = DB::table('productos as p')
                             ->join('monedas as m', 'm.id', 'p.moneda_id')
                             ->join('producto_unidades as pu', 'pu.producto_id', 'p.id')

@@ -129,13 +129,19 @@ function add_precio_compra(indice_compra){
 }
 
 // Agregar precio de venta
-function add_precio_venta(indice_venta){
+function add_precio_venta(indice_venta,unidades){
     $('#tr-precioVenta').append(`<tr id="tr-precioVenta${indice_venta}">
                                     <td><input type="number" min="1" step="0.01" class="form-control" name="precio_venta[]" required></td>
                                     <td><input type="number" min="0" step="0.01" class="form-control" name="precio_minimo[]"></td>
-                                    <td><input type="number" min="1" step="0.01" class="form-control" name="cantidad_minima_venta[]" required></td>
+                                    <td> 
+                                        <select name="unidad_id[]" id="select-unidad_id-${indice_venta}" class="form-control" required></select>
+                                    </td>
+                                    <td><input type="number" min="0" step="0.01" class="form-control" name="cantidad_unidad[]"></td>
                                     <td style="padding-top:15px"><span onclick="borrarTr(${indice_venta}, 'Venta')" class="voyager-x text-danger" title="Quitar"></span></td>
                                 </tr>`);
+    unidades.map(function(unidad){
+        $(`#select-unidad_id-${indice_venta}`).append(`<option value="${unidad.id}">${unidad.nombre}</option>`);
+    });
 }
 // Quitar fila de lista de precios
 function borrarTr(id, tipo){

@@ -35,5 +35,9 @@ class Producto extends Model
     public function subcategoria(){
         return $this->belongsTo(Subcategoria::class,'subcategoria_id');
     }
+
+    public function unidades(){
+        return $this->belongsToMany(Unidade::class,'producto_unidades','producto_id','unidad_id');
+    }
     
 }

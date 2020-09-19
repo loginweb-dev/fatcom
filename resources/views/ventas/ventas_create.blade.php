@@ -145,6 +145,7 @@
                                                 <th style="width:50px">Extras</th>
                                             @endif
                                             <th>observación</th>
+                                            <th>Unidad dd medida</th>
                                             <th style="width:150px">Precio</th>
                                             <th style="width:100px">Cantidad</th>
                                             <th colspan="2">Subtotal</th>
@@ -565,6 +566,10 @@
                                                 </td>
                                                 ${buttonExtras}
                                                 <td><input type="text" class="form-control" name="observacion[]"></td>
+                                                <td>
+                                                  <select class="form-control" name="unidad_id[]">
+                                                  </select>
+                                                </td>
                                                 <td>
                                                     <div class="input-group">
                                                         <input type="number" ${editar_precio} id="input-precio_${index_tr}" min="${precio_minimo}" step="0.01" data-precio="${precio}" value="${precio}" name="precio[]" class="form-control input-precio" onchange="subtotal('${index_tr}');" onkeyup="subtotal('${index_tr}')" required />

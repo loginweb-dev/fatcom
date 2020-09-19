@@ -80,12 +80,8 @@
                                                     </select>
                                                 </div>
                                                 <div class="form-group col-md-6">
-                                                    <label for="">Unidad</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Unidad de almacenamiento del producto. Este campo es obligatorio."></span> @endif
-                                                    <select name="unidad_id" id="select-unidad_id" class="form-control" required>
-                                                        @foreach($unidades as $item)
-                                                        <option value="{{$item->id}}" >{{$item->nombre}}</option>
-                                                        @endforeach
-                                                    </select>
+                                                    <label for="">Precio de Compra</label> <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Unidad de almacenamiento del producto. Este campo es obligatorio."></span>
+                                                    <input type="number" min="0.01" step="0.01" class="form-control" name="monto" >
                                                 </div>
                                             </div>
                                             <div class="row">
@@ -136,33 +132,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="panel panel-bordered" style="margin-top:-30px">
-                                <div class="panel-heading">
-                                    <h4 class=""><i class="icon wb-image"></i> Precio(s) de compra <button type="button" class="btn btn-success btn-small" id="btn-add_compra" title="Agregar precio"><span class="voyager-plus"></span></button></h4>
-                                    <div class="panel-actions">
-                                        <a class="panel-action voyager-angle-up" data-toggle="panel-collapse" aria-hidden="true"></a>
-                                    </div>
-                                </div>
-                                <div class="panel-body">
-                                    <table class="table table-bordered">
-                                        <thead>
-                                            <th>Precio @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Precio de compra del producto. Este campo no es obligatorio."></span> @endif</th>
-                                            <th>Cantidad mínima @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad mínima de compra para tener dicho precio. Este campo no es obligatorio."></span> @endif</th>
-                                            <th></th>
-                                        </thead>
-                                        <tbody id="tr-precioCompra">
-                                            <tr>
-                                                <td><input type="number" min="0.01" step="0.01" class="form-control" name="monto[]" ></td>
-                                                <td><input type="number" min="0" step="0.01" class="form-control" name="cantidad_minima_compra[]" value="1" ></td>
-                                                <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="panel panel-bordered" style="margin-top:-30px">
                                 <div class="panel-heading">
                                     <h4 class=""><i class="icon wb-image"></i> Precio(s) de venta <button type="button" class="btn btn-success btn-small" id="btn-add_venta" title="Agregar precio"><span class="voyager-plus"></span></button></h4>
@@ -175,14 +145,22 @@
                                         <thead>
                                             <th>Precio @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Precio de venta del producto. Este campo es obligatorio."></span> @endif</th>
                                             <th>Precio mínimo @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Precio mínimo de venta del producto. Este campo no es obligatorio."></span> @endif</th>
-                                            <th>Cantidad mínima @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad mínima de venta para tener dicho precio. Este campo es obligatorio."></span> @endif</th>
+                                            <th>Unidad de medida<span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="unidad de medida."></span></th>
+                                            <th>Cantidad x unidad<span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="cantidad por unidad."></span></th>
                                             <th></th>
                                         </thead>
                                         <tbody id="tr-precioVenta">
                                             <tr>
                                                 <td><input type="number" min="0.01" step="0.01" class="form-control" name="precio_venta[]" required></td>
                                                 <td><input type="number" min="0" step="0.01" class="form-control" name="precio_minimo[]"></td>
-                                                <td><input type="number" min="1" step="0.01" class="form-control" name="cantidad_minima_venta[]" value="1" required></td>
+                                                <td> 
+                                                   <select name="unidad_id[]" id="select-unidad_id-0" class="form-control" required>
+                                                        @foreach($unidades as $item)
+                                                        <option value="{{$item->id}}" >{{$item->nombre}}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </td>
+                                                <td><input type="number" min="0" step="0.01" class="form-control" name="cantidad_unidad[]"></td>
                                                 <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
                                             </tr>
                                         </tbody>
@@ -228,6 +206,8 @@
         <script src="{{url('js/loginweb.js')}}"></script>
         <script src="{{url('js/inventarios/productos.js')}}"></script>
         <script>
+            const unidades = @json($unidades);
+            
             $(document).ready(function(){
                 $('[data-toggle="popover"]').popover({ html : true });
                 $('[data-toggle="tooltip"]').tooltip();
@@ -258,7 +238,7 @@
 
                 let indice_venta = 1;
                 $('#btn-add_venta').click(function(){
-                    add_precio_venta(indice_venta)
+                    add_precio_venta(indice_venta,unidades)
                     indice_venta++;
                 });
 

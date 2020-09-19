@@ -2094,6 +2094,7 @@ class VentasController extends Controller
         // Obetener lista de productos a la venta en la sucursal actual
         $productos_deposito = DB::table('productos as p')
                             ->join('productos_depositos as pd', 'pd.producto_id', 'p.id')
+                            ->join('producto_unidades as pu', 'pu.producto_id', 'p.id')
                             ->join('depositos as d', 'd.id', 'pd.deposito_id')
                             ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
                             ->join('categorias as ca', 'ca.id', 's.categoria_id')
@@ -2118,7 +2119,8 @@ class VentasController extends Controller
                                         's.nombre as subcategoria',
                                         'ca.nombre as categoria',
                                         'c.nombre as color',
-                                        'mo.abreviacion as moneda'
+                                        'mo.abreviacion as moneda',
+                                        'pu.cantidad_unidad'
                                     )
                             ->where('p.deleted_at', NULL)
                             ->where('p.se_almacena', 1)

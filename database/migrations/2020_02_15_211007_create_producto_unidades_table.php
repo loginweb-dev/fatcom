@@ -19,7 +19,7 @@ class CreateProductoUnidadesTable extends Migration {
 			$table->integer('producto_id')->nullable();
 			$table->decimal('precio', 10)->nullable();
 			$table->decimal('precio_minimo', 10)->nullable();
-			$table->integer('cantidad_pieza')->nullable()->default(1);
+			$table->decimal('cantidad_unidad',8,2)->nullable()->default(1);
 			$table->integer('cantidad_minima')->nullable()->default(1);
 			$table->timestamps();
 			$table->softDeletes();
