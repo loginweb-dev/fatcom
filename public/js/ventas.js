@@ -48,6 +48,7 @@ function borrarTr(num){
 
 // Calcular subtotal
 function subtotal(id){
+    console.log(id)
     // Si la cantidad ingresada supera el stock, se mostrará una alerta y se pondrá el monto del stock en la cantidad
     if(parseInt($('#input-cantidad_'+id).val()) > parseInt($('#input-cantidad_'+id).prop('max'))){
         $('#input-cantidad_'+id).val($('#input-cantidad_'+id).prop('max'));
@@ -56,8 +57,8 @@ function subtotal(id){
 
     let precio = ($(`#input-precio_${id}`).val()!='') ? parseFloat($(`#input-precio_${id}`).val()) : 0;
     let cantidad = ($(`#input-cantidad_${id}`).val()!='') ? parseFloat($(`#input-cantidad_${id}`).val()) : 0;
+    console.log(precio, cantidad)
     let extras = ($(`#input-total_extras_${id}`).val()!='' && $(`#input-total_extras_${id}`).val()!=undefined) ? parseFloat($(`#input-total_extras_${id}`).val()) : 0;
-    console.log(precio, cantidad, $(`#input-total_extras_${id}`).val())
     $(`#subtotal-${id}`).html(`<h4>${((precio+extras)*cantidad).toFixed(2)} Bs.</h4>`);
     total();
 }

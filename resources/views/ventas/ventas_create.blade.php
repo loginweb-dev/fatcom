@@ -498,7 +498,7 @@
         function agregar_producto(id){
             $.get("{{ url('admin/productos/get_producto') }}/"+id, function(data){
                 let stock = data.se_almacena ? data.stock : 1000;
-                agregar_detalle_venta(data.id, data.nombre, data.precio, data.precio_minimo, stock, '', '');
+                agregar_detalle_venta(data.id, data.nombre, data.precio, data.precio_minimo, stock,data.unidades, '', '');
             });
         }
 
@@ -518,7 +518,7 @@
                     $('#producto-'+adicional_id).css('border', 'none')
                     $.get("{{ url('admin/productos/get_producto') }}/"+id, function(data){
                         let stock = data.se_almacena ? data.stock : 1000;
-                        agregar_detalle_venta(data.id, data.nombre, data.precio, data.precio_minimo, stock, adicional_id, adicional_nombre);
+                        agregar_detalle_venta(data.id, data.nombre, data.precio, data.precio_minimo, stock,data.unidades, adicional_id, adicional_nombre);
                         adicional_id = '';
                     });
                 }
@@ -526,7 +526,8 @@
         }
 
         // Agregar detalle de venta
-        function agregar_detalle_venta(id, nombre, precio, precio_minimo, stock, adicional_id, adicional_nombre){
+        function agregar_detalle_venta(id, nombre, precio, precio_minimo, stock,unidades, adicional_id, adicional_nombre){
+        
             if(stock<1){
                 toastr.warning('La cantidad de producto ingresada sobrepasa la existente.', 'Atención');
                 return false;
@@ -567,8 +568,15 @@
                                                 ${buttonExtras}
                                                 <td><input type="text" class="form-control" name="observacion[]"></td>
                                                 <td>
-                                                  <select class="form-control" name="unidad_id[]">
-                                                  </select>
+                                                  <select 
+                                                        name="unidad_id[]" 
+                                                        id="select-unidad_id-${index_tr}" 
+                                                        class="form-control" 
+                                                        onchange="cambio_precio(${id},'${index_tr}')"
+                                                        required>
+                                                 </select>
+                                                 <input type="hidden" id="input-units_id_${index_tr}" name="product_units_id[]"/>
+                                                 <input type="hidden" id="input-units_products_id_${index_tr}" name="cant_product_units[]" value="1"/>
                                                 </td>
                                                 <td>
                                                     <div class="input-group">
@@ -585,13 +593,17 @@
                                                 <td class="label-subtotal" id="subtotal-${index_tr}"><h4>${precio} Bs.</h4></td>
                                                 <td width="40px"><label onclick="borrarDetalle('${index_tr}')" class="text-danger" style="cursor:pointer;font-size:20px"><span class="voyager-trash"></span></label></td>
                                             <tr>`);
+
+                unidades.map(function(unidad){
+                    $(`#select-unidad_id-${index_tr}`).append(`<option value="${unidad.id}">${unidad.nombre}</option>`);
+                });
                 toastr.remove();
                 toastr.info('Producto agregar correctamente', 'Bien hecho!');
             }
             $('#input_cantidad-'+id).val('1');
             total();
         }
-
+        
         var loader = "{{ url('storage').'/'.str_replace('\\', '/', setting('admin.img_loader')) }}";
         var loader_request = `  <div style="@if(setting('delivery.activo')) height:370px @else height:300px @endif" class="text-center">
                                     <br><br><br>
@@ -599,6 +611,18 @@
                                     <p>Cargando...</p>
                                 </div>`;
 
+        function cambio_precio(id,index){
+           
+            let unit = $(`#select-unidad_id-${index} option:selected`).val();
+        
+            $.get("{{ url('admin/productos/get_price_producto_units') }}/"+id+"/"+unit, function(data){
+                $(`#input-precio_${index}`).val(data.precio);
+                $(`#input-units_products_id_${index}`).val(data.cantidad_unidad);
+            });
+            setTimeout(() => {
+                subtotal(index);
+            }, 200);
+        }
         // mostrar Buscador de productos
         function productos_buscar(id){
             if(tab_active!='search'){

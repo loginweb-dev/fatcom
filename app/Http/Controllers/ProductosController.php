@@ -933,18 +933,13 @@ class ProductosController extends Controller
     public function get_producto($id){
         $sucursal_id = (new Ventas)->get_user_sucursal();
         // Verificar que el producto se almacena en stock
-         $product = Producto::with('unidades')
-                           // ->join('producto_unidades as pu', 'pu.producto_id', 'productos.id')
-                            //->join('productos_depositos as pd', 'pd.producto_id', 'productos.id')
-                            ->find($id);
-         return $product;
         $producto = DB::table('productos as p')
                             ->join('monedas as m', 'm.id', 'p.moneda_id')
                             ->join('producto_unidades as pu', 'pu.producto_id', 'p.id')
                             ->join('productos_depositos as pd', 'pd.producto_id', 'p.id')
                             ->join('depositos as d', 'd.id', 'pd.deposito_id')
                             ->select(DB::raw('p.id, p.nombre, pu.precio, p.precio_minimo, pu.precio as precio_antiguo, p.imagen, p.se_almacena, (pd.stock + pd.stock_compra) as stock, p.descripcion_small as descripcion, m.abreviacion as moneda,
-                                            (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos'))
+                                            (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos, p.deleted_at as unidades'))
                             ->where('p.id', $id)
                             ->where('p.se_almacena', 1)
                             ->where('d.sucursal_id', $sucursal_id)
@@ -957,7 +952,7 @@ class ProductosController extends Controller
                                         ->join('monedas as m', 'm.id', 'p.moneda_id')
                                         ->join('producto_unidades as pu', 'pu.producto_id', 'p.id')
                                         ->select(DB::raw('p.id, p.nombre, pu.precio, p.precio_minimo, pu.precio as precio_antiguo, p.imagen, p.se_almacena, p.stock, p.descripcion_small as descripcion, m.abreviacion as moneda,
-                                                        (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos'))
+                                                        (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos, p.deleted_at as unidades'))
                                         ->where('p.id', $id)
                                         ->where('pu.deleted_at', NULL)
                                         ->first();
@@ -975,10 +970,23 @@ class ProductosController extends Controller
                 $producto->precio = $precio_venta;
             }
 
+            // Obtener unidades del producto
+            $producto_aux = Producto::find($id);
+            if($producto_aux){
+                $producto->unidades = $producto_aux->unidades;
+            }
+
             return response()->json($producto);
         }else{
             return null;
         }
+    }
+    
+    public function get_price_producto_units ($id ,$unit_id){
+      $precio = ProductoUnidade::where('producto_id',$id)
+                                   ->where('unidad_id',$unit_id)
+                                   ->first();
+      return response()->json($precio);
     }
 
     public function ultimo_producto(){

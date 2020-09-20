@@ -369,104 +369,110 @@ class VentasController extends Controller
         if($data->venta_tipo_id == 4){
             $this->set_ultima_ubicacion($data->cliente_id, $data->coordenada_id, $data->latitud, $data->longitud, $data->descripcion);
         }
+        DB::beginTransaction();
+        try {
+            // insertar y obtener ultima venta
+            $venta_id = $this->crear_venta($data);
 
-        // insertar y obtener ultima venta
-        $venta_id = $this->crear_venta($data);
+            // insertar detalle de venta
+            if($venta_id != ''){
 
-        // insertar detalle de venta
-        if($venta_id != ''){
+                // Almacenar los datos de extras si se han agregado
+                $extras_id = $data->extras_id ?? [];
+                $cantidad_extras_id = $data->cantidad_extras_id ?? [];
+                $precio_extras_id = $data->precio_extras_id ?? [];
+                $sucursal_id = $data->sucursal_id;
 
-            // Almacenar los datos de extras si se han agregado
-            $extras_id = $data->extras_id ?? [];
-            $cantidad_extras_id = $data->cantidad_extras_id ?? [];
-            $precio_extras_id = $data->precio_extras_id ?? [];
-            $sucursal_id = $data->sucursal_id;
+                for ($i=0; $i < count($data->producto_id); $i++) {
+                    if(!is_null($data->producto_id[$i])){
+                        
+                        $detalle_venta = VentasDetalle::create([
+                            'venta_id' => $venta_id,
+                            'producto_id' => $data->producto_id[$i],
+                            'precio' => $data->precio[$i],
+                            'cantidad' => $data->cantidad[$i],
+                            'producto_adicional' => $data->adicional_id[$i],
+                            'observaciones' => $data->observacion[$i]
+                        ]);
+                        
+                        // Convertir en array las cadenas que viene del formulario
+                        $extras_detalle = explode(',', $extras_id[$i]);
+                        $precio_extras_detalle = explode(',', $precio_extras_id[$i]);
+                        $cantidad_extras_detalle = explode(',', $cantidad_extras_id[$i]);
+                        
+                        // Agregar extras a cada producto (si se les asignó)
+                        $this->agregar_extras_detalle_venta($detalle_venta->id, $sucursal_id, $extras_detalle, $precio_extras_detalle, $cantidad_extras_detalle);
 
-            for ($i=0; $i < count($data->producto_id); $i++) {
-                if(!is_null($data->producto_id[$i])){
-                    
-                    $detalle_venta = VentasDetalle::create([
+                        // Si el producto se almacena en stock descontar la cantidad vendidad
+                        $cant_descontar = $data->cant_product_units[$i] * $data->cantidad[$i];
+                        if(Producto::find($data->producto_id[$i])->se_almacena){
+                            $factura = $data->factura ? true : false;
+                            $this->descontar_producto_almacen($data->producto_id[$i],$cant_descontar, $sucursal_id, $factura);
+                        }
+
+                        // Descontar los insumos que contiene el producto
+                        $this->cambiar_stock_insumo_almacen('decrementar', $data->producto_id[$i],$cant_descontar, $sucursal_id);
+                    }
+                }
+
+                // crear el asiento de ingreso si el pago es en efectivo
+                $efectivo = isset($data->efectivo) ? false : true;
+                if($efectivo){
+
+                    // Obtener la caja abierta de la sucursal
+                    $caja_actual = IeCaja::where('sucursal_id', $data->sucursal_id)->where('abierta', 1)->where('deleted_at', NULL)->first();
+                    $caja_id = $caja_actual ? $caja_actual->id : 0;
+
+                    // Crear asiento de ingreso si no es un pedido a domicilio
+                    if($data->venta_tipo_id != 4){
+                        //crear un asiento dependiendo si es venta a credito o a contado
+                        if($data->credito && ($data->monto_recibido < ($data->importe - $data->descuento))){
+                        if ($data->monto_recibido > 0) {
+                            $monto_venta = $data->monto_recibido;
+                            $this->crear_asiento_venta($venta_id, $monto_venta, $caja_id, 'Anticipo de venta realizada'); 
+                        }
+                        }else {
+                            $monto_venta = ($data->importe - $data->descuento);
+                            $this->crear_asiento_venta($venta_id, $monto_venta, $caja_id, 'Venta realizada');
+                        }
+                        
+                    }
+
+                    // Obetner dosificacion
+                    $dosificacion = (new Dosificacion)->get_dosificacion();
+                    // si hay dosificaciones generamos codigo de control e incrementamos el numero de factura actual
+                    if($dosificacion && $data->factura){
+                        $codigo_control = (new Facturacion)->generate($dosificacion->nro_autorizacion, $dosificacion->numero_actual, setting('empresa.nit'), date('Ymd', strtotime($data->fecha)), $data->importe, $dosificacion->llave_dosificacion);
+                        DB::table('ventas')->where('id', $venta_id)
+                                                ->update([
+                                                            'nro_factura'       => $dosificacion->numero_actual,
+                                                            'codigo_control'    => $codigo_control,
+                                                            'nro_autorizacion'  => $dosificacion->nro_autorizacion,
+                                                            'fecha_limite'      => $dosificacion->fecha_limite,
+                                                            'autorizacion_id'   => $dosificacion->id,
+                                                            ]);
+                        DB::table('dosificaciones')->where('id', $dosificacion->id)->increment('numero_actual', 1);
+                    }
+                }
+            
+                // Si es una venta a credito crear un registro de pago
+                if(isset($data->credito) && $data->monto_recibido){
+                    VentasPago::create([
                         'venta_id' => $venta_id,
-                        'producto_id' => $data->producto_id[$i],
-                        'precio' => $data->precio[$i],
-                        'cantidad' => $data->cantidad[$i],
-                        'producto_adicional' => $data->adicional_id[$i],
-                        'observaciones' => $data->observacion[$i]
+                        'monto' => $data->monto_recibido,
+                        'observacion' => 'Primer pago',
+                        'user_id' => Auth::user()->id,
                     ]);
-                    
-                    // Convertir en array las cadenas que viene del formulario
-                    $extras_detalle = explode(',', $extras_id[$i]);
-                    $precio_extras_detalle = explode(',', $precio_extras_id[$i]);
-                    $cantidad_extras_detalle = explode(',', $cantidad_extras_id[$i]);
-                    
-                    // Agregar extras a cada producto (si se les asignó)
-                    $this->agregar_extras_detalle_venta($detalle_venta->id, $sucursal_id, $extras_detalle, $precio_extras_detalle, $cantidad_extras_detalle);
-
-                    // Si el producto se almacena en stock descontar la cantidad vendidad
-                    if(Producto::find($data->producto_id[$i])->se_almacena){
-                        $factura = $data->factura ? true : false;
-                        $this->descontar_producto_almacen($data->producto_id[$i], $data->cantidad[$i], $sucursal_id, $factura);
-                    }
-
-                    // Descontar los insumos que contiene el producto
-                    $this->cambiar_stock_insumo_almacen('decrementar', $data->producto_id[$i], $data->cantidad[$i], $sucursal_id);
                 }
+                DB::commit();
+                return $venta_id;
+            }else{
+                return null;
             }
-
-            // crear el asiento de ingreso si el pago es en efectivo
-            $efectivo = isset($data->efectivo) ? false : true;
-            if($efectivo){
-
-                // Obtener la caja abierta de la sucursal
-                $caja_actual = IeCaja::where('sucursal_id', $data->sucursal_id)->where('abierta', 1)->where('deleted_at', NULL)->first();
-                $caja_id = $caja_actual ? $caja_actual->id : 0;
-
-                // Crear asiento de ingreso si no es un pedido a domicilio
-                if($data->venta_tipo_id != 4){
-                    //crear un asiento dependiendo si es venta a credito o a contado
-                    if($data->credito && ($data->monto_recibido < ($data->importe - $data->descuento))){
-                       if ($data->monto_recibido > 0) {
-                        $monto_venta = $data->monto_recibido;
-                        $this->crear_asiento_venta($venta_id, $monto_venta, $caja_id, 'Anticipo de venta realizada'); 
-                       }
-                    }else {
-                        $monto_venta = ($data->importe - $data->descuento);
-                        $this->crear_asiento_venta($venta_id, $monto_venta, $caja_id, 'Venta realizada');
-                    }
-                    
-                }
-
-                // Obetner dosificacion
-                $dosificacion = (new Dosificacion)->get_dosificacion();
-                // si hay dosificaciones generamos codigo de control e incrementamos el numero de factura actual
-                if($dosificacion && $data->factura){
-                    $codigo_control = (new Facturacion)->generate($dosificacion->nro_autorizacion, $dosificacion->numero_actual, setting('empresa.nit'), date('Ymd', strtotime($data->fecha)), $data->importe, $dosificacion->llave_dosificacion);
-                    DB::table('ventas')->where('id', $venta_id)
-                                            ->update([
-                                                        'nro_factura'       => $dosificacion->numero_actual,
-                                                        'codigo_control'    => $codigo_control,
-                                                        'nro_autorizacion'  => $dosificacion->nro_autorizacion,
-                                                        'fecha_limite'      => $dosificacion->fecha_limite,
-                                                        'autorizacion_id'   => $dosificacion->id,
-                                                        ]);
-                    DB::table('dosificaciones')->where('id', $dosificacion->id)->increment('numero_actual', 1);
-                }
-            }
-        
-            // Si es una venta a credito crear un registro de pago
-            if(isset($data->credito) && $data->monto_recibido){
-                VentasPago::create([
-                    'venta_id' => $venta_id,
-                    'monto' => $data->monto_recibido,
-                    'observacion' => 'Primer pago',
-                    'user_id' => Auth::user()->id,
-                ]);
-            }
-
-            return $venta_id;
-        }else{
-            return null;
+        } catch (\Throwable $th) {
+            DB::rollback();
         }
+         
         // ============================
 
     }
@@ -2132,6 +2138,7 @@ class VentasController extends Controller
                             ->whereRaw($filtro_talla)
                             ->whereRaw($filtro_genero)
                             ->whereRaw($filtro_color)
+                            ->groupBy('p.id')
                             ->get();
         foreach ($productos_deposito as $item) {
             $productos->push($item);
@@ -2171,6 +2178,7 @@ class VentasController extends Controller
                             ->whereRaw($filtro_talla)
                             ->whereRaw($filtro_genero)
                             ->whereRaw($filtro_color)
+                            ->groupBy('p.id')
                             ->get();
         foreach ($productos_deposito as $item) {
             $productos->push($item);

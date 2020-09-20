@@ -100,7 +100,10 @@
                                     </div>
                                     <hr style="margin:0;">
                                     <div class="row">
-                                        <div class="col-md-6" style="margin:0px">
+                                        @php
+                                            $permitido = Auth::user()->role_id == 1 || Auth::user()->role_id == 3 ? true : false;
+                                        @endphp
+                                        <div class="{{ $permitido ? 'col-md-6' : 'col-md-12' }}" style="margin:0px">
                                             <div class="panel-heading" style="border-bottom:0;">
                                                 <h3 class="panel-title">Precio(s) de venta</h3>
                                             </div>
@@ -110,6 +113,7 @@
                                                 @endforeach
                                             </div>
                                         </div>
+                                        @if($permitido)
                                         <div class="col-md-6"  style="margin:0px">
                                             <div class="panel-heading" style="border-bottom:0;">
                                                 <h3 class="panel-title">Precio(s) de compra</h3>
@@ -122,6 +126,7 @@
                                                 @endforelse
                                             </div>
                                         </div>
+                                        @endif
                                     </div>
                                     <hr style="margin:0;">
                                     <div class="row">

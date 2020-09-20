@@ -471,4 +471,9 @@
 
     @endif
 
+    <script>
+        localStorage.clear();
+        sessionStorage.clear();
+    </script>
+
 @stop
