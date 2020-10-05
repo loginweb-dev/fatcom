@@ -133,7 +133,7 @@ function add_precio_venta(indice_venta,unidades){
     $('#tr-precioVenta').append(`<tr id="tr-precioVenta${indice_venta}">
                                     <td><input type="number" min="1" step="0.01" class="form-control" name="precio_venta[]" required></td>
                                     <td><input type="number" min="0" step="0.01" class="form-control" name="precio_minimo[]"></td>
-                                    <td> 
+                                    <td>
                                         <select name="unidad_id[]" id="select-unidad_id-${indice_venta}" class="form-control" required></select>
                                     </td>
                                     <td><input type="number" min="0" step="0.01" class="form-control" name="cantidad_unidad[]"></td>
@@ -188,7 +188,7 @@ async function obtener_lista(tipo, url, destino){
             break;
         default: break;
     }
-    
+
     $.get(url, function(response){
         select2_reload_simple(destino, response, 'Todas(os)');
     });

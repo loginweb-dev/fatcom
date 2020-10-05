@@ -204,7 +204,7 @@ class ProductosController extends Controller
                             // ->where('id', '>', 1)
                             ->get();
 
-        // Obtener el primer deposito registrado, en caso de ser mas de uno se debe especificar 
+        // Obtener el primer deposito registrado, en caso de ser mas de uno se debe especificar
         // de alguna forma que deposito se debe obtener
         $depositos = DB::table('depositos')
                             ->select('id', 'inventario')
@@ -253,7 +253,7 @@ class ProductosController extends Controller
             $reload = $data->clear;
             $nuevo_grupo = $this->ultimo_producto()+1;
         }
-        
+
         return response()->json(['success' => $response, 'nuevo_grupo' => $nuevo_grupo, 'reload' => $reload]);
 
         // if($query){
@@ -300,7 +300,7 @@ class ProductosController extends Controller
                         'imagen' => $p->imagen,
                         'vistas' => $p->vistas
                         ]);
-        
+
         // Actualizar los codigos del nuevo producto
         Producto::where('id', $producto->id)
                     ->update([
@@ -309,7 +309,7 @@ class ProductosController extends Controller
                     ]);
         // Obtener los detalles de los precios por unidades del producto que se ha duplicado
         $p_u = DB::table('producto_unidades')->where('producto_id', $id)->where('deleted_at', NULL)->get();
-        
+
         // Recorrer los precios ingresados y crear nuevos registros con el ID del nuevo producto
         foreach ($p_u as $item) {
             ProductoUnidade::create([
@@ -344,7 +344,7 @@ class ProductosController extends Controller
         $usos = Uso::where('deleted_at', NULL)->get();
         $unidades = Unidade::where('deleted_at', NULL)->get();
         $monedas = Moneda::where('deleted_at', NULL)->get();
-        $extras = Extra::where('deleted_at', NULL)->where('estado', 1)->get();                      
+        $extras = Extra::where('deleted_at', NULL)->where('estado', 1)->get();
 
         $insumos = DB::table('insumos as i')
                             ->join('unidades as u', 'u.id', 'i.unidad_id')
@@ -501,7 +501,7 @@ class ProductosController extends Controller
                             'talla_id' => $data->talla_id,
                             'color_id' => $data->color_id,
                             'genero_id' => $data->genero_id,
-                            'unidad_id' => $data->unidad_id,
+                            'unidad_id' => $data->unidad_id[0],
                             'uso_id' => $data->uso_id,
                             'moneda_id' => $data->moneda_id,
                             'modelo' => $data->modelo,
@@ -509,14 +509,14 @@ class ProductosController extends Controller
                             'updated_at' => Carbon::now()
                         ]);
 
-            // Guardar precios de venta (si existen)    
+            // Guardar precios de venta (si existen)
             if(isset($data->precio_venta)){
                 DB::table('producto_unidades')
                         ->where('producto_id', $data->id)->update(['deleted_at' => Carbon::now()]);
                 for ($i=0; $i < count($data->precio_venta); $i++) {
                     $query = DB::table('producto_unidades')
                                     ->insert([
-                                        'unidad_id' => $data->unidad_id,
+                                        'unidad_id' => $data->unidad_id[$i],
                                         'producto_id' => $data->id,
                                         'precio' => $data->precio_venta[$i],
                                         'precio_minimo' => $data->precio_minimo[$i],
@@ -738,7 +738,7 @@ class ProductosController extends Controller
                 return Genero::create(['nombre'=>$valor]);
             case 'unidad_id':
                 return Unidade::create(['nombre'=>$valor]);
-            
+
             default:
                 return response()->json(['error'=>'Error desconocido']);
         }
@@ -981,7 +981,7 @@ class ProductosController extends Controller
             return null;
         }
     }
-    
+
     public function get_price_producto_units ($id ,$unit_id){
       $precio = ProductoUnidade::where('producto_id',$id)
                                    ->where('unidad_id',$unit_id)
@@ -1126,7 +1126,7 @@ class ProductosController extends Controller
     }
 
     // ===================================================
-    
+
     public function cargar_vista($tabla){
         switch ($tabla) {
             case 'categoria':
@@ -1184,6 +1184,6 @@ class ProductosController extends Controller
                     ->where('pe.producto_id', $id)->where('d.sucursal_id', $sucursal_id)
                     ->where('ed.stock', '>', 0)->where('e.deleted_at', NULL)->where('pe.deleted_at', NULL)->get();
         }
-        
+
     }
 }

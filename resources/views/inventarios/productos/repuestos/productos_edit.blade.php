@@ -62,18 +62,10 @@
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="form-group col-md-6">
+                                                <div class="form-group col-md-12">
                                                     <label for="">Marca</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Marca del producto. Este campo es obligatorio."></span> @endif
                                                     <select name="marca_id" id="select-marca_id" class="form-control" required>
                                                         @foreach($marcas as $item)
-                                                        <option value="{{$item->id}}" >{{$item->nombre}}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <div class="form-group col-md-6">
-                                                    <label for="">Unidad</label> @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Unidad de almacenamiento del producto. Este campo es obligatorio."></span> @endif
-                                                    <select name="unidad_id" id="select-unidad_id" class="form-control" required>
-                                                        @foreach($unidades as $item)
                                                         <option value="{{$item->id}}" >{{$item->nombre}}</option>
                                                         @endforeach
                                                     </select>
@@ -97,7 +89,7 @@
                                                 </div>
                                             </div>
                                             {{-- <div class="row">
-                                                
+
                                             </div> --}}
                                         </div>
                                         <div class="col-md-6">
@@ -128,49 +120,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="panel panel-bordered" style="margin-top:-30px">
-                                <div class="panel-heading">
-                                    <h3 class=""><i class="icon wb-image"></i> Precio(s) de compra <button type="button" class="btn btn-success btn-small" id="btn-add_compra" title="Agregar precio"><span class="voyager-plus"></span></button></h3>
-                                    <div class="panel-actions">
-                                        <a class="panel-action voyager-angle-up" data-toggle="panel-collapse" aria-hidden="true"></a>
-                                    </div>
-                                </div>
-                                <div class="panel-body">
-                                    <table class="table table-bordered">
-                                        <thead>
-                                            <th>Precio @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Precio de compra del producto. Este campo no es obligatorio."></span> @endif</th>
-                                            <th>Cantidad mínima @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad mínima de compra para tener dicho precio. Este campo no es obligatorio."></span> @endif</th>
-                                            <th></th>
-                                        </thead>
-                                        <tbody id="tr-precioCompra">
-                                            @php
-                                                $indiceCompra = 0;
-                                            @endphp
-                                            @for ($i = 0; $i < count($precio_compra); $i++)
-                                                @if ($i==0)
-                                                <tr>
-                                                    <td><input type="number" min="0.01" step="0.01" class="form-control" value="{{$precio_compra[$i]->monto}}" name="monto[]"></td>
-                                                    <td><input type="number" min="1" step="0.01" class="form-control" value="{{$precio_compra[$i]->cantidad_minima}}" name="cantidad_minima_compra[]"></td>
-                                                    <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
-                                                </tr>
-                                                @else
-                                                    <tr id="tr-precioCompra{{$indiceCompra}}">
-                                                        <td><input type="number" min="0.01" step="0.01" class="form-control" value="{{$precio_compra[$i]->monto}}" name="monto[]" required></td>
-                                                        <td><input type="number" min="1" step="0.01" class="form-control" value="{{$precio_compra[$i]->cantidad_minima}}" name="cantidad_minima_compra[]" required></td>
-                                                        <td style="padding-top:15px"><span onclick="borrarTr({{$indiceCompra}}, 'Compra')" class="voyager-x text-danger"></span></td>
-                                                    </tr>
-                                                @endif
-                                                @php
-                                                    $indiceCompra++;
-                                                @endphp
-                                            @endfor
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="panel panel-bordered" style="margin-top:-30px">
                                 <div class="panel-heading">
                                     <h3 class=""><i class="icon wb-image"></i> Precio(s) de venta <button type="button" class="btn btn-success btn-small" id="btn-add_venta" title="Agregar precio"><span class="voyager-plus"></span></button></h3>
@@ -183,7 +133,8 @@
                                         <thead>
                                             <th>Precio @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Precio de venta del producto. Este campo es obligatorio."></span> @endif</th>
                                             <th>Precio mínimo @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Precio mínimo de venta del producto. Este campo no es obligatorio."></span> @endif</th>
-                                            <th>Cantidad mínima @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Cantidad mínima de venta para tener dicho precio. Este campo es obligatorio."></span> @endif</th>
+                                            <th>Unidad de medida<span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="unidad de medida."></span></th>
+                                            <th>Cantidad x unidad<span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="cantidad por unidad."></span></th>
                                             <th></th>
                                         </thead>
                                         <tbody id="tr-precioVenta">
@@ -195,14 +146,28 @@
                                                 <tr>
                                                     <td><input type="number" min="0.01" step="0.01" class="form-control" value="{{$precio_venta[$i]->precio}}" name="precio_venta[]" required></td>
                                                     <td><input type="number" min="0" step="0.01" class="form-control" value="{{$precio_venta[$i]->precio_minimo}}" name="precio_minimo[]"></td>
-                                                    <td><input type="number" min="1" step="0.01" class="form-control" value="{{$precio_venta[$i]->cantidad_minima}}" name="cantidad_minima_venta[]" required></td>
+                                                    <td>
+                                                        <select name="unidad_id[]" class="form-control" id="select-unidad_id-{{ $indiceVenta }}">
+                                                            @foreach(\App\Unidade::orderBy('nombre')->pluck('nombre','id') as $id => $unidad)
+                                                                <option {{($precio_venta[$i]->unidad_id == $id) ? 'selected' : ''}} value="{{ $id }}">{{ $unidad }} </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </td>
+                                                    <td><input type="number" min="0" step="0.01" class="form-control" name="cantidad_unidad[]" value="{{$precio_venta[$i]->cantidad_unidad}}"></td>
                                                     <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
                                                 </tr>
                                                 @else
                                                     <tr id="tr-precioVenta{{$indiceVenta}}">
                                                         <td><input type="number" min="0.01" step="0.01" class="form-control" value="{{$precio_venta[$i]->precio}}" name="precio_venta[]" required></td>
                                                         <td><input type="number" min="0" step="0.01" class="form-control" value="{{$precio_venta[$i]->precio_minimo}}" name="precio_minimo[]"></td>
-                                                        <td><input type="number" min="1" step="0.01" class="form-control" value="{{$precio_venta[$i]->cantidad_minima}}" name="cantidad_minima_venta[]" required></td>
+                                                        <td>
+                                                            <select name="unidad_id[]" class="form-control" id="select-unidad_id-{{ $indiceVenta }}">
+                                                                @foreach(\App\Unidade::orderBy('nombre')->pluck('nombre','id') as $id => $unidad)
+                                                                    <option {{($precio_venta[$i]->unidad_id == $id) ? 'selected' : ''}} value="{{ $id }}">{{ $unidad }} </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </td>
+                                                        <td><input type="number" min="0" step="0.01" class="form-control" name="cantidad_unidad[]" value="{{$precio_venta[$i]->cantidad_unidad}}"></td>
                                                         <td style="padding-top:15px"><span onclick="borrarTr({{$indiceVenta}}, 'Venta')" class="voyager-x text-danger"></span></td>
                                                     </tr>
                                                 @endif
@@ -256,9 +221,10 @@
     <script src="{{url('js/inventarios/productos.js')}}"></script>
     <script src="{{asset('js/dropzone/dropzone.js')}}" type="text/javascript"></script>
         <script>
+            const unidades = @json($unidades);
             Dropzone.autoDiscover = false;
             // Dropzone
-            var myDropzone = new Dropzone(".dropzone",{ 
+            var myDropzone = new Dropzone(".dropzone",{
                 maxFilesize: 5,  // 3 mb
                 acceptedFiles: ".jpeg,.jpg,.png",
             });
@@ -319,16 +285,9 @@
                     delete_imagen("{{route('delete_imagen')}}", datos);
                 });
 
-                // agregar precios
-                let indice_compra = {{$indiceCompra}};
-                $('#btn-add_compra').click(function(){
-                    add_precio_compra(indice_compra)
-                    indice_compra++;
-                });
-
                 let indice_venta = {{$indiceVenta}};
                 $('#btn-add_venta').click(function(){
-                    add_precio_venta(indice_venta)
+                    add_precio_venta(indice_venta,unidades)
                     indice_venta++;
                 });
 
@@ -340,7 +299,7 @@
                 $.get('{{ url("admin/productos/lista_imagenes/".$producto->id) }}', function(data){
                     $('#img-preview').html(data);
                 });
-            } 
+            }
         </script>
     @endsection
 
