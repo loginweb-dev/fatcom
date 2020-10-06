@@ -145,7 +145,7 @@
                                                 <th style="width:50px">Extras</th>
                                             @endif
                                             <th>observación</th>
-                                            <th>Unidad dd medida</th>
+                                            <th>Unidad</th>
                                             <th style="width:150px">Precio</th>
                                             <th style="width:100px">Cantidad</th>
                                             <th colspan="2">Subtotal</th>
@@ -178,7 +178,7 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                
+
                                 <textarea name="observaciones" id="" class="form-control" rows="3" placeholder="Observaciones de la venta..."></textarea>
                                 <input type="hidden" name="importe" value="0" id="input-total">
                             </div>
@@ -377,7 +377,7 @@
                                 @else
                                     window.open("{{url('admin/venta/impresion/normal')}}/"+id, "Factura", `width=700, height=400`)
                                 @endif
-                                
+
                                 $('#form')[0].reset();
                                 $('.tr-detalle').remove();
                                 $(".label-subtotal").text('0.00');
@@ -423,10 +423,10 @@
                     $('#input-entregado').prop('min', 0);
                     $('#check-factura').bootstrapToggle('off')
                 }else{
-                    
+
                 }
             });
-            
+
             // Activar mapa para llevar a domicilio
             let cont = 0;
             $('#check-domicilio').change(function() {
@@ -527,7 +527,7 @@
 
         // Agregar detalle de venta
         function agregar_detalle_venta(id, nombre, precio, precio_minimo, stock,unidades, adicional_id, adicional_nombre){
-        
+
             if(stock<1){
                 toastr.warning('La cantidad de producto ingresada sobrepasa la existente.', 'Atención');
                 return false;
@@ -550,9 +550,9 @@
 
             let buttonExtras = '';
             let url_extras = "{{ url('admin/ventas/crear/extras_producto') }}";
-            
+
             @if (setting('admin.modo_sistema')=='restaurante')
-                buttonExtras = `<td><a href="" data-toggle="modal" data-target="#modal-lista_extras" onclick="verExtras('${url_extras}', '${index_tr}', ${sucursal_id})" class="btn btn-success btn-sm btn-list_extras" style="text-decoration:none" title="Lista de extras"><i class="voyager-list-add"></i></a></td>`;                          
+                buttonExtras = `<td><a href="" data-toggle="modal" data-target="#modal-lista_extras" onclick="verExtras('${url_extras}', '${index_tr}', ${sucursal_id})" class="btn btn-success btn-sm btn-list_extras" style="text-decoration:none" title="Lista de extras"><i class="voyager-list-add"></i></a></td>`;
             @endif
 
             if(existe){
@@ -567,16 +567,17 @@
                                                 </td>
                                                 ${buttonExtras}
                                                 <td><input type="text" class="form-control" name="observacion[]"></td>
-                                                <td>
-                                                  <select 
-                                                        name="unidad_id[]" 
-                                                        id="select-unidad_id-${index_tr}" 
-                                                        class="form-control" 
+                                                <td style="width:120px">
+                                                  <select
+                                                        name="unidad_id[]"
+                                                        id="select-unidad_id-${index_tr}"
+                                                        class="form-control"
                                                         onchange="cambio_precio(${id},'${index_tr}')"
                                                         required>
                                                  </select>
+                                                <span id="conversiones_${index_tr}" class="label label-info"></span>
                                                  <input type="hidden" id="input-units_id_${index_tr}" name="product_units_id[]"/>
-                                                 <input type="hidden" id="input-units_products_id_${index_tr}" name="cant_product_units[]" value="1"/>
+                                                 <input type="hidden" id="input-units_products_id_${index_tr}" name="cant_product_units[]" />
                                                 </td>
                                                 <td>
                                                     <div class="input-group">
@@ -594,8 +595,8 @@
                                                 <td width="40px"><label onclick="borrarDetalle('${index_tr}')" class="text-danger" style="cursor:pointer;font-size:20px"><span class="voyager-trash"></span></label></td>
                                             <tr>`);
 
-                unidades.map(function(unidad){
-                    $(`#select-unidad_id-${index_tr}`).append(`<option value="${unidad.id}">${unidad.nombre}</option>`);
+                unidades.map(function(item){
+                    $(`#select-unidad_id-${index_tr}`).append(`<option value="${item.unidad.id}" data-cantidad_unidad="${item.cantidad_unidad}">${item.unidad.nombre}</option>`);
                 });
                 toastr.remove();
                 toastr.info('Producto agregar correctamente', 'Bien hecho!');
@@ -603,7 +604,7 @@
             $('#input_cantidad-'+id).val('1');
             total();
         }
-        
+
         var loader = "{{ url('storage').'/'.str_replace('\\', '/', setting('admin.img_loader')) }}";
         var loader_request = `  <div style="@if(setting('delivery.activo')) height:370px @else height:300px @endif" class="text-center">
                                     <br><br><br>
@@ -611,10 +612,11 @@
                                     <p>Cargando...</p>
                                 </div>`;
 
-        function cambio_precio(id,index){
-           
+        function cambio_precio(id, index){
+
             let unit = $(`#select-unidad_id-${index} option:selected`).val();
-        
+            let cant_llevar = $(`#input-cantidad_${index}`).val();
+
             $.get("{{ url('admin/productos/get_price_producto_units') }}/"+id+"/"+unit, function(data){
                 $(`#input-precio_${index}`).val(data.precio);
                 $(`#input-units_products_id_${index}`).val(data.cantidad_unidad);
@@ -622,7 +624,29 @@
             setTimeout(() => {
                 subtotal(index);
             }, 200);
+
+            productoUnidades(id, index);
         }
+
+        function productoUnidades(id, index){
+            let unit_aux = 0;
+            let conversion = '';
+            let id_unit = $(`#select-unidad_id-${index} option:selected`).val();
+            let unit = $(`#select-unidad_id-${index} option:selected`).data('cantidad_unidad');
+            let cant_llevar = $(`#input-cantidad_${index}`).val();
+            unit = unit ? parseFloat(unit) : 0;
+            cant_llevar = cant_llevar ? parseFloat(cant_llevar) : 0;
+            $.get("{{ url('admin/productos/get_price_producto_units') }}/"+id, function(res){
+                res.map(unid => {
+                    if(unid.unidad.id != id_unit){
+                        unit_aux = unid.cantidad_unidad ? parseFloat(unid.cantidad_unidad) : 0;
+                        conversion += `${(unit*cant_llevar)/unit_aux} ${unid.unidad.nombre}<br>`;
+                    }
+                });
+                $(`#conversiones_${index}`).html(conversion);
+            });
+        }
+
         // mostrar Buscador de productos
         function productos_buscar(id){
             if(tab_active!='search'){
@@ -668,7 +692,6 @@
         }
 
         function ubicacion_anterior(id, lat, lon, descripcion){
-            console.log(map)
             map.removeLayer(marcador);
             $('#latitud').val(lat);
             $('#longitud').val(lon);

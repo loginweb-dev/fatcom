@@ -107,7 +107,7 @@ Route::post('admin/productos/imprimir/codigo_barras', 'ProductosController@impri
 Route::get('admin/productos/catalogo/generar/{inicio}/{cantidad}', 'ProductosController@generar_catalogo')->name('generar_catalogo');
 
 Route::get('admin/productos/get_producto/{id}', 'ProductosController@get_producto');
-Route::get('admin/productos/get_price_producto_units/{id}/{unit_id}', 'ProductosController@get_price_producto_units');
+Route::get('admin/productos/get_price_producto_units/{id}/{unit_id?}', 'ProductosController@get_price_producto_units');
 Route::get('admin/productos/lista_imagenes/{id}', 'ProductosController@lista_imagenes');
 Route::post('admin/productos/add_imagen/{id}', 'ProductosController@add_imagen')->name('add_images_product');
 Route::get('admin/productos/cambiar_imagen_principal/{producto_id}/{imagen_id}', 'ProductosController@cambiar_imagen');
@@ -347,5 +347,5 @@ Route::get('/admin/templates/pages/sections/blocks/{type}/{id}/{template_id}/{pa
 Route::post('/admin/templates/pages/sections/blocks/inputs/update', 'TemplatesController@update_block_input')->middleware('auth')->name('templates.pages.sections.blocks.inputs.update');
 
 // ================================Pedidos===========================
-Route::resource('admin/orders','PedidosController'); 
+Route::resource('admin/orders','PedidosController');
 Route::get('admin/orders/lista/{sucursal_id}/{search}', 'PedidosController@pedidos_list');
