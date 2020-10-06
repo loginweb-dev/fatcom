@@ -590,7 +590,7 @@
                                                     <input type="hidden" id="input-total_extras_${index_tr}" name="total_extras[]" value="0" />
                                                     <div class="text-center text-success"><small id="label-extras_${index_tr}"></small></div>
                                                 </td>
-                                                <td><input type="number" min="0.1" max="${stock}" step="0.01" class="form-control" id="input-cantidad_${index_tr}" value="1" step="0.01" name="cantidad[]" onchange="subtotal('${index_tr}')" onkeyup="subtotal('${index_tr}')" required></td>
+                                                <td><input type="number" min="0.1" max="${stock}" step="0.01" class="form-control" id="input-cantidad_${index_tr}" value="1" step="0.01" name="cantidad[]" onchange="subtotal('${index_tr}', '${id}')" onkeyup="subtotal('${index_tr}', '${id}')" required></td>
                                                 <td class="label-subtotal" id="subtotal-${index_tr}"><h4>${precio} Bs.</h4></td>
                                                 <td width="40px"><label onclick="borrarDetalle('${index_tr}')" class="text-danger" style="cursor:pointer;font-size:20px"><span class="voyager-trash"></span></label></td>
                                             <tr>`);
@@ -602,6 +602,7 @@
                 toastr.info('Producto agregar correctamente', 'Bien hecho!');
             }
             $('#input_cantidad-'+id).val('1');
+            productoUnidades(id, index_tr);
             total();
         }
 
@@ -611,41 +612,6 @@
                                     <img src="${loader}" width="100px">
                                     <p>Cargando...</p>
                                 </div>`;
-
-        function cambio_precio(id, index){
-
-            let unit = $(`#select-unidad_id-${index} option:selected`).val();
-            let cant_llevar = $(`#input-cantidad_${index}`).val();
-
-            $.get("{{ url('admin/productos/get_price_producto_units') }}/"+id+"/"+unit, function(data){
-                $(`#input-precio_${index}`).val(data.precio);
-                $(`#input-units_products_id_${index}`).val(data.cantidad_unidad);
-            });
-            setTimeout(() => {
-                subtotal(index);
-            }, 200);
-
-            productoUnidades(id, index);
-        }
-
-        function productoUnidades(id, index){
-            let unit_aux = 0;
-            let conversion = '';
-            let id_unit = $(`#select-unidad_id-${index} option:selected`).val();
-            let unit = $(`#select-unidad_id-${index} option:selected`).data('cantidad_unidad');
-            let cant_llevar = $(`#input-cantidad_${index}`).val();
-            unit = unit ? parseFloat(unit) : 0;
-            cant_llevar = cant_llevar ? parseFloat(cant_llevar) : 0;
-            $.get("{{ url('admin/productos/get_price_producto_units') }}/"+id, function(res){
-                res.map(unid => {
-                    if(unid.unidad.id != id_unit){
-                        unit_aux = unid.cantidad_unidad ? parseFloat(unid.cantidad_unidad) : 0;
-                        conversion += `${(unit*cant_llevar)/unit_aux} ${unid.unidad.nombre}<br>`;
-                    }
-                });
-                $(`#conversiones_${index}`).html(conversion);
-            });
-        }
 
         // mostrar Buscador de productos
         function productos_buscar(id){

@@ -521,7 +521,7 @@ class ProductosController extends Controller
                                         'precio' => $data->precio_venta[$i],
                                         'precio_minimo' => $data->precio_minimo[$i],
                                         'cantidad_minima' => $data->cantidad_minima_venta[$i],
-                                        'cantidad_unidad' => 1,
+                                        'cantidad_unidad' => $data->cantidad_unidad[$i],
                                         'created_at' => Carbon::now(),
                                         'updated_at' => Carbon::now()
                                     ]);
@@ -812,7 +812,7 @@ class ProductosController extends Controller
                             'producto_id' => $producto_id,
                             'precio' => $data->precio_venta[$i],
                             'precio_minimo' => $data->precio_minimo[$i],
-                            'cantidad_minima' => 1,
+                            'cantidad_unidad' => $data->cantidad_unidad[$i],
                             'cantidad_unidad' => $data->cantidad_unidad[$i],
                             'created_at' => Carbon::now(),
                             'updated_at' => Carbon::now()
