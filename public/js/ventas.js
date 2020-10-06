@@ -47,17 +47,20 @@ function borrarTr(num){
 }
 
 // Calcular subtotal
-function subtotal(id){
+function subtotal(index,id=null){
     // Si la cantidad ingresada supera el stock, se mostrará una alerta y se pondrá el monto del stock en la cantidad
-    if(parseInt($('#input-cantidad_'+id).val()) > parseInt($('#input-cantidad_'+id).prop('max'))){
-        $('#input-cantidad_'+id).val($('#input-cantidad_'+id).prop('max'));
+    if(parseInt($('#input-cantidad_'+index).val()) > parseInt($('#input-cantidad_'+index).prop('max'))){
+        $('#input-cantidad_'+index).val($('#input-cantidad_'+index).prop('max'));
         toastr.warning('La cantidad ingresada supera el stock existente del producto.', 'Atención');
     }
 
-    let precio = ($(`#input-precio_${id}`).val()!='') ? parseFloat($(`#input-precio_${id}`).val()) : 0;
-    let cantidad = ($(`#input-cantidad_${id}`).val()!='') ? parseFloat($(`#input-cantidad_${id}`).val()) : 0;
-    let extras = ($(`#input-total_extras_${id}`).val()!='' && $(`#input-total_extras_${id}`).val()!=undefined) ? parseFloat($(`#input-total_extras_${id}`).val()) : 0;
-    $(`#subtotal-${id}`).html(`<h4>${((precio+extras)*cantidad).toFixed(2)} Bs.</h4>`);
+    let precio = ($(`#input-precio_${index}`).val()!='') ? parseFloat($(`#input-precio_${index}`).val()) : 0;
+    let cantidad = ($(`#input-cantidad_${index}`).val()!='') ? parseFloat($(`#input-cantidad_${index}`).val()) : 0;
+    let extras = ($(`#input-total_extras_${index}`).val()!='' && $(`#input-total_extras_${index}`).val()!=undefined) ? parseFloat($(`#input-total_extras_${index}`).val()) : 0;
+    $(`#subtotal-${index}`).html(`<h4>${((precio+extras)*cantidad).toFixed(2)} Bs.</h4>`);
+    if (id) {
+        productoUnidades(id, index);
+    }
     total();
 }
 
@@ -230,4 +233,39 @@ function listaExtrasProductosSeleccionados(id){
             $(`#input-cantidad_extra${extras_id[index]}`).val(extras_cantidades[index]);
         }
     }
+}
+
+function cambio_precio(id, index){
+
+    let unit = $(`#select-unidad_id-${index} option:selected`).val();
+    let cant_llevar = $(`#input-cantidad_${index}`).val();
+
+    $.get("/admin/productos/get_price_producto_units/"+id+"/"+unit, function(data){
+        $(`#input-precio_${index}`).val(data.precio);
+        $(`#input-units_products_id_${index}`).val(data.cantidad_unidad);
+    });
+    setTimeout(() => {
+        subtotal(index);
+    }, 200);
+
+    productoUnidades(id, index);
+}
+
+function productoUnidades(id, index){
+    let unit_aux = 0;
+    let conversion = '';
+    let id_unit = $(`#select-unidad_id-${index} option:selected`).val();
+    let unit = $(`#select-unidad_id-${index} option:selected`).data('cantidad_unidad');
+    let cant_llevar = $(`#input-cantidad_${index}`).val();
+    unit = unit ? parseFloat(unit) : 0;
+    cant_llevar = cant_llevar ? parseFloat(cant_llevar) : 0;
+    $.get("/admin/productos/get_price_producto_units/"+id, function(res){
+        res.map(unid => {
+            if(unid.unidad.id != id_unit){
+                unit_aux = unid.cantidad_unidad ? parseFloat(unid.cantidad_unidad) : 0;
+                conversion += `${(unit*cant_llevar)/unit_aux} ${unid.unidad.nombre}<br>`;
+            }
+        });
+        $(`#conversiones_${index}`).html(conversion);
+    });
 }
