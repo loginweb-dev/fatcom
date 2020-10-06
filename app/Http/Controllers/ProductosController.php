@@ -971,9 +971,12 @@ class ProductosController extends Controller
             }
 
             // Obtener unidades del producto
-            $producto_aux = Producto::find($id);
+            $producto_aux = ProductoUnidade::with('unidad')
+                                ->where('producto_id', $id)
+                                ->where('deleted_at', NULL)
+                                ->get();
             if($producto_aux){
-                $producto->unidades = $producto_aux->unidades;
+                $producto->unidades = $producto_aux;
             }
 
             return response()->json($producto);
@@ -982,11 +985,18 @@ class ProductosController extends Controller
         }
     }
 
-    public function get_price_producto_units ($id ,$unit_id){
-      $precio = ProductoUnidade::where('producto_id',$id)
-                                   ->where('unidad_id',$unit_id)
-                                   ->first();
-      return response()->json($precio);
+    public function get_price_producto_units ($id, $unit_id = null){
+      $producto =   $unit_id ?
+                    ProductoUnidade::with('unidad')
+                                    ->where('producto_id', $id)
+                                   ->where('unidad_id', $unit_id)
+                                   ->where('deleted_at', NULL)
+                                   ->first() :
+                    ProductoUnidade::with('unidad')
+                                    ->where('producto_id', $id)
+                                    ->where('deleted_at', NULL)
+                                   ->get();
+      return response()->json($producto);
     }
 
     public function ultimo_producto(){

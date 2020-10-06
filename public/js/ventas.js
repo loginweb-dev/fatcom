@@ -17,7 +17,7 @@ $('#select-cliente_id').select2({
     ajax: {
         url: function (params) {
             return `../clientes/datos/search/${escape(params.term)}`;
-        },        
+        },
         processResults: function (data) {
             return {
                 results: data
@@ -37,7 +37,7 @@ $('#select-cliente_id').select2({
 
 $('#input-nit').keyup(function(){
     let nit = $(this).val();
-    nit ? $('#check-factura').prop('checked', true).change() : $('#check-factura').prop('checked', false).change();
+    nit && nit != '0000' ? $('#check-factura').prop('checked', true).change() : $('#check-factura').prop('checked', false).change();
 });
 
 // eliminar fila
@@ -48,7 +48,6 @@ function borrarTr(num){
 
 // Calcular subtotal
 function subtotal(id){
-    console.log(id)
     // Si la cantidad ingresada supera el stock, se mostrará una alerta y se pondrá el monto del stock en la cantidad
     if(parseInt($('#input-cantidad_'+id).val()) > parseInt($('#input-cantidad_'+id).prop('max'))){
         $('#input-cantidad_'+id).val($('#input-cantidad_'+id).prop('max'));
@@ -57,7 +56,6 @@ function subtotal(id){
 
     let precio = ($(`#input-precio_${id}`).val()!='') ? parseFloat($(`#input-precio_${id}`).val()) : 0;
     let cantidad = ($(`#input-cantidad_${id}`).val()!='') ? parseFloat($(`#input-cantidad_${id}`).val()) : 0;
-    console.log(precio, cantidad)
     let extras = ($(`#input-total_extras_${id}`).val()!='' && $(`#input-total_extras_${id}`).val()!=undefined) ? parseFloat($(`#input-total_extras_${id}`).val()) : 0;
     $(`#subtotal-${id}`).html(`<h4>${((precio+extras)*cantidad).toFixed(2)} Bs.</h4>`);
     total();
@@ -227,7 +225,7 @@ function listaExtrasProductosSeleccionados(id){
     if(extras_id && extras_cantidades){
         extras_id = extras_id.split(',');
         extras_cantidades = extras_cantidades.split(',');
-        
+
         for (let index = 0; index < extras_id.length; index++) {
             $(`#input-cantidad_extra${extras_id[index]}`).val(extras_cantidades[index]);
         }
