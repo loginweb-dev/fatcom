@@ -1166,7 +1166,7 @@ class ProductosController extends Controller
         // return Excel::download(new CatalogoProductosExport, 'Catálogo de productos '.date('YmdHis').'.xlsx');
         $productos = DB::table('productos as p')
                             ->join('subcategorias as s', 's.id', 'subcategoria_id')
-                            ->select('p.id', 'p.codigo', 'p.nombre', 's.nombre as categoria', 'p.precio_venta as precio', DB::raw("CONCAT(p.estante,' ',p.bloque) as ubicacion"))
+                            ->select('p.id', 'p.codigo', 'p.nombre', 's.nombre as categoria', 'p.precio_venta as precio', 'p.stock', DB::raw("CONCAT(p.estante,' ',p.bloque) as ubicacion"))
                             ->where('p.deleted_at', NULL)
                             ->orderBy('p.nombre')
                             ->skip($inicio)->take($cantidad)->get();

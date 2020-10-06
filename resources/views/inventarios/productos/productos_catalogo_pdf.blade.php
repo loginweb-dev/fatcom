@@ -31,6 +31,7 @@
                 <th>PRODUCTO</th>
                 <th>CATEGORIA</th>
                 <th>PRECIO</th>
+                <th>STOCK</th>
                 <th>UBICACION</th>
             </tr>
         </thead>
@@ -45,6 +46,7 @@
                 <td>{{ $item->nombre }}</td>
                 <td>{{ $item->categoria }}</td>
                 <td>{{ $item->precio }}</td>
+                <td>{{ $item->stock }}</td>
                 <td align="center">{{ $item->ubicacion }}</td>
             </tr>
             {{-- @php

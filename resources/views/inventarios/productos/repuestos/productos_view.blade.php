@@ -109,7 +109,7 @@
                                             </div>
                                             <div class="panel-body" style="padding-top:0;">
                                                 @foreach ($precios_venta as $item)
-                                                    <p><b>{{number_format($item->precio, 2, ',', '.')}} {{$producto->moneda}} mínimo {{$item->cantidad_minima}}</p>
+                                                    <p><b>{{number_format($item->precio, 2, ',', '.')}} {{ $producto->moneda }} {{ $item->precio_minimo ? ' hasta '.$item->precio_minimo : '' }}</p>
                                                 @endforeach
                                             </div>
                                         </div>
@@ -120,7 +120,7 @@
                                             </div>
                                             <div class="panel-body" style="padding-top:0;">
                                                 @forelse ($precios_compra as $item)
-                                                    <p><b>{{number_format($item->monto, 2, ',', '.')}} {{$producto->moneda}} mínimo {{$item->cantidad_minima}}</p>
+                                                    <p><b>{{number_format($item->monto, 2, ',', '.')}} {{ $producto->moneda }}</p>
                                                 @empty
                                                 <p class="text-center">No defino</p>
                                                 @endforelse
