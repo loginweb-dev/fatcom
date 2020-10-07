@@ -263,7 +263,7 @@ function productoUnidades(id, index){
         res.map(unid => {
             if(unid.unidad.id != id_unit){
                 unit_aux = unid.cantidad_unidad ? parseFloat(unid.cantidad_unidad) : 0;
-                conversion += `${(unit*cant_llevar)/unit_aux} ${unid.unidad.nombre}<br>`;
+                conversion += `${((unit*cant_llevar)/unit_aux).toFixed(2)} ${unid.unidad.abreviacion ? unid.unidad.abreviacion : unid.unidad.nombre}<br>`;
             }
         });
         $(`#conversiones_${index}`).html(conversion);

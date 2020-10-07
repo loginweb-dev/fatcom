@@ -160,7 +160,10 @@
                                                         @endforeach
                                                     </select>
                                                 </td>
-                                                <td><input type="number" min="0" step="0.01" class="form-control" name="cantidad_unidad[]"></td>
+                                                <td>
+                                                    <input type="number" min="0" step="0.01" class="form-control" name="cantidad_unidad[]">
+                                                    <input type="hidden" name="cantidad_minima_venta[]" value="1">
+                                                </td>
                                                 <td style="padding-top:15px"><span class="voyager-x text-secondary"></span></td>
                                             </tr>
                                         </tbody>

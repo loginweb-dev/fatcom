@@ -136,7 +136,10 @@ function add_precio_venta(indice_venta,unidades){
                                     <td>
                                         <select name="unidad_id[]" id="select-unidad_id-${indice_venta}" class="form-control" required></select>
                                     </td>
-                                    <td><input type="number" min="0" step="0.01" class="form-control" name="cantidad_unidad[]"></td>
+                                    <td>
+                                        <input type="number" min="0" step="0.01" class="form-control" name="cantidad_unidad[]">
+                                        <input type="hidden" name="cantidad_minima_venta[]" value="1">
+                                    </td>
                                     <td style="padding-top:15px"><span onclick="borrarTr(${indice_venta}, 'Venta')" class="voyager-x text-danger" title="Quitar"></span></td>
                                 </tr>`);
     unidades.map(function(unidad){
