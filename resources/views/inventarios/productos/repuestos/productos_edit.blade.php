@@ -128,13 +128,21 @@
                                         <a class="panel-action voyager-angle-up" data-toggle="panel-collapse" aria-hidden="true"></a>
                                     </div>
                                 </div>
+                                @php
+                                    $unidad_primaria = '';
+                                    if(count($precio_venta)){
+                                        $precio_unidad = $precio_venta[0];
+                                        $unidad = \App\Unidade::find($precio_unidad->unidad_id);
+                                        $unidad_primaria = $unidad->nombre;
+                                    }
+                                @endphp
                                 <div class="panel-body">
                                     <table class="table table-bordered">
                                         <thead>
                                             <th>Precio @if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Precio de venta del producto. Este campo es obligatorio."></span> @endif</th>
                                             <th>Precio mínimo @if(setting('admin.tips')) <span class="voyager-question text-default pull-right" data-toggle="tooltip" data-placement="left" title="Precio mínimo de venta del producto. Este campo no es obligatorio."></span> @endif</th>
                                             <th>Unidad de medida<span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="unidad de medida."></span></th>
-                                            <th>Cantidad x unidad<span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="cantidad por unidad."></span></th>
+                                            <th id="label-unidad">Cantidad en {{ $unidad_primaria }} <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title=""></span></th>
                                             <th></th>
                                         </thead>
                                         <tbody id="tr-precioVenta">
@@ -147,7 +155,7 @@
                                                     <td><input type="number" min="0.01" step="0.01" class="form-control" value="{{$precio_venta[$i]->precio}}" name="precio_venta[]" required></td>
                                                     <td><input type="number" min="0" step="0.01" class="form-control" value="{{$precio_venta[$i]->precio_minimo}}" name="precio_minimo[]"></td>
                                                     <td>
-                                                        <select name="unidad_id[]" class="form-control" id="select-unidad_id-{{ $indiceVenta }}">
+                                                        <select name="unidad_id[]" class="form-control" id="select-unidad_id-0">
                                                             @foreach(\App\Unidade::orderBy('nombre')->pluck('nombre','id') as $id => $unidad)
                                                                 <option {{($precio_venta[$i]->unidad_id == $id) ? 'selected' : ''}} value="{{ $id }}">{{ $unidad }} </option>
                                                             @endforeach
@@ -292,6 +300,11 @@
                 });
 
                 // ================
+
+                $('#select-unidad_id-0').change(function(){
+                    let unidad = $('#select-unidad_id-0 option:selected').text();
+                    $('#label-unidad').text(`Cantidad en ${unidad}`);
+                });
 
             });
 
