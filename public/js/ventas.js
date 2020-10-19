@@ -76,7 +76,7 @@ function total(){
     $('#label-total').html('<h4>'+(total+costo_envio-descuento).toFixed(2)+' Bs.</h4>');
     $('#input-total').val(total+costo_envio);
 
-    if($('#check-domicilio').is(':checked') || $('#check-llevar').is(':checked')){
+    if($('#check-domicilio').is(':checked') || $('#check-llevar').is(':checked') || $('#check-credito').is(':checked')){
         $('#input-entregado').prop('min', 0);
     }else{
         $('#input-entregado').prop('min', (total-descuento).toFixed(2))
@@ -107,6 +107,7 @@ $('#btn-reset').click(function(){
     $('#input-total').val('0');
     $('#check-domicilio').bootstrapToggle('off');
     $('#check-llevar').bootstrapToggle('off');
+    $('#check-credito').bootstrapToggle('off');
 });
 
 // asignar 0 por defecto a los campos que no pueden estar vacios

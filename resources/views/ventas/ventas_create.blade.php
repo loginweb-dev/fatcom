@@ -385,6 +385,7 @@
                                 $('#check-domicilio').bootstrapToggle('off');
                                 $('#check-llevar').bootstrapToggle('off');
                                 $('#check-factura').bootstrapToggle('off');
+                                $('#check-credito').bootstrapToggle('off')
                                 // inicializar_select2_simple('producto_id');
                                 rich_select('select-producto_id');
                                 // Reset select de clientes
@@ -602,6 +603,7 @@
                 toastr.info('Producto agregar correctamente', 'Bien hecho!');
             }
             $('#input_cantidad-'+id).val('1');
+            cambio_precio(id,index_tr);
             productoUnidades(id, index_tr);
             total();
         }
