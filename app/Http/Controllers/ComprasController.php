@@ -56,6 +56,10 @@ class ComprasController extends Controller
                     $proveedor->save();
                 }
             }
+
+            $data->importe_compra = $data->importe_compra ?? 0;
+            $data->monto_exento = $data->monto_exento ?? 0;
+
             // Agregar nueva compra
             $compra = new Compra;
             $compra->fecha = $data->fecha;
@@ -64,8 +68,8 @@ class ComprasController extends Controller
             $compra->importe_compra = $data->importe_compra;
             $compra->monto_exento = $data->monto_exento;
             $compra->sub_total = $data->importe_compra - $data->monto_exento;
-            $compra->importe_base = $data->importe_base;
-            $compra->credito_fiscal = $data->credito_fiscal;
+            $compra->importe_base = $data->importe_base  ?? 0;
+            $compra->credito_fiscal = $data->credito_fiscal  ?? 0;
             $compra->deposito_id = $data->deposito_id;
             $compra->user_id = auth()->user()->id;
             // Si existe facturación se agregan datos de facturación necesarios
