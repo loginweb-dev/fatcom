@@ -582,7 +582,7 @@
                                                 </td>
                                                 <td>
                                                     <div class="input-group">
-                                                        <input type="number" ${editar_precio} id="input-precio_${index_tr}" min="${precio_minimo}" step="0.01" data-precio="${precio}" value="${precio}" name="precio[]" class="form-control input-precio" onchange="subtotal('${index_tr}');" onkeyup="subtotal('${index_tr}')" required />
+                                                        <input type="number" ${editar_precio} id="input-precio_${index_tr}" min="${editar_precio == '' ? 0 : precio_minimo}" step="0.01" data-precio="${precio}" value="${precio}" name="precio[]" class="form-control input-precio" onchange="subtotal('${index_tr}');" onkeyup="subtotal('${index_tr}')" required />
                                                         <span class="input-group-addon">Bs.</span>
                                                     </div>
                                                     <input type="hidden" id="input-extras_id_${index_tr}" name="extras_id[]" />
