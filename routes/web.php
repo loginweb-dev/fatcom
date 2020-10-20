@@ -107,6 +107,7 @@ Route::post('admin/productos/imprimir/codigo_barras', 'ProductosController@impri
 Route::get('admin/productos/catalogo/generar/{inicio}/{cantidad}', 'ProductosController@generar_catalogo')->name('generar_catalogo');
 
 Route::get('admin/productos/get_producto/{id}', 'ProductosController@get_producto');
+Route::get('admin/productos/get_productoproforma/{pr_id}/{id}', 'ProductosController@get_producto_proforma');
 Route::get('admin/productos/get_price_producto_units/{id}/{unit_id?}', 'ProductosController@get_price_producto_units');
 Route::get('admin/productos/lista_imagenes/{id}', 'ProductosController@lista_imagenes');
 Route::post('admin/productos/add_imagen/{id}', 'ProductosController@add_imagen')->name('add_images_product');

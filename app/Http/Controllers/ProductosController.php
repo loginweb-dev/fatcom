@@ -1196,4 +1196,65 @@ class ProductosController extends Controller
         }
 
     }
+
+    public function get_producto_proforma($pr_id,$id){
+        $sucursal_id = (new Ventas)->get_user_sucursal();
+        // Verificar que el producto se almacena en stock
+        $producto = DB::table('productos as p')
+                            ->join('proformas_detalles as profd', 'profd.producto_id', 'p.id')
+                            ->join('proformas as prof', 'prof.id', 'profd.proforma_id')
+                            ->join('monedas as m', 'm.id', 'p.moneda_id')
+                            ->join('producto_unidades as pu', 'pu.producto_id', 'p.id')
+                            ->join('productos_depositos as pd', 'pd.producto_id', 'p.id')
+                            ->join('depositos as d', 'd.id', 'pd.deposito_id')
+                            ->select(DB::raw('p.id, p.nombre, pu.precio, p.precio_minimo, pu.precio as precio_antiguo, p.imagen, p.se_almacena, (pd.stock + pd.stock_compra) as stock, p.descripcion_small as descripcion, m.abreviacion as moneda,
+                                            (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos, p.deleted_at as unidades,profd.cantidad'))
+                            ->where('p.id', $id)
+                            ->where('prof.id', $pr_id)
+                            ->where('p.se_almacena', 1)
+                            ->where('d.sucursal_id', $sucursal_id)
+                            ->where('p.stock', '>', 0)
+                            ->where('pu.deleted_at', NULL)
+                            ->first();
+
+        // Si no se almacena mostrar la infomación
+        $producto = $producto ?? DB::table('productos as p')
+                                        ->join('proformas_detalles as profd', 'profd.producto_id', 'p.id')
+                                        ->join('proformas as prof', 'prof.id', 'profd.proforma_id')
+                                        ->join('monedas as m', 'm.id', 'p.moneda_id')
+                                        ->join('producto_unidades as pu', 'pu.producto_id', 'p.id')
+                                        ->select(DB::raw('p.id, p.nombre, pu.precio, p.precio_minimo, pu.precio as precio_antiguo, p.imagen, p.se_almacena, p.stock, p.descripcion_small as descripcion, m.abreviacion as moneda,
+                                                        (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos, p.deleted_at as unidades,profd.cantidad'))
+                                        ->where('p.id', $id)
+                                        ->where('prof.id', $pr_id)
+                                        ->where('pu.deleted_at', NULL)
+                                        ->first();
+
+        if($producto){
+            // Obtener si el producto está en oferta
+            $oferta = (new Ofertas)->obtener_oferta($producto->id);
+            $precio_venta = $producto->precio;
+            if($oferta){
+                if($oferta->tipo_descuento=='porcentaje'){
+                    $precio_venta -= ($precio_venta*($oferta->monto/100));
+                }else{
+                    $precio_venta -= $oferta->monto;
+                }
+                $producto->precio = $precio_venta;
+            }
+
+            // Obtener unidades del producto
+            $producto_aux = ProductoUnidade::with('unidad')
+                                ->where('producto_id', $id)
+                                ->where('deleted_at', NULL)
+                                ->get();
+            if($producto_aux){
+                $producto->unidades = $producto_aux;
+            }
+
+            return response()->json($producto);
+        }else{
+            return null;
+        }
+    }
 }

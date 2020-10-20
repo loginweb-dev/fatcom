@@ -488,13 +488,20 @@
             $.get('{{ url("admin/proformas/detalle") }}/'+proforma_id, function(data){
                 if(data){
                     data.forEach(element => {
-                        agregar_producto(element.producto_id);
+                        agregar_producto_proforma(proforma_id,element.producto_id);
                     });
                 }
             });
             @endif
 
         });
+
+        function agregar_producto_proforma(prof_id,id){
+            $.get("{{ url('admin/productos/get_productoproforma') }}/"+prof_id+"/"+id, function(data){
+                let stock = data.se_almacena ? data.stock : 1000;
+                agregar_detalle_venta(data.id, data.nombre, data.precio, data.precio_minimo, stock,data.unidades, '', '',data.cantidad);
+            });
+        }
 
         function agregar_producto(id){
             $.get("{{ url('admin/productos/get_producto') }}/"+id, function(data){
@@ -527,7 +534,7 @@
         }
 
         // Agregar detalle de venta
-        function agregar_detalle_venta(id, nombre, precio, precio_minimo, stock,unidades, adicional_id, adicional_nombre){
+        function agregar_detalle_venta(id, nombre, precio, precio_minimo, stock,unidades, adicional_id, adicional_nombre,cantidad=0){
 
             if(stock<1){
                 toastr.warning('La cantidad de producto ingresada sobrepasa la existente.', 'Atención');
@@ -591,7 +598,7 @@
                                                     <input type="hidden" id="input-total_extras_${index_tr}" name="total_extras[]" value="0" />
                                                     <div class="text-center text-success"><small id="label-extras_${index_tr}"></small></div>
                                                 </td>
-                                                <td><input type="number" min="0.1" max="${stock}" step="0.01" class="form-control" id="input-cantidad_${index_tr}" value="1" step="0.01" name="cantidad[]" onchange="subtotal('${index_tr}', '${id}')" onkeyup="subtotal('${index_tr}', '${id}')" required></td>
+                                                <td><input type="number" min="0.1" max="${stock}" step="0.01" class="form-control" id="input-cantidad_${index_tr}" value="${cantidad}" step="0.01" name="cantidad[]" onchange="subtotal('${index_tr}', '${id}')" onkeyup="subtotal('${index_tr}', '${id}')" required></td>
                                                 <td class="label-subtotal" id="subtotal-${index_tr}"><h4>${precio} Bs.</h4></td>
                                                 <td width="40px"><label onclick="borrarDetalle('${index_tr}')" class="text-danger" style="cursor:pointer;font-size:20px"><span class="voyager-trash"></span></label></td>
                                             <tr>`);
