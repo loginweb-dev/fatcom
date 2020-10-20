@@ -961,13 +961,13 @@ class ApiController extends Controller
             case 'sucursal_active':
                 $sucursales = (new Sucursales)->get_sucursales_activas();
                 $abierta = count($sucursales) > 0 ? true: false;
-                $mensaje = $abierta ? '' : 'No puede realizar pedidos en este momento. '.setting('delivery.message_company_closed');
+                $mensaje = $abierta ? '' : setting('delivery.message_company_closed');
                 return response()->json(['open' => $abierta, 'message' => $mensaje ]);
                 break;
             case 'brach_office_active':
                     $sucursales = (new Sucursales)->get_sucursales_activas();
                     $abierta = count($sucursales) > 0 ? true: false;
-                    $mensaje = $abierta ? '' : 'No puede realizar pedidos en este momento. '.setting('delivery.message_company_closed');
+                    $mensaje = $abierta ? '' : setting('delivery.message_company_closed');
                     return response()->json(['open' => $abierta, 'message' => $mensaje ]);
                     break;
             case 'brach_office_availables':
