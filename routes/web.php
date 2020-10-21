@@ -227,7 +227,9 @@ Route::get('admin/proformas', 'VentasController@proformas_index')->name('proform
 Route::get('admin/proformas/buscar/{value}', 'VentasController@proformas_search');
 Route::get('admin/proformas/crear', 'VentasController@proformas_create')->name('proformas_create');
 Route::post('admin/proformas/store', 'VentasController@proformas_store')->name('proformas_store');
+Route::put('admin/proformas/update/{id}', 'VentasController@proformas_update')->name('proformas_update');
 Route::get('admin/proformas/impresion/{tipo}/{id}/{pdf?}', 'VentasController@proformas_print');
+Route::get('admin/proformas/{id}', 'VentasController@proformas_edit');
 Route::get('admin/proformas/detalle/{id}', 'VentasController@proformas_detalle');
 Route::post('admin/proformas/delete', 'VentasController@proforma_delete')->name('proforma_delete');
 

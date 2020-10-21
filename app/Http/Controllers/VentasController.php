@@ -138,7 +138,7 @@ class VentasController extends Controller
         $sucursal_id = $sucursal_users ? $sucursal_users->sucursal_id : 0;
         return view('ventas.ventas_index_cocina', compact('sucursal_id'));
      }
- 
+
      public function cocina_list(){
         $sucursal_users = DB::table('users_sucursales')->select('sucursal_id')->where('user_id', Auth::user()->id)->where('deleted_at', NULL)->first();
         $sucursal_id = $sucursal_users ? $sucursal_users->sucursal_id : 0;
@@ -158,9 +158,9 @@ class VentasController extends Controller
                                     ->whereMonth("ventas.fecha", date('m'))
                                     ->whereDay("ventas.fecha", date('d'))
                                     ->get();
-        return view('ventas.partials.ventas_cocina_lista', compact('ventas'));  
+        return view('ventas.partials.ventas_cocina_lista', compact('ventas'));
     }
- 
+
     public function pedido_listo($id){
         $venta = Venta::findOrFail($id);
         $venta->venta_estado_id = 3;
@@ -172,7 +172,7 @@ class VentasController extends Controller
             //throw $th;
         }
         return 1;
-        return redirect()->route('cocina.index')->with(['message' => 'Pedido listo.', 'alert-type' => 'success']);    
+        return redirect()->route('cocina.index')->with(['message' => 'Pedido listo.', 'alert-type' => 'success']);
     }
 
     public function tickets_index(){
@@ -308,7 +308,7 @@ class VentasController extends Controller
         $productos = $this->get_productos_disponibles($sucursal_actual, 'all', 'all', 'all', 'all', 'all', 'all');
 
         // dd($productos);
-        
+
         return view('ventas.ventas_productos_search', compact('categorias', 'productos'));
     }
 
@@ -385,7 +385,7 @@ class VentasController extends Controller
 
                 for ($i=0; $i < count($data->producto_id); $i++) {
                     if(!is_null($data->producto_id[$i])){
-                        
+
                         $detalle_venta = VentasDetalle::create([
                             'venta_id' => $venta_id,
                             'producto_id' => $data->producto_id[$i],
@@ -394,12 +394,12 @@ class VentasController extends Controller
                             'producto_adicional' => $data->adicional_id[$i],
                             'observaciones' => $data->observacion[$i]
                         ]);
-                        
+
                         // Convertir en array las cadenas que viene del formulario
                         $extras_detalle = explode(',', $extras_id[$i]);
                         $precio_extras_detalle = explode(',', $precio_extras_id[$i]);
                         $cantidad_extras_detalle = explode(',', $cantidad_extras_id[$i]);
-                        
+
                         // Agregar extras a cada producto (si se les asignó)
                         $this->agregar_extras_detalle_venta($detalle_venta->id, $sucursal_id, $extras_detalle, $precio_extras_detalle, $cantidad_extras_detalle);
 
@@ -429,13 +429,13 @@ class VentasController extends Controller
                         if($data->credito && ($data->monto_recibido < ($data->importe - $data->descuento))){
                         if ($data->monto_recibido > 0) {
                             $monto_venta = $data->monto_recibido;
-                            $this->crear_asiento_venta($venta_id, $monto_venta, $caja_id, 'Anticipo de venta realizada'); 
+                            $this->crear_asiento_venta($venta_id, $monto_venta, $caja_id, 'Anticipo de venta realizada');
                         }
                         }else {
                             $monto_venta = ($data->importe - $data->descuento);
                             $this->crear_asiento_venta($venta_id, $monto_venta, $caja_id, 'Venta realizada');
                         }
-                        
+
                     }
 
                     // Obetner dosificacion
@@ -454,7 +454,7 @@ class VentasController extends Controller
                         DB::table('dosificaciones')->where('id', $dosificacion->id)->increment('numero_actual', 1);
                     }
                 }
-            
+
                 // Si es una venta a credito crear un registro de pago
                 if(isset($data->credito) && $data->monto_recibido){
                     VentasPago::create([
@@ -472,7 +472,7 @@ class VentasController extends Controller
         } catch (\Throwable $th) {
             DB::rollback();
         }
-         
+
         // ============================
 
     }
@@ -528,7 +528,7 @@ class VentasController extends Controller
                             ->select('d.*', 'v.sucursal_id', 'p.se_almacena', 'v.nro_factura', 'v.venta_tipo_id', 'v.venta_estado_id')
                             ->where('d.venta_id', $data->id)
                             ->get();
-                            
+
             // Quitar registros de caja de las ventas que no sean a domicilio ni pedidos
             if($vd[0]->venta_tipo_id < 3 ){
                 // Eliminar asiento de la caja
@@ -548,9 +548,9 @@ class VentasController extends Controller
                                     ->select('pd.id', 'pd.stock', 'pd.stock_compra', 'd.id as deposito_id')
                                     ->where('pd.producto_id', $item->producto_id)->where('d.sucursal_id', $item->sucursal_id)
                                     ->first();
-    
+
                             DB::table('productos_depositos')->where('id', $pd->id)->increment($stock, $item->cantidad);
-                        
+
                         // Incrementar stock del registro global
                         DB::table('productos')->where('id', $item->producto_id)->increment('stock', $item->cantidad);
                     }
@@ -560,7 +560,7 @@ class VentasController extends Controller
                     foreach ($venta_detalle_extras as $detalle_extra) {
                         $this->cambiar_stock_extras_almacen('incrementar', $detalle_extra->extra_id, $item->sucursal_id, $detalle_extra->cantidad);
                     }
-                    
+
                     // Devolver al stock de almacen los insumos que contiene el producto
                     $this->cambiar_stock_insumo_almacen('incrementar', $item->producto_id, $item->cantidad, $item->sucursal_id);
                 }
@@ -615,7 +615,7 @@ class VentasController extends Controller
                 $alerta = 'sucursal_no_disponible';
                 return redirect()->route('carrito_compra')->with(compact('alerta'));
             }
-            
+
             // Si existe mas de una sucursal activa para delivery se obtiene la más cercana, sino se elige la primera
             if(count($sucursales)>1){
                 $data->sucursal_id = (new Sucursales)->get_sucursal_cercana($sucursales, $data->latitud, $data->longitud);
@@ -700,7 +700,7 @@ class VentasController extends Controller
             } catch (\Throwable $th) {
                 //throw $th;
             }
-            
+
             // Cuando el pedido se pone en estado "En proceso/preparación"
             if($valor == 2){
                 // Obtener detalle del pedido
@@ -929,7 +929,7 @@ class VentasController extends Controller
             Venta::where('id', $id)->update(['venta_estado_id' => 5]);
             // Crear registro de seguimiento del pedido
             VentasSeguimiento::create([ 'venta_id' => $id, 'venta_estado_id' => 5,]);
-            
+
             DB::commit();
 
             $sucursal = $this->get_user_sucursal();
@@ -962,7 +962,7 @@ class VentasController extends Controller
         // y se debe verificar que no se esté registrando el mismo dato (por razones de optimización)
         $ultima_ubicacion = RepartidoresUbicacione::where('repartidor_pedido_id', $id)->orderBy('id', 'DESC')->first();
         $pedido_id = RepartidoresPedido::find($id)->pedido_id;
-        
+
         // Verificar si existe una ultima ubicación
         if($ultima_ubicacion){
             if($ultima_ubicacion->lon != $lon && $ultima_ubicacion->lat != $lat){
@@ -1065,7 +1065,7 @@ class VentasController extends Controller
                         ->where('s.deleted_at', NULL)
                         ->get();
 
-        
+
         return view('ventas.creditos.ventas_credito_index', compact('registros', 'value', 'cajas'));
     }
 
@@ -1081,7 +1081,7 @@ class VentasController extends Controller
         if($query){
             // Incrementar monto recibido por la venta
             DB::table('ventas')->where('id', $data->id)->increment('monto_recibido', $data->monto);
-            
+
             // Buscar la venta y si el monto recibido es igual al importe de la venta actualizar su estado a pagada
             $venta = DB::table('ventas')
                             ->select('importe', 'monto_recibido')
@@ -1190,7 +1190,7 @@ class VentasController extends Controller
     public function proformas_store(Request $data){
         // dd($data);
         $proforma = Proforma::create(
-            ['cliente_id' => $data->cliente_id, 
+            ['cliente_id' => $data->cliente_id,
             'sucursal_id' => $data->sucursal_id,
             'user_id' => auth()->user()->id
             ]);
@@ -1377,7 +1377,7 @@ class VentasController extends Controller
     public function hojas_trabajos_details($id){
         // Obtener ultima sucursal del usuario
         $sucursal_actual = $this->get_user_sucursal();
-        
+
         $aux = DB::table('ie_cajas as c')
                             ->select('c.*')
                             ->where('c.abierta', 1)
@@ -1402,7 +1402,7 @@ class VentasController extends Controller
         try {
         //    Cliente por defecto
             $cliente_id = 1;
-            
+
             // Crear venta
             $venta = Venta::create([
                 'cliente_id' => $cliente_id,
@@ -1414,7 +1414,7 @@ class VentasController extends Controller
                 'venta_tipo_id' => 1,
                 'venta_estado_id' => 5,
                 'caja_id' => $request->caja_id,
-                
+
             ]);
 
             // Crear detalle de venta
@@ -1463,7 +1463,7 @@ class VentasController extends Controller
             DB::table('hojas_trabajos')
                     ->where('id', $request->id)
                     ->update(['estado' => 2, 'observaciones' => $request->observaciones, 'updated_at' => Carbon::now()]);
-        
+
             DB::commit();
             return redirect()->route('hojas_trabajos_index')->with(['message' => 'Hoja de trabajo cerrada exitosamenete.', 'alert-type' => 'success']);
         } catch (\Exception $e) {
@@ -1626,7 +1626,7 @@ class VentasController extends Controller
 
     // Función creada para utilizarla tanto para crear una venta normal o realizar un pedido por parte de un cliente
     public function crear_venta($data){
-        
+
         // Filtrar datos que no existen cuando se hace un pedido
         // $sucursal_id = isset($data->sucursal_id) ? $data->sucursal_id : NULL;
         $nro_factura = isset($data->nro_factura) ? $data->nro_factura : NULL;
@@ -1652,7 +1652,7 @@ class VentasController extends Controller
         // Obtener la caja abierta de la sucursal
         $caja_actual = IeCaja::where('sucursal_id', $sucursal_id)->where('abierta', 1)->where('deleted_at', NULL)->first();
         $caja_id = $caja_actual ? $caja_actual->id : 0;
-        
+
         $venta_estado_id = DB::table('ventas_detalle_tipo_estados as d')
                                 ->join('ventas_estados as e', 'e.id', 'd.venta_estado_id')
                                 ->select('d.venta_estado_id')
@@ -1682,7 +1682,7 @@ class VentasController extends Controller
         $venta->importe_base = $importe_base;
         $venta->debito_fiscal = $debito_fiscal;
         $venta->cobro_adicional = $cobro_adicional;
-        $venta->cobro_adicional_factura = $cobro_adicional_factura;        
+        $venta->cobro_adicional_factura = $cobro_adicional_factura;
         $venta->caja_id = $caja_id;
         $venta->pagada = $pagada;
         $venta->efectivo = $efectivo;
@@ -1729,7 +1729,7 @@ class VentasController extends Controller
     public function agregar_extras_detalle_venta($detalle_venta_id, $sucursal_id, $extras_detalle, $precio_extras_detalle, $cantidad_extras_detalle){
         DB::beginTransaction();
         try {
-            for ($j=0; $j < count($extras_detalle); $j++) { 
+            for ($j=0; $j < count($extras_detalle); $j++) {
                 if($extras_detalle[$j]){
                     VentasDetallesExtra::create([
                         'venta_detalle_id' => $detalle_venta_id,
@@ -1737,10 +1737,10 @@ class VentasController extends Controller
                         'precio' => $precio_extras_detalle[$j],
                         'cantidad' => $cantidad_extras_detalle[$j]
                     ]);
-    
+
                     // Actualizar stock del extra en almacen
                     $this->cambiar_stock_extras_almacen('decrementar', $extras_detalle[$j], $sucursal_id, $cantidad_extras_detalle[$j]);
-    
+
                     // Actualizar el precio del producto añandiendo el precio de los extras
                     $detalle_venta_aux = VentasDetalle::find($detalle_venta_id);
                     $detalle_venta_aux->precio += ($precio_extras_detalle[$j] * $cantidad_extras_detalle[$j]);
@@ -1807,7 +1807,7 @@ class VentasController extends Controller
                         ->select('pd.id', 'pd.stock', 'pd.stock_compra', 'd.id as deposito_id')
                         ->where('pd.producto_id', $producto_id)->where('d.sucursal_id', $sucursal_id)
                         ->first();
-            
+
             // Si la venta emitió factura se descontará del stock de compra, caso contrario del stock normal
             // Nota:   la variable stock_secuandario se usará en caso de que el stock primario sea menor a la cantidad
             //         de producto a vender, para así descontarselo al otro stock y no quede con número negativo.
@@ -1833,7 +1833,7 @@ class VentasController extends Controller
 
             // Descontar stock del registro global
             DB::table('productos')->where('id', $producto_id)->decrement('stock', $cantidad);
-            
+
             DB::commit();
             return 1;
         } catch (\Exception $e) {
@@ -1965,7 +1965,7 @@ class VentasController extends Controller
                 return view('facturas.factura_venta_aux', compact('detalle_venta', 'total_literal', 'original'));
             }else{
                 return view('facturas.factura_venta', compact('detalle_venta', 'total_literal', 'original'));
-            }            
+            }
         }
     }
 
@@ -2014,18 +2014,18 @@ class VentasController extends Controller
             $printer->text($venta[0]->tipo_nombre."\n");
             $printer->text("\n");
             // =====================
-            
-            
+
+
             // Detalle de productos de la venta
             $printer->text("Detalle\n-------------------------\n");
             $total = 0;
             foreach ($venta as $item) {
                 $total += $item->precio*$item->cantidad;
-            
+
                 /*Alinear a la izquierda para la cantidad y el nombre*/
                 $printer->setJustification(Printer::JUSTIFY_LEFT);
                 $printer->text(intval($item->cantidad). "  " .$item->producto);
-            
+
                 /*Y a la derecha para el importe*/
                 $printer->setJustification(Printer::JUSTIFY_RIGHT);
                 $printer->text(' '.$item->precio . "\n");
@@ -2059,11 +2059,11 @@ class VentasController extends Controller
             $total = 0;
             foreach ($venta as $item) {
                 $total += $item->precio*$item->cantidad;
-            
+
                 /*Alinear a la izquierda para la cantidad y el nombre*/
                 $printer->setJustification(Printer::JUSTIFY_LEFT);
                 $printer->text(intval($item->cantidad). "  " .$item->producto);
-            
+
                 /*Y a la derecha para el importe*/
                 $printer->setJustification(Printer::JUSTIFY_RIGHT);
                 $printer->text(' '.$item->precio . "\n");
@@ -2087,14 +2087,14 @@ class VentasController extends Controller
 
     // Obtener todos los productos de disponibles para la venta
     public function get_productos_disponibles($sucursal_id, $categoria_id, $subcategoria_id, $marca, $talla, $genero, $color){
-        
+
         $filtro_categoria = ($categoria_id != 'all') ? "s.categoria_id = $categoria_id" : 1;
         $filtro_subcategoria = ($subcategoria_id != 'all') ? "s.id = $subcategoria_id" : 1;
         $filtro_marca = ($marca != 'all') ? "m.id = $marca " : 1;
         $filtro_talla = ($talla != 'all') ? "t.id = $talla " : 1;
         $filtro_genero = ($genero != 'all') ? "g.id = $genero " : 1;
         $filtro_color = ($color != 'all') ? "c.id = $color " : 1;
-        
+
         $productos = collect();
 
         // Obetener lista de productos a la venta en la sucursal actual
@@ -2200,5 +2200,71 @@ class VentasController extends Controller
             ]);
         }
         return $sucursal_actual;
+    }
+    public function proformas_edit($id){
+        $proforma = Proforma::findOrFail($id);
+        $categorias = DB::table('categorias')
+                            ->select('id', 'nombre')
+                            ->where('deleted_at', NULL)
+                            ->where('id', '>', 1)
+                            ->get();
+
+                            // Obetener lista de productos a la venta en la sucursal actual
+        $productos = DB::table('productos as p')
+                        ->join('productos_depositos as pd', 'pd.producto_id', 'p.id')
+                        ->join('depositos as d', 'd.id', 'pd.deposito_id')
+                        ->join('subcategorias as s', 's.id', 'p.subcategoria_id')
+                        ->join('categorias as ca', 'ca.id', 's.categoria_id')
+                        ->join('marcas as m', 'm.id', 'p.marca_id')
+                        ->join('tallas as t', 't.id', 'p.talla_id')
+                        ->join('colores as c', 'c.id', 'p.color_id')
+                        ->join('generos as g', 'g.id', 'p.genero_id')
+                        ->join('monedas as mo', 'mo.id', 'p.moneda_id')
+                        ->select(   'p.id',
+                                    'p.codigo_interno',
+                                    'p.codigo',
+                                    'p.nombre',
+                                    'p.imagen',
+                                    'p.precio_venta',
+                                    'p.precio_minimo',
+                                    'p.stock',
+                                    'p.descripcion_small',
+                                    'p.se_almacena',
+                                    'm.nombre as marca',
+                                    't.nombre as talla',
+                                    'g.nombre as genero',
+                                    's.nombre as subcategoria',
+                                    'ca.nombre as categoria',
+                                    'c.nombre as color',
+                                    'mo.abreviacion as moneda'
+                                )
+                        ->where('p.deleted_at', NULL)
+                        ->get();
+        return view('ventas.proformas.edit',compact('proforma','categorias','productos'));
+    }
+
+    public function proformas_update(Request $data,$id){
+
+        $proforma = Proforma::findOrFail($id);
+        $proforma->cliente_id = $data->cliente_id;
+        $proforma->update();
+        $proforma->detalle()->delete();
+        // insertar detalle de la proforma
+        if($proforma){
+            for ($i=0; $i < count($data->producto_id); $i++) {
+                if(!is_null($data->producto_id[$i])){
+                    ProformasDetalle::create([
+                        'proforma_id' => $proforma->id,
+                        'producto_id' => $data->producto_id[$i],
+                        'precio' => $data->precio[$i],
+                        'cantidad' => $data->cantidad[$i],
+                        'subtotal' => $data->precio[$i] * $data->cantidad[$i]
+                    ]);
+                }
+            }
+            return redirect()->route('proformas_index')->with(['message' => 'Proforma guardada exitosamenete.', 'alert-type' => 'success']);
+        }else{
+            return redirect()->route('proformas_index')->with(['message' => 'Ocurrio un error al guardar la proforma.', 'alert-type' => 'error']);
+        }
     }
 }

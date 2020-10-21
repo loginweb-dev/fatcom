@@ -63,6 +63,9 @@
                                                         <a title="Realizar venta" href="{{url('admin/ventas/crear').'?proforma='.$item->id}}" class="btn btn-sm btn-success">
                                                             <i class="voyager-basket"></i> <span class="hidden-xs hidden-sm">Vender</span>
                                                         </a>
+                                                        <a title="Editar" href="{{url('admin/proformas/'.$item->id)}}" class="btn btn-sm btn-warning">
+                                                            <i class="voyager-edit"></i> <span class="hidden-xs hidden-sm">Editar</span>
+                                                        </a>
                                                         <div class="dropdown" style="display:inline">
                                                             <button class="btn btn-sm btn-primary dropdown-toggle" type="button" data-toggle="dropdown" title="Exportar"><i class="voyager-polaroid"></i> Generar
                                                             <span class="caret"></span></button>
@@ -116,7 +119,7 @@
                         </div>
                         <div class="modal-body">
                             <p>Si anula una proforma ya no podra cambiar el estado de la misma.</p>
-                            
+
                         </div>
                         <div class="modal-footer">
                             {{ csrf_field() }}

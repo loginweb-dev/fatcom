@@ -48,6 +48,7 @@ function borrarTr(num){
 
 // Calcular subtotal
 function subtotal(index,id=null){
+
     // Si la cantidad ingresada supera el stock, se mostrará una alerta y se pondrá el monto del stock en la cantidad
     if(parseInt($('#input-cantidad_'+index).val()) > parseInt($('#input-cantidad_'+index).prop('max'))){
         $('#input-cantidad_'+index).val($('#input-cantidad_'+index).prop('max'));

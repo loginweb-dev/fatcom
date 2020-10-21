@@ -1,17 +1,18 @@
 @extends('voyager::master')
-@section('page_title', 'Nueva proforma o pedidos')
+@section('page_title', 'Proforma Edit')
 
 @if(auth()->user()->hasPermission('browse_proformas'))
     @section('page_header')
         <div class="container-fluid">
             <h1 class="page-title">
-                <i class="voyager-certificate"></i> Nueva proforma/pedidos
+                <i class="voyager-certificate"></i> Editar proforma {{ $proforma->id }}
             </h1>
         </div>
     @stop
 
     @section('content')
-    <form id="form" action="{{route('proformas_store')}}" method="post">
+    <form id="form" action="{{route('proformas_update',$proforma->id)}}" method="post">
+        @method('PUT')
         @csrf
         <div class="page-content browse container-fluid">
             @include('voyager::alerts')
@@ -278,7 +279,25 @@
                     });
                 });
 
+                // Si existe una proforma obtenemos los datos y agregamos los productos
+            @if($proforma)
+                let proforma_id = {{$proforma->id}};
+                $.get('{{ url("admin/proformas/detalle") }}/'+proforma_id, function(data){
+                    if(data){
+                        data.forEach(element => {
+                            agregar_producto_proforma(proforma_id,element.producto_id);
+                        });
+                    }
+                });
+            @endif
+
             });
+            function agregar_producto_proforma(prof_id,id){
+                $.get("{{ url('admin/productos/get_productoproforma') }}/"+prof_id+"/"+id, function(data){
+                    let stock = data.se_almacena ? data.stock : 1000;
+                    agregar_detalle_venta(data.id, data.nombre, data.precio, stock,data.unidades,data.cantidad);
+                });
+            }
 
             function seleccionar_producto(){
                 let id = $('#select-producto_id').val();
