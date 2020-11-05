@@ -610,7 +610,12 @@
                 toastr.info('Producto agregar correctamente', 'Bien hecho!');
             }
             $('#input_cantidad-'+id).val('1');
+
+            // Si se está importando una proforma no se debe actulizar el precio
+            @if(!$proforma_id)
             cambio_precio(id,index_tr);
+            @endif
+
             productoUnidades(id, index_tr);
             total();
         }

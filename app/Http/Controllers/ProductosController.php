@@ -1207,7 +1207,7 @@ class ProductosController extends Controller
                             ->join('producto_unidades as pu', 'pu.producto_id', 'p.id')
                             ->join('productos_depositos as pd', 'pd.producto_id', 'p.id')
                             ->join('depositos as d', 'd.id', 'pd.deposito_id')
-                            ->select(DB::raw('p.id, p.nombre, pu.precio, p.precio_minimo, pu.precio as precio_antiguo, p.imagen, p.se_almacena, (pd.stock + pd.stock_compra) as stock, p.descripcion_small as descripcion, m.abreviacion as moneda,
+                            ->select(DB::raw('p.id, p.nombre, profd.precio, p.precio_minimo, profd.precio as precio_antiguo, p.imagen, p.se_almacena, (pd.stock + pd.stock_compra) as stock, p.descripcion_small as descripcion, m.abreviacion as moneda,
                                             (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos, p.deleted_at as unidades,profd.cantidad'))
                             ->where('p.id', $id)
                             ->where('prof.id', $pr_id)
@@ -1223,7 +1223,7 @@ class ProductosController extends Controller
                                         ->join('proformas as prof', 'prof.id', 'profd.proforma_id')
                                         ->join('monedas as m', 'm.id', 'p.moneda_id')
                                         ->join('producto_unidades as pu', 'pu.producto_id', 'p.id')
-                                        ->select(DB::raw('p.id, p.nombre, pu.precio, p.precio_minimo, pu.precio as precio_antiguo, p.imagen, p.se_almacena, p.stock, p.descripcion_small as descripcion, m.abreviacion as moneda,
+                                        ->select(DB::raw('p.id, p.nombre, profd.precio, p.precio_minimo, profd.precio as precio_antiguo, p.imagen, p.se_almacena, p.stock, p.descripcion_small as descripcion, m.abreviacion as moneda,
                                                         (select AVG(puntos) from productos_puntuaciones as pp where pp.producto_id = p.id) as puntos, p.deleted_at as unidades,profd.cantidad'))
                                         ->where('p.id', $id)
                                         ->where('prof.id', $pr_id)
