@@ -382,7 +382,7 @@ class DepositosController extends Controller
                             $deposito_emisor->save();
                         }
                         // Incrementar el stock del deposito receptor
-                        $deposito_receptor = ProductosDeposito::where('deposito_id', $request->deposito_receptor_id)->where('producto_id', $request->item_id[$i])->first();
+                        $deposito_receptor = ProductosDeposito::where('deposito_id', $request->deposito_receptor_id)->where('producto_id', $request->item_id[$i])->where('deleted_at', NULL)->first();
                         if($deposito_receptor){
                             $deposito_receptor->stock += $cantidad;
                             $deposito_receptor->save();

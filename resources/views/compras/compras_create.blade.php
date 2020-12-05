@@ -83,6 +83,7 @@
                             <div class="form-group">
                                 <label>Depositos</label>
                                 <select name="deposito_id" class="form-control select2" required>
+                                    <option value="" >Elija la sucursal</option>
                                     @foreach($depositos as $item)
                                     <option value="{{$item->id}}" >{{$item->nombre}}</option>
                                     @endforeach

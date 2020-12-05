@@ -1,7 +1,7 @@
 @extends('ecommerce.restaurante_v1.layouts.master')
 
 @section('meta-datos')
-    <title>{{ setting('empresa.title') }}</title>
+    <title>{{ setting('empresa.title') }} | Bievenido</title>
     <meta property="og:url"           content="{{ route('ecommerce_home')}}" />
     <meta property="og:type"          content="E-Commerce" />
     <meta property="og:title"         content="{{ setting('empresa.title') }}" />
@@ -21,7 +21,7 @@
   <!-- Intro -->
   <section>
     @include('ecommerce.restaurante_v1.layouts.carrusel')
-    <div style="position:absolute;top:80px;right:10px;z-index:1">
+    <div style="position:absolute;top:100px;right:10px;z-index:1">
         <a href="tel:+591{{ setting('empresa.celular') }}" class="btn btn-success"> Llamar <span class="fa fa-phone"></span> </a>
     </div>
   </section>
@@ -97,16 +97,12 @@
                   <ul class="nav md-tabs nav-justified principal-color lighten-3 mx-0" role="tablist">
     
                     <li class="nav-item">
-                      <a class="nav-link active text-white font-weight-bold" data-toggle="tab" href="#panel5" role="tab"> Más vendidas</a>
+                      <a class="nav-link active black-text font-weight-bold" data-toggle="tab" href="#panel5" role="tab"> Más vendidas</a>
                     </li>
     
                     <li class="nav-item">
-                      <a class="nav-link text-white font-weight-bold" data-toggle="tab" href="#panel6" role="tab">Populares</a>
+                      <a class="nav-link black-text font-weight-bold" data-toggle="tab" href="#panel6" role="tab">Populares</a>
                     </li>
-    
-                    {{-- <li class="nav-item">
-                      <a class="nav-link text-white font-weight-bold" data-toggle="tab" href="#panel7" role="tab">Best rated</a>
-                    </li> --}}
     
                   </ul>
     
@@ -292,7 +288,7 @@
                             <article class="card-group-item">
                                 <header class="card-header principal-color">
                                     <a class="" aria-expanded="true" href="#" data-toggle="collapse" data-target="#collapse22">
-                                        <h5 class="title text-white">Categorías</h5>
+                                        <h5 class="title black-text">Categorías</h5>
                                     </a>
                                 </header>
                                 <div class="filter-content collapse show panel-aside" id="collapse22">
@@ -320,7 +316,7 @@
                             <article class="card-group-item">
                                 <header class="card-header principal-color">
                                     <a class="" aria-expanded="true" href="#" data-toggle="collapse" data-target="#collapse33">
-                                        <h5 class="title text-white">Rango de precio</h5>
+                                        <h5 class="title black-text">Rango de precio</h5>
                                     </a>
                                 </header>
                                 <div class="filter-content collapse show" id="collapse33">
@@ -371,7 +367,11 @@
 
                 <!-- Products List -->
                 <div class="col-lg-8 col-md-12 pt-3">
-                  <div id="contenido"></div>
+                  <div id="contenido">
+                    <div class="text-center" style="margin-top: 100px; opacity: 0.5">
+                      <img src="{{ url('ecommerce_public/templates/restaurante_v1/media/pizza.png') }}" width="40%" alt="icon">
+                    </div>
+                  </div>
                 </div>
                 <!-- Products List -->
     
@@ -392,10 +392,10 @@
         <div style="padding:50px">
           <br>
           <h2 class="text-white">Descarga Pizzeria Tatu en tu celular</h2><br>
-          <a href="#">
+          <a href="https://play.google.com/store/apps/details?id=com.loginweb.pizzastatu" target="_blank">
               <img src="{{ url('ecommerce_public/templates/restaurante_v1/media/btn-google-play.png') }}" width="150px" alt="button google play">
           </a>
-          <a href="#">
+          <a href="#" class="btn-info-ios">
               <img src="{{ url('ecommerce_public/templates/restaurante_v1/media/btn-app-store.png') }}" width="150px" alt="button google play">
           </a>
         </div>

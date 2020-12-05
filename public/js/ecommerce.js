@@ -95,7 +95,9 @@ function search(page, viewType = 'normal'){
     }
     
     let datos = $('#form-search').serialize();
-    $("html,body").animate({scrollTop: $('#contenido').offset().top - 50}, 500);
+    try {
+        $("html,body").animate({scrollTop: $('#contenido').offset().top - 50}, 500);
+    } catch (error) {}
     $.ajax({
         // Se utiliza la ruta absoluta ya que no se puede usar sintaxis blade en archivos .js
         url: "/search",
@@ -116,10 +118,14 @@ function addCart(id){
         success: function(data){
             if(data==1){
                 count_cart();
-                Toast.fire({
-                    icon: 'success',
-                    title: 'Producto agregado'
-                })
+                try {
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Producto agregado'
+                    })
+                } catch (error) {
+                    
+                }
             }else{
                 // toastr.error('Ocurrio un error al agregar el productos.', 'Error');
             }
@@ -145,7 +151,7 @@ function count_cart(){
         url: `/carrito/cantidad_carrito`,
         type: 'get',
         success: function(data){
-            $('#label-count-cart').html(data)
+            $('.label-count-cart').html(data)
         }
     });
 }
@@ -187,9 +193,9 @@ function totalVenta(){
 
 // Cambiar cantidad de producto
 function cambiarCantidad(tipo, id){
-    let cantidad = parseFloat($(`#input-cantidad-${id}`).val());
-    let precio = parseFloat($(`#input-precio-${id}`).val());
-    let precio_envio = parseFloat($(`#input-costo_envio${id}`).val());
+    let cantidad = $(`#input-cantidad-${id}`).val() ? parseFloat($(`#input-cantidad-${id}`).val()) : 0;
+    let precio = $(`#input-precio-${id}`).val() ? parseFloat($(`#input-precio-${id}`).val()) : 0;
+    let precio_envio = $(`#input-costo_envio-${id}`).val() ? parseFloat($(`#input-costo_envio-${id}`).val()) : 0;
     
     if(tipo == 'sumar'){
         cantidad++;

@@ -112,7 +112,7 @@
                                                     {{ $costo_envio > 0 ? 'Bs. '.$costo_envio : 'Gratis' }}
                                                     @endif
                                                 </b>
-                                                <input type="hidden" name="costo_envio[]" id="input-costo_envio{{$item->id}}" value="{{$costo_envio}}">
+                                                <input type="hidden" name="costo_envio[]" id="input-costo_envio-{{ $item->id }}" value="{{$costo_envio}}">
                                             </dd>
                                         </dl>
                                     </figcaption>

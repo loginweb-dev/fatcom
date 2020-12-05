@@ -4,11 +4,9 @@
           <!-- Slides -->
           <div class="carousel-inner" role="listbox">
             <!-- First slide -->
-            <div class="carousel-item active movil-hidden" style="max-height:600px">
+            <div class="carousel-item active movil-hidden" style="max-height:700px">
               <div class="view h-100" style="margin-top:-100px">
-                <video autoplay width="100%" muted loop>
-                    <source src="{{ url('ecommerce_public/templates/restaurante_v1/media/video1.mp4') }}" type="video/mp4">
-                Tu navegador no soporta videos.</video>
+                <img class="d-block w-100" src="{{ url('ecommerce_public/templates/restaurante_v1/media/banner1.png') }}">
               </div>
             </div>
 
@@ -22,10 +20,10 @@
             <!-- First slide -->
 
             <div style="position:absolute;bottom:40px;right:10px;z-index:1">
-                <a href="#">
+                <a href="https://play.google.com/store/apps/details?id=com.loginweb.pizzastatu" target="_blank">
                     <img src="{{ url('ecommerce_public/templates/restaurante_v1/media/btn-google-play.png') }}" width="100px" alt="button google play">
                 </a>
-                <a href="#">
+                <a href="#" class="btn-info-ios">
                     <img src="{{ url('ecommerce_public/templates/restaurante_v1/media/btn-app-store.png') }}" width="100px" alt="button google play">
                 </a>
             </div>

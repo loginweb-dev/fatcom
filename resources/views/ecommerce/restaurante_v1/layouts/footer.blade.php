@@ -1,5 +1,5 @@
 <!-- Footer -->
-  <footer class="page-footer text-center text-md-left stylish-color-dark pt-0">
+  <footer class="page-footer text-center text-md-left stylish-color-dark pt-0" style="background-color: black !important">
     <div class="principal-color">
 
       <div class="container">
@@ -10,7 +10,7 @@
           <!-- Grid column -->
           <div class="col-md-6 col-lg-5 text-center text-md-left mb-4 mb-md-0">
 
-            <h6 class="mb-0 white-text">Conéctate con nosotros en las redes sociales!</h6>
+            <h6 class="mb-0 black-text">Conéctate con nosotros en las redes sociales!</h6>
 
           </div>
           <!-- Grid column -->
@@ -18,16 +18,16 @@
           <!-- Grid column -->
           <div class="col-md-6 col-lg-7 text-center text-md-right">
             <!-- Facebook -->
-            <a class="fb-ic ml-0 px-2">
-              <i class="fab fa-facebook-f white-text"> </i>
+            <a class="fb-ic ml-0 px-2" href="{{ setting('social.facebook') }}" target="_blank">
+              <i class="fab fa-facebook-f black-text"> </i>
             </a>
             <!-- Instagram -->
-            <a class="ins-ic px-2">
-              <i class="fab fa-instagram white-text"> </i>
+            <a class="ins-ic px-2" href="{{ setting('social.instagram') }}" target="_blank">
+              <i class="fab fa-instagram black-text"> </i>
             </a>
             <!-- Whatsapp -->
-            <a class="tw-ic px-2">
-                <i class="fab fa-whatsapp white-text"> </i>
+            <a class="tw-ic px-2" href="{{ setting('social.whatsapp') }}" target="_blank">
+                <i class="fab fa-whatsapp black-text"> </i>
               </a>
           </div>
           <!-- Grid column -->

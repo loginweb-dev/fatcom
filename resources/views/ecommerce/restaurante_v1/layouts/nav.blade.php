@@ -18,17 +18,17 @@
       <li>
         <ul class="social">
           <li>
-            <a class="fb-ic">
+            <a class="fb-ic" href="{{ setting('social.facebook') }}" target="_blank">
               <i class="fab fa-facebook-f"> </i>
             </a>
           </li>
           <li>
-            <a class="pin-ic">
+            <a class="pin-ic" href="{{ setting('social.instagram') }}" target="_blank">
               <i class="fab fa-instagram"> </i>
             </a>
           </li>
           <li>
-            <a class="tw-ic">
+            <a class="tw-ic" href="{{ setting('social.whatsapp') }}" target="_blank">
               <i class="fab fa-whatsapp"> </i>
             </a>
           </li>
@@ -75,9 +75,9 @@
     <!-- Sidebar navigation -->
 
     <!-- Navbar -->
-    <nav class="navbar fixed-top navbar-expand-lg  navbar-light scrolling-navbar white">
+    <nav class="navbar fixed-top navbar-expand-lg  navbar-light scrolling-navbar white" style="background-color: #FBBC00 !important">
 
-      <div class="container">
+      <div class="container black-text">
 
         <!-- SideNav slide-out button -->
         <div class="float-left mr-2">
@@ -88,7 +88,7 @@
 
         <a class="navbar-brand font-weight-bold" href="{{ route('ecommerce_home') }}">
 
-          <strong> <img src="{{ url('ecommerce_public/templates/restaurante_v1/media/logo.png') }}" alt="logo" width="40px"> {{ setting('empresa.title') }}</strong>
+          <strong> <img src="{{ url('ecommerce_public/templates/restaurante_v1/media/logo.png') }}" alt="logo" width="50px"> {{ setting('empresa.title') }}</strong>
 
         </a>
 
@@ -104,32 +104,32 @@
           <ul class="navbar-nav ml-auto">
             <li class="nav-item ">
               <a class="nav-link dark-grey-text font-weight-bold" href="{{ route('pedidos_index', ['id'=>'last']) }}" title="Pedidos pendientes">
-                <i class="fas fa-list-alt blue-text" aria-hidden="true"></i> <span class="clearfix d-none d-sm-inline-block">Mis pedidos</span>
+                <i class="fas fa-list-alt black-text" aria-hidden="true"></i> <span class="clearfix d-none d-sm-inline-block black-text">Mis pedidos</span>
               </a>
           </li>
             <li class="nav-item ">
                 <a class="nav-link dark-grey-text font-weight-bold" href="{{ route('carrito_compra') }}">
-                    <span class="badge danger-color" id="label-count-cart">0</span> <i class="fas fa-shopping-cart blue-text" aria-hidden="true"></i>
-                    <span class="clearfix d-none d-sm-inline-block">Carrito</span>
+                  <span class="badge danger-color label-count-cart">0</span> <i class="fas fa-shopping-cart black-text" aria-hidden="true"></i>
+                  <span class="clearfix d-none d-sm-inline-block black-text">Carrito</span>
                 </a>
             </li>
             @guest
                 @if (Route::has('register'))
                     <li class="nav-item">
                         <a class="nav-link waves-effect waves-light dark-grey-text font-weight-bold" href="{{ route('register') }}">
-                            <i class="fas fa-edit blue-text"></i> Registrarse
+                            <i class="fas fa-edit black-text"></i> Registrarse
                         </a>
                     </li>
                 @endif
                 <li class="nav-item">
                     <a class="nav-link waves-effect waves-light dark-grey-text font-weight-bold" href="{{ route('login') }}">
-                        <i class="fas fa-sign-in-alt blue-text"></i> Login
+                        <i class="fas fa-sign-in-alt black-text"></i> Login
                     </a>
                 </li>
             @else
                 <li class="nav-item dropdown">
                     <a id="navbarDropdown" class="nav-link dropdown-toggle waves-effect waves-light dark-grey-text font-weight-bold" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                        <i class="far fa-address-card blue-text"></i> Cuenta <span class="caret"></span>
+                        <i class="far fa-address-card black-text"></i> <span class="clearfix d-none d-sm-inline-block black-text">Carrito</span> <span class="caret"></span>
                     </a>
 
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">

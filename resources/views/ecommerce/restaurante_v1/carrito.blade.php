@@ -27,7 +27,7 @@
         <!-- Main Container -->
         <div class="container" style="margin-top:100px">
             <!-- Section cart -->
-            <section class="section my-5 pb-5">
+            <section class="section my-5">
                 <div class="card card-ecommerce">
                     <div class="card-body">
                         <!-- Shopping Cart table -->
@@ -122,9 +122,27 @@
                 </div>
             </section>
             <!-- Section cart -->
+
+            <section class="section my-5">
+                @if($pedido_pendiente >= 1)
+                    <div class="alert alert-warning" role="alert">
+                        <h4 class="alert-heading">Oops!</h4>
+                        <p>No puedes realizar más de un pedido a la vez, agradecemos de antemano tu compresión.</p>
+                        <hr>
+                        <p class="mb-0">Si tienes alguna consulta por favor comunícate con nosotros por medio de cualquier canal de comunicación descritos en la parte inferios de la página.</p>
+                    </div>
+                @elseif($count_sucursales <= 0)
+                    <div class="alert alert-warning" role="alert">
+                        <h4 class="alert-heading">Aviso importante!</h4>
+                        <p>{{ setting('delivery.message_company_closed') }}</p>
+                        <hr>
+                        <p class="mb-0">Si tienes alguna consulta por favor comunícate con nosotros por medio de cualquier canal de comunicación descritos en la parte inferios de la página.</p>
+                    </div>
+                @endif
+            </section>
             
             <!-- Section products -->
-            <section>
+            <section class="section my-5 pt-3">
                 <h4 class="font-weight-bold mt-4 title-1">
                     <strong>Quizas te interesen también</strong>
                 </h4>

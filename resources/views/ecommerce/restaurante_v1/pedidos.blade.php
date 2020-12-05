@@ -191,11 +191,10 @@
                     lat =  position.coords.latitude;
                     lon = position.coords.longitude;
                 }, function(err) { console.error(err); });
-
                 // Setear ubicacion del ultimo pedido, caso de que el pedido haya sido entregado se mostrará la ubicación actual
                 @if($ultimo_pedido->venta_tipo_id == 2)
                 lat = parseFloat('{{ $ultimo_pedido->latitud }}');
-                lon = parseFloat('{{$ultimo_pedido->longitud}}');
+                lon = parseFloat('{{ $ultimo_pedido->longitud }}');
                 @else
                 lat = parseFloat('{{ $mi_ubicacion->lat }}');
                 lon = parseFloat('{{ $mi_ubicacion->lon }}');
