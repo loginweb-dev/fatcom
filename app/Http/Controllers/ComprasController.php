@@ -27,7 +27,7 @@ class ComprasController extends Controller
     public function index()
     {
        $compras = Compra::with('user','detalle.producto:id,codigo,nombre')
-                           ->orderBy('id')->paginate(10);
+                           ->orderBy('id', 'desc')->paginate(10);
         $value = '';
         return view('compras.compras_index', compact('compras', 'value'));
     }
