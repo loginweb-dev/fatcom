@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
@@ -8,6 +8,7 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     {{-- <meta name="author" content="Bootstrap-ecommerce by Vosidiy"> --}}
     <link rel="shortcut icon" href="{{ url('storage').'/'.setting('empresa.logo')}}" type="image/x-icon">
+    <meta name="csrf-token" content="{{ csrf_token() }}"/>
     {{-- metadatos para facebook --}}
     @yield('meta-datos')
 
@@ -20,6 +21,10 @@
     <link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet">
     <!-- Bootstrap core CSS -->
     <link href="{{ url('ecommerce_public/templates/restaurante_v1/css/bootstrap.min.css') }}" rel="stylesheet">
+
+    {{-- Sweetalert2 --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
     <!-- Material Design Bootstrap -->
     <link href="{{ url('ecommerce_public/templates/restaurante_v1/css/mdb.min.css') }}" rel="stylesheet">
     <link href="{{ url('ecommerce_public/templates/restaurante_v1/css/style.css') }}" rel="stylesheet">
@@ -28,15 +33,15 @@
             font-family: 'Open Sans', sans-serif;
         }
         .principal-color{
-            background-color: #312347 !important;
+            background-color: #FBBC00 !important;
         }
         .text-principal-color{
-            color: #312347 !important;
+            color: #FBBC00 !important;
         }
         .result-item-search{
             text-decoration: none
         }
-        @media (min-width: 700px) {
+        @media (min-width: 768px) {
             .movil-show {
                 display: none !important;
             }
@@ -44,7 +49,7 @@
                 display: show !important;
             }
         }
-        @media (max-width: 700px) {
+        @media (max-width: 768px) {
             .movil-show {
                 display: flex !important;
             }
@@ -102,10 +107,21 @@
 
     @yield('footer')
 
+    {{-- Float ShoppingCart --}}
+    
+        <a href="{{ route('carrito_compra') }}">
+            <div class="principal-color movil-show" style="position: fixed; bottom: 10px; left: 10px; z-index: 100; width: 60px; height: 60px; border-radius: 30px; border: 1px solid #D49F00">
+                <div style="margin-top: 15px; margin-left: 5px">
+                    <i class="fas fa-shopping-cart black-text" style="font-size: 25px"></i>
+                    <span class="badge danger-color label-count-cart">0</span>
+                </div>
+            </div>
+        </a>
+
     <!-- ========================= BUSQUEDA ========================= -->
     <form name="form" id="form-search" action="{{route('busqueda_ecommerce')}}" method="post">
         @csrf
-        <input type="hidden" name="tipo_busqueda">
+        <input type="hidden" name="tipo_busqueda" value="click">
         <input type="hidden" name="categoria_id">
         <input type="hidden" name="subcategoria_id">
         <input type="hidden" name="marca_id">
@@ -114,6 +130,7 @@
         <input type="hidden" name="tipo_dato">
         <input type="hidden" name="dato">
         <input type="hidden" name="page">
+        {{-- <button type="submit">ok</button> --}}
     </form>
     <!-- ========================= BUSQUEDA // ========================= -->
 
@@ -128,6 +145,11 @@
     <!-- MDB core JavaScript -->
     <script type="text/javascript" src="{{ url('ecommerce_public/templates/restaurante_v1/js/mdb.min.js') }}"></script>
 
+    {{-- Select2 --}}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+
+    <script src="{{ url('js/rich_select.js') }}"></script>
     <script src="{{ url('js/ecommerce.js') }}"></script>
 
     <script type="text/javascript">
@@ -138,15 +160,40 @@
             $('[data-toggle="tooltip"]').tooltip()
         })
 
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'bottom-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        })
+
         // Material Select Initialization
         $(document).ready(function () {
             $('.mdb-select').material_select();
+
+            $('.btn-info-ios').click(function(e){
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'info',
+                    title: 'App en desarrollo',
+                    text: 'La versión para IOS de nuestra aplicación aún no se encuentra disponible, agradecemos su paciencia!',
+                    confirmButtonText: '<i class="fa fa-thumbs-up"></i> Entendido!',
+                    footer: '<a href="mailto: {{ setting('empresa.email') }}" target="_blank">Envíanos tus recomendaciones</a>'
+                });
+            });
         });
 
         // SideNav Initialization
         $(".button-collapse").sideNav();
 
         count_cart();
+
+        // search(1);
 
     </script>
 

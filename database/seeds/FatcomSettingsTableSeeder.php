@@ -385,8 +385,7 @@ class FatcomSettingsTableSeeder extends Seeder
                 'details' => '{
                     "options":{
                         "" : "Por defecto",
-                        "ecommerce_v1." : "Ecommerce Bootstrap",
-                        "restaurante_v1." : "Restaurante MDBoostrap"
+                        "ecommerce_v1." : "Ecommerce Bootstrap 4"
                     }
                 }',
                 'type' => 'select_dropdown',
@@ -458,6 +457,72 @@ class FatcomSettingsTableSeeder extends Seeder
                 'type' => 'text_area',
                 'order' => 27,
                 'group' => 'Delivery',
+            ),
+            38 => 
+            array (
+                'id' => 39,
+                'key' => 'social.facebook',
+                'display_name' => 'Facebook',
+                'value' => 'https://www.facebook.com/',
+                'details' => NULL,
+                'type' => 'text',
+                'order' => 28,
+                'group' => 'Social',
+            ),
+            39 => 
+            array (
+                'id' => 40,
+                'key' => 'social.instagram',
+                'display_name' => 'Instagram',
+                'value' => 'https://www.instagram.com/',
+                'details' => NULL,
+                'type' => 'text',
+                'order' => 29,
+                'group' => 'Social',
+            ),
+            40 => 
+            array (
+                'id' => 41,
+                'key' => 'social.twitter',
+                'display_name' => 'Twitter',
+                'value' => 'https://twitter.com/',
+                'details' => NULL,
+                'type' => 'text',
+                'order' => 30,
+                'group' => 'Social',
+            ),
+            41 => 
+            array (
+                'id' => 42,
+                'key' => 'social.youtube',
+                'display_name' => 'Youtube',
+                'value' => 'https://www.youtube.com/',
+                'details' => NULL,
+                'type' => 'text',
+                'order' => 31,
+                'group' => 'Social',
+            ),
+            42 => 
+            array (
+                'id' => 43,
+                'key' => 'social.whatsapp',
+                'display_name' => 'Whatsapp',
+                'value' => 'https://api.whatsapp.com/send?phone=59175199157',
+                'details' => NULL,
+                'type' => 'text',
+                'order' => 32,
+                'group' => 'Social',
+            ),
+            43 => 
+            array (
+                'id' => 44,
+                'key' => 'social.pinterest',
+                'display_name' => 'Pinterest',
+                'value' => 'https://www.pinterest.com/',
+                'details' => NULL,
+                'type' => 'text',
+                'order' => 33,
+                'group' => 'Social',
             ),
         ));
         

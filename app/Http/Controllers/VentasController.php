@@ -596,7 +596,7 @@ class VentasController extends Controller
         // Verificar coordenadas si el producto se entrega a domicilio
         if(isset($data->tipo_entrega)){
             if($data->tipo_entrega == 'domicilio'){
-                $this->set_ultima_ubicacion($data->cliente_id, $data->coordenada_id, $data->latitud, $data->lon, $data->descripcion);
+                $this->set_ultima_ubicacion($data->cliente_id, $data->coordenada_id, $data->latitud, $data->longitud, $data->descripcion);
             }
         }
 

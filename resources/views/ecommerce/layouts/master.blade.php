@@ -280,7 +280,7 @@
                     <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2 text-right">
                         <a href="{{url('/carrito')}}" class="widget-header float-md-right link-page">
                             <div class="icontext">
-                                <div class="icon-wrap"><i class="fa fa-shopping-cart fa-2x"></i><span id="label-count-cart" class="notify">0</span></div>
+                                <div class="icon-wrap"><i class="fa fa-shopping-cart fa-2x"></i><span class="notify label-count-cart">0</span></div>
                             </div>
                         </a>
                     </div>
