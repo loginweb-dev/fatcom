@@ -516,6 +516,17 @@ class FatcomSettingsTableSeeder extends Seeder
             43 => 
             array (
                 'id' => 44,
+                'key' => 'social.tiktok',
+                'display_name' => 'TikTok',
+                'value' => 'https://www.tiktok.com/',
+                'details' => NULL,
+                'type' => 'text',
+                'order' => 33,
+                'group' => 'Social',
+            ),
+            44 => 
+            array (
+                'id' => 45,
                 'key' => 'social.pinterest',
                 'display_name' => 'Pinterest',
                 'value' => 'https://www.pinterest.com/',
