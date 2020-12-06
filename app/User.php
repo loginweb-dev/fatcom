@@ -6,6 +6,9 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
+// Notificartions
+use App\Notifications\ResetPasswordNotification;
+
 class User extends \TCG\Voyager\Models\User
 {
     use Notifiable;
@@ -39,5 +42,16 @@ class User extends \TCG\Voyager\Models\User
 
     public function cliente(){
         return $this->belongsTo('App\Cliente', 'cliente_id');
+    }
+
+        /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 }

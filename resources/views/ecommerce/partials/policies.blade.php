@@ -1,4 +1,4 @@
-<h3 class="text-center">POLÍTICA DE PRIVACIDAD</h3>
+<h3 class="text-center">POLÍTICAS DE PRIVACIDAD</h3>
 <br>
 <hr>
 <br>

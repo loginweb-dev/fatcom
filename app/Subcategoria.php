@@ -27,4 +27,8 @@ class Subcategoria extends Model
     {
         return 'slug';
     }
+
+    function productos(){
+        return $this->hasMany('App\Producto', 'subcategoria_id');
+    }
 }

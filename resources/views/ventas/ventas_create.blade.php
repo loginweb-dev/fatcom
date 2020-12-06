@@ -534,7 +534,7 @@
         }
 
         // Agregar detalle de venta
-        function agregar_detalle_venta(id, nombre, precio, precio_minimo, stock,unidades, adicional_id, adicional_nombre,cantidad=0){
+        function agregar_detalle_venta(id, nombre, precio, precio_minimo, stock,unidades, adicional_id, adicional_nombre,cantidad=1){
 
             if(stock<1){
                 toastr.warning('La cantidad de producto ingresada sobrepasa la existente.', 'Atención');

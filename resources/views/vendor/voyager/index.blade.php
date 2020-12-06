@@ -474,6 +474,7 @@
     <script>
         localStorage.clear();
         sessionStorage.clear();
+        console.log('clear');
     </script>
 
 @stop

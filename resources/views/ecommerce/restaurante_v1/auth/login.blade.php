@@ -57,8 +57,6 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <!-- Forgot password -->
-                                        {{-- <a href="">Forgot password?</a> --}}
                                         @if (Route::has('password.request'))
                                             <a href="{{ route('password.request') }}">
                                                 Olvidaste tu contraseña?
@@ -68,7 +66,7 @@
                                 </div>
                             
                                 <!-- Sign in button -->
-                                <button class="btn principal-color text-white btn-block my-4" type="submit">Iniciar</button>
+                                <button class="btn principal-color btn-block my-4" type="submit">Iniciar sesión</button>
                             
                                 <!-- Register -->
                                 <p>No eres usuario?

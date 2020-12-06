@@ -189,8 +189,8 @@ return [
     |
     */
 
-    'primary_color' => env('APP_PRIMARY_COLOR'),
-    'primary_text_color' => env('APP_PRIMARY_TEXT_COLOR'),
+    'primary_color' => env('APP_PRIMARY_COLOR', '#096FA9'),
+    'primary_text_color' => env('APP_PRIMARY_TEXT_COLOR', '#fff'),
 
     'show_dev_tips' => true, // Show development tip "How To Use:" in Menu and Settings
 

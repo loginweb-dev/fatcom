@@ -68,10 +68,10 @@
                                     </div> --}}
                                 
                                     <!-- Sign up button -->
-                                    <button class="btn principal-color text-white my-4 btn-block" type="submit">Registarse</button>
+                                    <button class="btn principal-color my-4 btn-block" type="submit">Registarse</button>
                                 
                                     <!-- Social register -->
-                                    <p>o inicia sesión desde:</p>
+                                    <p>o regístrate con:</p>
                                 
                                     <a href="{{url('login/facebook')}}" class="btn btn-outline-primary waves-effect">
                                         <i class="fab fa-facebook-f"></i> Desde Facebook
@@ -85,7 +85,7 @@
                                     <!-- Terms of service -->
                                     <p>
                                         Al registrame acepto los terminos de licencia
-                                        <a href="#" target="_blank">términos de registro</a>
+                                        <a href="{{ url('policies') }}" target="_blank">términos de registro</a>
                                     </p>
                                 
                                 </form>
