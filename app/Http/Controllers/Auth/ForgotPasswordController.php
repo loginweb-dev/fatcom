@@ -29,4 +29,8 @@ class ForgotPasswordController extends Controller
     {
         $this->middleware('guest');
     }
+
+    public function showLinkRequestForm(){
+        return setting('admin.ecommerce') ? view('ecommerce.'.setting('admin.ecommerce').'.auth.password.email') : view('auth.password.email');
+    }
 }

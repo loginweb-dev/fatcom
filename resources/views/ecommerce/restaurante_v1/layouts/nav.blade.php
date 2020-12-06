@@ -123,7 +123,7 @@
                 @endif
                 <li class="nav-item">
                     <a class="nav-link waves-effect waves-light dark-grey-text font-weight-bold" href="{{ route('login') }}">
-                        <i class="fas fa-sign-in-alt black-text"></i> Login
+                        <i class="fas fa-sign-in-alt black-text"></i> Iniar sesión
                     </a>
                 </li>
             @else

@@ -24,3 +24,11 @@
         @endif --}}
     </div>
 @stop
+
+@section('javascript')
+    <script>
+        localStorage.clear();
+        sessionStorage.clear();
+        console.log('clear');
+    </script>
+@endsection

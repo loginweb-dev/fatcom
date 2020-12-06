@@ -28,7 +28,7 @@ use App\IeCaja;
 class LandingPageController extends Controller
 {
     public function index(){
-        $categorias = Categoria::with('subcategorias')->where('deleted_at', NULL)->where('id', '>', 1)->get();
+        $categorias = Categoria::with('subcategorias.productos')->where('deleted_at', NULL)->where('id', '>', 1)->get();
 
         $marcas = DB::table('marcas as m')
                             ->join('productos as p', 'p.marca_id', 'm.id')

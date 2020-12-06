@@ -22,7 +22,7 @@
   <section>
     @include('ecommerce.restaurante_v1.layouts.carrusel')
     <div style="position:absolute;top:100px;right:10px;z-index:1">
-        <a href="tel:+591{{ setting('empresa.celular') }}" class="btn btn-success"> Llamar <span class="fa fa-phone"></span> </a>
+        <a href="tel:+591{{ setting('empresa.celular') }}" class="btn principal-color"> Llamar <span class="fa fa-phone"></span> </a>
     </div>
   </section>
   <!-- Intro -->
