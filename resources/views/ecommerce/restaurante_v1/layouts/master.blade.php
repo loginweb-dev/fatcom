@@ -31,6 +31,7 @@
     <style>
         body{
             font-family: 'Open Sans', sans-serif;
+            height: 100%;
         }
         .principal-color{
             background-color: #FBBC00 !important;
@@ -56,42 +57,6 @@
             .movil-hidden {
                 display: none !important;
             }
-        }
-
-        /* Alertas ohsanp */
-        .oh-alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid #eed3d7;
-            border-radius: 4px;
-            position: fixed;
-            bottom: 0px;
-            right: 21px;
-            /* Each alert has its own width */
-            float: right;
-            clear: right;
-            background-color: white;
-            z-index: 1000000;
-        }
-        .oh-alert-red {
-            color: white;
-            background-color: #DA4453;
-        }
-        .oh-alert-green {
-            color: white;
-            background-color: #37BC9B;
-        }
-        .oh-alert-blue {
-            color: white;
-            background-color: #4A89DC;
-        }
-        .oh-alert-yellow {
-            color: white;
-            background-color: #F6BB42;
-        }
-        .oh-alert-orange {
-            color:white;
-            background-color: #E9573F;
         }
     </style>
 

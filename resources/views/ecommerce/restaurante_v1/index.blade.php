@@ -20,7 +20,19 @@
 @section('content')
   <!-- Intro -->
   <section>
-    @include('ecommerce.restaurante_v1.layouts.carrusel')
+
+    {{-- Banner --}}
+    <div class="bg" style="margin-top: 70px">
+      <div style="position:absolute;bottom:100px;right:10px;z-index:1">
+        <a href="https://play.google.com/store/apps/details?id=com.loginweb.pizzastatu" target="_blank">
+            <img src="{{ url('ecommerce_public/templates/restaurante_v1/media/btn-google-play.png') }}" width="100px" alt="button google play">
+        </a>
+        <a href="#" class="btn-info-ios">
+            <img src="{{ url('ecommerce_public/templates/restaurante_v1/media/btn-app-store.png') }}" width="100px" alt="button google play">
+        </a>
+      </div>
+    </div>
+
     <div style="position:absolute;top:100px;right:10px;z-index:1">
         <a href="tel:+591{{ setting('empresa.celular') }}" class="btn principal-color"> Llamar <span class="fa fa-phone"></span> </a>
     </div>
@@ -400,6 +412,22 @@
           </a>
         </div>
     </div>
+@endsection
+
+@section('css')
+    <style>
+      .bg {
+        /* The image used */
+        background-image: url("{{ url('ecommerce_public/templates/restaurante_v1/media/banner.png') }}");
+        /* Half height */
+        height: 80vh;
+        /* Center and scale the image nicely */
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        margin-bottom: 50px
+      }
+    </style>
 @endsection
 
 @section('footer')
