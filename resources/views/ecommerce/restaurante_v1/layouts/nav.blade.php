@@ -116,14 +116,14 @@
             @guest
                 @if (Route::has('register'))
                     <li class="nav-item">
-                        <a class="nav-link waves-effect waves-light dark-grey-text font-weight-bold" href="{{ route('register') }}">
-                            <i class="fas fa-edit black-text"></i> Registrarse
+                        <a class="nav-link waves-effect waves-light black-text font-weight-bold" href="{{ route('register') }}">
+                            <i class="fas fa-edit"></i> Registrarse
                         </a>
                     </li>
                 @endif
                 <li class="nav-item">
-                    <a class="nav-link waves-effect waves-light dark-grey-text font-weight-bold" href="{{ route('login') }}">
-                        <i class="fas fa-sign-in-alt black-text"></i> Iniar sesión
+                    <a class="nav-link waves-effect waves-light black-text font-weight-bold" href="{{ route('login') }}">
+                        <i class="fas fa-sign-in-alt"></i> Iniciar sesión
                     </a>
                 </li>
             @else

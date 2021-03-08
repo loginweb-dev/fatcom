@@ -111,8 +111,8 @@
                     </div>
 
                     <button type="submit" class="btn btn-block login-button">
-                        <span class="signingin hidden"><span class="voyager-refresh"></span> {{ __('voyager::login.loggingin') }}...</span>
-                        <span class="signin">{{ __('voyager::generic.login') }}</span>
+                        <span class="signingin hidden" style="color: {{ env('APP_PRIMARY_TEXT_COLOR', '#fff') }} !important"><span class="voyager-refresh"></span> {{ __('voyager::login.loggingin') }}...</span>
+                        <span class="signin" style="color: {{ env('APP_PRIMARY_TEXT_COLOR', '#fff') }} !important">{{ __('voyager::generic.login') }}</span>
                     </button>
 
                     <a href="{{url('')}}" class="btn btn-danger pull-right" style="padding:9px 20px">

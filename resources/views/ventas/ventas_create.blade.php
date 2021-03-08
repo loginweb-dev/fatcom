@@ -145,7 +145,7 @@
                                                 <th style="width:50px">Extras</th>
                                             @endif
                                             <th>observación</th>
-                                            <th>Unidad</th>
+                                            <th style="@if(setting('admin.modo_sistema') == 'restaurante') display:none @endif">Unidad</th>
                                             <th style="width:150px">Precio</th>
                                             <th style="width:100px">Cantidad</th>
                                             <th colspan="2">Subtotal</th>
@@ -575,7 +575,7 @@
                                                 </td>
                                                 ${buttonExtras}
                                                 <td><input type="text" class="form-control" name="observacion[]"></td>
-                                                <td style="width:120px">
+                                                <td style="width:120px; @if(setting('admin.modo_sistema') == 'restaurante') display:none @endif">
                                                   <select
                                                         name="unidad_id[]"
                                                         id="select-unidad_id-${index_tr}"
@@ -612,7 +612,7 @@
             $('#input_cantidad-'+id).val('1');
 
             // Si se está importando una proforma no se debe actulizar el precio
-            @if(!$proforma_id)
+            @if(!$proforma_id && setting('admin.modo_sistema') == 'repuestos')
             cambio_precio(id,index_tr);
             @endif
 
