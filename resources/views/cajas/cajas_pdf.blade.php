@@ -41,7 +41,7 @@
         <table class="table-header">
             <tr>
                 <td align="center" style="font-size:7px" width="200px">
-                    <img src="{{ url('storage').'/'.str_replace('\\', '/', setting('empresa.logo')) }}" alt="{{ setting('empresa.nombre') }}" width="60px"><br>
+                    <img src="{{ url('storage').'/'.str_replace('\\', '/', setting('empresa.logo')) }}" alt="{{ setting('empresa.nombre') }}" width="150px"><br>
                     <b>{{ setting('empresa.nombre') }}</b><br>
                     @if(setting('empresa.telefono')!='')
                     <b>Telf: {{setting('empresa.telefono')}}</b>

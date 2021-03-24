@@ -1666,7 +1666,7 @@ class VentasController extends Controller
         $venta = new Venta;
 
         $venta->sucursal_id = $sucursal_id;
-        $venta->nro_venta = ($caja_id) ? Venta::where('caja_id', $caja_id)->count() + 1 : NULL;
+        $venta->nro_venta = $sucursal_id ? Venta::where('sucursal_id', $sucursal_id)->whereDate('created_at', date('Y-m-d'))->count() + 1 : NULL;
         $venta->cliente_id = $data->cliente_id;
         $venta->fecha = date('Y-m-d');
         $venta->nro_factura = $nro_factura;

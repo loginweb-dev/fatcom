@@ -559,8 +559,11 @@
             let buttonExtras = '';
             let url_extras = "{{ url('admin/ventas/crear/extras_producto') }}";
 
+            let decimal_price, decimal_stock = '0.01';
             @if (setting('admin.modo_sistema')=='restaurante')
                 buttonExtras = `<td><a href="" data-toggle="modal" data-target="#modal-lista_extras" onclick="verExtras('${url_extras}', '${index_tr}', ${sucursal_id})" class="btn btn-success btn-sm btn-list_extras" style="text-decoration:none" title="Lista de extras"><i class="voyager-list-add"></i></a></td>`;
+                decimal_price = '0.1';
+                decimal_stock = '1'
             @endif
 
             if(existe){
@@ -589,7 +592,7 @@
                                                 </td>
                                                 <td>
                                                     <div class="input-group">
-                                                        <input type="number" ${editar_precio} id="input-precio_${index_tr}" min="${editar_precio == '' ? 0 : precio_minimo}" step="0.01" data-precio="${precio}" value="${precio}" name="precio[]" class="form-control input-precio" onchange="subtotal('${index_tr}');" onkeyup="subtotal('${index_tr}')" required />
+                                                        <input type="number" ${editar_precio} id="input-precio_${index_tr}" min="${editar_precio == '' ? 0 : precio_minimo}" step="${decimal_price}" data-precio="${precio}" value="${precio}" name="precio[]" class="form-control input-precio" onchange="subtotal('${index_tr}');" onkeyup="subtotal('${index_tr}')" required />
                                                         <span class="input-group-addon">Bs.</span>
                                                     </div>
                                                     <input type="hidden" id="input-extras_id_${index_tr}" name="extras_id[]" />
@@ -598,7 +601,7 @@
                                                     <input type="hidden" id="input-total_extras_${index_tr}" name="total_extras[]" value="0" />
                                                     <div class="text-center text-success"><small id="label-extras_${index_tr}"></small></div>
                                                 </td>
-                                                <td><input type="number" min="0.1" max="${stock}" step="0.01" class="form-control" id="input-cantidad_${index_tr}" value="${cantidad}" step="0.01" name="cantidad[]" onchange="subtotal('${index_tr}', '${id}')" onkeyup="subtotal('${index_tr}', '${id}')" required></td>
+                                                <td><input type="number" min="${decimal_stock}" max="${stock}" class="form-control" id="input-cantidad_${index_tr}" value="${cantidad}" step="${decimal_stock}" name="cantidad[]" onchange="subtotal('${index_tr}', '${id}')" onkeyup="subtotal('${index_tr}', '${id}')" required></td>
                                                 <td class="label-subtotal" id="subtotal-${index_tr}"><h4>${precio} Bs.</h4></td>
                                                 <td width="40px"><label onclick="borrarDetalle('${index_tr}')" class="text-danger" style="cursor:pointer;font-size:20px"><span class="voyager-trash"></span></label></td>
                                             <tr>`);

@@ -23,7 +23,11 @@
             <div class="card mb-3 @if($item->venta_estado_id==3) ticket-active @endif" id="card-{{ $item->id }}">
                 <div class="row no-gutters" style="@if($pedido_visualizado) margin-top:20px @endif">
                     <div class="col-md-12" style="@if($pedido_visualizado) height:420px @endif">
-                        <h1 class="text-center" style="@if($pedido_visualizado) font-size:250px @else font-size:80px @endif">T-{{ $item->nro_venta }}</h1>
+                        @php
+                            // En caso de que el número de ticket sea demasiado largo redimensionar el texto 
+                            $text_size = strlen($item->nro_venta);
+                        @endphp
+                        <h1 class="text-center" style="@if($pedido_visualizado) {{ $text_size > 3 ? 'font-size:180px' : 'font-size:250px' }} @else font-size:80px @endif">T-{{ $item->nro_venta }}</h1>
                         @if($pedido_visualizado)
                         <p class="card-text" style="margin:10px;font-size:30px;white-space: nowrap;"><small>{{ $detalle }}</small></p>
                         <p class="card-text text-right" style="margin:10px;font-size:25px"><small>{{ \Carbon\Carbon::parse($item->created_at)->diffForHumans() }}</small></p>
