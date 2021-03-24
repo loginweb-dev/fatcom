@@ -184,7 +184,7 @@ class CajasController extends Controller
         // dd($registros);
 
         $pdf = \App::make('dompdf.wrapper');
-        return view('cajas.cajas_pdf', compact('registros'));
+        // return view('cajas.cajas_pdf', compact('registros'));
         $pdf->loadHTML(view('cajas.cajas_pdf', compact('registros')))->setPaper('letter', 'landscape');
         return $pdf->stream();
     }

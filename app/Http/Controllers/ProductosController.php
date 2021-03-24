@@ -620,7 +620,7 @@ class ProductosController extends Controller
         try {
             DB::table('productos')
                     ->where('id', $data->id)
-                    ->update(['deleted_at' => Carbon::now()]);
+                    ->update(['slug' => $data->id.'-'.Carbon::now(),  'deleted_at' => Carbon::now()]);
             DB::commit();
             return redirect()->route('productos_index')->with(['message' => 'Producto eliminado correctamente.', 'alert-type' => 'success']);
         } catch (\Exception $e) {
