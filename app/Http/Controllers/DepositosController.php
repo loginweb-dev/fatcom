@@ -619,18 +619,11 @@ class DepositosController extends Controller
         // Si el stock ingresado es mayor al stock actual se hace un simple increment
         if($request->stock > $request->stock_actual){
             DB::table('productos')->where('id', $request->producto_id)->increment('stock', ($request->stock - $request->stock_actual));
-            $this->edit_producto_deposito($request->deposito_id, $request->producto_id, 'stock', $request->stock);
         }else{
             DB::table('productos')->where('id', $request->producto_id)->decrement('stock', ($request->stock_actual - $request->stock));
-            // Si el stock ingresado es menor al stock (no de compra) del almacen se actualiza
-            // Si no se pone el stock en cero y se le decrementa al stock de compra 
-            if($request->stock <= $producto_deposito->stock){
-                $this->edit_producto_deposito($request->deposito_id, $request->producto_id, 'stock', $request->stock);
-            }else{
-                $this->edit_producto_deposito($request->deposito_id, $request->producto_id, 'stock', 0);
-                $this->edit_producto_deposito($request->deposito_id, $request->producto_id, 'stock_compra', ($producto_deposito->stock - $request->stock));
-            }
         }
+        $this->edit_producto_deposito($request->deposito_id, $request->producto_id, 'stock', $request->stock);
+        $this->edit_producto_deposito($request->deposito_id, $request->producto_id, 'stock_compra', 0);
         return redirect()->route('depositos_view', ['id' => $request->deposito_id])->with(['message' => 'Stock de producto actualizado exitosamenete.', 'alert-type' => 'success']);
     }
 

@@ -133,7 +133,7 @@ class DosificacionesController extends Controller
 
     public function get_dosificacion(){
         $fecha_actual = date('Y-m-d');
-        return Dosificacione::where('activa', 1)->where('fecha_limite', '>', $fecha_actual)->select('id', 'nro_autorizacion', 'numero_actual', 'llave_dosificacion', 'fecha_limite')->first();
+        return Dosificacione::where('activa', 1)->where('fecha_limite', '>=', $fecha_actual)->select('id', 'nro_autorizacion', 'numero_actual', 'llave_dosificacion', 'fecha_limite')->first();
     }
 
 }
