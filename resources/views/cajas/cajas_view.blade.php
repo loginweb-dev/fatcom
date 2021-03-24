@@ -31,6 +31,8 @@
                         <div class="col-md-12">
                             <div class="panel panel-bordered">
                                 <div class="row">
+                                    
+                                    @if (Auth::user()->role_id <= 3)
                                     <div class="col-md-6">
                                         <div class="row">
                                             <div class="col-md-6" style="margin:0px">
@@ -77,12 +79,33 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <hr style="margin:0;">
+                                        <div class="row">
+                                            <div class="col-md-6" style="margin:0px">
+                                                <div class="panel-heading" style="border-bottom:0;">
+                                                    <h3 class="panel-title">Monto de cierre</h3>
+                                                </div>
+                                                <div class="panel-body" style="padding-top:0;">
+                                                    <p id="label-total">{{$caja->monto_real}} Bs.</p>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6" style="margin:0px">
+                                                <div class="panel-heading" style="border-bottom:0;">
+                                                    <h3 class="panel-title">Monto faltante</h3>
+                                                </div>
+                                                <div class="panel-body" style="padding-top:0;">
+                                                    <p id="label-faltante">{{$caja->monto_faltante}} Bs.</p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    @endif
+
+                                    <div class="{{ Auth::user()->role_id <= 3 ? 'col-md-6' : 'col-md-12' }}">
                                         @if($caja->abierta)
                                             <div class="row">
                                                 <div class="col-md-12" style="margin:0px">
-                                                    <div class="panel-body" style="padding-top:0;max-height:200px;overflow-y:auto">
+                                                    <div class="panel-body" style="padding-top:0;max-height:400px;overflow-y:auto">
                                                         <table class="table table-hover">
                                                             <thead>
                                                                 <tr>
@@ -108,25 +131,6 @@
                                                 </div>
                                             </div>
                                         @endif
-                                        <hr style="margin:0;">
-                                        <div class="row">
-                                            <div class="col-md-6" style="margin:0px">
-                                                <div class="panel-heading" style="border-bottom:0;">
-                                                    <h3 class="panel-title">Monto de cierre</h3>
-                                                </div>
-                                                <div class="panel-body" style="padding-top:0;">
-                                                    <p id="label-total">{{$caja->monto_real}} Bs.</p>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6" style="margin:0px">
-                                                <div class="panel-heading" style="border-bottom:0;">
-                                                    <h3 class="panel-title">Monto faltante</h3>
-                                                </div>
-                                                <div class="panel-body" style="padding-top:0;">
-                                                    <p id="label-faltante">{{$caja->monto_faltante}} Bs.</p>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -136,6 +140,11 @@
                         <div class="col-md-12">
                             <div class="panel panel-bordered">
                                 <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-md-12 text-center">
+                                            <h4>Detalles de caja</h4>
+                                        </div>
+                                    </div>
                                     <div class="col-md-6">
                                         <div class="table-responsive" style="height:300px">
                                             <table class="table table-hover">
@@ -178,14 +187,16 @@
                                                 </tbody>
                                             </table>
                                         </div>
-                                        <div class="text-right">
-                                            <h4>Total ingresos: {{number_format($total_ingreso, 2, ',', '')}} Bs.</h4>
-                                        </div>
-                                        @if($ingresos_borrados)
-                                        <div class="alert alert-danger">
-                                            <strong>Atención:</strong>
-                                            <p>Se eliminaron {{$ingresos_borrados}} resgistro(s) de ingreso, sumando un total de <b>{{number_format($total_ingresos_borrados, 2, ',', '')}}</b> Bs.</p>
-                                        </div>
+                                        @if (Auth::user()->role_id <= 3)
+                                            <div class="text-right">
+                                                <h4>Total ingresos: {{number_format($total_ingreso, 2, ',', '')}} Bs.</h4>
+                                            </div>
+                                            @if($ingresos_borrados)
+                                            <div class="alert alert-danger">
+                                                <strong>Atención:</strong>
+                                                <p>Se eliminaron {{$ingresos_borrados}} resgistro(s) de ingreso, sumando un total de <b>{{number_format($total_ingresos_borrados, 2, ',', '')}}</b> Bs.</p>
+                                            </div>
+                                            @endif
                                         @endif
                                     </div>
                                     <div class="col-md-6">
@@ -230,14 +241,16 @@
                                                 </tbody>
                                             </table>
                                         </div>
-                                        <div class="text-right">
-                                            <h4>Total egresos: {{number_format($total_egreso, 2, ',', '')}} Bs.</h4>
-                                        </div>
-                                        @if($egresos_borrados)
-                                        <div class="alert alert-danger">
-                                            <strong>Atención:</strong>
-                                            <p>Se eliminaron {{$egresos_borrados}} resgistro(s)de engreso, sumando un total de <b>{{number_format($total_egresos_borrados, 2, ',', '')}}</b> Bs.</p>
-                                        </div>
+                                        @if (Auth::user()->role_id <= 3)
+                                            <div class="text-right">
+                                                <h4>Total egresos: {{number_format($total_egreso, 2, ',', '')}} Bs.</h4>
+                                            </div>
+                                            @if($egresos_borrados)
+                                            <div class="alert alert-danger">
+                                                <strong>Atención:</strong>
+                                                <p>Se eliminaron {{$egresos_borrados}} resgistro(s)de engreso, sumando un total de <b>{{number_format($total_egresos_borrados, 2, ',', '')}}</b> Bs.</p>
+                                            </div>
+                                            @endif
                                         @endif
                                     </div>
                                 </div>
@@ -309,7 +322,7 @@
             cortes.map(function(value){
                 $('#lista_cortes').append(`<tr>
                                 <td><h4><img src="{{url('img/billetes/${value}.jpg')}}" alt="${value} Bs." width="80px"> ${value} Bs. </h4></td>
-                                <td><input type="number" min="0" step="0.01" style="width:100px" data-value="${value}" class="form-control input-corte" value="0" required></td>
+                                <td><input type="number" min="0" step="1" style="width:100px" data-value="${value}" class="form-control input-corte" value="0" required></td>
                                 <td><label id="label-${value.replace('.', '')}">0.00 Bs.</label><input type="hidden" class="input-subtotal" id="input-${value.replace('.', '')}"></td>
                             </tr>`)
             });

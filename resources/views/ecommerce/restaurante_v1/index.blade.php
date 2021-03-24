@@ -176,8 +176,8 @@
                                           @endif
                                       </h5>
                                       <span class="float-right">
-                                        <a class="" onclick="addCart({{ $item->id }})" data-toggle="tooltip" data-placement="top" title="Agregar a carrito">
-                                          <i class="fas fa-shopping-cart ml-3"></i>
+                                        <a class="" onclick="addCart({{ $item->id }})">
+                                          <i class="fas fa-shopping-cart fa-2x ml-3" data-toggle="tooltip" data-placement="top" title="Agregar a carrito"></i>
                                         </a>
                                       </span>
                                   </div>
