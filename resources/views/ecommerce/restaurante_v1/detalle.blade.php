@@ -7,21 +7,6 @@
     <meta property="og:title"         content="{{$producto->nombre }}" />
     <meta property="og:description"   content=" {{$producto->descripcion_small }}" />
     <meta property="og:image"         content="{{ ('storage').'/'.$producto->imagen }}" />
-
-    {{-- Script del evento --}}
-    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/es_LA/sdk.js#xfbml=1&version=v3.3&appId=302829090588863&autoLogAppEvents=1"></script>
-@endsection
-
-@section('chat_facebook')
-    <!-- Your customer chat code -->
-    <div class="fb-customerchat"
-		attribution=setup_tool
-		page_id="277693723065936"
-		theme_color="#ffc300"
-		logged_in_greeting="Hola! Te puedo ayudar ?"
-		logged_out_greeting="Hola! Te puedo ayudar ?">
-	</div>
-    <!-- End your customer chat code -->
 @endsection
 
 @section('navigation')

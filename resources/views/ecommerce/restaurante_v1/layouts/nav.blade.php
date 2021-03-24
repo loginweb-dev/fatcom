@@ -129,7 +129,7 @@
             @else
                 <li class="nav-item dropdown">
                     <a id="navbarDropdown" class="nav-link dropdown-toggle waves-effect waves-light dark-grey-text font-weight-bold" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                        <i class="far fa-address-card black-text"></i> <span class="clearfix d-none d-sm-inline-block black-text">Carrito</span> <span class="caret"></span>
+                        <i class="far fa-address-card black-text"></i> <span class="clearfix d-none d-sm-inline-block black-text">Hola, {{ Auth::user()->name }}</span> <span class="caret"></span>
                     </a>
 
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">

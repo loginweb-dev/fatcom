@@ -6,12 +6,10 @@
         <h1 class="page-title">
             <i class="voyager-treasure"></i> Cajas
         </h1>
-        @if(!$abiertas)
-            @if(auth()->user()->hasPermission('add_cajas'))
-            <a  href="{{route('cajas_create')}}" class="btn btn-success btn-add-new">
-                <i class="voyager-plus"></i> <span>Añadir nueva</span>
-            </a>
-            @endif
+        @if(auth()->user()->hasPermission('add_cajas'))
+        <a  href="{{route('cajas_create')}}" class="btn btn-success btn-add-new">
+            <i class="voyager-plus"></i> <span>Añadir nueva</span>
+        </a>
         @endif
     @stop
 
@@ -33,7 +31,15 @@
                                                     <button class="btn btn-default" style="margin-top:0px;padding:8px" type="submit">
                                                         <i class="voyager-search"></i>
                                                     </button>
+                                                    @if ($value != '')
+                                                        <a href="{{ url('admin/cajas') }}" class="btn btn-danger" style="margin-top:0px;padding:8px" type="button">
+                                                            <i class="voyager-x"></i>
+                                                        </a>
+                                                    @endif
                                                 </span>
+                                            </div>
+                                            <div class="text-right">
+                                                <span class="text-muted">Cambia la fecha y presiona el ícono de lupa</span>
                                             </div>
                                         </form>
                                     </div>
@@ -59,7 +65,7 @@
                                             @forelse($cajas as $item)
                                             <tr>
                                                 <td>{{$item->id}}</td>
-                                                <td>{{$item->nombre}}</td>
+                                                <td>{{$item->nombre}} <br> <small><b>{{ $item->user_name }} - {{ $item->sucursal }}</b></small> </td>
                                                 {{-- <td>{{$item->monto_inicial}} Bs.</td> --}}
                                                 <td>{{$item->total_ingresos}} Bs.</td>
                                                 <td>{{$item->total_egresos}} Bs.</td>
@@ -71,7 +77,7 @@
                                                 <td>{{ strftime('%d-%B-%Y %H:%M', strtotime($item->fecha_cierre.' '.$item->hora_cierre)) }}<br><small>{{  \Carbon\Carbon::parse($item->fecha_cierre.' '.$item->hora_cierre)->diffForHumans() }}</small></td>
                                                 @endif
                                                 {{-- <td>{{$item->observaciones}}</td> --}}
-                                                <td class="no-sort no-click text-right" id="bread-actions">
+                                                <td class="no-sort no-click tex-left" id="bread-actions">
                                                     @if($item->abierta == 1)
                                                         <span class="label label-primary">Abierta</span>
                                                     @else
@@ -81,9 +87,11 @@
                                                     <a href="{{route('cajas_view', ['id' => $item->id])}}" title="Ver" class="btn btn-sm btn-warning view">
                                                         <i class="voyager-eye"></i> <span class="hidden-xs hidden-sm">Ver</span>
                                                     </a>
-                                                    <a href="{{route('cajas_generarPDF', ['id' => $item->id])}}" target="_blank" title="Generar PDF" class="btn btn-sm btn-danger">
-                                                        <i class="voyager-cloud-download"></i> <span class="hidden-xs hidden-sm">PDF</span>
-                                                    </a>
+                                                    @if($item->abierta != 1)
+                                                        <a href="{{route('cajas_generarPDF', ['id' => $item->id])}}" target="_blank" title="Generar PDF" class="btn btn-sm btn-danger">
+                                                            <i class="voyager-cloud-download"></i> <span class="hidden-xs hidden-sm">PDF</span>
+                                                        </a>
+                                                    @endif
                                                     @endif
                                                 </td>
                                             </tr>

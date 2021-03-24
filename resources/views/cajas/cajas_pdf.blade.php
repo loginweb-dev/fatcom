@@ -86,7 +86,10 @@
                     <td style="text-align:center"><b>{{ $registros[0]['monto_real'] }}</b></td>
                     <td>Faltante</td>
                     <td>:</td>
-                    <td style="text-align:center"><b>{{ $registros[0]['monto_real'] }}</b></td>
+                    @php
+                        $faltante = $registros[0]['monto_final'] - $registros[0]['monto_real'];
+                    @endphp
+                    <td style="text-align:center"><b>{{ number_format( $faltante > 0 ? $faltante : 0, 2, '.', '') }}</b></td>
                 </tr>
             </table>
             <br>

@@ -283,6 +283,7 @@ class VentasController extends Controller
                             ->select('c.*')
                             ->where('c.abierta', 1)
                             ->where('c.sucursal_id', $sucursal_actual)
+                            ->where('c.user_id', Auth::user()->id)
                             ->first();
         $abierta = false;
         if($aux){
@@ -420,7 +421,7 @@ class VentasController extends Controller
                 if($efectivo){
 
                     // Obtener la caja abierta de la sucursal
-                    $caja_actual = IeCaja::where('sucursal_id', $data->sucursal_id)->where('abierta', 1)->where('deleted_at', NULL)->first();
+                    $caja_actual = IeCaja::where('sucursal_id', $data->sucursal_id)->where('abierta', 1)->where('user_id', Auth::user()->id)->where('deleted_at', NULL)->first();
                     $caja_id = $caja_actual ? $caja_actual->id : 0;
 
                     // Crear asiento de ingreso si no es un pedido a domicilio
@@ -1650,7 +1651,7 @@ class VentasController extends Controller
         $efectivo = isset($data->efectivo) ? 0 : 1;
 
         // Obtener la caja abierta de la sucursal
-        $caja_actual = IeCaja::where('sucursal_id', $sucursal_id)->where('abierta', 1)->where('deleted_at', NULL)->first();
+        $caja_actual = IeCaja::where('sucursal_id', $sucursal_id)->where('abierta', 1)->where('user_id', Auth::user()->id)->where('deleted_at', NULL)->first();
         $caja_id = $caja_actual ? $caja_actual->id : 0;
 
         $venta_estado_id = DB::table('ventas_detalle_tipo_estados as d')

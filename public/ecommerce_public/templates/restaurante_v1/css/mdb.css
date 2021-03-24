@@ -9769,10 +9769,10 @@ select {
     color: #757575;
     transition: 0.4s; }
     .card.card-ecommerce .card-footer a:hover {
-      color: #d50000;
+      color: #FBBC00;
       transition: 0.4s; }
     .card.card-ecommerce .card-footer a.active {
-      color: #d50000; }
+      color: #FBBC00; }
 
 .product-table .btn.btn-sm {
   padding: 0.3rem 0.6rem; }

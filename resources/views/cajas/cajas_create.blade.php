@@ -26,6 +26,7 @@
                                                     <option value="{{$item->id}}">{{$item->nombre}}</option>
                                                 @endforeach
                                             </select>
+                                            <span class="text-muted">En caso de no tener ninguna sucursal en la lista es porque tienes una caja sin cerrar</span>
                                         </div>
                                         <div class="row">
                                             <div class="form-group col-md-6">
@@ -40,7 +41,7 @@
                                         <div class="row">
                                             <div class="form-group col-md-6">
                                                 <label>Descripción</label>@if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Descripción de la caja. Este campo es obligatorio."></span> @endif
-                                                <input type="text" class="form-control" name="nombre" required>
+                                                <input type="text" class="form-control" name="nombre" placeholder="caja 1" required>
                                             </div>
                                             <div class="form-group col-md-6">
                                                 <label>Monto de apertura</label>@if(setting('admin.tips')) <span class="voyager-question text-info pull-right" data-toggle="tooltip" data-placement="left" title="Monto de apertura de la caja, en caso de abrir la caja sin efectivo ingresar 0. Este campo es obligatorio."></span> @endif
